@@ -156,12 +156,12 @@
   },
   {
     "id": "F32",
-    "status": "not-found",
+    "status": "ok",
     "url": "https://platform.claude.com/docs/en/managed-agents/multiagent-orchestration"
   },
   {
     "id": "F33",
-    "status": "not-found",
+    "status": "ok",
     "url": "https://platform.claude.com/docs/en/managed-agents/session-threads"
   },
   {

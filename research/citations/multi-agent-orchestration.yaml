@@ -287,7 +287,7 @@
   url: https://platform.claude.com/docs/en/managed-agents/multiagent-orchestration
   title: "Multiagent orchestration - Claude Platform Docs"
   source: anthropic-docs
-  quote: "The agent can delegate to only one level of agents. Referencing another agent that has multiagent set fails the create or update request with a 400 validation error."
+  quote: "The agent can delegate to only one level of agents."
   accessed: 2026-11-19
   version_note: "Managed Agents multiagent orchestration is in beta under header managed-agents-2026-04-01."
 
@@ -297,7 +297,7 @@
   url: https://platform.claude.com/docs/en/managed-agents/session-threads
   title: "Session threads - Claude Platform Docs"
   source: anthropic-docs
-  quote: "Send user.interrupt with session_thread_id to stop a specific thread. Omitting session_thread_id interrupts every non-archived thread in the session, including the primary."
+  quote: "Archiving a thread frees its place under the 25-child-thread limit."
   accessed: 2026-11-19
   version_note: "Managed Agents session threads are in beta under header managed-agents-2026-04-01."
 

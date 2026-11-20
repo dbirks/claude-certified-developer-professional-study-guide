@@ -81,7 +81,7 @@
   },
   {
     "id": "F17",
-    "status": "not-found",
+    "status": "ok-loose",
     "url": "https://platform.claude.com/docs/en/managed-agents/session-operations"
   },
   {

@@ -73,10 +73,10 @@
 - id: F9
   claim: "A temperature of zero does not make Claude fully deterministic; reproduce a suspected nondeterministic failure across repeated trials."
   tag: FACT
-  url: https://platform.claude.com/docs/en/api/csharp/messages/create
-  title: "Create a Message"
+  url: "https://platform.claude.com/docs/en/about-claude/glossary"
+  title: "Glossary"
   source: anthropic-docs
-  quote: "Note that even with temperature of 0.0, the results will not be fully deterministic."
+  quote: "Even with temperature set to 0, the results will not be fully deterministic, and identical inputs might produce different outputs across API calls."
   accessed: 2026-11-19
 
 - id: F10

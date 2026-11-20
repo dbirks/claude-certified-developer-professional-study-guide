@@ -41,8 +41,8 @@
   },
   {
     "id": "F9",
-    "status": "not-found",
-    "url": "https://platform.claude.com/docs/en/api/csharp/messages/create"
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/glossary"
   },
   {
     "id": "F10",

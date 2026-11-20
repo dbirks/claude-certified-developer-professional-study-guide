@@ -51,7 +51,7 @@
   },
   {
     "id": "F11",
-    "status": "not-found",
+    "status": "ok",
     "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
   },
   {
@@ -81,7 +81,7 @@
   },
   {
     "id": "F17",
-    "status": "not-found",
+    "status": "ok",
     "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool"
   },
   {

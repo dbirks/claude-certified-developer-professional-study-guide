@@ -126,8 +126,8 @@
   },
   {
     "id": "F26",
-    "status": "fetch-failed",
-    "url": "https://online.stat.psu.edu/stat509/Lesson08"
+    "status": "ok",
+    "url": "https://www.itl.nist.gov/div898/handbook/ppc/section3/ppc333.htm"
   },
   {
     "id": "F27",
@@ -136,8 +136,8 @@
   },
   {
     "id": "F28",
-    "status": "fetch-failed",
-    "url": "https://online.stat.psu.edu/stat555/node/43/"
+    "status": "ok",
+    "url": "https://www.nationalacademies.org/read/10732/chapter/13"
   },
   {
     "id": "F29",
