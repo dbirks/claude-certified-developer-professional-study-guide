@@ -61,10 +61,6 @@
   margin: var(--space-1) 0;
 }
 
-.prose strong {
-  font-weight: 700;
-}
-
 .prose blockquote {
   border-left: 3px solid var(--border-strong);
   padding: var(--space-1) 0 var(--space-1) var(--space-4);
@@ -134,11 +130,6 @@
   border: 0;
   border-top: 1px solid var(--border);
   margin: var(--space-5) 0;
-}
-
-.prose img {
-  max-width: 100%;
-  height: auto;
 }
 
 /* Explanation columns (usually last) must not collapse into very tall cells on narrow screens;

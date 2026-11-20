@@ -1,10 +1,7 @@
-/* Reading aids: progress bar, copy button, heading anchors, toast, back-to-top, resume pill.
-   The Pagefind search dialog lives in search.css. Colors/fonts come from tokens.css only. */
-
-/* code.css owns pre cosmetics; the copy button is positioned against the block itself. */
-.prose pre {
-  position: relative;
-}
+/* Reading aids: progress bar, copy button, heading anchors, toast, back-to-top.
+   The home resume pill (.home-head .resume) is owned by home.css.
+   The Pagefind search dialog lives in search.css. Colors/fonts come from tokens.css only.
+   (code.css owns `pre { position: relative }`, the containing block for .copy-btn.) */
 
 /* ------------------------------------------------------------------ progress */
 /* Gelato (3g): the topbar "%" pill (with a read bar on desktop) replaces the thin
@@ -134,19 +131,6 @@
 }
 
 .back-to-top[hidden] {
-  display: none;
-}
-
-/* ------------------------------------------------------------- resume (home) */
-.resume {
-  background: var(--pistachio);
-  color: var(--pistachio-body);
-  border-radius: var(--r-sm);
-  padding: 10px 14px;
-  font-size: 15px;
-}
-
-.resume[hidden] {
   display: none;
 }
 
