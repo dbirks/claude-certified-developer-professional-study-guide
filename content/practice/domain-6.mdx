@@ -1,0 +1,168 @@
+---
+title: "Practice: Domain 6 — Cost and Latency Optimization at Scale"
+summary: "9 original scenario questions for Domain 6, with cited rationales."
+kind: reference
+slug: practice-domain-6
+order: 16
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+These are original practice items written for this guide in the style of the official sample items. They are not official exam content. Try each before opening the answer.
+
+**Prompt caching** reuses a processed prompt prefix; a **cache breakpoint** marks its end.<Cite id="F34 F50" /> **Time to first token (TTFT)** measures the wait for the first response; **time to last token (TTLT)** measures the wait for the complete response. **Output tokens per second (OTPS)** measures generation rate between them.<Cite id="F26" />
+
+## Q1. Pinpointing cache breaks behind simultaneous spend and ITPM spikes (Skill 6.1)
+
+A multi-turn customer-triage agent running on `claude-sonnet-5-5` operates at a steady `300 RPM` with an explicit `cache_control: {"type": "ephemeral"}` breakpoint at the end of `system` (`12,000` tokens across `tools` and `system`) and `4,500` tokens of conversation `messages`. Cache diagnostics was enabled on the preceding response. After a release, token spend triples and the API gateway begins receiving HTTP `429 rate_limit_error` responses despite unchanged RPM. Usage logs show `cache_read_input_tokens` dropped from `12,000` to `0`, `cache_creation_input_tokens` jumped from `0` to `12,000`, and `input_tokens` remained `4,500` per turn. Diagnostics reports `system_changed` on consecutive turns.
+
+**Which action best diagnoses and resolves both the spend spike and the HTTP `429` errors?**
+
+- **A.** Enable `diagnostics: {"previous_message_id": ...}` to inspect `cache_miss_reason` and stabilize the earliest diverging block across `tools`, `system`, and `messages`.
+- **B.** Change the `system` cache breakpoint TTL from `5m` to `1h` so cached prefix entries remain valid across multi-turn bursts without re-writing.
+- **C.** Lower `max_tokens` across turns and alert solely on `usage.input_tokens` so each request stays below the per-minute ITPM threshold.
+- **D.** Add exponential-backoff retries on HTTP `429` responses and distribute the `300 RPM` traffic across multiple API keys in the workspace.
+
+<SelfCheck question="Answer to Q1">
+
+**A.** Cache reads do not count against default ITPM rate limits, whereas `input_tokens + cache_creation_input_tokens` do, so every cache break converts zero-ITPM prefix reads (`12,000` tokens) into full-ITPM `1.25x`-priced cache writes while exploding spend.<Cite id="F5 F25" /> Passing `diagnostics.previous_message_id` can identify the first divergence so you can restore a stable prefix; diagnostics can also be unavailable.<Cite id="F6 F11" /> Option B cannot fix a changing prefix; a `1h` cache write costs twice the base input rate.<Cite id="F45" /> Option C fails because `usage.input_tokens` excludes tokens at or before the last breakpoint and `max_tokens` caps only response output, not input ITPM.<Cite id="F10 F18" /> Option D retries a self-inflicted prefix miss without reducing ITPM burn or write cost.<Cite id="F6 F25" />
+
+</SelfCheck>
+
+## Q2. Avoiding the Haiku 5.5 prompt-length pricing cliff (Skill 6.1)
+
+A support-triage agent on `claude-haiku-5-5` caches an `88,000`-token policy packet (`tools` plus `system`) and appends tool results across turns. A dashboard alerting on `usage.input_tokens > 100000` never fires because `usage.input_tokens` averages `9,000`, yet monthly invoices show every token category—cache reads (`$0.05/MTok`), cache writes (`$0.625/MTok`), uncached input (`$0.50/MTok`), and output (`$2.50/MTok`)—billed at `5x` the `<=100,000` rate (`$0.10 / $0.50` per MTok) starting around turn 3 when `cache_read_input_tokens` reaches `95,000` and `input_tokens` is `9,000`.
+
+**Which change best fixes both the monitoring blind spot and the 5x cost jump?**
+
+- **A.** Track total prompt length as `cache_read_input_tokens + cache_creation_input_tokens + input_tokens` (and pre-check with `count_tokens`), compacting history before crossing `100,000` tokens.
+- **B.** Switch the `88,000`-token cache breakpoint from `5m` to `1h` TTL because `1h` cache reads are excluded from Haiku 5.5's prompt-length calculation.
+- **C.** Lower `max_tokens` from `8,192` to `1,024` from turn 3 onward so combined prompt and generated output tokens remain below the `100,000`-token ceiling.
+- **D.** Migrate turn 3 and later requests unchanged to `claude-sonnet-5-5`, which includes a `1M` context window at flat standard rates lower than Haiku 5.5's `>100,000` tier.
+
+<SelfCheck question="Answer to Q2">
+
+**A.** On `claude-haiku-5-5`, crossing `100,000` input tokens—counting `cache_read_input_tokens`, `cache_creation_input_tokens`, and `input_tokens` together—triggers `5x` pricing across all token categories (`$0.50` input, `$0.05` cache read, `$2.50` output per MTok vs. `$0.10 / $0.01 / $0.50`), and `usage.input_tokens` alone only reports uncached tokens after the last breakpoint.<Cite id="F2 F3 F10 F46" /> Summing all three input fields and pre-checking growth with free `POST /v1/messages/count_tokens` calls lets you trigger compaction with headroom below `100,000`.<Cite id="F10 F21" /> Option B fails because cache reads of any TTL count toward Haiku 5.5's prompt length.<Cite id="F3" /> Option C fails because `max_tokens` limits the response rather than reducing input prompt length.<Cite id="F3 F18" /> Option D fails because `claude-sonnet-5-5` standard pricing is `$2 / $10` per MTok—`4x` higher than Haiku 5.5's `>100,000` tier.<Cite id="F1 F4 F46" />
+
+</SelfCheck>
+
+## Q3. Sweeping effort and fixing `max_tokens` truncation before multi-model routing (Skill 6.1)
+
+A nightly code-migration pipeline runs `50,000` repository-patch tasks on `claude-opus-5-5` with `output_config.effort: "high"` and `max_tokens: 4096`, validated by a deterministic compiler and unit-test suite. Logs show `78%` of tasks pass on the first attempt, `14%` fail tests and retry twice on `opus-5-5` at `"high"` (passing only `10%` of retries), and `8%` end with `stop_reason: "max_tokens"` mid-diff and are retried unchanged. A teammate proposes keeping `max_tokens: 4096` and adding the `advisor_20260301` tool backed by `claude-fable-5-2`.
+
+**Which change is the best next test to reduce cost per successful task?**
+
+- **A.** Raise `max_tokens` generously (e.g., `64000`), run initial attempts at `output_config.effort: "low"`, and re-run only verifier failures at `"high"` before adding a second model.
+- **B.** Keep `max_tokens: 4096` and configure `advisor_20260301` with `claude-fable-5-2` so advisor guidance produces shorter patches that avoid token truncation.
+- **C.** Route all `50,000` tasks to `claude-haiku-5-5` at `max_tokens: 4096` with up to five retries because Haiku's per-token rate is `40x` lower than Opus 5.5.
+- **D.** Disable thinking via `thinking: {"type": "disabled"}` while leaving `output_config.effort: "high"` so Opus 5.5 emits code without reasoning token overhead.
+
+<SelfCheck question="Answer to Q3">
+
+**A.** Because `max_tokens` is invisible to Claude, truncating diffs at `4096` tokens can waste billed turns; raising the limit gives longer diffs room to finish.<Cite id="F18" /> With a deterministic verifier, test low effort followed by high effort for failures against the current policy. Compare cost per successful task and quality; sweep single-model effort before adding an advisor.<Cite id="F17 F20" /> Option B leaves the `max_tokens: 4096` truncation bug intact and adds multi-model complexity before tuning one model.<Cite id="F18 F20" /> Option C optimizes per-token rate rather than cost per completed task, but the scenario does not establish its pass rate or retry cost.<Cite id="F15 F16" /> Option D fails because adaptive thinking cannot be turned off, making `output_config.effort` the primary reasoning control.<Cite id="F36 F37" />
+
+</SelfCheck>
+
+## Q4. Enforcing multi-tenant budgets and handling spend-limit errors (Skill 6.1)
+
+A B2B SaaS platform serves `450` enterprise tenants inside a single Scale-tier workspace and polls `GET /v1/organizations/analytics/cost` every `15` minutes to block tenants exceeding their monthly USD quota. During a traffic spike, one tenant spends `$3,200` past its `$500` monthly cap before getting blocked. Meanwhile, a staging workspace returns HTTP `400` (`invalid_request_error`: `"You have reached your specified workspace API usage limits..."`) and a sandbox workspace returns HTTP `429` (`rate_limit_error`, `error_code: "enforced_spend_limit_reached"`, no `retry-after` header); the client wrapper retries both errors five times.
+
+**Which TWO architectural changes resolve the budget overruns and retry waste? (Select TWO.)**
+
+- **A.** Reserve a conservative per-request budget atomically in a gateway, meter response `usage` (including `usage.iterations[]` when applicable), and reconcile against `/v1/organizations/analytics/cost`.
+- **B.** Stop retrying spend-limit errors—both `400 invalid_request_error` user/workspace caps and `429 enforced_spend_limit_reached` tier caps—reserving retries for transient rate limits or overloads.
+- **C.** Provision `450` separate Claude Console Workspaces—one per tenant—and enforce each tenant's `$500` cap directly with Workspace spend limits.
+- **D.** Poll `GET /v1/organizations/analytics/cost` with `time_bucket_width=1m` every `60` seconds so burst spend is caught within one minute.
+- **E.** Move burst-prone tenants onto `POST /v1/messages/batches` inside a spend-limited Workspace so concurrent batch workers halt strictly at the configured cap.
+
+<SelfCheck question="Answer to Q4">
+
+**A and B.** Because the Analytics API refreshes within roughly `4` hours (up to `24` hours) and revises up to `7` days after month-end, use an application gateway to reserve a conservative budget before dispatch, account for concurrent requests, and meter `usage` including advisor `usage.iterations[]`. Reconcile the ledger with `/cost` later. A strict cap also requires bounds on in-flight and unreported charges.<Cite id="F19 F21 F22 F23" /> Neither `400 invalid_request_error` user/workspace limits nor `429 enforced_spend_limit_reached` tier caps (which omit `retry-after`) should be retried because requests keep failing until access resumes.<Cite id="F24 F47" /> Option C hits the default cap of `100` active workspaces per organization.<Cite id="F48" /> Option D still lags by hours regardless of polling cadence.<Cite id="F23" /> Option E fails because concurrent Batch processing can slightly overshoot a Workspace spend limit and introduces async latency.<Cite id="F12 F13" />
+
+</SelfCheck>
+
+## Q5. Diagnosing a TTLT SLO miss when TTFT is already healthy (Skill 6.2)
+
+An interactive legal-brief assistant runs on `claude-opus-5-5` with `stream: true`, a `28,000`-token static precedent packet in `system`, and ~`1,200` output tokens per turn without tool calls. The product SLO requires `p95 TTFT <= 1.2 s` and `p95 TTLT <= 8.0 s`. A representative trace measures `TTFT = 0.75 s`, `TTLT = 13.4 s`, and `OTPS = 95 tok/s`; similar output generation dominates the slow traces. A colleague recommends adding `cache_control: {"type": "ephemeral"}` to `system` so the assistant hits the `8.0 s` TTLT target.
+
+**Which change directly addresses the bottleneck causing the TTLT SLO miss?**
+
+- **A.** Enable `speed: "fast"` on `claude-opus-5-5` (or evaluate `claude-sonnet-5-5` and lower `output_config.effort` against quality evals) to increase OTPS and/or shorten generation.
+- **B.** Add `cache_control: {"type": "ephemeral"}` to the `28,000`-token `system` block so cached prefix hits accelerate output-token generation across the `1,200`-token reply.
+- **C.** Purchase a new Priority Tier capacity commitment (`service_tier: "auto"`) so output token generation runs ahead of standard-tier traffic.
+- **D.** Replace `stream: true` with a single non-streaming call via `stream.get_final_message()` to eliminate SSE framing overhead from TTLT.
+
+<SelfCheck question="Answer to Q5">
+
+**A.** Since `TTLT ≈ calls × TTFT + output tokens ÷ OTPS + overhead` and `TTFT` (`0.75 s`) already clears the `1.2 s` target, the `13.4 s` TTLT is dominated by generating `1,200` tokens at `95 tok/s` (`~12.6 s`).<Cite id="F26 F27" /> Evaluate fast mode (`speed: "fast"`), a faster model such as `claude-sonnet-5-5`, or lower `output_config.effort` against quality and latency measurements.<Cite id="F36 F37 F38 F39 F44" /> Option B fails because prompt caching speeds repeated-prefix processing (TTFT) and does not speed output-token generation.<Cite id="F29" /> Option C is unavailable for new commitments; the documented priority is intended to reduce overload errors, not to guarantee the target.<Cite id="F40 F41" /> Option D removes progressive rendering without meaningfully reducing generation time.<Cite id="F28" />
+
+</SelfCheck>
+
+## Q6. Parallelizing independent tool calls and obeying `tool_result` rules (Skill 6.2)
+
+A customer-support agent on `claude-sonnet-5-5` has a `3.0 s` p95 end-to-end latency target. In one assistant turn, Claude emits three read-only `tool_use` blocks (`get_customer_profile`: `210 ms`, `get_order_status`: `480 ms`, `get_shipment_events`: `340 ms`), followed by a synthesis call (`TTFT = 0.55 s`, generation `0.90 s`). Currently, the orchestrator executes the three tools sequentially (`1,030 ms` total) and returns each `tool_result` in its own `role: "user"` message, sometimes followed by a text summary note. On refund requests, Claude occasionally emits `issue_refund` in the same turn as `get_order_status`.
+
+**Which change best lowers tool-stage latency while preserving API validity and safety?**
+
+- **A.** Execute the three independent read-only tools concurrently (within pool bounds), send all matching `tool_result` blocks in one `role: "user"` message before any text, and keep state-mutating calls serialized.
+- **B.** Set `tool_choice: {"type": "auto", "disable_parallel_tool_use": true}` so Claude requests one tool per response and each `tool_result` cleanly stays in its own `role: "user"` message.
+- **C.** Enable `eager_input_streaming: true` and invoke `issue_refund` as soon as `"amount"` streams in `input_json_delta` so side effects overlap with model generation.
+- **D.** Execute the three read-only tools concurrently in a worker pool, then send three consecutive `role: "user"` messages—one per `tool_result`—to keep independent turn boundaries.
+
+<SelfCheck question="Answer to Q6">
+
+**A.** Running the three independent read-only calls concurrently reduces the tool join from `1,030 ms` to `~480 ms` (the slowest branch), and returning one `tool_result` per `tool_use_id` all together in the single next `role: "user"` message before any text block satisfies the parallel tool-use contract while engineering practice keeps state-mutating operations like refunds serialized.<Cite id="F32" /> Option B forces three sequential model round trips (`calls × TTFT`), increasing end-to-end latency.<Cite id="F27 F33" /> Option C risks executing a non-idempotent refund from partial, unvalidated, or `max_tokens`-truncated JSON.<Cite id="F31" /> Option D violates the Messages API requirement to place every `tool_result` for that turn together in one next user message.<Cite id="F32" />
+
+</SelfCheck>
+
+## Q7. Fixing mixed-TTL ordering errors and cache breakpoint placement (Skill 6.2)
+
+An interactive code-review assistant sends `3,500` tokens of `tools`, a `10,500`-token `system` codebase guide prefixed with a `request_timestamp` that changes on every request and a `user_id`, and multi-turn `messages`. About `15%` of user turns follow a `12`-to-`40`-minute engineer review pause (rarely exceeding `60` minutes). Adding `cache_control: {"type": "ephemeral", "ttl": "5m"}` on `tools` and `{"type": "ephemeral", "ttl": "1h"}` on `system` immediately fails with HTTP `400`; removing the `5m` marker on `tools` clears the `400`, yet `p95 TTFT` stays flat and `cache_read_input_tokens` stays `0`.
+
+**Which fix resolves both the HTTP `400` error and the zero cache-hit rate?**
+
+- **A.** Move `request_timestamp` and `user_id` after the cached prefix into trailing user content, place `1h` breakpoints on the stable `tools` and `system` boundary (keeping `1h` ahead of any `5m`), and retain `1h` TTL for the `12`–`40`-minute pauses.
+- **B.** Keep `request_timestamp` at the start of `system` for tracing, switch all breakpoints to `ttl: "5m"`, and add a `5m` breakpoint every `25` message blocks so backward lookback spans long reviews.
+- **C.** Remove block-level breakpoints and set top-level `cache_control: {"type": "ephemeral", "ttl": "1h"}` while keeping `request_timestamp` and `user_id` at the top of `system`.
+- **D.** Restore `5m` on `tools` before `1h` on `system`, and double `max_tokens` so streaming responses keep the `5m` cache entry alive until `message_stop`.
+
+<SelfCheck question="Answer to Q7">
+
+**A.** Prefix matching runs strictly across `tools`, `system`, then `messages`, so volatile fields like `request_timestamp` and `user_id` at the start of `system` invalidate the cache for `system` and all following blocks; placing `cache_control` at the end of the stable prefix (with `1h` entries preceding any `5m` entries) clears the `400` error and allows cache hits after the stable prefix is written. The documented `1h` TTL heuristic fits these pauses, but measure actual savings.<Cite id="F6 F9 F14 F34" /> Option B still breaks prefixes on `request_timestamp`, expires during `12`–`40`-minute pauses, and misstates the `20`-block lookback limit.<Cite id="F7 F14 F34" /> Option C automatically places the breakpoint on the last cacheable block, leaving volatile `system` fields inside the prefix.<Cite id="F8 F34" /> Option D violates `1h`-before-`5m` ordering and forgets that cache TTL starts at request initiation rather than response completion.<Cite id="F9 F35" />
+
+</SelfCheck>
+
+## Q8. Propagating deadlines and guarding streaming tool execution (Skill 6.2)
+
+A real-time checkout assistant enforces a `5.0 s` caller timeout at the API gateway and uses `stream: true` with `eager_input_streaming: true` on a `reserve_inventory` tool. Although `p50` latency is `1.9 s`, `p99` climbs to `14.2 s` during traffic bursts because retries and downstream tool calls continue running after the gateway drops the client, and dashboards combine successful and timed-out requests into one mean latency. Twice, the stream consumer also crashed on an unrecognized SSE event type or dispatched truncated arguments to `reserve_inventory` when a turn hit `stop_reason: "max_tokens"`.
+
+**Which TWO changes fix the streaming defects and burst tail-latency waste? (Select TWO.)**
+
+- **A.** Propagate the caller's remaining deadline across retries and downstream tool RPCs (canceling stale work on expiration), and track percentile latency separately for successful and failed requests.
+- **B.** Buffer and validate complete tool JSON after `content_block_stop` and non-`max_tokens` completion before running `reserve_inventory`, and handle unknown SSE event types gracefully.
+- **C.** Set `eager_input_streaming: false` and increase the outer gateway HTTP timeout to `30 s` so downstream tool calls complete normally without deadline propagation.
+- **D.** Offload burst checkout traffic to `POST /v1/messages/batches` so batch queues absorb traffic spikes outside the `5.0 s` synchronous gateway path.
+- **E.** Enable `speed: "fast"` on `reserve_inventory` turns and execute partial `input_json_delta` chunks immediately so tool side effects finish before `max_tokens` hits.
+
+<SelfCheck question="Answer to Q8">
+
+**A and B.** Propagating the caller's remaining deadline stops stale retries and tool calls from consuming capacity after timeout, while tracking percentile latency separately for successful and failed requests prevents averages from hiding tail degradation.<Cite id="F42 F43" /> Because `eager_input_streaming` skips server-side JSON buffering and `stop_reason: "max_tokens"` can cut parameters mid-stream, buffering and validating complete JSON before invoking side-effecting tools reduces the risk of malformed reservations, and SSE clients must tolerate unknown event types.<Cite id="F30 F31" /> Option C leaves resources tied up past caller interest and ignores unknown SSE event handling.<Cite id="F30 F43" /> Option D moves an interactive checkout into an asynchronous batch queue, which cannot guarantee the `5.0 s` deadline.<Cite id="F12" /> Option E increases side-effect corruption risk on partial JSON and does not address the malformed-input or deadline problems.<Cite id="F31 F39" />
+
+</SelfCheck>
+
+## Q9. Forecasting a model cascade and batch workload (Skill 6.1)
+
+A team forecasts 100,000 independent nightly classifications each month. In a representative evaluation, a Haiku first pass costs $0.01 per task and a verifier flags 20% for a Sonnet retry costing $0.05 per flagged task. The cascade meets the quality target. A Sonnet-only run costs $0.05 per task and also meets the target. Both estimates include all input, output, and retry costs at standard realtime rates; assume the same usage and quality in Batch. Results are needed by the next day, not during the request.
+
+**Which forecast and execution choice best fit this workload?**
+
+- **A.** Forecast $2,000 for the realtime cascade, then evaluate Batch for an estimated $1,000; compare completion timing with the deadline.
+- **B.** Forecast $1,000 for the realtime cascade, then use synchronous calls to guarantee that all work finishes by morning.
+- **C.** Forecast $5,000 for the realtime cascade, then use Batch because only Sonnet calls receive its discount.
+- **D.** Forecast $500 for the realtime cascade, then use Batch because failed first attempts are not billed.
+
+<SelfCheck question="Answer to Q9">
+
+**A.** The **cascade** routes flagged tasks to another model. Its expected realtime cost is 100,000 × ($0.01 + 0.20 × $0.05) = $2,000. Batch charges 50% of standard API prices, giving an illustrative $1,000 if usage and cache behavior remain the same.<Cite id="F12" /> Check the deadline and measure quality, retries, cache behavior, and actual cost per successful task before rollout.<Cite id="F15 F16" /> A batch is asynchronous and can expire with unfinished requests, so do not assume every request finishes by a particular morning.<Cite id="F49" />
+
+</SelfCheck>

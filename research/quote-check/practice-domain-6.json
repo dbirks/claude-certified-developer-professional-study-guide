@@ -1,0 +1,252 @@
+[
+  {
+    "id": "F1",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/models/overview"
+  },
+  {
+    "id": "F2",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing"
+  },
+  {
+    "id": "F3",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing"
+  },
+  {
+    "id": "F4",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing"
+  },
+  {
+    "id": "F5",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing"
+  },
+  {
+    "id": "F6",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F7",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F8",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F9",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F10",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F11",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics"
+  },
+  {
+    "id": "F12",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/batch-processing"
+  },
+  {
+    "id": "F13",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/batch-processing"
+  },
+  {
+    "id": "F14",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence"
+  },
+  {
+    "id": "F15",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence"
+  },
+  {
+    "id": "F16",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence"
+  },
+  {
+    "id": "F17",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence"
+  },
+  {
+    "id": "F18",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence"
+  },
+  {
+    "id": "F19",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool"
+  },
+  {
+    "id": "F20",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence"
+  },
+  {
+    "id": "F21",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/token-counting"
+  },
+  {
+    "id": "F22",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api"
+  },
+  {
+    "id": "F23",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api"
+  },
+  {
+    "id": "F24",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F25",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F26",
+    "status": "ok",
+    "url": "https://platform.claude.com/cookbook/latency-optimization-latency-optimization"
+  },
+  {
+    "id": "F27",
+    "status": "ok",
+    "url": "https://platform.claude.com/cookbook/latency-optimization-latency-optimization"
+  },
+  {
+    "id": "F28",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-latency"
+  },
+  {
+    "id": "F29",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F30",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/streaming"
+  },
+  {
+    "id": "F31",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/fine-grained-tool-streaming"
+  },
+  {
+    "id": "F32",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use"
+  },
+  {
+    "id": "F33",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use"
+  },
+  {
+    "id": "F34",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F35",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F36",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/effort"
+  },
+  {
+    "id": "F37",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/effort"
+  },
+  {
+    "id": "F38",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/models/overview"
+  },
+  {
+    "id": "F39",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/fast-mode"
+  },
+  {
+    "id": "F40",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/service-tiers"
+  },
+  {
+    "id": "F41",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/service-tiers"
+  },
+  {
+    "id": "F42",
+    "status": "ok",
+    "url": "https://sre.google/sre-book/monitoring-distributed-systems/"
+  },
+  {
+    "id": "F43",
+    "status": "ok",
+    "url": "https://sre.google/sre-book/addressing-cascading-failures/"
+  },
+  {
+    "id": "F44",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/models/overview"
+  },
+  {
+    "id": "F45",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F46",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing"
+  },
+  {
+    "id": "F47",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F48",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/workspaces"
+  },
+  {
+    "id": "F49",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/batch-processing"
+  },
+  {
+    "id": "F50",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing"
+  }
+]

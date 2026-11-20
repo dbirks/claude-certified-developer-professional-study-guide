@@ -1,0 +1,462 @@
+- id: F1
+  claim: "Current flagship Claude models span four tiers: Fable 5.2 ($8/$40 per MTok), Opus 5.5 ($4/$20 per MTok), Sonnet 5.5 ($2/$10 per MTok), and Haiku 5.5 (from $0.10/$0.50 per MTok)."
+  tag: VER
+  url: https://platform.claude.com/docs/en/models/overview
+  title: "Models overview"
+  source: anthropic-docs
+  quote: "Pricing | $8 / input MTok, $40 / output MTok | $4 / input MTok, $20 / output MTok | $2 / input MTok, $10 / output MTok | From $0.10 / input MTok, From $0.50 / output MTok"
+  accessed: 2026-11-19
+  version_note: "Claude API list prices as of 2026-11-19 for Claude Fable 5.2, Opus 5.5, Sonnet 5.5, and Haiku 5.5."
+
+- id: F2
+  claim: "Claude Haiku 5.5 charges $0.10/$0.50 per MTok for prompts up to 100,000 tokens and 5x more ($0.50/$2.50 per MTok) for prompts over 100,000 tokens."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/pricing
+  title: "Pricing"
+  source: anthropic-docs
+  quote: "Claude Haiku 5.5 (for prompts up to 100,000 tokens) | $0.10 / MTok | $0.125 / MTok | $0.20 / MTok | $0.01 / MTok | $0.50 / MTok"
+  accessed: 2026-11-19
+  version_note: "Claude Haiku 5.5 <=100K prompt tier as of 2026-11-19."
+
+- id: F3
+  claim: "Above 100,000 tokens, every token category on Claude Haiku 5.5 increases 5x, and cache reads and writes count toward the request's prompt length."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/pricing
+  title: "Pricing"
+  source: anthropic-docs
+  quote: "Claude Haiku 5.5 is priced by prompt length: a request whose prompt is over 100,000 tokens pays higher prices. A request’s prompt length counts all of its input tokens, including cache reads and cache writes."
+  accessed: 2026-11-19
+  version_note: "Claude Haiku 5.5 >100K prompt tier ($0.50 input, $0.625 5m write, $1 1h write, $0.05 cache hit, $2.50 output per MTok) as of 2026-11-19."
+
+- id: F4
+  claim: "Claude 4.6 and later models (other than Haiku 5.5) include the full 1M token context window at standard per-token pricing."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/pricing
+  title: "Pricing"
+  source: anthropic-docs
+  quote: "Claude 4.6 and later models (except Claude Haiku 5.5) and Claude Mythos Preview include the full 1M token context window at standard pricing."
+  accessed: 2026-11-19
+  version_note: "Applies to Claude 4.6 and later models except Haiku 5.5 as of 2026-11-19."
+
+- id: F5
+  claim: "Prompt caching charges 1.25x base input for 5-minute cache writes and 2x base input for 1-hour cache writes (saving money after 1 and 2 reads, respectively)."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/about-claude/pricing
+  title: "Pricing"
+  source: anthropic-docs
+  quote: "5-minute cache write | 1.25x base input price | Cache valid for 5 minutes"
+  accessed: 2026-11-19
+
+- id: F6
+  claim: "Prompt cache prefixes are evaluated in strict order—tools, system, then messages—up to 4 breakpoints, and breakpoints themselves add no fee."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "Cache prefixes are created in the following order: tools, system, then messages. This order forms a hierarchy where each level builds upon the previous ones."
+  accessed: 2026-11-19
+
+- id: F7
+  claim: "Each cache breakpoint performs a backward lookback of at most 20 block positions for prior cache writes, and writes occur only at breakpoints."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "The lookback window is 20 blocks. The system checks at most 20 positions for each breakpoint, counting the breakpoint itself as the first."
+  accessed: 2026-11-19
+
+- id: F8
+  claim: "Automatic caching places a single top-level cache_control field that dynamically moves to the last cacheable block, consuming one of the 4 breakpoint slots."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "Automatic caching enables prompt caching with one field. Instead of placing cache_control on individual content blocks, add a single cache_control field at the top level of your request body. The system automatically applies the cache breakpoint to the last cacheable block."
+  accessed: 2026-11-19
+
+- id: F9
+  claim: "When mixing 1-hour and 5-minute TTLs in one request, 1-hour cache breakpoints must precede any 5-minute breakpoints, and cache lifetime starts from request initiation."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "You can use both 1-hour and 5-minute cache controls in the same request, but with an important constraint: Cache entries with longer TTL must appear before shorter TTLs (that is, a 1-hour cache entry must appear before any 5-minute cache entries)."
+  accessed: 2026-11-19
+
+- id: F10
+  claim: "Response usage.input_tokens counts only uncached tokens after the last cache breakpoint; total input equals cache_read_input_tokens + cache_creation_input_tokens + input_tokens, with TTL splits under usage.cache_creation."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "The input_tokens field represents only the tokens that come after the last cache breakpoint in your request, not all the input tokens you sent."
+  accessed: 2026-11-19
+
+- id: F11
+  claim: "Cache diagnostics compares consecutive requests via diagnostics.previous_message_id and reports the earliest prefix divergence in cache_miss_reason."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics
+  title: "Cache diagnostics"
+  source: anthropic-docs
+  quote: "On your next request, include the previous response’s id as diagnostics.previous_message_id. The API rebuilds the fingerprint for the new request, compares it against the stored one, and attaches a diagnostics object to the response describing the first point of divergence."
+  accessed: 2026-11-19
+
+- id: F12
+  claim: "The Message Batches API cuts input and output token prices by 50% for async workloads finishing within 24 hours, supports up to 100,000 requests or 256 MB per batch, and leaves errored, canceled, and expired items unbilled."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/batch-processing
+  title: "Batch processing"
+  source: anthropic-docs
+  quote: "The Batches API offers significant cost savings. All usage is charged at 50 percent of the standard API prices."
+  accessed: 2026-11-19
+
+- id: F13
+  claim: "Batch processing discounts stack with prompt caching, but batched requests cannot use max_tokens: 0 pre-warming, stream: true, speed, or fallbacks, and can slightly overshoot workspace spend limits."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/batch-processing
+  title: "Batch processing"
+  source: anthropic-docs
+  quote: "Because of high throughput and concurrent processing, batches might go slightly over the spend limit configured in the Claude Console for your Workspace."
+  accessed: 2026-11-19
+
+- id: F14
+  claim: "Use the 1-hour cache duration instead of the 5-minute default once roughly 1 turn in 20 follows a 5-to-60 minute pause and few pauses exceed an hour (break-even ~1 turn in 30 on Sonnet/Opus 5.5)."
+  tag: REC
+  url: https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence
+  title: "Optimizing for cost and intelligence"
+  source: anthropic-docs
+  quote: "If your loop waits on a person between turns, use the 1-hour cache duration once about 1 turn in 20 follows a pause between 5 minutes and an hour and few gaps run over an hour."
+  accessed: 2026-11-19
+
+- id: F15
+  claim: "Compare models on cost per completed task rather than per token, because a stronger model can take fewer turns and retries while tail failures and retries drive the total bill."
+  tag: REC
+  url: https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence
+  title: "Optimizing for cost and intelligence"
+  source: anthropic-docs
+  quote: "Compare models on cost per completed task, not per token, because you pay for completed tasks."
+  accessed: 2026-11-19
+
+- id: F16
+  claim: "Failed cheap attempts, retries, and downstream failure costs determine the effective bill, and tail problems dominate spend."
+  tag: REC
+  url: https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence
+  title: "Optimizing for cost and intelligence"
+  source: anthropic-docs
+  quote: "The bill is decided by the tasks the cheaper model fails, because a failed task still bills its tokens, then the retry, then whatever the failure costs downstream."
+  accessed: 2026-11-19
+
+- id: F17
+  claim: "When tasks have a reliable verifier, running everything at low effort and re-running only failures at high effort is cheaper than fixed high effort at equal or higher pass rate."
+  tag: REC
+  url: https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence
+  title: "Optimizing for cost and intelligence"
+  source: anthropic-docs
+  quote: "When a task’s outcome is checkable, the cheapest policy on the effort curve is not a fixed setting: run every task at a low setting and re-run only the failures at a higher one."
+  accessed: 2026-11-19
+
+- id: F18
+  claim: "Because max_tokens caps output invisibly to the model, truncating turns with stop_reason: max_tokens wastes billed tokens and causes doomed retries; set max_tokens generously (e.g., 64,000) and control spend via effort."
+  tag: REC
+  url: https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence
+  title: "Optimizing for cost and intelligence"
+  source: anthropic-docs
+  quote: "max_tokens caps a single response, invisibly to the model, so lowering it does not make the model economize. The turns that needed the room are discarded and still billed."
+  accessed: 2026-11-19
+
+- id: F19
+  claim: "The beta advisor tool (advisor_20260301) lets a cheaper executor escalate mid-turn to a stronger advisor model; top-level usage reports executor tokens only, while usage.iterations[] itemizes both executor and advisor_message sub-inference tokens."
+  tag: VER
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool
+  title: "Advisor tool"
+  source: anthropic-docs
+  quote: "Top-level usage fields reflect executor tokens only. Advisor tokens are not rolled into the top-level totals because they are billed at a different rate. Iterations with type: \"advisor_message\" are billed at the advisor model’s rates, and iterations with type: \"message\" are billed at the executor model’s rates."
+  accessed: 2026-11-19
+  version_note: "Beta feature requiring header advisor-tool-2026-03-01 as of 2026-11-19."
+
+- id: F20
+  claim: "Sweep effort on a single model before adopting an advisor or orchestrator multi-model architecture, and verify the pairing beats the single model's cost-vs-score curve."
+  tag: REC
+  url: https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence
+  title: "Optimizing for cost and intelligence"
+  source: anthropic-docs
+  quote: "Tune one model before you add a second: sweep effort on your current model first, because most workloads end there, and if the sweep shows a gap, price the stronger model alone at low effort. Build a pairing only if it beats the single model’s whole curve of score against spend."
+  accessed: 2026-11-19
+
+- id: F21
+  claim: "The token counting endpoint (POST /v1/messages/count_tokens) is free, has separate RPM limits (5k/10k/20k for Start/Build/Scale), counts under the specified model's tokenizer, and does not invoke prompt caching."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/token-counting
+  title: "Token counting"
+  source: anthropic-docs
+  quote: "Token counting is free to use but subject to requests per minute rate limits based on your usage tier."
+  accessed: 2026-11-19
+
+- id: F22
+  claim: "The Usage and Cost Analytics API (GET /v1/organizations/analytics/usage and /cost, beta header analytics-usage-cost-2026-08-24) attributes usage and USD cents cost by workspace_id, api_key_id, actor, model, service_tier, cost_type, and token_type."
+  tag: VER
+  url: https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api
+  title: "Usage and Cost Analytics API"
+  source: anthropic-docs
+  quote: "The Usage and Cost Analytics API is in beta. Send the anthropic-beta: analytics-usage-cost-2026-08-24 header and an anthropic-version header on every request."
+  accessed: 2026-11-19
+  version_note: "Beta as of 2026-11-19; replaces legacy /v1/organizations/usage_report/messages and /cost_report for new integrations."
+
+- id: F23
+  claim: "Usage and Cost Analytics data refreshes within ~4 hours (up to 24 hours) and reconciles until ~7 days after month-end; set ending_at <= data_refreshed_at for stable snapshots."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api
+  title: "Usage and Cost Analytics API"
+  source: anthropic-docs
+  quote: "Data typically refreshes within 4 hours of the underlying usage and can take up to 24 hours. Values can be revised as late events arrive and reconciliation runs, until about 7 days after the end of the calendar month."
+  accessed: 2026-11-19
+
+- id: F24
+  claim: "Tier monthly spend caps ($500 Start, $1,000 Build, $200,000 Scale) return HTTP 429 rate_limit_error with error_code enforced_spend_limit_reached and no retry-after, whereas user-set org or workspace spend limits return HTTP 400 invalid_request_error."
+  tag: VER
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "When usage reaches a spend limit you set, requests return HTTP 400 with error type invalid_request_error. The message starts with You have reached your specified API usage limits, or You have reached your specified workspace API usage limits for a workspace limit, and states when access resumes."
+  accessed: 2026-11-19
+  version_note: "Tier spend caps: Start $500, Build $1,000, Scale $200,000 USD as of 2026-11-19."
+
+- id: F25
+  claim: "Cache read tokens do not count toward default ITPM rate limits—only input_tokens plus cache_creation_input_tokens count—so high cache hit rates multiply effective input throughput."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "For rate limit purposes, only input_tokens + cache_creation_input_tokens count toward your ITPM limit, making prompt caching an effective way to increase your throughput."
+  accessed: 2026-11-19
+
+- id: F26
+  claim: "Measure TTFT, time to last token, and output tokens per second separately."
+  tag: FACT
+  url: https://platform.claude.com/cookbook/latency-optimization-latency-optimization
+  title: "Latency Optimization on the Claude API"
+  source: anthropic-docs
+  quote: "Time to first token (TTFT) is how long it takes to see any response from the model. Time to last token (TTLT) is how long it takes to get the entire final response. Output tokens per second (OTPS) is the rate at which the response is generated between the two."
+  accessed: 2026-11-19
+
+- id: F27
+  claim: "Approximate task latency as calls times TTFT, plus output generation time and other latency."
+  tag: REC
+  url: https://platform.claude.com/cookbook/latency-optimization-latency-optimization
+  title: "Latency Optimization on the Claude API"
+  source: anthropic-docs
+  quote: "TTLT ≈ calls × TTFT + output tokens ÷ OTPS + additional client- or server-side latency"
+  accessed: 2026-11-19
+
+- id: F28
+  claim: "Streaming improves perceived responsiveness by showing output before completion."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-latency
+  title: "Reducing latency"
+  source: anthropic-docs
+  quote: "Streaming is a feature that allows the model to start sending back its response before the full output is complete. This can significantly improve the perceived responsiveness of your application, as users can see the model’s output in real time."
+  accessed: 2026-11-19
+
+- id: F29
+  claim: "Prompt caching speeds repeated-prefix processing but does not speed output generation."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "Output token generation: Prompt caching has no effect on output token generation. The response you receive is identical to what you would get if prompt caching were not used."
+  accessed: 2026-11-19
+
+- id: F30
+  claim: "Streaming clients should tolerate future event types."
+  tag: STD
+  url: https://platform.claude.com/docs/en/build-with-claude/streaming
+  title: "Streaming messages"
+  source: anthropic-docs
+  quote: "In accordance with the versioning policy, new event types may be added, and your code should handle unknown event types gracefully."
+  accessed: 2026-11-19
+
+- id: F31
+  claim: "Fine-grained tool streaming uses eager_input_streaming and can produce partial or invalid JSON."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/fine-grained-tool-streaming
+  title: "Fine-grained tool streaming"
+  source: anthropic-docs
+  quote: "Because the API does not buffer or validate a tool's input before streaming it, you might receive partial or invalid JSON. A response that ends with the stop reason max_tokens can also cut a parameter off midway."
+  accessed: 2026-11-19
+
+- id: F32
+  claim: "Concurrent tool calls should return one matching result per call together in the next user message."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use
+  title: "Parallel tool use"
+  source: anthropic-docs
+  quote: "Whichever strategy you use, return one tool_result for each tool_use block, all together in the next user message. Match each result to its call with tool_use_id, and put every tool_result block before any text content in that message."
+  accessed: 2026-11-19
+
+- id: F33
+  claim: "disable_parallel_tool_use is a tool_choice field that constrains the number of calls."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use
+  title: "Parallel tool use"
+  source: anthropic-docs
+  quote: "When the tool_choice type is auto (the default), setting disable_parallel_tool_use: true means Claude calls at most one tool in each response."
+  accessed: 2026-11-19
+
+- id: F34
+  claim: "Place the cache breakpoint on the last stable block before variable request content."
+  tag: REC
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "Key takeaway: Place cache_control on the last block whose prefix is identical across the requests you want to share a cache."
+  accessed: 2026-11-19
+
+- id: F35
+  claim: "The cache lifetime is measured from request start, so response generation consumes TTL."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "The lifetime is measured from the start of the request that writes or reads the cache entry, not from the end of its response."
+  accessed: 2026-11-19
+
+- id: F36
+  claim: "Set effort using output_config.effort on Messages API requests."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/effort
+  title: "Effort"
+  source: anthropic-docs
+  quote: "Set output_config.effort on the request. With no value, the model’s default level applies."
+  accessed: 2026-11-19
+
+- id: F37
+  claim: "Adaptive thinking is controlled primarily by effort, whose lower levels trade capability for speed and token efficiency."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/effort
+  title: "Effort"
+  source: anthropic-docs
+  quote: "Adaptive thinking is always on and can’t be turned off, so effort is the primary control for how much the model reasons and what a request costs."
+  accessed: 2026-11-19
+
+- id: F38
+  claim: "Sonnet 5.5 is positioned for a speed/intelligence balance and Haiku 5.5 for latency-sensitive high-volume tasks."
+  tag: VER
+  url: https://platform.claude.com/docs/en/models/overview
+  title: "Models overview"
+  source: anthropic-docs
+  quote: "Description | For demanding reasoning and long-horizon agentic work | For long-running agentic coding and knowledge work | The best combination of speed and intelligence | For high-volume, latency-sensitive tasks such as classification, extraction, and routing"
+  accessed: 2026-11-19
+  version_note: "Model lineup positioning as shown on 2026-11-19."
+
+- id: F39
+  claim: "Fast mode can raise output token rate up to 2.5 times, focusing on OTPS rather than TTFT."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/fast-mode
+  title: "Fast mode"
+  source: anthropic-docs
+  quote: "Speed benefits are focused on output tokens per second (OTPS), not time to first token (TTFT)"
+  accessed: 2026-11-19
+  version_note: "Availability varies by model, platform, and date; check current fast-mode availability."
+
+- id: F40
+  claim: "Priority Tier gives eligible requests priority over other traffic to minimize overload errors."
+  tag: VER
+  url: https://platform.claude.com/docs/en/api/service-tiers
+  title: "Service tiers"
+  source: anthropic-docs
+  quote: "The API prioritizes requests in this tier over all other requests. This prioritization helps minimize ‘server overloaded’ errors, even during peak times."
+  accessed: 2026-11-19
+  version_note: "Priority commitments are legacy and availability/model eligibility can change."
+
+- id: F41
+  claim: "Priority Tier capacity commitments are no longer available for purchase."
+  tag: VER
+  url: https://platform.claude.com/docs/en/api/service-tiers
+  title: "Service tiers"
+  source: anthropic-docs
+  quote: "Priority Tier capacity commitments are no longer available for purchase. Organizations with an existing commitment can continue to use Priority Tier through their contract end date, and this page remains available as a reference for them."
+  accessed: 2026-11-19
+  version_note: "Public documentation status as of 2026-11-19."
+
+- id: F42
+  claim: "Monitor tail latency and distinguish successful request latency from error latency."
+  tag: REC
+  url: https://sre.google/sre-book/monitoring-distributed-systems/
+  title: "Monitoring Distributed Systems"
+  source: standard
+  quote: "It’s important to distinguish between the latency of successful requests and the latency of failed requests."
+  accessed: 2026-11-19
+
+- id: F43
+  claim: "Queue wait adds latency and deadlines should propagate through downstream RPCs."
+  tag: REC
+  url: https://sre.google/sre-book/addressing-cascading-failures/
+  title: "Addressing Cascading Failures"
+  source: standard
+  quote: "This strategy works well when combined with propagating RPC deadlines throughout the stack, described in Latency and Deadlines."
+  accessed: 2026-11-19
+
+- id: F44
+  claim: "Current relative model latency ranks Haiku 5.5 as fastest, Sonnet 5.5 as fast, and Opus 5.5 as moderate."
+  tag: VER
+  url: https://platform.claude.com/docs/en/models/overview
+  title: "Models overview"
+  source: anthropic-docs
+  quote: "Comparative latency | Moderate | Moderate | Fast | Fastest"
+  accessed: 2026-11-19
+  version_note: "Model lineup positioning as shown on 2026-11-19."
+
+- id: F45
+  claim: "One-hour prompt-cache writes cost twice the base input-token price."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "Cache write tokens with a 1-hour TTL are 2 times the base input tokens price."
+  accessed: 2026-11-19
+
+- id: F46
+  claim: "For prompts over 100,000 tokens, Claude Haiku 5.5 bills $0.50 input, $0.625 5-minute write, $1 1-hour write, $0.05 cache hit, and $2.50 output per MTok."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/pricing
+  title: "Pricing"
+  source: anthropic-docs
+  quote: "Claude Haiku 5.5 (for prompts over 100,000 tokens) | $0.50 / MTok | $0.625 / MTok | $1 / MTok | $0.05 / MTok | $2.50 / MTok"
+  accessed: 2026-11-19
+  version_note: "Claude Haiku 5.5 >100K prompt tier as of 2026-11-19."
+
+- id: F47
+  claim: "Enforced tier spend-limit errors return rate_limit_error without a retry-after header, and retrying fails until access resumes."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "The error type is rate_limit_error, the same as for a rate limit, but the response has no retry-after header. Retrying, including the SDK’s automatic retries, fails until access resumes."
+  accessed: 2026-11-19
+
+- id: F48
+  claim: "Each organization is capped at 100 active workspaces by default (archived workspaces do not count toward the limit)."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/workspaces
+  title: "Workspaces"
+  source: anthropic-docs
+  quote: "Each organization can have up to 100 workspaces by default, and archived workspaces don’t count toward this limit."
+  accessed: 2026-11-19
+
+- id: F49
+  claim: "Batch processing is asynchronous and a batch can expire before all requests finish."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/batch-processing
+  title: "Batch processing"
+  source: anthropic-docs
+  quote: "Batches might take up to 24 hours for processing, but many complete sooner. Actual processing time depends on the size of the batch, current demand, and your request volume. It is possible for a batch to expire and not complete within 24 hours."
+  accessed: 2026-11-19
+
+- id: F50
+  claim: "Prompt caching reuses previously processed portions of a prompt."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/about-claude/pricing
+  title: "Pricing"
+  source: anthropic-docs
+  quote: "Prompt caching reduces costs and latency by reusing previously processed portions of your prompt across API calls."
+  accessed: 2026-11-19

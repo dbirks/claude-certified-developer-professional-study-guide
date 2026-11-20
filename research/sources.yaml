@@ -22,12 +22,6 @@
     - llm-as-judge:F30
     - llm-as-judge:F31
     - llm-as-judge:F32
-- url: https://blog.modelcontextprotocol.io/posts/2025-11-25-first-mcp-anniversary/
-  title: "One Year of MCP: November 2025 Spec Release"
-  source: mcp-spec
-  accessed: 2026-11-19
-  cited_by:
-    - mcp-change-management:F40
 - url: https://blog.modelcontextprotocol.io/posts/2026-07-28/
   title: The 2026-07-28 Specification
   source: mcp-spec
@@ -35,6 +29,7 @@
   cited_by:
     - mcp-change-management:F1
     - mcp-change-management:F2
+    - mcp-change-management:F40
 - url: https://claude.com/blog/building-multi-agent-systems-when-and-how-to-use-them
   title: When to use multi-agent systems (and when not to) | Claude by Anthropic
   source: anthropic-engineering
@@ -452,6 +447,7 @@
     - mcp-change-management:F18
     - mcp-change-management:F19
     - mcp-change-management:F37
+    - mcp-change-management:F41
 - url: https://code.claude.com/docs/en/memory
   title: How Claude remembers your project
   source: claude-code-docs
@@ -1002,7 +998,6 @@
     - mcp-change-management:F17
     - mcp-change-management:F38
     - mcp-change-management:F39
-    - mcp-change-management:F41
     - threat-defense:F17
     - identity-secrets-audit:F21
 - url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool
