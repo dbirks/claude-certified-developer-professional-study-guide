@@ -9,6 +9,10 @@ interface PagefindUIOptions {
   showImages?: boolean;
   resetStyles?: boolean;
   autofocus?: boolean;
+  /** Hide facet values with no hits in the current result set (default true). */
+  showEmptyFilters?: boolean;
+  /** Filter groups whose <details> block starts open; ours is always open (see search.css). */
+  openFilters?: string[];
   translations?: { placeholder?: string };
 }
 
@@ -121,6 +125,11 @@ export function initSearch(): void {
             showImages: false,
             resetStyles: false,
             autofocus: true,
+            // Chapter eyebrows carry data-pagefind-filter="domain: …" ([...path].astro), which
+            // gives one "domain" group. Keep only the domains that actually hit, and force the
+            // group open — search.css hides its <summary>, so a closed panel would be unusable.
+            showEmptyFilters: false,
+            openFilters: ['domain'],
             translations: { placeholder: 'Search topics, APIs, terms' },
           });
         });
