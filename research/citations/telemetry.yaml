@@ -315,3 +315,309 @@
   source: mcp-spec
   quote: "As an exception to the prefix requirement above, the keys traceparent, tracestate, and baggage are reserved for OpenTelemetry trace context propagation. When present, their values MUST follow W3C Trace Context and W3C Baggage formats respectively."
   accessed: 2026-11-19
+
+- id: F36
+  claim: "Under a ZDR arrangement, Anthropic does not store customer prompts or responses at rest after the API response is returned."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/api-and-data-retention
+  title: "API and data retention"
+  source: anthropic-docs
+  quote: "Under a ZDR arrangement, Anthropic does not store customer prompts or responses at rest after the API response is returned."
+  accessed: 2026-11-19
+
+- id: F37
+  claim: "OpenTelemetry GenAI semantic conventions for client spans are at Development status."
+  tag: STD
+  url: https://github.com/open-telemetry/semantic-conventions-genai/blob/main/docs/gen-ai/gen-ai-spans.md
+  title: "Semantic conventions for generative client AI spans"
+  source: standard
+  quote: "Status: Development"
+  accessed: 2026-11-19
+
+- id: F38
+  claim: "When a request is retried automatically, a GenAI span covers the logical operation duration including all retries."
+  tag: STD
+  url: https://github.com/open-telemetry/semantic-conventions-genai/blob/main/docs/gen-ai/gen-ai-spans.md
+  title: "Semantic conventions for generative client AI spans"
+  source: standard
+  quote: "If a transient issue happened and the request was retried automatically, the corresponding span SHOULD cover the duration of the logical operation with all retries."
+  accessed: 2026-11-19
+
+- id: F39
+  claim: "Anthropic spans use gen_ai.* attributes where GenAI semantic conventions exist alongside anthropic.* attributes."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/opentelemetry/spans
+  title: "OpenTelemetry span reference"
+  source: anthropic-docs
+  quote: "Attributes use the OpenTelemetry semantic conventions for generative AI (gen_ai.*) where one exists. Anthropic attributes start with anthropic.."
+  accessed: 2026-11-19
+
+- id: F40
+  claim: "GenAI semantic conventions define gen_ai.operation.name for operations such as chat, execute_tool, and invoke_agent."
+  tag: STD
+  url: https://github.com/open-telemetry/semantic-conventions-genai/blob/main/docs/gen-ai/gen-ai-spans.md
+  title: "Semantic conventions for generative client AI spans"
+  source: standard
+  quote: "The name of the operation being performed."
+  accessed: 2026-11-19
+
+- id: F41
+  claim: "OpenTelemetry GenAI inference conventions define gen_ai.usage.output_tokens for provider-reported output token counts."
+  tag: STD
+  url: https://github.com/open-telemetry/semantic-conventions-genai/blob/main/docs/gen-ai/client-inference.md
+  title: "Semantic conventions for generative AI client inference"
+  source: standard
+  quote: "The number of output tokens reported by the provider for this inference operation."
+  accessed: 2026-11-19
+
+- id: F42
+  claim: "Anthropic's OTel token usage reference defines gen_ai.usage.cache_write.input_tokens and gen_ai.usage.cache_read.input_tokens."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/opentelemetry/spans
+  title: "OpenTelemetry span reference"
+  source: anthropic-docs
+  quote: "gen_ai.usage.cache_read.input_tokens | int | The tokens read from the prompt cache."
+  accessed: 2026-11-19
+
+- id: F43
+  claim: "The Python and TypeScript SDKs expose the request ID as _request_id on top-level response objects."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "The Python and TypeScript SDKs expose the request ID as a _request_id property on top-level response objects."
+  accessed: 2026-11-19
+
+- id: F44
+  claim: "On Claude Platform on AWS, responses include x-amzn-requestid for CloudTrail alongside request-id for Anthropic support."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "On Claude Platform on AWS, responses include two request IDs: the AWS request ID (x-amzn-requestid, primary, indexed in CloudTrail) and the Anthropic request ID (request-id, secondary). Use the AWS request ID for CloudTrail lookups and the Anthropic request ID for Anthropic support tickets."
+  accessed: 2026-11-19
+
+- id: F45
+  claim: "Setting CLAUDE_CODE_PROPAGATE_TRACEPARENT=1 propagates trace context through a custom ANTHROPIC_BASE_URL proxy."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "If you run Claude Code through a custom ANTHROPIC_BASE_URL proxy and want trace context propagated, set CLAUDE_CODE_PROPAGATE_TRACEPARENT=1."
+  accessed: 2026-11-19
+
+- id: F46
+  claim: "Claude Code exports claude_code.cost.usage in USD and claude_code.token.usage in tokens."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "claude_code.cost.usage | Cost of the Claude Code session | USD | claude_code.token.usage | Number of tokens used | tokens"
+  accessed: 2026-11-19
+
+- id: F47
+  claim: "Every Analytics API response includes a data_refreshed_at timestamp, and usage after that time is missing or partial."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api
+  title: "Usage and Cost Analytics API"
+  source: anthropic-docs
+  quote: "Every response includes a data_refreshed_at timestamp, and usage after that time is missing or partial."
+  accessed: 2026-11-19
+
+- id: F48
+  claim: "Analytics API queries support time_bucket_width values of 1m, 1h, and 1d."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api
+  title: "Usage and Cost Analytics API"
+  source: anthropic-docs
+  quote: "Set time_bucket_width to 1m, 1h, or 1d to split each combination by UTC bucket; each row's starting_at and ending_at are then its bucket's bounds."
+  accessed: 2026-11-19
+
+- id: F49
+  claim: "Analytics API responses populate group dimensions listed in group_by[]."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api
+  title: "Usage and Cost Analytics API"
+  source: anthropic-docs
+  quote: "A dimension in group is null unless you list it in group_by[]."
+  accessed: 2026-11-19
+
+- id: F50
+  claim: "When diagnostics is null and cache_read_input_tokens is low or zero after passing a prior id, the cache expired or the prompt is below minimum cacheable length."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics
+  title: "Cache diagnostics"
+  source: anthropic-docs
+  quote: "null | low or zero | Your requests match, but there was no cache entry to read: it had expired, or the prompt is shorter than the minimum cacheable length."
+  accessed: 2026-11-19
+
+- id: F51
+  claim: "previous_message_not_found means no stored fingerprint exists for previous_message_id (omitted diagnostics, different workspace, or elapsed time)."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics
+  title: "Cache diagnostics"
+  source: anthropic-docs
+  quote: "No stored fingerprint exists for the supplied previous_message_id. This is not evidence that your request changed. Typically the previous request did not include the diagnostics object, it came from a different workspace, or too much time has passed since it was sent."
+  accessed: 2026-11-19
+
+- id: F52
+  claim: "A cache_miss_reason of null indicates comparison is pending; previous_message_not_found and unavailable produce no comparison."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics
+  title: "Cache diagnostics"
+  source: anthropic-docs
+  quote: "The matrix also does not apply when cache_miss_reason is null (the comparison is still pending; check the next turn) or when its type is previous_message_not_found or unavailable (no comparison was produced)."
+  accessed: 2026-11-19
+
+- id: F53
+  claim: "Setting CLAUDE_CODE_OTEL_DIAG_STDERR=1 surfaces Agent SDK telemetry export diagnostics through the stderr callback or option."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/observability
+  title: "Observability with OpenTelemetry"
+  source: claude-code-docs
+  quote: "To surface exporter errors, set CLAUDE_CODE_OTEL_DIAG_STDERR=1 alongside the exporter variables and read the diagnostics through the SDK's stderr callback (Python) or stderr option (TypeScript)."
+  accessed: 2026-11-19
+
+- id: F54
+  claim: "Claude Code exports log events when OTEL_LOGS_EXPORTER is configured."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Claude Code exports the following events via OpenTelemetry logs/events (when OTEL_LOGS_EXPORTER is configured):"
+  accessed: 2026-11-19
+
+- id: F55
+  claim: "Claude Code export intervals default to 60000 ms for metrics and 5000 ms for logs."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "OTEL_METRIC_EXPORT_INTERVAL | Export interval in milliseconds (default: 60000) | 5000, 60000 | OTEL_LOGS_EXPORT_INTERVAL | Logs export interval in milliseconds (default: 5000) | 1000, 10000"
+  accessed: 2026-11-19
+
+- id: F56
+  claim: "OTEL_TRACES_EXPORT_INTERVAL defaults to 5000 ms for span batch export."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "OTEL_TRACES_EXPORT_INTERVAL | Span batch export interval in milliseconds (default: 5000) | 1000, 10000"
+  accessed: 2026-11-19
+
+- id: F57
+  claim: "Set citations.enabled=true on each document to enable grounded citations."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/citations
+  title: "Citations"
+  source: anthropic-docs
+  quote: "Set citations.enabled=true on each of your documents. A request can't mix documents that have citations enabled with documents that don't."
+  accessed: 2026-11-19
+
+- id: F58
+  claim: "When thinking display is omitted, thinking blocks are returned with an empty thinking field."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/thinking
+  title: "Thinking"
+  source: anthropic-docs
+  quote: "The display field on the thinking configuration controls whether that summary is returned at all: \"summarized\" returns it, whereas \"omitted\", the default on many models, returns thinking blocks with an empty thinking field."
+  accessed: 2026-11-19
+
+- id: F59
+  claim: "In tool-use turns, consecutive thinking and redacted_thinking blocks must be passed back complete and unmodified without rearranging, editing, or partially dropping them."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/thinking
+  title: "Thinking"
+  source: anthropic-docs
+  quote: "Within the latest assistant message, the sequence of consecutive thinking blocks must match what the model generated in the original request: you can't rearrange, edit, or partially drop them. This includes redacted_thinking blocks."
+  accessed: 2026-11-19
+
+- id: F60
+  claim: "Modified thinking blocks are rejected by the API with a 400 error."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/thinking
+  title: "Thinking"
+  source: anthropic-docs
+  quote: "Modified thinking blocks are rejected with a 400 error."
+  accessed: 2026-11-19
+
+- id: F61
+  claim: "Setting ANTHROPIC_OPEN_TELEMETRY=false turns off SDK tracing spans for the client."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/opentelemetry/sdk
+  title: "Set up OpenTelemetry with the Anthropic SDK"
+  source: anthropic-docs
+  quote: "ANTHROPIC_OPEN_TELEMETRY=false | Turn spans off for one client, for example when another library already traces the SDK."
+  accessed: 2026-11-19
+
+- id: F62
+  claim: "Setting ANTHROPIC_OPEN_TELEMETRY_TRACES_CONTENT_MODE=content includes prompts and responses in SDK spans."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/opentelemetry/sdk
+  title: "Set up OpenTelemetry with the Anthropic SDK"
+  source: anthropic-docs
+  quote: "ANTHROPIC_OPEN_TELEMETRY_TRACES_CONTENT_MODE=content | Include prompts and responses in spans."
+  accessed: 2026-11-19
+
+- id: F63
+  claim: "ANTHROPIC_OPEN_TELEMETRY_TRACES_MAX_CONTENT_BYTES overrides the per-span content limit."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/opentelemetry/sdk
+  title: "Set up OpenTelemetry with the Anthropic SDK"
+  source: anthropic-docs
+  quote: "ANTHROPIC_OPEN_TELEMETRY_TRACES_MAX_CONTENT_BYTES | Change the content limit of each span."
+  accessed: 2026-11-19
+
+- id: F64
+  claim: "OTEL_LOG_RAW_API_BODIES emits full Messages API request and response JSON as api_request_body and api_response_body log events."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "OTEL_LOG_RAW_API_BODIES | Emit the full Anthropic Messages API request and response JSON as api_request_body / api_response_body log events (default: disabled)."
+  accessed: 2026-11-19
+
+- id: F65
+  claim: "Claude Managed Agents is not eligible for ZDR, except for self-hosted Managed Agents."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/api-and-data-retention
+  title: "API and data retention"
+  source: anthropic-docs
+  quote: "Not eligible for ZDR, except for self-hosted Managed Agents."
+  accessed: 2026-11-19
+
+- id: F66
+  claim: "Claude Code correlates request_id across api_request, api_error, api_refusal, assistant_response, api_response_body, tool_result, and tool_decision events."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Present on api_request, api_error, api_refusal, assistant_response, api_response_body, tool_result, and tool_decision when the response carries either header."
+  accessed: 2026-11-19
+
+- id: F67
+  claim: "Claude Code emits claude_code.user_prompt on prompt submission, claude_code.compaction on compaction completion, and claude_code.subagent_completed when a subagent finishes."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Event Name: claude_code.subagent_completed"
+  accessed: 2026-11-19
+
+- id: F68
+  claim: "Claude Code emits claude_code.compaction when conversation compaction completes."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Event Name: claude_code.compaction"
+  accessed: 2026-11-19
+
+- id: F69
+  claim: "Cache diagnostics reports earliest prefix divergence across model, system prompt, tools, or message history."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics
+  title: "Cache diagnostics"
+  source: anthropic-docs
+  quote: "It tells you where they diverged (the model, the system prompt, the tools, or the message history), so you can fix the root cause instead of guessing."
+  accessed: 2026-11-19
