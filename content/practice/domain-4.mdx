@@ -1,0 +1,148 @@
+---
+title: "Practice: Domain 4 — Advanced Debugging and Incident Response"
+summary: "8 original scenario questions for Domain 4, with cited rationales."
+kind: reference
+slug: practice-domain-4
+order: 14
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+These original practice items are editorial exercises, not official exam content. Try each before opening the answer. Scenario details and measurements are hypothetical.
+
+## Q1. Tool transcript integrity (Skill 4.1)
+
+A **harness** is the application code that manages model calls and tool execution. A harness receives an assistant response containing thinking and two parallel client tool calls. It removes the thinking block, puts text before the tool results, and sends each result in a separate user message. The continuation returns HTTP 400.
+
+**Which change best repairs the transcript?**
+
+- **A.** Preserve the assistant response, but send one result and ask Claude to repeat the other call.
+- **B.** Preserve the assistant response, and put both matching results first in one user message.
+- **C.** Remove the assistant response, and send both results in a new user message.
+- **D.** Preserve the assistant response, and put a text summary before both results.
+
+<SelfCheck question="Answer to Q1">
+
+**B.** For this tool continuation, echo the assistant turn with its thinking blocks intact.<Cite id="F5" /> Return a result for each tool-use ID, with results before text.<Cite id="F3" /> Put parallel results in one user message.<Cite id="F2" /> A omits a result; C removes the calls being answered; D puts text in the wrong position.
+
+</SelfCheck>
+
+## Q2. Intermittent streaming refusals (Skill 4.1)
+
+A legal-intake service buffers streamed Messages API output. Identical requests sometimes end with `stop_reason: "refusal"` after partial text. Its API version is `2026-10-21`. The team wants to measure variability and handle refusals without displaying partial answers.
+
+**Which TWO actions best address the problem? Select TWO.**
+
+- **A.** Set `temperature=0` and use a single replay to establish the refusal rate.
+- **B.** Check the final stop reason before displaying buffered output; reset context before continuing after a refusal.
+- **C.** Run repeated fixed-input trials without sampling parameters and record refusal frequency.
+- **D.** Continue the same conversation after a refusal and measure the next response.
+- **E.** Send `top_p=0` and use the first successful response as the baseline.
+
+<SelfCheck question="Answer to Q2">
+
+**B, C.** A **streaming refusal** is a classifier intervention reported as a refusal stop reason; its details arrive with the stop reason in `message_delta`.<Cite id="F8" /> Buffering is a design choice that avoids displaying the partial answer. Reset the context before continuing.<Cite id="F9" /> Repeated trials measure variation; even where supported, zero temperature does not guarantee determinism.<Cite id="F7" /> API version `2026-10-21` rejects requests containing `temperature`, `top_p`, or `top_k`.<Cite id="F11" /> A, D, and E therefore do not meet the stated diagnostic and handling goals.
+
+</SelfCheck>
+
+## Q3. Retrieval and tool errors (Skill 4.1)
+
+A **retrieval-augmented generation** (RAG) assistant answers a refund-policy question incorrectly. The current policy says 14 days, but the answer says 30. A separate order lookup returns `is_error: true` and a permission-denied message. The team has the retrieved chunks, model response, and tool logs.
+
+**What should the team investigate first?**
+
+- **A.** Compare retrieved chunks with the current policy, then inspect the answer and permission decision separately.
+- **B.** Compare the final answer with the policy, then increase the response token limit for both failures.
+- **C.** Compare tool latency with the policy update time, then retry both requests with the same inputs.
+- **D.** Compare the system prompt with the policy, then remove citation support from the retrieval pipeline.
+
+<SelfCheck question="Answer to Q3">
+
+**A.** Evaluate retrieval separately from the end-to-end answer.<Cite id="F13" /> If the correct clause never reached the model, inspect the data and retrieval path; if it did, inspect how the model used it. Search-result citations can identify supplied sources, but their presence alone does not prove the answer is correct.<Cite id="F12" /> A Managed Agents permission denial can produce an error tool result with that message, so inspect the permission decision rather than attributing it to the answer generator.<Cite id="F18" /> The other choices do not isolate these paths.
+
+</SelfCheck>
+
+## Q4. Multi-agent context loss (Skill 4.1)
+
+A coordinator and two workers use a Managed Agents session. After **compaction**, which summarizes earlier context, a worker edits a file that an early instruction prohibited. The team has the summary and session timeline. It does not know whether the constraint survived compaction or which worker acted first.
+
+**Which investigation best separates those causes?**
+
+- **A.** Compare the summary with the original constraint and align the thread timeline with the edit.
+- **B.** Compare the final answer with the original constraint and increase the output token limit.
+- **C.** Compare each worker's model name and rerun the task with a larger model.
+- **D.** Compare current file contents with the summary and discard the earlier session history.
+
+<SelfCheck question="Answer to Q4">
+
+**A.** Earlier thinking blocks are not carried across a compaction block; the summary represents that earlier work to the model.<Cite id="F14" /> Checking it tests whether the constraint was retained. The session viewer has a timeline lane for each thread, helping the team reconstruct the sequence.<Cite id="F19" /> A retained constraint would shift attention toward how the worker acted on it; an omitted constraint points toward context preservation. Neither observation alone proves the full root cause.
+
+</SelfCheck>
+
+## Q5. Triage a quality regression (Skill 4.2)
+
+After a prompt release, some support sessions produce garbled answers. Aggregate HTTP errors remain normal. A status page also reports an incident on the API surface used by the application. The team can roll back the prompt and compare affected sessions with unaffected ones.
+
+**Which response best starts triage?**
+
+- **A.** Coordinate a rollback and compare session-level quality and provider status; communicate impact and updates to stakeholders.
+- **B.** Keep the release in place and wait for the provider incident to close before measuring quality.
+- **C.** Roll back the prompt and declare it the root cause without checking affected sessions.
+- **D.** Change the prompt and model independently on several production instances to accelerate diagnosis.
+
+<SelfCheck question="Answer to Q5">
+
+**A.** A status incident is evidence, not proof of the cause. Anthropic has documented sticky routing that made follow-up requests likely to reach the same incorrect server.<Cite id="F28" /> Compare affected cohorts as well as aggregate metrics. A coordinated rollback can reduce exposure while the team tests the release and provider hypotheses. Assign production changes to the incident operations team and provide regular updates to stakeholders.<Cite id="F25 F54" /> B delays mitigation, C declares a cause prematurely, and D confounds changes.
+
+</SelfCheck>
+
+## Q6. Contain a runaway session (Skill 4.2)
+
+A Managed Agents session is issuing duplicate refund calls. Its service-account key is used only by this worker. The incident team needs to stop further calls and retain the session history. No workflow run is open.
+
+**Which action best meets both goals?**
+
+- **A.** Disable the key, interrupt the session, wait for it to become idle, and archive it.
+- **B.** Delete the key and session, then reconstruct the timeline from dashboard totals.
+- **C.** Leave the key active, archive the running session, and inspect it after the incident.
+- **D.** Keep the session running, reduce its output limit, and inspect the next refund call.
+
+<SelfCheck question="Answer to Q6">
+
+**A.** Disabling a key is reversible; deleting it is permanent.<Cite id="F34" /> For a running session, send `user.interrupt` by itself and wait for `idle` before archiving; archiving prevents new events while preserving history.<Cite id="F36" /> Check open workflow runs in other incidents: an idle session can still have one open.<Cite id="F55" /> B sacrifices evidence, C attempts to archive a running session, and D leaves the mutation path active.
+
+</SelfCheck>
+
+## Q7. Restore limited operation (Skill 4.2)
+
+After containment, a team needs to restore read-only tools in a Managed Agents app. Mutating MCP calls must require approval. The team also wants to ensure unused built-in tools stay disabled.
+
+**Which configuration best supports that goal?**
+
+- **A.** Enable only required built-in tools and configure the MCP toolset to ask for approval.
+- **B.** Enable the full built-in toolset and ask the model to avoid unneeded tools.
+- **C.** Enable required built-in tools and allow MCP calls without approval.
+- **D.** Enable the full built-in toolset and review its activity after each session.
+
+<SelfCheck question="Answer to Q7">
+
+**A.** A tool allowlist starts with `default_config.enabled` set to `false`, then enables what the app needs.<Cite id="F37" /> Managed Agents MCP toolsets default to `always_ask`; this policy requests confirmation before execution.<Cite id="F38 F56" /> Verify the effective configuration and approval workflow before restoring traffic. B and D leave unnecessary tools enabled; C removes the requested approval gate.
+
+</SelfCheck>
+
+## Q8. Learning after an incident (Skill 4.2)
+
+An engineer discovers a quality regression that aggregate dashboards missed and rolls back a prompt release. The team adds only negative tests for duplicate refunds. Later, the agent declines valid refunds. The team wants to prevent recurrence and detect both failures.
+
+**Which follow-up best closes the learning loop?**
+
+- **A.** Review a blameless postmortem, add quality monitoring, and test both valid refunds and duplicate prevention.
+- **B.** Review the prompt author's actions, retain the negative tests, and monitor aggregate HTTP errors.
+- **C.** Add more duplicate-refund tests, defer the postmortem, and track model latency.
+- **D.** Replace incident tests with a general benchmark and review valid refunds manually.
+
+<SelfCheck question="Answer to Q8">
+
+**A.** Rollback and monitoring failure are examples of postmortem triggers; a blameless review examines decisions in the context available at the time.<Cite id="F45 F46" /> Turn the incident into regression cases and test both when the behavior should occur and when it should not.<Cite id="F50 F51" /> Add monitoring for the user-visible quality failure, with an owner and response threshold. Regression evaluations aim for nearly 100% on tasks the agent already handles; that target does not guarantee production behavior.<Cite id="F49" /> B, C, and D leave the observed monitoring or coverage gap open.
+
+</SelfCheck>

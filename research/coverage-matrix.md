@@ -7,7 +7,7 @@ Columns: research packet exists · citation entries · quotes verified verbatim 
 
 | ID | Skill | Domain weight | Packet | Citations | Quotes verified | Chapter | Fact-check |
 |---|---|---|---|---|---|---|---|
-| 1.1 | Multi-Agent Orchestration | 17% | yes | 34 | 34/34 | [draft](../content/01-agent-architecture/01-multi-agent-orchestration.mdx) · 2253 words · 34 cited | — |
+| 1.1 | Multi-Agent Orchestration | 17% | yes | 34 | 34/34 | [draft](../content/01-agent-architecture/01-multi-agent-orchestration.mdx) · 2250 words · 34 cited | — |
 | 1.2 | Durable Execution and State Management | 17% | yes | 53 | 53/53 | [fact-checked](../content/01-agent-architecture/02-durable-execution.mdx) · 2957 words · 53 cited | done |
 | 1.3 | Architecture Selection at Scale | 17% | yes | 31 | 31/31 | [fact-checked](../content/01-agent-architecture/03-architecture-selection.mdx) · 1940 words · 31 cited | done |
 | 1.4 | Context and Memory Architecture | 17% | yes | 35 | 35/35 | [draft](../content/01-agent-architecture/04-context-memory.mdx) · 2872 words · 35 cited | — |

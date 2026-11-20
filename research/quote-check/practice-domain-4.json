@@ -1,0 +1,282 @@
+[
+  {
+    "id": "F1",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls"
+  },
+  {
+    "id": "F2",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use"
+  },
+  {
+    "id": "F3",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/troubleshooting-tool-use"
+  },
+  {
+    "id": "F4",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons"
+  },
+  {
+    "id": "F5",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/thinking-troubleshooting"
+  },
+  {
+    "id": "F6",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons"
+  },
+  {
+    "id": "F7",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/glossary"
+  },
+  {
+    "id": "F8",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/handle-streaming-refusals"
+  },
+  {
+    "id": "F9",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/handle-streaming-refusals"
+  },
+  {
+    "id": "F10",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/handle-streaming-refusals"
+  },
+  {
+    "id": "F11",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/thinking"
+  },
+  {
+    "id": "F12",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/search-results"
+  },
+  {
+    "id": "F13",
+    "status": "ok",
+    "url": "https://platform.claude.com/cookbook/capabilities-retrieval-augmented-generation-guide"
+  },
+  {
+    "id": "F14",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/compaction-threshold"
+  },
+  {
+    "id": "F15",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/troubleshooting"
+  },
+  {
+    "id": "F16",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/commands"
+  },
+  {
+    "id": "F17",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-runner"
+  },
+  {
+    "id": "F18",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/managed-agents/permission-policies"
+  },
+  {
+    "id": "F19",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/managed-agents/session-observability"
+  },
+  {
+    "id": "F20",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons"
+  },
+  {
+    "id": "F21",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/commands"
+  },
+  {
+    "id": "F22",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/errors"
+  },
+  {
+    "id": "F23",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons"
+  },
+  {
+    "id": "F24",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/cli-sdks-libraries/sdks/python"
+  },
+  {
+    "id": "F25",
+    "status": "ok",
+    "url": "https://sre.google/sre-book/managing-incidents/"
+  },
+  {
+    "id": "F26",
+    "status": "ok",
+    "url": "https://status.claude.com/"
+  },
+  {
+    "id": "F27",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/a-postmortem-of-three-recent-issues"
+  },
+  {
+    "id": "F28",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/a-postmortem-of-three-recent-issues"
+  },
+  {
+    "id": "F29",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/errors"
+  },
+  {
+    "id": "F30",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/errors"
+  },
+  {
+    "id": "F31",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions"
+  },
+  {
+    "id": "F32",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions"
+  },
+  {
+    "id": "F33",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback"
+  },
+  {
+    "id": "F34",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/authentication"
+  },
+  {
+    "id": "F35",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/organization/api_keys/update"
+  },
+  {
+    "id": "F36",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/managed-agents/session-operations"
+  },
+  {
+    "id": "F37",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/managed-agents/tools"
+  },
+  {
+    "id": "F38",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/managed-agents/permission-policies"
+  },
+  {
+    "id": "F39",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/server-managed-settings"
+  },
+  {
+    "id": "F40",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/settings-reference"
+  },
+  {
+    "id": "F41",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/settings-reference"
+  },
+  {
+    "id": "F42",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/settings-reference"
+  },
+  {
+    "id": "F43",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/permissions"
+  },
+  {
+    "id": "F44",
+    "status": "ok-loose",
+    "url": "https://code.claude.com/docs/en/hooks"
+  },
+  {
+    "id": "F45",
+    "status": "ok",
+    "url": "https://sre.google/sre-book/postmortem-culture/"
+  },
+  {
+    "id": "F46",
+    "status": "ok",
+    "url": "https://sre.google/sre-book/postmortem-culture/"
+  },
+  {
+    "id": "F47",
+    "status": "ok",
+    "url": "https://sre.google/sre-book/postmortem-culture/"
+  },
+  {
+    "id": "F48",
+    "status": "ok",
+    "url": "https://sre.google/workbook/postmortem-culture/"
+  },
+  {
+    "id": "F49",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/demystifying-evals-for-ai-agents"
+  },
+  {
+    "id": "F50",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/demystifying-evals-for-ai-agents"
+  },
+  {
+    "id": "F51",
+    "status": "ok-loose",
+    "url": "https://www.anthropic.com/research/demystifying-evals-for-ai-agents"
+  },
+  {
+    "id": "F52",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/opentelemetry"
+  },
+  {
+    "id": "F53",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/managed-settings"
+  },
+  {
+    "id": "F54",
+    "status": "ok",
+    "url": "https://sre.google/sre-book/managing-incidents/"
+  },
+  {
+    "id": "F55",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/managed-agents/session-operations"
+  },
+  {
+    "id": "F56",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/managed-agents/permission-policies"
+  }
+]
