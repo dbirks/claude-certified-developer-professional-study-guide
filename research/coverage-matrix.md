@@ -7,7 +7,7 @@ Columns: research packet exists · citation entries · quotes verified verbatim 
 
 | ID | Skill | Domain weight | Packet | Citations | Quotes verified | Chapter | Fact-check |
 |---|---|---|---|---|---|---|---|
-| 1.1 | Multi-Agent Orchestration | 17% | yes | 59 | 59/59 | [draft](../content/01-agent-architecture/01-multi-agent-orchestration.mdx) · 2162 words · 59 cited | done |
+| 1.1 | Multi-Agent Orchestration | 17% | yes | 59 | 59/59 | [fact-checked](../content/01-agent-architecture/01-multi-agent-orchestration.mdx) · 2162 words · 59 cited | done |
 | 1.2 | Durable Execution and State Management | 17% | yes | 53 | 53/53 | [fact-checked](../content/01-agent-architecture/02-durable-execution.mdx) · 2957 words · 53 cited | done |
 | 1.3 | Architecture Selection at Scale | 17% | yes | 31 | 31/31 | [fact-checked](../content/01-agent-architecture/03-architecture-selection.mdx) · 1940 words · 31 cited | done |
 | 1.4 | Context and Memory Architecture | 17% | yes | 45 | 45/45 | [fact-checked](../content/01-agent-architecture/04-context-memory.mdx) · 1668 words · 40 cited | done |
@@ -18,7 +18,7 @@ Columns: research packet exists · citation entries · quotes verified verbatim 
 | 3.1 | Telemetry and Instrumentation | 12% | yes | 69 | 69/69 | [fact-checked](../content/03-observability/01-telemetry.mdx) · 2783 words · 69 cited | done |
 | 3.2 | Production Monitoring and Alerting | 12% | yes | 35 | 35/35 | [fact-checked](../content/03-observability/02-monitoring-alerting.mdx) · 2543 words · 35 cited | done |
 | 3.3 | Trace Analysis at Scale | 12% | yes | 41 | 41/41 | [fact-checked](../content/03-observability/03-trace-analysis.mdx) · 2586 words · 41 cited | done |
-| 4.1 | Complex Failure Diagnosis | 10% | yes | 38 | 38/38 | [draft](../content/04-debugging/01-failure-diagnosis.mdx) · 2441 words · 37 cited | — |
+| 4.1 | Complex Failure Diagnosis | 10% | yes | 38 | 38/38 | [draft](../content/04-debugging/01-failure-diagnosis.mdx) · 2441 words · 37 cited | done |
 | 4.2 | Incident Response and Learning Loops | 10% | yes | 42 | 42/42 | [fact-checked](../content/04-debugging/02-incident-response.mdx) · 2499 words · 42 cited | done |
 | 5.1 | Evaluation System Design | 12% | yes | 42 | 42/42 | [fact-checked](../content/05-evaluation/01-evaluation-design.mdx) · 2414 words · 41 cited | done |
 | 5.2 | LLM-as-Judge Engineering | 12% | yes | 45 | 45/45 | [fact-checked](../content/05-evaluation/02-llm-as-judge.mdx) · 2591 words · 45 cited | done |

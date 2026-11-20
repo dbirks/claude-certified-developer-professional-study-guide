@@ -1,0 +1,286 @@
+---
+title: "Multi-Agent Orchestration"
+summary: "Decide when a multi-agent design earns its token cost, how to bound fan-out and isolation, and where approvals and cancellation belong."
+kind: skill
+skill: "1.1"
+slug: multi-agent-orchestration
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+**Multi-agent orchestration** is the design work around a lead agent: what it keeps, what it hands off, how the handoffs execute, and what happens when one fails. Anthropic distinguishes **workflows**, which orchestrate LLMs and tools through predefined code paths, from **agents**, which let an LLM direct its own process and tool use dynamically.<Cite id="F1" /> Agentic systems can trade latency and cost for task performance. Start with the simplest pattern that works, often a single augmented LLM, and add agents when evidence justifies the cost.<Cite id="F1 F7 F13" /> Inter-agent failures include dropped requirements, incomplete verification, and approval gates that never fire.
+
+A **supervisor/worker hierarchy** has a lead agent delegate tasks to workers and combine their results.<Cite id="F4" />
+
+## Orchestration patterns and what they cost
+
+These five common patterns can be combined in a supervisor/worker design and implemented without a multi-agent framework.
+
+| Pattern | Mechanism | Use when |
+|---|---|---|
+| **Prompt chaining** | Sequential LLM calls, each processing the previous output, with optional programmatic gates on intermediate steps.<Cite id="F2" /> | Subtasks are fixed, and splitting trades latency for accuracy.<Cite id="F2" /> |
+| **Routing** | Classify the input, then dispatch it to a specialized follow-up task, prompt, or tool.<Cite id="F35" /> | Input classes need materially different handling.<Cite id="F35" /> |
+| **Parallelization** | **Sectioning** runs independent subtasks at once; **voting** runs the same task repeatedly for diverse outputs or higher confidence.<Cite id="F3" /> | Subtasks are independent, or confidence needs several attempts.<Cite id="F3" /> |
+| **Orchestrator-workers** | A central LLM decides the subtasks from the input at runtime, delegates to worker LLMs, and synthesizes results.<Cite id="F4" /> | The subtask list cannot be predefined.<Cite id="F4" /> |
+| **Evaluator-optimizer** | A generator and an evaluator iterate in a feedback loop.<Cite id="F5" /> | Clear criteria exist and refinement adds measurable value.<Cite id="F5" /> |
+
+Cost is measured, not guessed. On Anthropic's internal research evaluation, a multi-agent system with Claude Opus 4 as the lead agent and Claude Sonnet 4 subagents outperformed single-agent Claude Opus 4 by 90.2%.<Cite id="F6" /> In BrowseComp analysis, token usage alone explained 80% of performance variance; tool-call count and model choice explained much of the rest.<Cite id="F36" /> Treat those results as evidence to measure token spend alongside topology, not as a guaranteed gain. In Anthropic's data, agents used about 4x as many tokens as chat interactions, and multi-agent systems about 15x. The task's value must justify that cost.<Cite id="F7" />
+
+## Bounding delegation and context isolation
+
+Delegation is a specification problem before it is a concurrency problem. Prefer to scale agent count and tool-call budget to query difficulty. Give each worker a **delegation spec**: an objective, output format, tool and source guidance, and explicit task boundaries. Vague task descriptions can cause duplicate work, gaps, or missed information.<Cite id="F8" /> Bound fan-out with hard caps as well as prompt instructions.
+
+| Control | Default | Behavior at the limit |
+|---|---|---|
+| `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` (passed via `env`) | 3 levels | Set `1` to prevent subagents from spawning further subagents.<Cite id="F18" /> |
+| `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` (via `env`) | 20 concurrent | Additional spawns return `Concurrent subagent limit reached`.<Cite id="F49" /> |
+| `max_budget_usd` / `maxBudgetUsd` | none | Stops the query when the client-side spend estimate reaches the cap; the estimate can pass it.<Cite id="F60" /> At the documented SDK versions, the cap also stops background subagents and returns `error_max_budget_usd`.<Cite id="F37" /> |
+
+Tool reach decides what a worker may do unattended: `AgentDefinition.tools` lists allowed tools, and `disallowedTools` removes tools from that set. MCP server patterns such as `mcp__server__*` and `mcp__*` are supported.<Cite id="F55" /> `CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS=1` removes the built-in fallback; a call without `subagent_type` then fails.<Cite id="F17" /> `disallowed_tools=["Agent(fork)"]` blocks forked subagents while leaving other subagent types available.<Cite id="F59" /> In Python, `AgentDefinition` keeps camelCase fields such as `disallowedTools`, `permissionMode`, and `maxTurns`; `ClaudeAgentOptions` fields use snake_case.<Cite id="F19" />
+
+**Context isolation** decides what a worker knows. A non-fork SDK subagent starts with a fresh context and no parent conversation; pass needed paths, errors, and decisions in its prompt. It returns its final report to the parent.<Cite id="F15" /> Claude Code can also give a subagent a separate Git worktree with `isolation: worktree`.<Cite id="F57" />
+
+**Decompose by context boundary, not by SDLC role.** A planner, coder, tester, reviewer chain re-summarizes shared context at every hop, losing requirements and burning coordination tokens; split by context instead — independent search facets, clean API contracts, black-box verification — and keep tightly coupled work in one agent per component.<Cite id="F13" />
+
+An **artifact store** holds large worker outputs outside the conversation; workers return lightweight references. This can reduce information loss and the tokens spent copying results through conversation history.<Cite id="F12" />
+
+<Figure caption="Example: parallel subagents save detailed findings externally and return compact references to the coordinator.">
+  <Sequence actors={["Coordinator", "Subagent A", "Subagent B", "Artifact store"]} messages={[
+    { from: 0, to: 1, label: "Agent(auditor): audit auth/" },
+    { from: 0, to: 2, label: "Agent(auditor): audit billing/" },
+    { from: 1, to: 3, label: "write artifacts/auth.json" },
+    { from: 2, to: 3, label: "write artifacts/billing.json" },
+    { from: 1, to: 0, label: "scanned summary + ref", dashed: true },
+    { from: 2, to: 0, label: "scanned summary + ref", dashed: true }
+  ]} />
+</Figure>
+
+Second, a verification subagent isolates context well but tests poorly: black-box validation with minimal prior context is its strength, yet the **early victory problem** makes it run one or two tests, see them pass, and declare success.<Cite id="F14" /> State the bar in its prompt: full suite, edge cases, negative tests.<Cite id="F14" />
+
+## Parallel dispatch and critical-path latency
+
+Parallel dispatch can reduce critical-path time: independent subtasks can finish in the time of the slowest one rather than the sum of all of them.<Cite id="F16" /> By default, background subagents return `status: "async_launched"`; when the agent waits for a result, the call returns `status: "completed"`.<Cite id="F54" /> In one Anthropic research system, the lead launched 3–5 subagents in parallel and each used 3 or more tools in parallel. That setup cut research time by up to 90% on complex queries.<Cite id="F9" />
+
+Synchronous execution is simpler to coordinate and slower to run: waiting for each wave blocks on the slowest subagent and prevents the lead from steering work already in flight, while asynchronous execution raises concurrency at the cost of state consistency and harder error propagation.<Cite id="F11" /> Four things flatten the theoretical speedup:
+
+| Speedup killer | Mechanism | Countermeasure |
+|---|---|---|
+| Straggler barrier | A synchronous wave waits on its slowest worker or that worker's retry.<Cite id="F11" /> | Async dispatch, priced in state consistency and error propagation.<Cite id="F11" /> |
+| Mutating-tool serialization | Read-only tools (`Read`, `Glob`, `Grep`, read-only MCP tools) run concurrently while `Edit`, `Write`, `Bash` run sequentially; a custom tool joins the concurrent path only with `readOnlyHint`.<Cite id="F20" /> | Keep concurrent writers on disjoint files or in separate worktrees.<Cite id="F28" /> |
+| Rate-limit contention | Subagent requests count against organization-level API rate limits.<Cite id="F62" /> | Set concurrency from observed throughput and backoff behavior |
+| Repeated context | A non-fork subagent starts without the parent conversation.<Cite id="F15" /> | Pass only the context each worker needs; use a fork when the task needs the parent's context.<Cite id="F38" /> |
+
+Illustrative arithmetic, not a benchmark: 12 independent services at 45 seconds and 30k tokens each, with 15 seconds and 24k tokens of coordinator planning and synthesis.
+
+| Dispatch layout | Critical path | Token spend | Trade-off |
+|---|---|---|---|
+| Single agent, sequential | about 555s | about 384k in one context | Compaction risk grows with the transcript |
+| Bounded parallel: 3 waves of 4 (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS=4`).<Cite id="F49" /> | about 150s | about 384k across the tree | About 3.7x faster; per-worker `CLAUDE.md` overhead can repeat.<Cite id="F15" /> |
+| Unbounded: 12 concurrent | 60s theoretical | about 384k | Can exceed API quotas and trigger rate-limit errors.<Cite id="F62" /> |
+
+## Inter-agent communication and structured handoffs
+
+Agents communicate by what they hand each other; the mechanisms differ in where loop state and intermediate results live.
+
+| Mechanism | Topology | Where intermediate state lives | Hard constraints |
+|---|---|---|---|
+| Subagents (`Agent` tool) | Hub-and-spoke in one session; only the final message returns.<Cite id="F15" /> | Parent context window, plus the subagent's isolated window | Output is scanned for instruction-shaped text before the parent reads it.<Cite id="F28" /> |
+| Agent Teams | Peer sessions share a task list and communicate directly.<Cite id="F30" /> | Shared task list and teammate messages.<Cite id="F30" /> | Requires an interactive session; `-p` and Agent SDK sessions do not spawn teammates.<Cite id="F40" /> |
+| Dynamic Workflows (`Workflow` tool) | An executed script drives fan-out across dozens to hundreds of subagents.<Cite id="F31" /> | The script keeps intermediate results outside the coordinator's context.<Cite id="F31" /> | The workflow tool is subject to the session's permission evaluation.<Cite id="F31" /> |
+| Managed Agents multiagent | Session threads under one session.<Cite id="F32" /> | MCP servers are agent-scoped.<Cite id="F42" /> Session `vault_ids` credentials apply to every thread.<Cite id="F61" /> | One delegation level, up to 20 predefined agents per list, and up to 25 child threads per session (advisor and workflow-run threads excluded).<Cite id="F32" /> Workflow limits include 64 working threads at once (not guaranteed by the API).<Cite id="F41" /> A run can start up to 1,000 agents over its lifetime.<Cite id="F44" /> A session allows 10 open runs by default.<Cite id="F50" /> |
+
+A **structured handoff** turns a worker's return value into a typed contract. In the Agent SDK, `output_format` / `outputFormat` accepts a JSON Schema. The SDK validates the output, retries when it does not match, and exposes valid data as `ResultMessage.structured_output`; repeated validation failure returns `error_max_structured_output_retries`.<Cite id="F22" />
+
+<Callout type="version" title="Checked 2026-11-19">
+
+SDK subagent depth, concurrency, and budget enforcement require TypeScript Agent SDK v0.3.219+ or Python Agent SDK v0.2.127+.<Cite id="F18 F37 F49" /> Fail-closed hook handling with `onFailure: "block"` requires TypeScript Agent SDK v0.3.317+ or Python Agent SDK v0.2.177+.<Cite id="F26" /> The subagent `bypassPermissions` restriction requires Claude Code v2.1.267+.<Cite id="F24" /> Subagent output scanning applies in Claude Code v2.1.210+.<Cite id="F28" /> The `Workflow` tool is available in TypeScript Agent SDK v0.3.149+.<Cite id="F31" /> Managed Agents multiagent orchestration, session threads, and workflow runs are beta under the header `managed-agents-2026-04-01`.<Cite id="F32 F33 F34" />
+
+</Callout>
+
+Managed Agents caps live in configuration, not prompts: the `multiagent_20261001` type supports predefined and inline subagents, dynamic workflows, and an advisor model; delegation goes one level down, and each `predefined_agents` list holds at most 20 unique agents.<Cite id="F32" /> MCP servers are agent-scoped, while session `vault_ids` apply to every thread.<Cite id="F61" /> A failed workflow agent is usually retried once on a new thread while other agents keep working.<Cite id="F34" /> Hitting the session budget pauses open runs.<Cite id="F56" /> Raising or removing it resumes them unless an interrupt also paused them.<Cite id="F43" />
+
+Whole-tree cost accounting uses `ResultMessage.model_usage` / `modelUsage`; `usage` covers only the main agent loop.<Cite id="F52" /> In Python, `ClaudeSDKClient.stop_task(task_id)` stops a running background task.<Cite id="F39" /> `interrupt()` ends the current response with `error_during_execution`.<Cite id="F21" /> In Managed Agents, `user.interrupt` with `session_thread_id` targets one thread; omitting it interrupts all non-archived session threads.<Cite id="F48" />
+
+## Human-in-the-loop and approval flow
+
+A **human-in-the-loop (HITL) flow** pauses a tool call for a human decision.
+
+The Agent SDK evaluates each tool request through six ordered checks: hooks, deny rules, ask rules, permission mode, allow rules, then the `canUseTool` callback.<Cite id="F58" />
+
+<Figure caption="A tool request moves through ordered checks. Some decisions pass it on or send it to canUseTool, while earlier allow or deny decisions can end evaluation.">
+  <Flow direction="vertical" steps={[
+    "Tool call (parent or subagent)",
+    { label: "1. PreToolUse hooks", note: "deny · defer · ask · allow" },
+    { label: "2. Deny rules", note: "disallowed_tools" },
+    { label: "3. Ask rules", note: "always_ask · AskUserQuestion" },
+    { label: "4. Permission mode", note: "Some modes approve calls here", tone: "good" },
+    { label: "5. Allow rules", note: "allowed_tools · read-only" },
+    { label: "6. canUseTool callback" },
+    { label: "Execute, block, or defer the turn", tone: "bad" }
+  ]} />
+</Figure>
+
+The order is the trap: a call approved at an earlier step — by `acceptEdits`, `bypassPermissions`, or an allow rule — never reaches `canUseTool`, so checks placed there are bypassed for that tool. Put mandatory checks on auto-approved tools in `PreToolUse` hooks.<Cite id="F23" /> Permission modes include `"default"`, `"dontAsk"`, `"acceptEdits"`, `"plan"`, `"auto"`, and `"bypassPermissions"`. A subagent can inherit the main session's mode, overriding its own `permissionMode`, but Claude Code never applies `bypassPermissions` to a subagent.<Cite id="F24" />
+
+`canUseTool` handles both tool-permission requests and clarifying questions via `AskUserQuestion`; execution pauses until the callback responds. Return allow with `updatedInput` in TypeScript or `updated_input` in Python, optionally with updated permissions, or deny with a message.<Cite id="F25" /> `AskUserQuestion` is unavailable in subagents spawned via the `Agent` tool.<Cite id="F25" />
+
+`PreToolUse` hooks run first and can enforce a policy before permission rules are evaluated. Hook decisions include `allow`, `deny`, `ask`, and `defer`; when hooks disagree, precedence is `deny`, `defer`, `ask`, then `allow`.<Cite id="F26" /> `SubagentStart` and `SubagentStop` inputs include `agent_id` and `agent_type`.<Cite id="F26" /> Set `onFailure: "block"` (`on_failure="block"` in Python) to block the action when a hook fails.<Cite id="F26" />
+
+For approvals outlasting a process, non-interactive `-p` single-tool turns support deferred HITL: return `defer`, and the turn ends with `stop_reason: "tool_deferred"` while the pending call stays in the transcript.<Cite id="F27" /> Resume the session later with `--resume` and let the hook handle the call again.<Cite id="F51" /> In Managed Agents, a child thread's tool request can cross-post to the primary stream with `session_thread_id`; respond with `user.tool_confirmation` or `user.custom_tool_result`.<Cite id="F45" />
+
+The block below is a Python reference skeleton, not a standalone runnable program: imports are omitted, and `approved = False` stands in for a real approval integration. With those pieces supplied, it wires bounded fan-out through SDK `env` caps,<Cite id="F18" /> fork denial,<Cite id="F59" /> a fail-closed `Bash` deny hook,<Cite id="F26" /> human approval in `canUseTool`,<Cite id="F25" /> and a schema on the return value.<Cite id="F22" />
+
+```python
+class AuditReport(BaseModel):
+    service: str
+    critical_findings: list[str]
+    requires_hotfix: bool
+
+
+async def deny_bash_for_audit(input_data: dict, tool_use_id: str | None, context):
+    if input_data.get("hook_event_name") == "PreToolUse":
+        return {
+            "hookSpecificOutput": {
+                "hookEventName": "PreToolUse",
+                "permissionDecision": "deny",
+                "permissionDecisionReason": "Bash is disabled for this audit.",
+            }
+        }
+    return {}
+
+
+async def hitl_approval(
+    tool_name: str, input_data: dict, context: ToolPermissionContext
+) -> PermissionResultAllow | PermissionResultDeny:
+    approved = False  # Replace with an async UI or Slack approval lookup
+    if approved:
+        return PermissionResultAllow(updated_input=input_data)
+    return PermissionResultDeny(message=f"Human approval required before executing {tool_name}.")
+
+
+async def run_audit():
+    options = ClaudeAgentOptions(
+        permission_mode="default",
+        disallowed_tools=["Agent(fork)"],
+        max_turns=25,
+        max_budget_usd=3.50,
+        env={
+            "CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS": "1",
+            "CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH": "1",
+            "CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS": "4",
+        },
+        agents={
+            # AgentDefinition uses camelCase wire fields in Python.
+            "service-auditor": AgentDefinition(
+                description="Audits a single service directory for auth flaws.",
+                prompt=(
+                    "Audit only the assigned directory. Write detailed evidence to "
+                    "/tmp/audit_notes.md if >500 words, return only critical flaws."
+                ),
+                tools=["Read", "Glob", "Grep"],
+                model="sonnet",
+                maxTurns=10,
+                effort="medium",
+            ),
+        },
+        hooks={
+            "PreToolUse": [
+                HookMatcher(matcher="Bash", hooks=[deny_bash_for_audit], on_failure="block"),
+            ]
+        },
+        can_use_tool=hitl_approval,
+        output_format={"type": "json_schema", "schema": AuditReport.model_json_schema()},
+    )
+
+    try:
+        async for msg in query(
+            prompt="Dispatch service-auditor subagents in parallel for services/auth and services/billing.",
+            options=options,
+        ):
+            if isinstance(msg, ResultMessage):
+                if msg.subtype == "success" and msg.structured_output:
+                    print(AuditReport.model_validate(msg.structured_output).model_dump_json(indent=2))
+                else:
+                    print(f"Stopped: {msg.subtype}; cost=${msg.total_cost_usd}")
+    except Exception as exc:
+        print(f"Audit loop terminated: {exc}")
+
+
+asyncio.run(run_audit())
+```
+
+## Decision criteria
+
+Pick the smallest design that answers the question, then confirm it with measurements.
+
+- **Stay single-agent** until you can name a trigger: subtasks noisy enough to pollute one window, genuinely independent branches, or a privilege boundary to enforce between agents. This is a recommendation, not a documented threshold.
+- **Use subagents** for bounded hub-and-spoke delegation where one parent reads every result.<Cite id="F15" />
+- **Use Agent Teams** only in interactive sessions where peers claim shared work and message each other; `-p` and SDK sessions do not spawn teammates.<Cite id="F30 F40" />
+- **Use Dynamic Workflows** when fan-out reaches dozens to hundreds of items and loop state belongs in code rather than context.<Cite id="F31" />
+- **Use Managed Agents multiagent** when threads, budgets, and cancellation should be server-managed, accepting one delegation level and the beta's caps.<Cite id="F32" />
+
+Before scaling a design, get whole-tree totals from `ResultMessage.model_usage` / `modelUsage`.<Cite id="F52" />, the `ResultMessage.subtype` that says why a run ended.<Cite id="F37" />, per-thread events for workflow runs.<Cite id="F34" />, and a baseline separating token effects from topology effects, as Anthropic's 80% variance result illustrates.<Cite id="F36" />.
+
+## Failure modes and recovery
+
+| Failure mode | Root cause | Detection signal | Containment and recovery |
+|---|---|---|---|
+| Runaway fan-out or recursion | Orchestrator over-spawns or nests deeply.<Cite id="F18" /> | Rising `modelUsage` spend; `Concurrent subagent limit reached`.<Cite id="F18 F20" /> | Cap spawn depth, concurrency, and spend; scale effort to task difficulty.<Cite id="F8 F18 F37" /> |
+| Handoff "telephone game" | Role-split chain re-summarizes shared context; large outputs transit the coordinator.<Cite id="F12 F13" /> | Downstream requirement drift; bloated coordinator context.<Cite id="F12 F13" /> | Group by context boundary, store artifacts and return refs, enforce schemas.<Cite id="F12 F13 F22" /> |
+| Report-borne prompt injection | Subagent relays instruction-shaped text from untrusted content it read.<Cite id="F28" /> | `[harness: subagent output matched instruction-shaped pattern(s): ...]` marker.<Cite id="F28" /> | Keep output scanning, least-privilege `tools` / `disallowedTools`, `PreToolUse` hooks; reject approvals relayed by an agent.<Cite id="F17 F23 F28 F30" /> |
+| Verification early victory | Verifier stops after one or two smoke tests.<Cite id="F14" /> | "Pass" reported while edge cases are broken.<Cite id="F14" /> | Require the full suite and negative tests in the prompt; re-run deterministic tests in a completion hook.<Cite id="F14 F30" /> |
+| Silent `canUseTool` bypass | Policy sits in `canUseTool`; the tool was approved earlier in the order.<Cite id="F23" /> | Unprompted execution; the `CLAUDE_SDK_CAN_USE_TOOL_SHADOWED` warning.<Cite id="F23" /> | Move guards to `PreToolUse` with `on_failure="block"`, or deny outright via `disallowed_tools`.<Cite id="F23 F26" /> |
+| HITL process hang | A pending `canUseTool` callback pauses execution until a response.<Cite id="F25" /> | Serverless or CI runner stalled with no approval UI | Return `defer` in a `-p` single-tool turn and `--resume` later; answer `requires_action` asynchronously in Managed Agents.<Cite id="F27 F45" /> |
+| Partial or silent worker failure | API error, rate limit, or `maxTurns` cut the worker off.<Cite id="F15 F29" /> | Foreground partial text or `Agent terminated early...`; background failure notice.<Cite id="F29" /> | Read per-thread events and `ResultMessage.subtype`; configure fallback model chains; resume or retry idempotent tools.<Cite id="F20 F29 F34" /> |
+| Shared-workspace edit collision | Concurrent agents mutate the same files.<Cite id="F28" /> | Overwritten edits and merge conflicts | Give writers `isolation: worktree` or partition file ownership; never mark a mutating custom tool `readOnlyHint`.<Cite id="F20 F28 F30" /> |
+
+Agent errors can compound across steps. For deployments, Anthropic describes **rainbow deployments**: shift traffic gradually from old to new versions while both remain available, which avoids disrupting running agents.<Cite id="F10" /> Worker failures should be surfaced and handled: a background subagent can be marked failed with the API error and its last output attached; a configured fallback model can switch models mid-run.<Cite id="F29" />
+
+<Callout type="mistake" title="Treating canUseTool as the security boundary">
+
+It is the last check, not the only one. `acceptEdits`, `bypassPermissions`, and allow rules approve calls before `canUseTool` runs;<Cite id="F23" /> put non-negotiable enforcement in `PreToolUse` hooks with `onFailure: "block"` or in deny rules.<Cite id="F23 F26" />
+
+</Callout>
+
+<Callout type="mistake" title="Assuming a subagent's permissionMode restricts a permissive parent">
+
+A parent in `acceptEdits` mode can override the subagent's own `permissionMode`, so setting the subagent to `default` does not prevent automatic approval of file edits.<Cite id="F24" />
+
+</Callout>
+
+<Callout type="mistake" title="Reading a finished workflow run as a clean run">
+
+Managed Agents reruns a failed agent once on a new thread and lets the program decide whether a second failure ends the run, so a completed run can still contain failures; inspect per-thread events.<Cite id="F34" />
+
+</Callout>
+
+## Exam lens
+
+<ExamLens>
+
+- **Telephone-game chain:** when a planner, coder, tester, reviewer pipeline drifts or overspends, consolidate tightly coupled work into context-centric agents and isolate only independent slices or black-box verification.<Cite id="F13 F14" />
+- **Deterministic guardrails:** a policy check beside `allowed_tools` or under a permissive parent is bypassed; enforcement moves to `PreToolUse` with `on_failure="block"` and to `disallowed_tools`.<Cite id="F17 F23 F24 F26" />
+- **Transport choice:** Subagents for bounded hub-and-spoke delegation, Agent Teams only for interactive peer work, Dynamic Workflows for fan-outs of dozens to hundreds of items.<Cite id="F15 F30 F31" />
+- **Async HITL and surgical cancellation:** `defer` plus `--resume` avoids holding a process open through an approval; `user.interrupt` with `session_thread_id` targets one worker.<Cite id="F27 F48" />
+
+</ExamLens>
+
+## Self-check
+
+<SelfCheck question="A parent in acceptEdits spawns a subagent whose AgentDefinition sets permissionMode to default. Do Edit calls reach canUseTool?">
+
+No. The subagent inherits `acceptEdits` from the parent, so `Edit` is auto-approved before step 6.<Cite id="F23 F24" /> Gate it with a `PreToolUse` hook instead.<Cite id="F23 F26" />
+
+</SelfCheck>
+
+<SelfCheck question="Why should you benchmark rather than assume twenty concurrent subagents improve throughput?">
+
+The concurrency cap defaults to 20 workers, but the cap does not guarantee that 20 workers improve throughput. Read-only tools can run concurrently while `Edit`, `Write`, and `Bash` run sequentially within a turn.<Cite id="F49 F20" /> A synchronous wave still waits on its slowest worker.<Cite id="F11" /> Measure concurrency under representative load.
+
+</SelfCheck>
+
+<SelfCheck question="How do you pause a headless single-tool run for an approval taking hours without holding the process open?">
+
+Return `permissionDecision: "defer"` from a `PreToolUse` hook; the tool does not run and the turn ends with `stop_reason: "tool_deferred"` and the pending call in the transcript.<Cite id="F26 F27" /> Resume that session with `--resume` once the decision arrives.<Cite id="F51" />
+
+</SelfCheck>

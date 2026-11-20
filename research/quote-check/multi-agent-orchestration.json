@@ -86,7 +86,7 @@
   },
   {
     "id": "F18",
-    "status": "ok",
+    "status": "ok-loose",
     "url": "https://code.claude.com/docs/en/agent-sdk/subagents"
   },
   {
@@ -168,5 +168,130 @@
     "id": "F34",
     "status": "ok",
     "url": "https://platform.claude.com/docs/en/managed-agents/workflow-runs"
+  },
+  {
+    "id": "F35",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/building-effective-agents"
+  },
+  {
+    "id": "F36",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/multi-agent-research-system"
+  },
+  {
+    "id": "F37",
+    "status": "ok-loose",
+    "url": "https://code.claude.com/docs/en/agent-sdk/subagents"
+  },
+  {
+    "id": "F38",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/sub-agents"
+  },
+  {
+    "id": "F39",
+    "status": "ok-loose",
+    "url": "https://code.claude.com/docs/en/agent-sdk/python"
+  },
+  {
+    "id": "F40",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-teams"
+  },
+  {
+    "id": "F41",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/managed-agents/workflow-runs"
+  },
+  {
+    "id": "F42",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/managed-agents/multiagent-orchestration"
+  },
+  {
+    "id": "F43",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/managed-agents/workflow-runs"
+  },
+  {
+    "id": "F44",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/managed-agents/workflow-runs"
+  },
+  {
+    "id": "F45",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/managed-agents/session-threads"
+  },
+  {
+    "id": "F50",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/managed-agents/workflow-runs"
+  },
+  {
+    "id": "F51",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/hooks"
+  },
+  {
+    "id": "F52",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/agent-loop"
+  },
+  {
+    "id": "F48",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/managed-agents/session-threads"
+  },
+  {
+    "id": "F49",
+    "status": "ok-loose",
+    "url": "https://code.claude.com/docs/en/agent-sdk/subagents"
+  },
+  {
+    "id": "F54",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/subagents"
+  },
+  {
+    "id": "F55",
+    "status": "ok-loose",
+    "url": "https://code.claude.com/docs/en/agent-sdk/python"
+  },
+  {
+    "id": "F56",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/managed-agents/workflow-runs"
+  },
+  {
+    "id": "F57",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/sub-agents"
+  },
+  {
+    "id": "F58",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/permissions"
+  },
+  {
+    "id": "F59",
+    "status": "ok-loose",
+    "url": "https://code.claude.com/docs/en/agent-sdk/subagents"
+  },
+  {
+    "id": "F60",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/python"
+  },
+  {
+    "id": "F61",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/managed-agents/multiagent-orchestration"
+  },
+  {
+    "id": "F62",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
   }
 ]
