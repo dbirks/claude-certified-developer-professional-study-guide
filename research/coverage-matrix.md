@@ -22,7 +22,7 @@ Columns: research packet exists · citation entries · quotes verified verbatim 
 | 4.2 | Incident Response and Learning Loops | 10% | yes | 42 | 42/42 | [fact-checked](../content/04-debugging/02-incident-response.mdx) · 2627 words · 42 cited | done |
 | 5.1 | Evaluation System Design | 12% | yes | 42 | 42/42 | [fact-checked](../content/05-evaluation/01-evaluation-design.mdx) · 2522 words · 41 cited | done |
 | 5.2 | LLM-as-Judge Engineering | 12% | yes | 45 | 45/45 | [fact-checked](../content/05-evaluation/02-llm-as-judge.mdx) · 2705 words · 45 cited | done |
-| 5.3 | Online Quality Measurement | 12% | yes | 41 | 37/37 | [fact-checked](../content/05-evaluation/03-online-quality.mdx) · 2945 words · 38 cited | done |
+| 5.3 | Online Quality Measurement | 12% | yes | 41 | 41/41 | [fact-checked](../content/05-evaluation/03-online-quality.mdx) · 2945 words · 38 cited | done |
 | 6.1 | Cost Architecture at Scale | 8% | yes | 42 | 42/42 | [fact-checked](../content/06-cost-latency/01-cost-architecture.mdx) · 2311 words · 42 cited | done |
 | 6.2 | Latency Engineering | 8% | yes | 36 | 36/36 | [fact-checked](../content/06-cost-latency/02-latency-engineering.mdx) · 2381 words · 36 cited | done |
 | 7.1 | Runtime Guardrail Systems | 11% | yes | 53 | 53/53 | [fact-checked](../content/07-security/01-runtime-guardrails.mdx) · 2091 words · 53 cited | done |

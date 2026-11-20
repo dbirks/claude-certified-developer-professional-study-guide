@@ -183,5 +183,25 @@
     "id": "F37",
     "status": "ok",
     "url": "https://www.nist.gov/publications/de-identification-personal-information"
+  },
+  {
+    "id": "F38",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/claude-code-analytics-api"
+  },
+  {
+    "id": "F39",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/claude-code-analytics-api"
+  },
+  {
+    "id": "F40",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
+  },
+  {
+    "id": "F41",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
   }
 ]

@@ -13,3 +13,25 @@ Checked: 2026-11-19 · Reviewer: GPT-6
 - Sampling and privacy — clarified probability sample on first use and added NIST support for residual re-identification risk (F37).
 ## Remaining concerns
 - `verify-quotes.mjs` reports no not-found quotes, but its fetch step timed out for F26 and F37. I checked both exact quotes against the official pages with web fetch. All other quotes passed or passed the checker’s loose match.
+
+## Second pass (GPT-6)
+
+Checked: 2026-11-19 · Reviewer: GPT-6
+
+53 cited passages checked: 44 supported, 9 fixed, 0 removed; 4 citations added; 1 Python code block checked and parsed. Counts refer to citation-bearing passages in the edited chapter, including repeated citations; fixes group related wording changes.
+
+### Changes
+
+- Production monitoring — F2's shorthand “ground truth” could imply that monitoring supplies quality labels; the same source says monitoring lacks ground truth for grading → describe observed behavior (F2).
+- Sampling — known selection probabilities alone do not correct selectively missing labels → state the nonresponse limitation and require nonzero inclusion probabilities.
+- Experiment design — interference and repeated peeks do not inevitably produce bias or inflate error → use conditional wording; define estimand, MDE, and power (F13, F27).
+- Sample size — F26 describes a one-sample proportions derivation, not the example's two-sample formula → identify its scope; independently parsed and ran the example (F26).
+- Analytics endpoint — the date quote did not document the endpoint or actor-level aggregation → cite the endpoint and actor data separately (F38, F39).
+- Document citations — the prior wording implied every enabled response has multiple cited blocks, and F19 did not establish location formats → use the documentation's conditional wording and cite document-dependent formats (F19, F40, F41).
+- Privacy and drift — citations were attached to adjacent recommendations rather than the claims they support → place them directly after the re-identification and rubric claims (F4, F37).
+- Feedback and clustered observations — correct the acceptance-rate sentence, preserve both exposure rate and vote mix, and replace the claim that request-level counting necessarily biases an estimate with the uncertainty and weighting risks (F16).
+- Exam lens — remove citations that did not support the task-metric recommendations; preserve the calibration and deterministic-control decision patterns in the official sample-item rationales.
+
+### Remaining concerns
+
+- Direct shell fetches are network-restricted. Quote verification passed using the existing local cache (32 exact, 9 loose, 0 not found); official pages were also opened through web fetch. The checker and build ran in an isolated copy to avoid changing unauthorized generated files.
