@@ -151,17 +151,6 @@
     "accessed": "2026-11-19"
   },
   {
-    "id": "F16",
-    "claim": "A newer beta supports pinning a returned MCP tool list.",
-    "tag": "VER",
-    "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector",
-    "title": "MCP connector",
-    "source": "anthropic-docs",
-    "quote": "With the mcp-client-2026-09-15 beta header, the API records the tool list each server returns, and you can pin that list.",
-    "accessed": "2026-11-19",
-    "version_note": "Documentation accessed 2026-11-19; confirm platform and model availability before deployment."
-  },
-  {
     "id": "F17",
     "claim": "MCP connector exchanges are not covered by ZDR.",
     "tag": "FACT",
@@ -399,6 +388,36 @@
     "title": "MCP connector",
     "source": "anthropic-docs",
     "quote": "The URL of the MCP server. Must start with https://.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F40",
+    "claim": "The 2026-07-28 revision uses a stateless request/response core.",
+    "tag": "STD",
+    "url": "https://blog.modelcontextprotocol.io/posts/2026-07-28/",
+    "title": "The 2026-07-28 Specification",
+    "source": "mcp-spec",
+    "quote": "MCP is transforming from a bidirectional stateful protocol into a request/response stateless protocol.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F41",
+    "claim": "Claude Code documents adding a shared project MCP server with --scope project.",
+    "tag": "FACT",
+    "url": "https://code.claude.com/docs/en/mcp",
+    "title": "Connect Claude Code to tools via MCP",
+    "source": "claude-code-docs",
+    "quote": "To share the server with your team instead, add --scope project, or add the entry under mcpServers in .mcp.json at your project root and commit it.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F42",
+    "claim": "MCP tool definitions include a unique name, description, and input schema.",
+    "tag": "STD",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/server/tools",
+    "title": "Tools",
+    "source": "mcp-spec",
+    "quote": "Each tool is uniquely identified by a name and includes metadata describing its schema.",
     "accessed": "2026-11-19"
   }
 ]

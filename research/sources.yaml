@@ -858,6 +858,7 @@
   accessed: 2026-11-19
   cited_by:
     - mcp-change-management:F11
+    - mcp-change-management:F42
 - url: https://modelcontextprotocol.io/specification/2026-07-28/basic/index
   title: Model Context Protocol - Basic Protocol
   source: mcp-spec

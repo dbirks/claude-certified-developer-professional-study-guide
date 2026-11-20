@@ -75,11 +75,6 @@
     "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector"
   },
   {
-    "id": "F16",
-    "status": "ok-loose",
-    "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector"
-  },
-  {
     "id": "F17",
     "status": "ok",
     "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector"
@@ -193,5 +188,20 @@
     "id": "F39",
     "status": "ok-loose",
     "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector"
+  },
+  {
+    "id": "F40",
+    "status": "ok",
+    "url": "https://blog.modelcontextprotocol.io/posts/2026-07-28/"
+  },
+  {
+    "id": "F41",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/mcp"
+  },
+  {
+    "id": "F42",
+    "status": "ok",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/server/tools"
   }
 ]

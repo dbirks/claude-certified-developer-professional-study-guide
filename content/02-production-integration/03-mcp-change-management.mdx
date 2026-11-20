@@ -1,0 +1,237 @@
+---
+title: "Production MCP and Change Management"
+summary: "Decide which layer of a running agent changed — protocol, endpoint, credential, tool schema, model, prompt, or route — and release it as one tested bundle."
+kind: skill
+skill: "2.3"
+slug: mcp-change-management
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+**Model Context Protocol (MCP)** is a stateless request/response protocol under revision `2026-07-28`.<Cite id="F40" /> Production change management tracks the dependencies a request uses: protocol revision, transport, endpoint, credentials, tool catalog, model, prompt, and route. These layers can change independently. For example, on Claude Fable 5.2, changing a tool list between requests counts as an edit to the conversation prefix and can cause a `400` when earlier thinking blocks are sent back.<Cite id="F25 F26" /> Name the changed layer, test the new combination before routing traffic to it, and keep a tested release bundle for rollback.
+
+## The deployable contract
+
+The **deployable contract** is the set of artifacts a running request depends on. Inventory it, version each part separately, and record the combination in a **release manifest**: protocol revision does not version your business tools, and a schema version does not version your route.
+
+| Layer | Version it as | Typical break on upgrade |
+|---|---|---|
+| MCP protocol revision | Revision date (`2025-11-25`, `2026-07-28`) | List-change delivery differs by revision.<Cite id="F2 F12" /> |
+| Transport | Per endpoint (stdio, Streamable HTTP) | The Messages API connector cannot reach a local stdio server.<Cite id="F13" /> |
+| Auth | Canonical resource, issuer, scopes | Invalid or expired tokens return `401`.<Cite id="F35" /> |
+| Tool catalog | Names, descriptions, input schemas | Tool selection may change after a catalog update. |
+| Model snapshot | Model ID plus platform deployment | Requests to retired models fail.<Cite id="F23" /> |
+| Prompt and route | Release ID or content hash, gateway route | Some mid-conversation edits fail prefix checks with `400`.<Cite id="F26" /> |
+
+## Remote MCP deployment and authentication
+
+The protocol revision decides how versions and capabilities are agreed, which decides what a client must do on an upgrade. The published MCP revision is `2026-07-28`.<Cite id="F1" /> Keep `2025-11-25` in view as a handshake-era compatibility target, not an alias for the new wire behavior.
+
+| Aspect | `2025-11-25` | `2026-07-28` |
+|---|---|---|
+| Version agreement | Client MUST send a supported protocol version in `initialize`. The server MUST respond with the same version if it supports it. The client SHOULD disconnect if it cannot support the returned version.<Cite id="F3 F4" /> | Each request travels on its own and carries protocol version, client identity, and client capabilities in `_meta`.<Cite id="F2" /> |
+
+The standard transports are stdio and Streamable HTTP. Streamable HTTP replaced the HTTP+SSE transport from protocol version `2024-11-05`.<Cite id="F5" /> Claude Code deprecates the legacy SSE transport and recommends HTTP servers where available.<Cite id="F6" /> Streamable HTTP can still use SSE to stream server messages.<Cite id="F5" />
+
+The 2025 authorization profile sets requirements on both sides of the connection.<Cite id="F7 F8 F9 F36" />
+
+| Requirement | Rule |
+|---|---|
+| Authorization server | MUST implement OAuth 2.1 with appropriate security measures for confidential and public clients.<Cite id="F36" /> |
+| Resource metadata | Servers MUST publish OAuth 2.0 Protected Resource Metadata (RFC 9728), and clients MUST use it for authorization-server discovery.<Cite id="F7" /> |
+| Token audience | Clients MUST implement Resource Indicators (RFC 8707) to specify the target resource of each token request.<Cite id="F8" /> |
+| Server validation | Servers MUST accept only tokens valid for their own resources and MUST NOT accept or transit other tokens.<Cite id="F9" /> |
+| Downstream calls | The MCP server MUST NOT pass through the client's token; obtain a separate appropriate downstream credential.<Cite id="F10" /> |
+| Rejection | Invalid or expired tokens MUST receive HTTP `401`.<Cite id="F35" /> |
+| Stdio | Implementations SHOULD NOT follow this profile and instead retrieve credentials from the environment.<Cite id="F33" /> |
+
+The **canonical resource** is the identity a token is minted for, so moving a public MCP hostname or path is an authentication migration, not a DNS change: publish correct metadata behind the new endpoint, get a freshly issued resource-bound token, validate issuer and audience at each replica, and test expired, wrong-audience, and insufficient-scope cases. Do not clear a `401` by forwarding a token meant for another backend.
+
+Claude Code scope is deployed configuration: the effective server can differ between developers, or between a laptop and CI, on an identical repository. Keep bearer secrets out of the committed `.mcp.json`.
+
+| Scope | Where it lives | Who sees it |
+|---|---|---|
+| `local` (default) | Only the project where you added the server | Private to you.<Cite id="F18" /> |
+| `project` | `.mcp.json` at the project root | Shared with the team.<Cite id="F19" /> |
+| `user` | `~/.claude.json` | Every project on your machine, private to your account.<Cite id="F37" /> |
+
+Use `--scope project` to store this server in project scope. Claude Code documents the `claude mcp add` command and `--scope project` option.<Cite id="F41" />
+
+```bash
+# --scope user selects user scope; omitting scope selects local.
+claude mcp add --transport http shared-server --scope project https://example.com/mcp
+```
+
+## Tool and schema versioning
+
+An MCP tool definition includes a name, a description, and an input schema. A **tool catalog change** alters definitions the model sees; how that change is delivered depends on the revision.<Cite id="F42" /> A server using the handshake-era protocol that declared `listChanged` SHOULD send `notifications/tools/list_changed` when its tool list changes.<Cite id="F11" /> Under `2026-07-28`, list-change and resource-update notifications arrive only on a `subscriptions/listen` stream the client opened.<Cite id="F12" /> Re-list after change events, invalidate dependent caches, and test missed events, reconnects, and catalog reconciliation.
+
+| Change | Breaking? | Migration move |
+|---|---|---|
+| Remove or rename a tool | Yes | Publish v2, keep v1, drain traffic, then retire v1 |
+| Require a formerly optional argument | Yes | Accept both signatures during the overlap |
+| Narrow an enum or change units | Yes | New tool name or explicit schema version |
+| Change what a result means | Yes | New tool; the old description now misleads the model |
+| Add a tool or an optional input | Possibly | Re-evaluate selection and behavior before rollout |
+
+Retain v1 alongside v2, compare real calls and results, migrate client allowlists, and retire v1 only after traffic drains. A notification is a cache invalidation signal, not a compatibility promise.
+
+## The Messages API connector
+
+The Messages API MCP connector reaches remote MCP servers through a public HTTP endpoint. It supports Streamable HTTP and SSE, but it cannot connect directly to a local stdio server.<Cite id="F13" /> The connector currently supports only MCP tool calls.<Cite id="F38" /> It is not eligible for zero-data-retention (ZDR) arrangements; exchanged data follows the feature's standard retention policy.<Cite id="F17" />
+
+Connector migration changes request configuration. The current beta header is `mcp-client-2025-11-20`; it replaces deprecated `mcp-client-2025-04-04`.<Cite id="F14" /> Tool configuration now lives in `MCPToolset` objects in the `tools` array.<Cite id="F15" /> Each `mcp_servers` entry uses `type: "url"`, `url`, and `name`, with optional `authorization_token`. Its URL must start with `https://`. An `mcp_toolset` entry refers to the server through `mcp_server_name`.<Cite id="F13 F15 F39" /> For an allowlist, set `default_config.enabled` to `false` and enable approved tool names under `configs`. This controls exposure through the application and does not replace server-side authorization.<Cite id="F15" /> Keep the tool definitions stable within a conversation, and test catalog changes against the target model before routing production traffic to them.<Cite id="F25" />
+
+<Callout type="version" title="Checked 2026-11-19">
+
+Connector availability can vary by platform and deployment type. Check the current platform matrix before enabling this feature.
+
+</Callout>
+
+The following is illustrative Python pseudocode for the documented Anthropic Python SDK beta interface.<Cite id="F13 F14 F15 F28 F39" /> It needs an SDK release carrying that beta, a model entitlement, a resource-bound token, and a deployed server, so it does not run as written.
+
+```python
+import anthropic
+
+client = anthropic.Anthropic()
+response = client.beta.messages.create(
+    model="claude-fable-5-2",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "Find order 123."}],
+    mcp_servers=[{
+        "type": "url", "name": "orders",
+        "url": "https://orders.example.com/mcp",
+        "authorization_token": "RESOURCE_BOUND_ACCESS_TOKEN",
+    }],
+    tools=[{
+        "type": "mcp_toolset", "mcp_server_name": "orders",
+        "default_config": {"enabled": False},
+        "configs": {"lookup_order": {"enabled": True}},
+    }],
+    betas=["mcp-client-2025-11-20"],
+)
+```
+
+## Model and prompt versioning
+
+Model IDs have a lifecycle, and alias behavior depends on the generation. On the Claude API, shorter aliases for pre-4.6 models such as `claude-sonnet-4-5` point to the latest dated snapshot for that minor version.<Cite id="F21" /> From the 4.6 generation, a dateless ID maps to one fixed snapshot.<Cite id="F20" /> Pinning a model ID does not freeze observable behavior: infrastructure updates can produce minor differences even when the ID and weights stay the same.<Cite id="F22" /> Requests to retired models fail, so migrate before retirement.<Cite id="F23" /> Google managed Claude and Amazon Bedrock set their own retirement schedules.<Cite id="F24" />
+
+Prefix rules can turn tool changes into model errors. For Claude Fable 5.2 thinking blocks, a tool list that changes between requests counts as an edit.<Cite id="F25" /> A prefix check fails if you change `system`, `tools`, or earlier messages mid-conversation and then send thinking blocks back. The failed request returns HTTP `400`.<Cite id="F26" /> Claude Fable 5.1 cannot read Claude Fable 5.2 thinking blocks.<Cite id="F31" /> Parameter support also varies by model: Claude Opus 5 accepts `tool_choice` values `any` and `tool`, and Claude Fable 5.2 rejects both.<Cite id="F27" />
+
+**Prompt versioning** follows the same discipline as code. Keep templates, variables, system text, and example sets in version control with a content hash or release ID, logged alongside model ID, tool schema digest, platform, gateway route, and eval dataset revision, and keep secrets out of telemetry. A prompt edit is a release that can invalidate preserved thinking-prefix assumptions: start new conversations on the new manifest or follow the documented migration procedure. Anthropic's updates to the Claude consumer app system prompt do not apply to the Claude API.<Cite id="F34" />
+
+## Platform parity and gateway routing
+
+The same model can require different request identifiers or deployment configuration by platform; a gateway can hide those differences from callers, but the adapter still has to handle them.<Cite id="F28 F29 F32" />
+
+| Platform | Identifier in requests |
+|---|---|
+| Claude API and other platforms | `claude-fable-5-2`.<Cite id="F28" /> |
+| Amazon Bedrock | `global.anthropic.claude-fable-5-2` or `us.anthropic.claude-fable-5-2`, served only by the `bedrock-runtime` endpoint.<Cite id="F28" /> |
+| Microsoft Foundry | The deployment name, which is not necessarily the model ID.<Cite id="F29" /> |
+| Foundry Anthropic-hosted fast mode | A `claude-fable-5-2-fast` deployment, with `speed` omitted.<Cite id="F32" /> |
+
+Claude Code points at a gateway with `ANTHROPIC_BASE_URL`.<Cite id="F30" /> Configure gateway authentication and its upstream provider separately. Changing the base URL alone does not establish identical model names, capabilities, or entitlements.
+
+<Figure caption="A model gateway and an MCP server are distinct routing and authorization boundaries. The MCP edge carries a resource-bound token and the downstream call uses its own credential; a feedback path returns cohort quality and errors to the rollout controller, which changes routing or restores the previous manifest.">
+
+<Flow direction="vertical" steps={[{ label: "Developer or CI", note: "model route" }, "Claude Code or application", "Authenticated LLM gateway", { label: "Platform adapter and model deployment", note: "deployment ID, region, entitlement" }]} />
+
+<Flow direction="vertical" steps={[{ label: "Application or Messages connector", note: "MCP route" }, { label: "Authenticated remote MCP endpoint", note: "resource-bound token" }, { label: "Independent downstream API", note: "separate credential" }]} />
+
+</Figure>
+
+When using a gateway, inventory its authentication, quotas, logging, model mapping, and routing behavior. Test semantic translations because the gateway becomes another dependency. Keep a tested matrix per upstream (deployment ID, region, identity, quota, beta headers, tool and streaming support, data handling, retirement date, request and response shape, SDK adapter), then run the same contract and behavioral suite per path. Route only where the full combination is supported.
+
+## Migration testing against breaking changes
+
+Migration testing compares the complete old and new request configurations on replayable, privacy-appropriate **golden cases** and multi-turn trajectories; model replacement is not an ID substitution. Measure task success, tool selection and argument validity, groundedness, refusal and stop outcomes, schema parsing, retries, p95 latency, and cost; include adversarial, boundary, and long-context cases; validate actual side effects in an isolated or simulated system rather than trusting response text; and set regression thresholds before you inspect results.
+
+| Test lane | Proves |
+|---|---|
+| Request acceptance | Parameter parity holds on the target model and platform |
+| Auth | Metadata discovery, audience validation, expiry, and scope failures behave correctly |
+| Event delivery | List-change and stream events reach the client after reconnect |
+| Multi-turn continuation | Prefix and thinking-block assumptions survive the new turn shape |
+| Session rollback | The prior manifest can still serve conversations already in flight |
+
+## Progressive rollout with rollback
+
+Roll out one change at a time where practical, assigning whole conversations rather than individual turns to a cohort. Keep a known-good bundle of model, prompt, tool schema, endpoint, and routing, and rehearse restoring it, including credentials and data compatibility.
+
+Worked example (illustrative; these targets are not Anthropic requirements): a support agent runs 10,000 daily conversations on model A, prompt `p17`, and server `orders-v1` with the old schema. A candidate adds an optional `region` and a separate `refund_quote_v2` with different currency units. The manifest records exact versions, the tool-list hash, the OAuth resource, and the deployment; the server keeps v1 live and the toolset enables only approved tools.
+
+| Stage | What runs | Gate to advance |
+|---|---|---|
+| Offline replay | 500 representative cases in a sandbox, since real and candidate calls would otherwise duplicate actions: malformed inputs, multi-turn tool use, bad audience, expired token, no-result behavior | No unauthorized side effects, no contract failures, at most 1 percentage point decline in labeled task success |
+| Canary | 1% of **new conversations**, then 10%, 50%, 100% | Quality, correctness, latency, errors, and spend pass; each cohort compared by customer and task type, because a low global error rate can hide a failing tenant |
+| Rollback | New conversations return to the prior manifest | Existing candidate conversations stay on their compatible route or restart explicitly |
+
+Restore server, allowlist, and prompt together when any depends on the changed schema, and test the Fable 5.2-to-5.1 path because the older model cannot read newer thinking blocks.<Cite id="F31 F26" />
+
+## Decision criteria
+
+Choose the migration unit by asking what a running conversation depends on.
+
+| Question | Choose | Evidence |
+|---|---|---|
+| Do both ends speak the target revision? | Protocol or transport change only when client and server support it, since version and capability handling differ between the handshake era and the per-request era.<Cite id="F2 F3" /> | Contract test on the real pair |
+| Did the resource identity move? | Auth migration with metadata and token-audience work, because the canonical resource is part of the credential.<Cite id="F7 F8 F9" /> | Expired, wrong-audience, low-scope cases |
+| Did tool meaning change? | New tool name for changed meaning; notification plus reconciliation only for strict additions.<Cite id="F11 F12" /> | Side-by-side v1/v2 call diff |
+| Did the model ID change? | Full bundle swap after checking platform matrix, prefix rules, and parameter parity, since a fixed snapshot still can differ from the previous route.<Cite id="F22 F26 F27 F28" /> | Golden-case replay per route |
+| Is the canary good? | Expand only on per-cohort results, not aggregate averages | Per-tenant quality and error rates |
+
+## Failure modes and recovery
+
+Treat any change to one layer as part of the full release.
+
+<Callout type="mistake" title="Reverting only the model name">
+
+Rolling back the model ID while leaving the new prompt, tool schema, thinking history, or provider deployment in place keeps the mismatch that caused the failure. Restore the whole bundle.
+
+</Callout>
+
+<Callout type="mistake" title="Reading a `401` as a broken tool">
+
+An invalid or expired MCP token returns HTTP `401` under the 2025 authorization profile.<Cite id="F35" /> A prefix violation returns HTTP `400`.<Cite id="F26" /> Neither status indicates a malformed tool argument or a quality regression. Fix identity or history state instead of retrying the unchanged request.
+
+</Callout>
+
+<Callout type="mistake" title="Assuming the connector behaves like a client">
+
+The connector needs a public HTTP endpoint, cannot connect to local stdio directly, supports tool calls only, and is not eligible for ZDR arrangements.<Cite id="F13 F38 F17" /> That design fails at deployment review, not in testing.
+
+</Callout>
+
+Three assumptions fail quietly. A dateless model ID is not always a moving alias, and pinning an ID does not freeze serving behavior.<Cite id="F20 F21 F22" /> The 2025 `initialize` negotiation and notification behavior do not apply unchanged to the 2026 revision.<Cite id="F2 F3 F12" /> Deprecating legacy HTTP+SSE does not prohibit SSE streaming inside Streamable HTTP.<Cite id="F5 F6" /> Gateway routing does not make vendor APIs or retention guarantees interchangeable. A secondary route may also be retired or lack a required capability.<Cite id="F24" />
+
+## Exam lens
+
+<ExamLens>
+
+- A server upgrade changes its tool list and a long conversation starts failing with `400`: inspect model-specific prefix rules and the current tool definitions before changing OAuth settings.<Cite id="F25 F26" />
+- A fallback route on Foundry or Bedrock rejects the same request: inspect deployment IDs, provider-specific parameters, capabilities, beta headers, and lifecycle before retrying.<Cite id="F24 F28 F29 F32" />
+- A migration changes the MCP URL and the old token stops working: verify resource metadata and token audience instead of forwarding a downstream token.<Cite id="F7 F8 F9 F10" />
+- A canary improves average quality but breaks one schema or customer cohort: stop expansion and roll back the compatible release bundle; aggregate performance alone is insufficient.
+
+</ExamLens>
+
+## Self-check
+
+<SelfCheck question="Why can a model-pinned conversation still fail after an MCP deploy?">
+
+A changed tool list can violate Claude Fable 5.2 prefix checks, and a failed prefix check returns HTTP `400`.<Cite id="F25 F26" /> Test the live connector’s tool-list behavior and investigate the server contract before changing the model ID.
+
+</SelfCheck>
+
+<SelfCheck question="Does `claude-sonnet-4-6` act like the older `claude-sonnet-4-5` alias?">
+
+No. From the 4.6 generation, a dateless ID maps to one fixed snapshot.<Cite id="F20" /> Shorter aliases for earlier models point to the latest dated snapshot for that minor version.<Cite id="F21" /> Pinning still does not guarantee identical observable behavior across infrastructure updates.<Cite id="F22" />
+
+</SelfCheck>
+
+<SelfCheck question="What has to change together when an MCP server moves to a new canonical resource?">
+
+Treat it as an auth migration: publish correct protected-resource metadata, issue tokens for the new resource, validate the audience, and never pass the client token through to a downstream API. Then roll out client configuration and monitor `401` responses as one release.<Cite id="F7 F8 F9 F10 F35" />
+
+</SelfCheck>
