@@ -2,12 +2,27 @@
    Moved out of reading.css. Filled pastel surfaces, no borders, big radii; the only
    shadow is on the floating desktop panel. Colors/fonts come from tokens.css only.
    Pagefind ships svelte-scoped CSS, so every override is scoped through #search-root
-   (an id) to outrank its `.x.svelte-hash` selectors loaded later in <head>. */
+   (an id) to outrank its `.x.svelte-hash` selectors loaded later in <head>.
+
+   Geometry lives in the custom properties on .search-dialog below: the pill row, the icon
+   inside it, the Clear pill and the circle close all derive their offsets from those numbers,
+   so the field can't drift apart when one of them changes. */
 
 /* ------------------------------------------------------------------- dialog */
 
 .search-dialog {
   --field-top: 14px; /* pill row's top offset; the mobile sheet pushes it below the notch */
+  --pad-l: 24px; /* horizontal inset of header row, results and hint (16px on mobile) */
+  --pad-r: 24px;
+  --field-h: 48px; /* the pill */
+  --icon: 18px; /* Lucide "search" glyph inside the pill */
+  --field-pad: 16px; /* glyph's inset from the pill's left edge */
+  --field-gap: 12px; /* glyph → input text */
+  --clear-h: 32px; /* Clear pill, inside the right end of the field */
+  --clear-w: 58px; /* Clear pill's width (0 12px padding around 12px/700 "Clear" = measured 55px) */
+  --clear-inset: 8px; /* Clear pill's gap to the pill's right edge */
+  --clear-gap: 10px; /* input text → Clear pill */
+  --close-col: 54px; /* circle-close column the pill stops short of (44px + 10px gap) */
   width: min(680px, 100vw - 32px);
   max-height: min(78vh, 680px);
   margin: auto; /* center the fixed box both ways */
@@ -33,12 +48,12 @@
   box-shadow: 0 12px 40px rgba(16, 14, 20, 0.55);
 }
 
-/* Circle close button, parked in the 58px column the pill leaves free at the right. */
+/* Circle close button, parked in the --close-col column the pill leaves free at the right. */
 .search-dialog__head {
   position: absolute;
   z-index: 3;
-  top: calc(var(--field-top) + 2px); /* 44px circle centered on the 48px pill */
-  right: 14px;
+  top: calc(var(--field-top) + (var(--field-h) - 44px) / 2); /* 44px circle centered on the pill */
+  right: var(--pad-r);
 }
 
 .search-dialog__close {
@@ -54,11 +69,12 @@
   }
 }
 
+/* Footer line: same left inset as the result cards, even padding around the text. */
 .search-dialog__hint {
   flex: none;
   margin: 0;
-  padding: 6px 20px calc(12px + env(safe-area-inset-bottom));
-  font: 500 12.5px/1.4 var(--font-sans);
+  padding: 12px var(--pad-r) 12px var(--pad-l);
+  font: 500 13px/1.4 var(--font-sans);
   color: var(--ink-muted);
 }
 
@@ -70,7 +86,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden; /* the Pagefind drawer below is the scroller */
-  padding: 0 16px;
+  padding: 0 var(--pad-r) 0 var(--pad-l);
   /* Pagefind theme hooks (its :root defaults are outranked by this id rule). */
   --pagefind-ui-scale: 1;
   --pagefind-ui-font: var(--font-sans);
@@ -103,20 +119,27 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding: var(--field-top) 0 12px; /* the pill reserves 58px on the right for the close circle */
+  padding: var(--field-top) 0 12px;
   background: var(--bg);
 }
 
+/* 48px pill: glyph at the left, text 12px after it, Clear pill at the right end, everything
+   centered on the --field-h line. The horizontal padding is forced because Pagefind writes its
+   own inline padding-right (= Clear's width + 2px), which is measured off the button's box and
+   lets the pill sit on top of the text. */
 #search-root .pagefind-ui__search-input {
   flex: none;
-  width: auto; /* stretch minus the 58px margin, so the close circle never sits on it */
-  height: 48px;
+  width: auto; /* stretch minus --close-col, so the close circle has its own column */
+  height: var(--field-h);
   appearance: none;
   -webkit-appearance: none;
   display: block;
   box-sizing: border-box;
-  margin-right: 58px;
-  padding: 0 58px 0 44px;
+  margin-right: var(--close-col);
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: calc(var(--field-pad) + var(--icon) + var(--field-gap));
+  padding-right: calc(var(--clear-inset) + var(--clear-w) + var(--clear-gap)) !important;
   border: 0;
   border-radius: var(--r-pill);
   background-color: var(--surface);
@@ -124,7 +147,7 @@
   font-family: var(--font-sans);
   font-size: 16px;
   font-weight: 500;
-  line-height: 48px;
+  line-height: var(--field-h); /* line box = pill height, so glyphs sit dead centre */
 }
 
 #search-root .pagefind-ui__search-input::placeholder {
@@ -138,41 +161,43 @@
   border-radius: var(--r-pill);
 }
 
-/* Lucide "search" (lucide-static, ISC) at 18px, painted through a mask so it inherits
-   a token color instead of Pagefind's hardcoded black glyph. */
+/* Lucide "search" (lucide-static, ISC) at --icon, painted through a mask so it inherits
+   a token color instead of Pagefind's hardcoded black glyph (this override replaces it —
+   Pagefind draws no second icon). */
 #search-root .pagefind-ui__form::before {
-  top: calc(var(--field-top) + 15px);
-  left: 16px;
-  width: 18px;
-  height: 18px;
+  top: calc(var(--field-top) + (var(--field-h) - var(--icon)) / 2);
+  left: var(--field-pad);
+  width: var(--icon);
+  height: var(--icon);
   opacity: 1;
   background-color: var(--ink-muted);
-  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E");
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E");
-  -webkit-mask-size: 18px 18px;
-  mask-size: 18px 18px;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.34-4.34'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.34-4.34'/%3E%3C/svg%3E");
+  -webkit-mask-size: var(--icon) var(--icon);
+  mask-size: var(--icon) var(--icon);
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
 }
 
-/* "Clear" button: plain text sitting INSIDE the right end of the pill. The pill stops 58px
-   short of the form's right edge (its margin-right) so the close circle has its own column,
-   hence right = 58px + 6px inset; the 30px button centers in the 48px pill. */
+/* "Clear": a compact pill inside the right end of the field, centered on the pill row and
+   8px off its right edge (the field's forced padding-right keeps the text clear of it). */
 #search-root .pagefind-ui__search-clear {
-  top: calc(var(--field-top) + 9px);
-  right: 64px;
+  top: calc(var(--field-top) + (var(--field-h) - var(--clear-h)) / 2);
+  right: calc(var(--close-col) + var(--clear-inset));
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 30px;
-  padding: 0 8px;
+  box-sizing: border-box;
+  height: var(--clear-h);
+  padding: 0 12px;
   border: 0;
   border-radius: var(--r-pill);
-  background-color: transparent;
+  background-color: var(--bg);
   color: var(--ink-muted);
   font-family: var(--font-sans);
-  font-size: 12.5px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
   cursor: pointer;
 }
 
@@ -189,7 +214,7 @@
   flex-direction: column;
   gap: 0;
   width: 100%;
-  padding-bottom: 16px;
+  padding-bottom: 0; /* the hint below carries the bottom inset */
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
@@ -262,8 +287,9 @@
   font-weight: 600;
 }
 
-/* sub-results (page sections): compact indented rows inside the card.
-   Their excerpts repeat the card excerpt, which turns the sheet to noise — the row is the link. */
+/* sub-results (page sections): compact rows inside the card, led by a Lucide
+   "corner-down-right" instead of Pagefind's "⤷" hook arrow. Their excerpts repeat the card
+   excerpt, which turns the sheet to noise — the row is the link. */
 #search-root .pagefind-ui__result-nested .pagefind-ui__result-excerpt {
   display: none;
 }
@@ -275,7 +301,7 @@
   min-height: 44px; /* touch target rule */
   min-width: 0;
   margin: 2px 0 0;
-  padding: 6px 10px 6px 14px;
+  padding: 8px 10px;
   border: 0;
   border-radius: 12px;
   background: transparent;
@@ -286,24 +312,48 @@
   min-width: 0;
 }
 
-#search-root .pagefind-ui__result-nested .pagefind-ui__result-link {
-  display: block;
-  color: var(--sky-ink);
-  font-family: var(--font-sans);
-  font-size: 14px;
-  font-weight: 600;
-}
-
 /* The row's <p> would otherwise inherit the 18px serif title metrics and pad the row out. */
 #search-root .pagefind-ui__result-nested .pagefind-ui__result-title {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
   font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 600;
   line-height: 1.45;
 }
 
+#search-root .pagefind-ui__result-nested .pagefind-ui__result-link {
+  display: flex; /* arrow + label, centered as one row */
+  align-items: flex-start; /* a wrapped label keeps its arrow on the first line */
+  gap: 8px;
+  min-width: 0;
+  color: var(--sky-ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+/* Lucide "corner-down-right" at 14px, masked so it takes the token ink of the link; the
+   margin centres it on the 1.45 line box (20.3px). Also cancels Pagefind's absolutely
+   positioned "⤷" pseudo-element. */
 #search-root .pagefind-ui__result-nested .pagefind-ui__result-link::before {
-  content: none; /* Pagefind's "⤷" hook arrow */
+  content: "";
+  position: static;
+  right: auto;
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-top: calc((1.45em - 14px) / 2);
+  background-color: var(--sky-ink);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m15 10 5 5-5 5'/%3E%3Cpath d='M4 4v7a4 4 0 0 0 4 4h12'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m15 10 5 5-5 5'/%3E%3Cpath d='M4 4v7a4 4 0 0 0 4 4h12'/%3E%3C/svg%3E");
+  -webkit-mask-size: 14px 14px;
+  mask-size: 14px 14px;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 
 @media (hover: hover) {
@@ -314,13 +364,17 @@
   #search-root .pagefind-ui__result-nested:hover .pagefind-ui__result-link {
     color: var(--sky-title);
   }
+
+  #search-root .pagefind-ui__result-nested:hover .pagefind-ui__result-link::before {
+    background-color: var(--sky-title);
+  }
 }
 
 /* result count line + "show more" */
 #search-root .pagefind-ui__message {
   box-sizing: content-box;
   height: auto;
-  padding: 4px 2px 10px;
+  padding: 8px 0;
   color: var(--ink-muted);
   font-family: var(--font-sans);
   font-size: 13px;
@@ -365,6 +419,8 @@
 @media (max-width: 639px) {
   .search-dialog {
     --field-top: calc(14px + env(safe-area-inset-top));
+    --pad-l: calc(16px + env(safe-area-inset-left));
+    --pad-r: calc(16px + env(safe-area-inset-right));
     width: 100vw;
     max-width: 100vw;
     height: 100dvh;
@@ -374,23 +430,6 @@
     border-radius: 0;
     background: var(--bg);
     box-shadow: none;
-  }
-
-  .search-dialog__head {
-    right: calc(16px + env(safe-area-inset-right));
-  }
-
-  .search-root {
-    padding: 0 calc(16px + env(safe-area-inset-right)) 0
-      calc(16px + env(safe-area-inset-left));
-  }
-
-  #search-root .pagefind-ui__drawer {
-    padding-bottom: 16px;
-  }
-
-  .search-dialog__hint {
-    padding-left: calc(16px + env(safe-area-inset-left));
   }
 }
 
