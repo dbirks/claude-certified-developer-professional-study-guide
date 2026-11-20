@@ -1,0 +1,317 @@
+- id: F1
+  claim: "HTTP 400 invalid_request_error indicates a malformed request or unsupported parameter and also triggers when usage reaches a user-configured organization or workspace spend limit (Claude Code workspaces may return 429 instead)."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "The API also returns a 400 when usage reaches an organization or workspace"
+  accessed: 2026-11-19
+
+- id: F2
+  claim: "HTTP 401 authentication_error signals a malformed, revoked, or expired API key, an AWS SigV4 failure on Claude Platform on AWS, or a browser CORS rejection under custom retention settings such as ZDR."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "No change to the browser request fixes it, so send the request from your own back end"
+  accessed: 2026-11-19
+
+- id: F3
+  claim: "HTTP 409 conflict_error indicates that a request conflicts with current resource state (such as concurrent modification or a non-unique value) and should be resolved before retrying."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "For example, the resource was modified concurrently, or a value that must be unique is already in use. Resolve the conflict, then retry the request."
+  accessed: 2026-11-19
+
+- id: F4
+  claim: "Exceeding first-party Claude API payload caps (128 MB Messages/Token Counting, 256 MB Batch, 500 MB Files) returns HTTP 413 request_too_large from Cloudflare before reaching API servers."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "On the first-party Claude API, Cloudflare returns this error before the request reaches the API servers."
+  accessed: 2026-11-19
+
+- id: F5
+  claim: "Partner-operated platforms enforce smaller request size limits than the first-party Claude API: 20 MB on Amazon Bedrock, 30 MB on Google-managed Vertex AI, and 32 MB on Anthropic-managed cloud offerings."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/overview
+  title: "API overview"
+  source: anthropic-docs
+  quote: "Partner-operated platforms have their own request size limits: Bedrock limits requests to 20 MB, and Claude Models on Google Cloud (Google managed) limits requests to 30 MB."
+  accessed: 2026-11-19
+
+- id: F6
+  claim: "HTTP 429 rate_limit_error covers rate limits, ramp limits, and tier monthly spend caps; a tier spend-cap 429 has error.details.error_code enforced_spend_limit_reached, omits the retry-after header, and keeps failing even under SDK retries until access resumes."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "A tier spend-cap 429 has no retry-after header and keeps failing until access resumes"
+  accessed: 2026-11-19
+
+- id: F7
+  claim: "HTTP 500 api_error indicates an internal error and HTTP 504 timeout_error indicates a processing timeout; timeout_error can also be returned with HTTP 500 when a request hits the server time limit before the response starts."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "The API also returns timeout_error with other status codes, such as a 500 when a request reaches the server’s time limit before the response starts."
+  accessed: 2026-11-19
+
+- id: F8
+  claim: "HTTP 529 overloaded_error indicates the API is temporarily overloaded due to high traffic across all users."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "A 529 error can occur when the API experiences high traffic across all users."
+  accessed: 2026-11-19
+
+- id: F9
+  claim: "Every API response includes a unique request-id header (and request_id in JSON error payloads), exposed as _request_id on top-level response objects in Python and TypeScript SDKs."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "Every API response includes a unique request-id header."
+  accessed: 2026-11-19
+
+- id: F10
+  claim: "Claude Platform on AWS returns dual request IDs: x-amzn-requestid (primary, indexed in CloudTrail) and request-id (secondary, for Anthropic support)."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "Use the AWS request ID for CloudTrail lookups and the Anthropic request ID for Anthropic support tickets."
+  accessed: 2026-11-19
+
+- id: F11
+  claim: "Claude API rate limits use a continuously replenished token bucket algorithm across RPM, ITPM, and OTPM, so short bursts can trigger 429s even below per-minute averages."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "The API uses the token bucket algorithm to do rate limiting. This means that your capacity is continuously replenished up to your maximum limit, rather than being reset at fixed intervals."
+  accessed: 2026-11-19
+
+- id: F12
+  claim: "ITPM rate limits count only uncached input tokens (input_tokens plus cache_creation_input_tokens); cache_read_input_tokens do not count toward ITPM."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "The API’s default ITPM rate limits count only uncached input tokens."
+  accessed: 2026-11-19
+
+- id: F13
+  claim: "OTPM rate limits are evaluated in real time against actual generated output tokens, so setting a larger max_tokens value does not consume extra OTPM quota."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "OTPM rate limits are evaluated in real time as output tokens are produced, counting only the actual tokens generated. The max_tokens parameter does not factor into OTPM rate limit calculations, so there is no rate limit downside to setting a higher max_tokens value."
+  accessed: 2026-11-19
+
+- id: F14
+  claim: "Response headers report retry-after and anthropic-ratelimit-* limits, remaining counts, and RFC 3339 reset timestamps, with anthropic-ratelimit-tokens-* reflecting the most restrictive active limit."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "The anthropic-ratelimit-tokens-* headers display the values for the most restrictive limit currently in effect."
+  accessed: 2026-11-19
+
+- id: F15
+  claim: "Rate limits are shared across inference_geo values, so switching between us and global draws from the same rate-limit pool."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "Rate limits are shared across all inference_geo values. Requests with inference_geo: \"us\" and inference_geo: \"global\" draw from the same rate limit pool."
+  accessed: 2026-11-19
+
+- id: F16
+  claim: "Official Anthropic SDKs default to max_retries=2 (maxRetries: 2 in TypeScript), automatically retrying connection errors, 408, 409, 429, and >=500 errors with exponential backoff while honoring retry-after."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "The official SDK automatically retries transient failures (such as connection errors, rate limits, and 5xx server errors) with exponential backoff, twice by default, honoring the retry-after header when present."
+  accessed: 2026-11-19
+
+- id: F17
+  claim: "The Python SDK defaults to max_retries=2 and retries connection errors, 408 Request Timeout, 409 Conflict, 429 Rate Limit, and >=500 Internal errors."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/cli-sdks-libraries/sdks/python
+  title: "Python SDK"
+  source: anthropic-docs
+  quote: "By default, the SDK retries certain errors twice, with a short exponential backoff. It retries connection errors (for example, a network problem), 408 Request Timeout, 409 Conflict, 429 Rate Limit, and >=500 Internal errors."
+  accessed: 2026-11-19
+
+- id: F18
+  claim: "The Python SDK defaults to a 10-minute timeout, raises ValueError if a non-streaming request is expected to exceed ~10 minutes unless stream=True or timeout is overridden, and retries timed-out requests twice by default."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/cli-sdks-libraries/sdks/python
+  title: "Python SDK"
+  source: anthropic-docs
+  quote: "The SDK raises a ValueError if a non-streaming request is expected to take longer than approximately 10 minutes. Passing stream=True or overriding the timeout option at the client or request level disables this error."
+  accessed: 2026-11-19
+
+- id: F19
+  claim: "The TypeScript SDK defaults to a 10-minute timeout, dynamically scales non-streaming timeouts up to 60 minutes based on max_tokens, throws APIConnectionTimeoutError on timeout, and retries timed-out requests twice by default."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/cli-sdks-libraries/sdks/typescript
+  title: "TypeScript SDK"
+  source: anthropic-docs
+  quote: "which will result in a timeout up to 60 minutes, scaled by the max_tokens parameter, unless overridden at the request or client level."
+  accessed: 2026-11-19
+
+- id: F20
+  claim: "An HTTP 200 Messages API response can still be incomplete, paused, or refused; applications must inspect stop_reason rather than relying solely on HTTP status codes."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons
+  title: "Stop reasons and fallback"
+  source: anthropic-docs
+  quote: "The stop_reason field is part of every successful Messages API response. Unlike errors, which indicate failures in processing your request, stop_reason tells you why Claude completed its response generation."
+  accessed: 2026-11-19
+
+- id: F21
+  claim: "stop_reason pause_turn occurs when a server-side tool loop reaches its default 10-iteration limit; callers continue by appending the assistant content unchanged with no trailing user message and passing back container ID if present."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons
+  title: "Stop reasons and fallback"
+  source: anthropic-docs
+  quote: "Returned when the server-side sampling loop reaches its iteration limit while running server tools such as web search. The default limit is 10 iterations for each request."
+  accessed: 2026-11-19
+
+- id: F22
+  claim: "When Claude invokes a client tool and a server tool in parallel, stop_reason is tool_use and the caller must return a user message containing only client tool_result blocks (no trailing text) while keeping the tools array."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons
+  title: "Stop reasons and fallback"
+  source: anthropic-docs
+  quote: "The API then returns a tool_use response without running the server tool so that you can run the client tools first."
+  accessed: 2026-11-19
+
+- id: F23
+  claim: "stop_reason model_context_window_exceeded indicates generation filled the model's context window (automatic on Sonnet 4.5+ and newer models; requires beta header model-context-window-exceeded-2025-08-26 on earlier models; typed in SDK beta namespace)."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons
+  title: "Stop reasons and fallback"
+  source: anthropic-docs
+  quote: "On Sonnet 4.5 (deprecated) and newer models, the API returns this value without a beta header. For earlier models, add the model-context-window-exceeded-2025-08-26 beta header to enable it."
+  accessed: 2026-11-19
+  version_note: "Automatic on Sonnet 4.5 and newer; requires beta header model-context-window-exceeded-2025-08-26 on earlier models; typed in SDK beta namespace."
+
+- id: F24
+  claim: "Mid-stream SSE errors occur after HTTP 200 headers are sent (as event: error, e.g., overloaded_error); on Claude 4.6+, stream recovery must use a user continuation message because assistant prefill is unsupported and returns 400."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/streaming
+  title: "Streaming messages"
+  source: anthropic-docs
+  quote: "For Claude 4.6 and later models, the same capture-and-resume strategy applies, but step 2 changes: instead of placing the partial response in an assistant message, add a user message that instructs the model to continue from where it left off."
+  accessed: 2026-11-19
+  version_note: "Assistant prefill continuation applies to Claude 4.5 and earlier; Claude 4.6+ requires a user continuation message."
+
+- id: F25
+  claim: "Interrupted streams cannot partially recover tool_use or thinking blocks; stream resumption only recovers from the most recent text block."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/streaming
+  title: "Streaming messages"
+  source: anthropic-docs
+  quote: "Tool use and thinking blocks cannot be partially recovered. You can resume streaming from the most recent text block."
+  accessed: 2026-11-19
+
+- id: F26
+  claim: "Classifier refusals return HTTP 200 with stop_reason refusal and stop_details (category, explanation, optional recommended_model); any partial output emitted before a mid-stream refusal must be treated as incomplete and discarded."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback
+  title: "Refusals and fallback"
+  source: anthropic-docs
+  quote: "A refusal can arrive before any output, or mid-stream after partial output. In either case, treat any partial output as incomplete and discard it."
+  accessed: 2026-11-19
+
+- id: F27
+  claim: "Refusals are not transient errors; re-sending a refused request to the same model usually results in another refusal, so callers should reset context or fall back to a different model."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/handle-streaming-refusals
+  title: "Handle streaming refusals"
+  source: anthropic-docs
+  quote: "Re-sending a refused request to the same model usually results in another refusal."
+  accessed: 2026-11-19
+
+- id: F28
+  claim: "reasoning_extraction refusals have no recommended fallback model; callers should revise the prompt or use adaptive thinking with display summarized instead of retrying."
+  tag: REC
+  url: https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback
+  title: "Refusals and fallback"
+  source: anthropic-docs
+  quote: "This category has no recommended fallback model, so change the prompt rather than retry the request."
+  accessed: 2026-11-19
+
+- id: F29
+  claim: "Server-side fallback (fallbacks parameter with server-side-fallback-2026-07-01 beta header) is in beta on the first-party Claude API and Google Cloud (Anthropic managed), and is unavailable on Bedrock, Google-managed Vertex AI, Microsoft Foundry, and Claude Haiku 5.5."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback
+  title: "Refusals and fallback"
+  source: anthropic-docs
+  quote: "Server-side fallback is in beta on the Claude API and on Claude Models on Google Cloud (Anthropic managed)"
+  accessed: 2026-11-19
+  version_note: "Beta header server-side-fallback-2026-07-01; supported on Claude API and Google Cloud (Anthropic managed); unsupported on Haiku 5.5, Bedrock, Google-managed Vertex AI, and Foundry."
+
+- id: F30
+  claim: "Claude Platform on AWS runs on a separate capacity pool from both the first-party Claude API and Amazon Bedrock, allowing multi-platform workloads to fail over between them while retaining near-complete Messages API parity."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/claude-platform-on-aws
+  title: "Claude Platform on AWS"
+  source: anthropic-docs
+  quote: "Claude Platform on AWS uses a separate capacity pool from both the first-party Claude API and Amazon Bedrock. You can run workloads on more than one platform and fail over between them."
+  accessed: 2026-11-19
+
+- id: F31
+  claim: "Amazon Bedrock provides global endpoints (dynamic multi-region routing, no premium) and regional CRIS endpoints (10% pricing premium for data residency), while lacking server-side fallback, Files API, server tools, Batches, and Managed Agents."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/claude-in-amazon-bedrock
+  title: "Claude in Amazon Bedrock (bedrock-mantle)"
+  source: anthropic-docs
+  quote: "Regional endpoints carry a 10 percent pricing premium over global endpoints."
+  accessed: 2026-11-19
+
+- id: F32
+  claim: "Google-managed Vertex AI offers global, multi-region (us/eu), and regional endpoints (with a 10% premium for multi-region and regional) and omits server-side fallback, Files API, code execution, web fetch, Batches, and Managed Agents."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/claude-models-on-google-cloud/google-managed
+  title: "Claude Models on Google Cloud (Google managed)"
+  source: anthropic-docs
+  quote: "Multi-region and regional endpoints cost 10 percent more than global endpoints. All three endpoint types take pay-as-you-go traffic, and provisioned throughput needs a regional endpoint."
+  accessed: 2026-11-19
+
+- id: F33
+  claim: "Microsoft Foundry deployments Hosted on Azure reject unsupported features (code execution, Agent Skills, programmatic tool calling, Files API, and newer web search/fetch versions) with 400 Bad Request, and Foundry omits anthropic-ratelimit-* headers."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry
+  title: "Claude in Microsoft Foundry"
+  source: anthropic-docs
+  quote: "Requests that use these features against a deployment hosted on Azure return a 400 Bad Request error by design."
+  accessed: 2026-11-19
+
+- id: F34
+  claim: "Returning is_error: true in a tool_result allows Claude to retry the tool call with a new tool_use block, so agent harnesses must cap tool-retry loops; randomized exponential backoff (jitter) prevents synchronized retry ripples, per-client retry budgets (e.g., 10%) bound overload amplification, and side-effecting operations require idempotency."
+  tag: REC
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls
+  title: "Handle tool calls"
+  source: anthropic-docs
+  quote: "Claude might then call the tool again with a new tool_use block, so limit how many retries your loop allows."
+  accessed: 2026-11-19
+
+- id: F35
+  claim: "Combining per-request retry caps with a per-client retry ratio budget (e.g., 10%), randomized exponential backoff (jitter), and idempotency for side-effecting APIs prevents cascading overload amplification and duplicate mutations."
+  tag: STD
+  url: https://sre.google/sre-book/handling-overload/
+  title: "Handling Overload — Google SRE Book"
+  source: standard
+  quote: "However, layering on the per-client retry budget (a 10% retry ratio) reduces the growth to just 1.1x in the general case—a significant improvement."
+  accessed: 2026-11-19

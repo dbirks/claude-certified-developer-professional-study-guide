@@ -1,0 +1,197 @@
+[
+  {
+    "id": "F1",
+    "status": "ok",
+    "url": "https://blog.modelcontextprotocol.io/posts/2026-07-28/"
+  },
+  {
+    "id": "F2",
+    "status": "ok",
+    "url": "https://blog.modelcontextprotocol.io/posts/2026-07-28/"
+  },
+  {
+    "id": "F3",
+    "status": "ok",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle"
+  },
+  {
+    "id": "F4",
+    "status": "ok",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle"
+  },
+  {
+    "id": "F5",
+    "status": "ok",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/transports"
+  },
+  {
+    "id": "F6",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/mcp"
+  },
+  {
+    "id": "F7",
+    "status": "ok",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization"
+  },
+  {
+    "id": "F8",
+    "status": "ok",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization"
+  },
+  {
+    "id": "F9",
+    "status": "ok",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization"
+  },
+  {
+    "id": "F10",
+    "status": "ok",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization"
+  },
+  {
+    "id": "F11",
+    "status": "ok",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/server/tools"
+  },
+  {
+    "id": "F12",
+    "status": "ok",
+    "url": "https://ts.sdk.modelcontextprotocol.io/v2/migration/support-2026-07-28"
+  },
+  {
+    "id": "F13",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector"
+  },
+  {
+    "id": "F14",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector"
+  },
+  {
+    "id": "F15",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector"
+  },
+  {
+    "id": "F16",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector"
+  },
+  {
+    "id": "F17",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector"
+  },
+  {
+    "id": "F18",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/mcp"
+  },
+  {
+    "id": "F19",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/mcp"
+  },
+  {
+    "id": "F20",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions"
+  },
+  {
+    "id": "F21",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions"
+  },
+  {
+    "id": "F22",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions"
+  },
+  {
+    "id": "F23",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations"
+  },
+  {
+    "id": "F24",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations"
+  },
+  {
+    "id": "F25",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/models/fable-5-2/migration-guide"
+  },
+  {
+    "id": "F26",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/models/fable-5-2/migration-guide"
+  },
+  {
+    "id": "F27",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/models/fable-5-2/migration-guide"
+  },
+  {
+    "id": "F28",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/models/fable-5-2/migration-guide"
+  },
+  {
+    "id": "F29",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry"
+  },
+  {
+    "id": "F30",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/llm-gateway"
+  },
+  {
+    "id": "F31",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/models/fable-5-2/migration-guide"
+  },
+  {
+    "id": "F32",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/models/fable-5-2/migration-guide"
+  },
+  {
+    "id": "F33",
+    "status": "ok",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization"
+  },
+  {
+    "id": "F34",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/release-notes/system-prompts/overview"
+  },
+  {
+    "id": "F35",
+    "status": "ok",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization"
+  },
+  {
+    "id": "F36",
+    "status": "ok",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization"
+  },
+  {
+    "id": "F37",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/mcp"
+  },
+  {
+    "id": "F38",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector"
+  },
+  {
+    "id": "F39",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector"
+  }
+]

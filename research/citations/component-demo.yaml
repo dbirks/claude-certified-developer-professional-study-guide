@@ -1,0 +1,17 @@
+- id: F1
+  claim: "The stop_reason field says why Claude stopped generating."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons
+  title: "Handling stop reasons"
+  source: anthropic-docs
+  quote: "Demo quote: replace with verified text. The stop_reason field is part of every successful Messages API response."
+  accessed: 2026-11-19
+- id: F2
+  claim: "Refusals have their own stop reason."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons
+  title: "Handling stop reasons"
+  source: anthropic-docs
+  quote: "Claude declined to generate a response."
+  accessed: 2026-11-19
+  version_note: "Demo entry for the component page."

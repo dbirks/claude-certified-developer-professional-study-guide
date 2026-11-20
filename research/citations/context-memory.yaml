@@ -1,0 +1,324 @@
+- id: F1
+  claim: "Larger context windows still suffer from context rot, where model accuracy and recall degrade as token counts grow."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/context-windows#how-the-context-window-works
+  title: "Context windows"
+  source: anthropic-docs
+  quote: "As token count grows, accuracy and recall degrade, a phenomenon known as context rot. This makes curating what’s in context just as important as how much space is available."
+  accessed: 2026-11-19
+
+- id: F2
+  claim: "With prompt caching enabled, total context window consumption is the sum of input_tokens, cache_read_input_tokens, and cache_creation_input_tokens (plus generated output)."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/context-windows#how-the-context-window-works
+  title: "Context windows"
+  source: anthropic-docs
+  quote: "If you use prompt caching, the input count is split across input_tokens, cache_read_input_tokens, and cache_creation_input_tokens, and all three count toward the window."
+  accessed: 2026-11-19
+
+- id: F3
+  claim: "For every 1M-context Claude model, 1M is the default with no beta header required and standard pricing across the full window, except Claude Haiku 5.5 over 100,000 tokens."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model
+  title: "Context windows"
+  source: anthropic-docs
+  quote: "For every model with a 1M-token context window, 1M is the default: you don’t need a beta header, and long-context requests are billed at standard pricing, except on Claude Haiku 5.5, where prompts over 100,000 tokens cost more."
+  accessed: 2026-11-19
+  version_note: "Applies to Claude Fable 5–5.2, Mythos 5–5.2/Preview, Opus 4.6–5.5, Sonnet 4.6–5.5, and Haiku 5.5 (Nov 2026)."
+
+- id: F4
+  claim: "Prompt caching changes token billing, not context window occupancy: cached prefixes still count against the context limit."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/context-windows#manage-context-with-compaction
+  title: "Context windows"
+  source: anthropic-docs
+  quote: "Cached prompt prefixes still occupy the context window: prompt caching changes what you pay for those tokens, not whether they count."
+  accessed: 2026-11-19
+
+- id: F5
+  claim: "If the input alone exceeds the model's context window, the Messages API returns HTTP 400 invalid_request_error on every model."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-overflow-behavior
+  title: "Context windows"
+  source: anthropic-docs
+  quote: "If the input alone already exceeds the model’s context window, the API returns a 400 invalid_request_error (“prompt is too long”) on every model."
+  accessed: 2026-11-19
+
+- id: F6
+  claim: "On Claude 4.5 and newer, requests where input plus max_tokens exceed the context window are accepted and stop with stop_reason model_context_window_exceeded if generation hits the boundary."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-overflow-behavior
+  title: "Context windows"
+  source: anthropic-docs
+  quote: "On Claude 4.5 models and newer, if input tokens plus max_tokens exceeds the context window size, the API accepts the request. If generation then reaches the context window limit, it stops with stop_reason: \"model_context_window_exceeded\"."
+  accessed: 2026-11-19
+  version_note: "Default on Claude 4.5 and newer; earlier models require beta header model-context-window-exceeded-2025-08-26."
+
+- id: F7
+  claim: "Newer frontier models (Opus 4.7+, Sonnet 5.5, Haiku 5.5, Fable, Mythos) do not receive automatic context-awareness XML tags and instead support explicit task budgets (beta)."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/context-windows#context-awareness
+  title: "Context windows"
+  source: anthropic-docs
+  quote: "Claude Opus 4.7 and later Opus models, Claude Sonnet 5.5, Claude Fable 5.2, Claude Mythos 5.2, Claude Fable 5.1, Claude Mythos 5.1, Claude Fable 5, Claude Mythos 5, and Claude Haiku 5.5 don’t receive these injected tags. On these models, you can give the model an explicit budget with task budgets, which are in beta."
+  accessed: 2026-11-19
+  version_note: "Automatic context awareness applies to Sonnet 5, Sonnet 4.6, Sonnet 4.5, and Haiku 4.5; task budgets use beta task-budgets-2026-03-13."
+
+- id: F8
+  claim: "Claude Haiku 5.5 prompt-length pricing (>100,000 tokens) counts all input tokens including cache reads and cache writes per request."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/pricing#long-context-pricing
+  title: "Pricing"
+  source: anthropic-docs
+  quote: "Claude Haiku 5.5 is priced by prompt length: a request whose prompt is over 100,000 tokens pays higher prices. A request’s prompt length counts all of its input tokens, including cache reads and cache writes."
+  accessed: 2026-11-19
+  version_note: "Claude Haiku 5.5 ($0.10/$0.50 MTok up to 100k; $0.50/$2.50 MTok over 100k)."
+
+- id: F9
+  claim: "The /v1/messages/count_tokens endpoint is free to use under separate tier-based RPM rate limits."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/token-counting#pricing-and-rate-limits
+  title: "Token counting"
+  source: anthropic-docs
+  quote: "Token counting is free to use but subject to requests per minute rate limits based on your usage tier."
+  accessed: 2026-11-19
+
+- id: F10
+  claim: "Claude 4.7 and later models use a newer tokenizer that produces roughly 30% more tokens for the same text, so token counts must be measured against the target model ID."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/token-counting#supported-models
+  title: "Token counting"
+  source: anthropic-docs
+  quote: "Claude 4.7 and later models and Claude Mythos Preview use a newer tokenizer. The same input text produces approximately 30 percent more tokens than on earlier models."
+  accessed: 2026-11-19
+  version_note: "Claude 4.7 and later models and Claude Mythos Preview."
+
+- id: F11
+  claim: "Context editing runs server-side before the prompt reaches Claude, leaving the client's local conversation history unmodified."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/context-editing#context-editing-occurs-server-side
+  title: "Context editing"
+  source: anthropic-docs
+  quote: "Context editing is applied server-side before the prompt reaches Claude. Your client application maintains the full, unmodified conversation history."
+  accessed: 2026-11-19
+
+- id: F12
+  claim: "Tool result clearing invalidates prompt cache prefixes whenever content is cleared, so clear_at_least should enforce a minimum token savings threshold."
+  tag: REC
+  url: https://platform.claude.com/docs/en/build-with-claude/context-editing#context-editing-and-prompt-caching
+  title: "Context editing"
+  source: anthropic-docs
+  quote: "Tool result clearing: Invalidates cached prompt prefixes when content is cleared. To account for this, clear enough tokens to make the cache invalidation worthwhile. Use the clear_at_least parameter to ensure a minimum number of tokens is cleared each time."
+  accessed: 2026-11-19
+
+- id: F13
+  claim: "When combining context editing strategies in context_management.edits, clear_thinking_20251015 must be listed before clear_tool_uses_20250919."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/context-editing#combining-strategies
+  title: "Context editing"
+  source: anthropic-docs
+  quote: "When using multiple strategies, you must list the clear_thinking_20251015 strategy first in the edits array."
+  accessed: 2026-11-19
+
+- id: F14
+  claim: "Client-side SDK compaction_control is deprecated in TypeScript and Ruby SDKs and removed in Python SDK v1.0 in favor of server-side compaction."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/context-editing#client-side-compaction-sdk
+  title: "Context editing"
+  source: anthropic-docs
+  quote: "The compaction_control parameter is deprecated in the TypeScript and Ruby SDKs and will be removed in a future version. The TypeScript and Ruby SDKs emit a deprecation warning when it is enabled. The Python SDK removed it in v1.0."
+  accessed: 2026-11-19
+  version_note: "Python SDK v1.0+ removed compaction_control; use compact-2026-01-12 or compact-2026-09-04."
+
+- id: F15
+  claim: "Anthropic recommends on-demand compaction wherever available over threshold compaction or custom client-side summarizers."
+  tag: REC
+  url: https://platform.claude.com/docs/en/build-with-claude/compaction
+  title: "Compaction overview"
+  source: anthropic-docs
+  quote: "Use on-demand compaction wherever it is available."
+  accessed: 2026-11-19
+
+- id: F16
+  claim: "On-demand compaction uses the compact-2026-09-04 beta header on both the summary request and every subsequent request carrying the signed block, and cannot be combined with context_management."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/compaction-on-demand#request-a-summary
+  title: "Compaction on demand"
+  source: anthropic-docs
+  quote: "Send the compact-2026-09-04 beta header on the request that asks for the summary and on every later request that carries the signed block."
+  accessed: 2026-11-19
+  version_note: "Beta header compact-2026-09-04 on Claude 4.6+ Opus/Sonnet, Claude 5/5.5, Haiku 5.5, Fable, Mythos."
+
+- id: F17
+  claim: "Mid-conversation role: system messages inside the summarized range are summarized along with conversation turns and stop applying once replaced by the compaction block."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/compaction-on-demand#how-it-fits-with-the-rest-of-the-api
+  title: "Compaction on demand"
+  source: anthropic-docs
+  quote: "role: \"system\" messages inside the summarized range are summarized too, so their text instructions stop applying once the block replaces them."
+  accessed: 2026-11-19
+
+- id: F18
+  claim: "When compaction is enabled, total token consumption for billing and cost auditing must be summed across usage.iterations rather than read from top-level usage.input_tokens and usage.output_tokens."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/compaction-threshold#understanding-usage
+  title: "Compaction at a token threshold"
+  source: anthropic-docs
+  quote: "To track cost or audit usage when compaction is enabled, aggregate across usage.iterations instead of reading only usage.input_tokens and usage.output_tokens."
+  accessed: 2026-11-19
+
+- id: F19
+  claim: "When tools are defined in threshold compaction, the internal summarizer may occasionally emit a tool call instead of text, yielding a compaction block with content: null unless instructions forbid tool calls."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/compaction-threshold#current-limitations
+  title: "Compaction at a token threshold"
+  source: anthropic-docs
+  quote: "When your request includes tools, the model occasionally calls a tool during the internal summarization step instead of writing a summary. When this occurs, the response contains a compaction block with content: null."
+  accessed: 2026-11-19
+
+- id: F20
+  claim: "The memory_20250818 tool executes client-side: Claude requests operations on /memories and the application executes them against its own storage backend."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool
+  title: "Memory tool"
+  source: anthropic-docs
+  quote: "The memory tool operates client-side: Claude requests file operations, and your application runs them. You control where and how the data is stored through your own infrastructure."
+  accessed: 2026-11-19
+
+- id: F21
+  claim: "Combining compaction with the memory tool keeps active context small while preserving state that must survive summarization."
+  tag: REC
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool#using-with-compaction
+  title: "Memory tool"
+  source: anthropic-docs
+  quote: "For long-running agents, consider using both: compaction keeps the active context small without client-side bookkeeping, and memory preserves the information that must survive summarization."
+  accessed: 2026-11-19
+
+- id: F22
+  claim: "Prompt cache prefixes follow a strict cumulative hierarchy: tools, then system, then messages."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching#structuring-your-prompt
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "Cache prefixes are created in the following order: tools, system, then messages. This order forms a hierarchy where each level builds upon the previous ones."
+  accessed: 2026-11-19
+
+- id: F23
+  claim: "Each cache breakpoint checks at most 20 prior block positions (including itself) for an existing cache write."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching#how-automatic-prefix-checking-works
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "The system checks at most 20 positions for each breakpoint, counting the breakpoint itself as the first."
+  accessed: 2026-11-19
+
+- id: F24
+  claim: "Prompts shorter than a model's minimum cacheable token length silently execute without caching and return no error."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching#cache-limitations
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "Shorter prompts cannot be cached, even if marked with cache_control. Any requests to cache fewer than this number of tokens are processed without caching, and no error is returned."
+  accessed: 2026-11-19
+
+- id: F25
+  claim: "Appending a role: system message into messages after the cache breakpoint updates instructions mid-conversation with system authority without invalidating the cached prefix."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/mid-conversation-system-messages
+  title: "Mid-conversation system messages and tool changes"
+  source: anthropic-docs
+  quote: "You append a {\"role\": \"system\"} message at the point in the conversation where the new instruction becomes relevant, instead of editing the top-level system field. The cached prefix stays the same, so the next request still reads it from cache, and the new instruction is still applied as a system instruction rather than as ordinary user text."
+  accessed: 2026-11-19
+  version_note: "Available on Opus 4.8, Opus 5/5.5, Sonnet 5.5, Haiku 5.5, Fable/Mythos 5–5.2; not available on Claude Sonnet 5."
+
+- id: F26
+  claim: "Mid-conversation tool changes declare all tools in tools up front and toggle availability via tool_addition and tool_removal blocks in a role: system message, keeping tools unchanged and preserving the cache."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/mid-conversation-system-messages#mid-conversation-tool-changes
+  title: "Mid-conversation system messages and tool changes"
+  source: anthropic-docs
+  quote: "Declare the full tool set in tools up front, then use tool_addition and tool_removal blocks to offer a tool to the model, or withdraw it, from a specific point in the conversation onward. The tools array itself never changes, so the cached prefix stays intact."
+  accessed: 2026-11-19
+  version_note: "Beta via inline-tools-2026-09-15 or mid-conversation-tool-changes-2026-07-01."
+
+- id: F27
+  claim: "External untrusted text (raw tool outputs, retrieved documents, web content) must never be placed in a mid-conversation system message because Claude grants it operator authority."
+  tag: REC
+  url: https://platform.claude.com/docs/en/build-with-claude/mid-conversation-system-messages#limitations
+  title: "Mid-conversation system messages and tool changes"
+  source: anthropic-docs
+  quote: "Do not place text from outside the conversation, such as raw tool output, retrieved documents, or web content, directly in a system message; doing so gives that text operator-level authority."
+  accessed: 2026-11-19
+
+- id: F28
+  claim: "Tool-selection accuracy degrades once more than 30–50 tools are loaded upfront; tool search avoids this by loading only a focused subset on demand."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool
+  title: "Tool search tool"
+  source: anthropic-docs
+  quote: "Claude’s ability to pick the right tool degrades once you exceed 30–50 available tools. Because tool search loads only a focused set of relevant tools on demand, selection accuracy stays high even across thousands of tools."
+  accessed: 2026-11-19
+
+- id: F29
+  claim: "Deferred tools are excluded from the system-prompt prefix and expanded inline via tool_reference blocks when discovered, leaving the cached prefix untouched."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-use-with-prompt-caching#defer_loading-and-cache-preservation
+  title: "Tool use with prompt caching"
+  source: anthropic-docs
+  quote: "Deferred tools are not included in the system-prompt prefix. When the model discovers a deferred tool through tool search, the definition is appended inline as a tool_reference block in the conversation history. The prefix is untouched, so prompt caching is preserved."
+  accessed: 2026-11-19
+
+- id: F30
+  claim: "Programmatic tool calling saves 20–40% of tokens on production requests with 10–49 tool definitions by keeping intermediate tool results out of Claude's context window."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/programmatic-tool-calling#token-efficiency
+  title: "Programmatic tool calling"
+  source: anthropic-docs
+  quote: "Across production API traffic, requests whose tools array contains 10 to 49 tool definitions see typical token savings of 20 to 40 percent with programmatic tool calling enabled."
+  accessed: 2026-11-19
+
+- id: F31
+  claim: "Tool search, programmatic tool calling, prompt caching, and context editing target complementary pipeline stages and can be combined in one agent."
+  tag: REC
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/manage-tool-context#combining-approaches
+  title: "Manage tool context"
+  source: anthropic-docs
+  quote: "A long-running agent might use tool search to load fewer tool definitions, prompt caching to amortize the cost of the remaining definitions, and context editing to trim stale results as the conversation grows."
+  accessed: 2026-11-19
+
+- id: F32
+  claim: "In Claude Code, path-scoped rules and nested subdirectory CLAUDE.md files reside in message history and are summarized away during compaction, unlike project-root CLAUDE.md which reloads from disk."
+  tag: FACT
+  url: https://code.claude.com/docs/en/context-window#what-survives-compaction
+  title: "Explore the context window"
+  source: claude-code-docs
+  quote: "Path-scoped rules and nested CLAUDE.md files load into message history when Claude reads, writes, or edits their trigger file, so compaction summarizes them away with everything else. If a rule must persist across compaction, drop the paths: frontmatter or move it to the project-root CLAUDE.md."
+  accessed: 2026-11-19
+
+- id: F33
+  claim: "Claude Code auto-compacts native 1M-context models at roughly 967K tokens by default."
+  tag: VER
+  url: https://code.claude.com/docs/en/model-config#default-auto-compact-thresholds
+  title: "Model configuration"
+  source: claude-code-docs
+  quote: "Models running with a native 1M window compact before the window fills, at about 967K tokens by default."
+  accessed: 2026-11-19
+  version_note: "Claude Code default for native 1M models (Fable, Sonnet 5+, Haiku 5.5, Opus 4.7+)."
+
+- id: F34
+  claim: "When tuning compaction prompts, start by maximizing recall of relevant trace details and then iterate to improve precision."
+  tag: REC
+  url: https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents
+  title: "Effective context engineering for AI agents"
+  source: anthropic-engineering
+  quote: "Start by maximizing recall to ensure your compaction prompt captures every relevant piece of information from the trace, then iterate to improve precision by eliminating superfluous content."
+  accessed: 2026-11-19
+
+- id: F35
+  claim: "Claude Code preserves prompt caches during plan mode and skill loading by appending their instructions as conversation messages rather than mutating the system prompt."
+  tag: FACT
+  url: https://code.claude.com/docs/en/prompt-caching#how-the-cache-is-organized
+  title: "How Claude Code uses prompt caching"
+  source: claude-code-docs
+  quote: "Plan mode and skill loading, for example, append their instructions as conversation messages, so the cached prefix stays intact."
+  accessed: 2026-11-19

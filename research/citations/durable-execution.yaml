@@ -1,0 +1,311 @@
+- id: F1
+  claim: "Agent SDK sessions automatically write conversation history—prompts, tool calls, tool results, and model responses—to disk so later runs can return to it."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/sessions
+  title: "Work with sessions"
+  source: claude-code-docs
+  quote: "A session is the conversation history the SDK accumulates while your agent works. It contains your prompt, every tool call the agent made, every tool result, and every response. The SDK writes it to disk automatically so you can return to it later."
+  accessed: 2026-11-19
+
+- id: F2
+  claim: "Agent SDK sessions persist only the conversation transcript, not filesystem state; file edits require file checkpointing."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/sessions
+  title: "Work with sessions"
+  source: claude-code-docs
+  quote: "Sessions persist the conversation, not the filesystem. To snapshot and revert file changes the agent made, use file checkpointing."
+  accessed: 2026-11-19
+
+- id: F3
+  claim: "Continue resumes the latest session in the working directory, resume loads a specific session ID, and fork creates a new session from a copy of an existing transcript without modifying the original."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/sessions
+  title: "Work with sessions"
+  source: claude-code-docs
+  quote: "Fork is different: it creates a new session that starts with a copy of the original’s history. The original stays unchanged. Use fork to try a different direction while keeping the option to go back."
+  accessed: 2026-11-19
+
+- id: F4
+  claim: "Claude Code and the Agent SDK store session transcripts as JSONL files under ~/.claude/projects/<encoded-cwd>/ or $CLAUDE_CONFIG_DIR/projects/."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/sessions
+  title: "Work with sessions"
+  source: claude-code-docs
+  quote: "Claude Code stores sessions under ~/.claude/projects/<encoded-cwd>/*.jsonl. If you set the CLAUDE_CONFIG_DIR environment variable, look under $CLAUDE_CONFIG_DIR/projects/ instead."
+  accessed: 2026-11-19
+
+- id: F5
+  claim: "Stateless runs can disable disk persistence via persistSession: false in TypeScript or CLAUDE_CODE_SKIP_PROMPT_HISTORY in Python's env option."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/sessions
+  title: "Work with sessions"
+  source: claude-code-docs
+  quote: "Set persistSession: false (TypeScript only). The session exists only in memory for the duration of the call. In Python, set CLAUDE_CODE_SKIP_PROMPT_HISTORY in the env option to suppress transcript writes instead."
+  accessed: 2026-11-19
+
+- id: F6
+  claim: "The Agent SDK SessionStore interface mirrors JSONL transcripts to an external database, object store, or key-value store for multi-host resumption."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/session-storage
+  title: "Persist sessions to external storage"
+  source: claude-code-docs
+  quote: "A SessionStore adapter lets you mirror those transcripts to your own backend, such as an object store, a key-value store, or a database, so a session created on one host can be resumed on another host running from a matching working directory."
+  accessed: 2026-11-19
+
+- id: F7
+  claim: "Concurrent append calls to a SessionStore can race on the session summary sidecar and must be serialized with a transaction, CAS, or per-session lock."
+  tag: REC
+  url: https://code.claude.com/docs/en/agent-sdk/session-storage
+  title: "Persist sessions to external storage"
+  source: claude-code-docs
+  quote: "Concurrent append calls for the same session can race on the sidecar, so serialize the read-fold-write with a transaction, a compare-and-swap, or a per-session lock; the fold itself is pure."
+  accessed: 2026-11-19
+
+- id: F8
+  claim: "Python ClaudeAgentOptions supports session_store_flush ('batched' or 'eager') and resume_session_at (message UUID truncation) for fine-grained transcript durability and branching."
+  tag: VER
+  url: https://code.claude.com/docs/en/agent-sdk/python
+  title: "Agent SDK reference - Python"
+  source: claude-code-docs
+  quote: "When resuming, load the conversation only up to and including the message with this UUID. Use with resume, and usually fork_session, to branch from an earlier point. Requires Python Agent SDK 0.2.137 or later"
+  accessed: 2026-11-19
+  version_note: "Python Agent SDK 0.2.137+ for resume_session_at and resume_drops_turn (with Claude Code CLI v2.1.223+)."
+
+- id: F9
+  claim: "A tool call that was still in flight when a Claude Code process crashed is not automatically re-executed upon session resume."
+  tag: FACT
+  url: https://code.claude.com/docs/en/sessions
+  title: "Manage sessions"
+  source: claude-code-docs
+  quote: "Interrupted tool calls: a tool that was still running when the previous process ended, for example in a crash, doesn’t get rerun when you resume."
+  accessed: 2026-11-19
+
+- id: F10
+  claim: "Raw JSONL session transcript entry formats are internal to Claude Code and may break across releases."
+  tag: FACT
+  url: https://code.claude.com/docs/en/sessions
+  title: "Manage sessions"
+  source: claude-code-docs
+  quote: "The entry format is internal to Claude Code and changes between versions, so scripts that parse these files directly can break on any release."
+  accessed: 2026-11-19
+
+- id: F11
+  claim: "Claude Code creates a file checkpoint before each turn-starting user prompt and retains snapshots for the 100 most recent checkpoints per session."
+  tag: FACT
+  url: https://code.claude.com/docs/en/checkpointing
+  title: "Checkpointing"
+  source: claude-code-docs
+  quote: "Claude Code keeps file snapshots for the 100 most recent checkpoints in a session."
+  accessed: 2026-11-19
+
+- id: F12
+  claim: "Claude Code /rewind tracks files modified by file editing tools; files modified solely by Bash commands are not tracked or reverted."
+  tag: FACT
+  url: https://code.claude.com/docs/en/checkpointing
+  title: "Checkpointing"
+  source: claude-code-docs
+  quote: "Once Claude has edited a file with its file editing tools in your conversation, /rewind undoes changes that Bash commands make to that file afterward. A file that only Bash commands changed isn’t tracked and stays as it is."
+  accessed: 2026-11-19
+
+- id: F13
+  claim: "In the Agent SDK, rewind_files()/rewindFiles() restores tracked files on disk without rolling back the conversation history."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/file-checkpointing
+  title: "Rewind file changes with checkpointing"
+  source: claude-code-docs
+  quote: "File rewinding restores files on disk to a previous state. It does not rewind the conversation itself. The conversation history and context remain intact after calling rewindFiles() (TypeScript) or rewind_files() (Python)."
+  accessed: 2026-11-19
+
+- id: F14
+  claim: "Agent SDK file checkpointing does not track subagent edits (except foreground context: fork skills), and fork_session() does not copy file checkpoints from the parent session."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/python
+  title: "Agent SDK reference - Python"
+  source: claude-code-docs
+  quote: "The fork doesn’t include the original session’s file checkpoints, so you can’t rewind it to a checkpoint captured before the fork."
+  accessed: 2026-11-19
+
+- id: F15
+  claim: "Claude Managed Agents sessions persist conversation history, sandbox state, and outputs server-side until deleted, making hosted Managed Agents ineligible for Zero Data Retention or HIPAA."
+  tag: VER
+  url: https://platform.claude.com/docs/en/managed-agents/overview
+  title: "Claude Managed Agents overview"
+  source: anthropic-docs
+  quote: "Claude Managed Agents is stateful by design: sessions are long-running, resume cleanly after pauses, and store conversation history, sandbox state, and outputs server-side. Because of this, Managed Agents is not currently eligible for Zero Data Retention or HIPAA Business Associate Agreement (BAA) coverage."
+  accessed: 2026-11-19
+  version_note: "Managed Agents beta (managed-agents-2026-04-01); self-hosted Managed Agents is the exception for ZDR."
+
+- id: F16
+  claim: "Managed Agents automatically retry transient errors in the rescheduling state, and completed sessions transition to idle rather than terminated."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/managed-agents/session-operations
+  title: "Session operations"
+  source: anthropic-docs
+  quote: "terminated | Session has ended, either because of an unrecoverable error or because it was archived. A session that completes its work goes idle, not terminated."
+  accessed: 2026-11-19
+
+- id: F17
+  claim: "In Managed Agents, only tools and mcp_servers can be updated mid-session (when idle with no open workflow runs); model, system prompt, and skills remain fixed for the session lifetime."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/managed-agents/session-operations
+  title: "Session operations"
+  source: anthropic-docs
+  quote: "Only the agent’s tools and mcp_servers can change after a session is created."
+  accessed: 2026-11-19
+
+- id: F18
+  claim: "To reconnect to a Managed Agents SSE stream without missing events, open the stream first, list full event history to seed seen IDs, and deduplicate live events."
+  tag: REC
+  url: https://platform.claude.com/docs/en/managed-agents/events-and-streaming
+  title: "Session event stream"
+  source: anthropic-docs
+  quote: "To reconnect to an existing session without missing events, combine a new stream with the event history:"
+  accessed: 2026-11-19
+
+- id: F19
+  claim: "Managed Agents decouples the stateless harness ('brain'), sandbox/tools ('hands'), and append-only session log so a crashed harness can reboot via wake(sessionId) and resume from getSession(id)."
+  tag: FACT
+  url: https://www.anthropic.com/research/managed-agents
+  title: "Scaling Managed Agents with stable interfaces"
+  source: anthropic-research
+  quote: "Because the session log sits outside the harness, nothing in the harness needs to survive a crash. When one fails, a new one can be rebooted with wake(sessionId), use getSession(id) to get back the event log, and resume from the last event."
+  accessed: 2026-11-19
+
+- id: F20
+  claim: "Managed Agents treats the durable session log as an external context object queried via getEvents(), separating recoverable storage from lossy context-window compaction."
+  tag: FACT
+  url: https://www.anthropic.com/research/managed-agents
+  title: "Scaling Managed Agents with stable interfaces"
+  source: anthropic-research
+  quote: "In Managed Agents, the session provides this same benefit, serving as a context object that lives outside Claude’s context window. But rather than be stored within the sandbox or REPL, context is durably stored in the session log."
+  accessed: 2026-11-19
+
+- id: F21
+  claim: "Anthropic provides at least 60 days' notice before retiring publicly released models on Anthropic-operated platforms, while partner platforms (Bedrock, Google-managed Vertex) set independent schedules."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/model-deprecations
+  title: "Model deprecations"
+  source: anthropic-docs
+  quote: "Anthropic notifies customers with active deployments for models with upcoming retirements, providing at least 60 days’ notice before model retirement for publicly released models."
+  accessed: 2026-11-19
+  version_note: "Applies to Anthropic-operated platforms; claude-sonnet-4-5-20250929 retires November 30, 2026 (replacement claude-sonnet-5-5)."
+
+- id: F22
+  claim: "When resuming a Claude Code session, it keeps its saved model unless retired, excluded by availableModels, overridden by alias variables, or running on deployment-ID providers."
+  tag: FACT
+  url: https://code.claude.com/docs/en/model-config
+  title: "Model configuration"
+  source: claude-code-docs
+  quote: "A session you resume with claude --resume or --continue keeps the model it was saved on, except in cases such as these, where it follows the priority order instead:"
+  accessed: 2026-11-19
+
+- id: F23
+  claim: "Prompt caches are scoped per model, so switching models mid-session invalidates the prefix cache and triggers a full uncached history read on the next request."
+  tag: FACT
+  url: https://code.claude.com/docs/en/prompt-caching
+  title: "How Claude Code uses prompt caching"
+  source: claude-code-docs
+  quote: "Each model has its own cache. Switching with /model means the next request reads the entire conversation history with no cache hits, even though the content is identical."
+  accessed: 2026-11-19
+
+- id: F24
+  claim: "Switching models mid-conversation does not error on unreadable thinking blocks; the API omits them for that request without billing them, and preserves compatibility if switching back."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/preserved-thinking
+  title: "Preserved thinking"
+  source: anthropic-docs
+  quote: "Change model and keep sending the whole conversation. A thinking block that the new model or account can’t use never causes an error. The API drops it for that request and doesn’t bill it, and Claude answers without that reasoning."
+  accessed: 2026-11-19
+
+- id: F25
+  claim: "Models with preserved thinking (Fable 5.2, Mythos 5.2, Fable 5.1, Mythos 5.1, Opus 5.5, Sonnet 5.5, Haiku 5.5) reject thinking.type='enabled' with a 400 error and require 'adaptive'."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/preserved-thinking
+  title: "Preserved thinking"
+  source: anthropic-docs
+  quote: "Models with preserved thinking reject thinking: {\"type\": \"enabled\"} with a 400 error. When you move a conversation to one of them from a model whose requests set \"enabled\", send \"adaptive\" instead."
+  accessed: 2026-11-19
+  version_note: "Preserved thinking models as of Nov 2026: Fable 5.1/5.2, Mythos 5.1/5.2, Opus 5.5, Sonnet 5.5, Haiku 5.5."
+
+- id: F26
+  claim: "Preserved thinking blocks cryptographically bind to system, tools, and prior messages; altering any prefix before a block triggers a prefix-check failure (400 error) unless prefix_mismatch_behavior='drop_block' is set with the thinking-binding-controls-2026-08-01 beta header."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/preserved-thinking/fix-bound-to-a-different-conversation
+  title: "Fix a thinking block bound to a different conversation"
+  source: anthropic-docs
+  quote: "Set thinking.block_binding.prefix_mismatch_behavior to \"drop_block\", and send the beta header anthropic-beta: thinking-binding-controls-2026-08-01. Do this on every later request in the conversation, because the API doesn’t store the setting between requests."
+  accessed: 2026-11-19
+  version_note: "Requires beta header thinking-binding-controls-2026-08-01; also note account-bound thinking drops across unlinked accounts on Fable 5.2, Mythos 5.2, Sonnet 5.5, and Haiku 5.5."
+
+- id: F27
+  claim: "When deploying updated system prompts or tool schemas, keep running conversations on the system and tools of their last successful request to avoid invalidating preserved thinking."
+  tag: REC
+  url: https://platform.claude.com/docs/en/build-with-claude/preserved-thinking/change-tools-or-instructions
+  title: "Change tools or instructions without failing the prefix check"
+  source: anthropic-docs
+  quote: "Keep sending each running conversation the system and tools of its last successful request, because its newest thinking was produced after that version. Going back to an earlier version would make that thinking invalid."
+  accessed: 2026-11-19
+
+- id: F28
+  claim: "The client-side memory tool pairs with server-side compaction so critical durable state survives context summarization while remaining ZDR- and HIPAA-eligible under developer-controlled storage."
+  tag: REC
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool
+  title: "Memory tool"
+  source: anthropic-docs
+  quote: "For long-running agents, consider using both: compaction keeps the active context small without client-side bookkeeping, and memory preserves the information that must survive summarization."
+  accessed: 2026-11-19
+
+- id: F29
+  claim: "Claude Code excludes auto memory files (MEMORY.md and topic files) from the cleanupPeriodDays retention sweep that deletes old session transcripts."
+  tag: FACT
+  url: https://code.claude.com/docs/en/memory
+  title: "How Claude remembers your project"
+  source: claude-code-docs
+  quote: "Claude Code deletes old session transcripts after the cleanupPeriodDays retention period, but excludes the memory files in the memory directory from that retention sweep."
+  accessed: 2026-11-19
+
+- id: F30
+  claim: "Managed Agents memory stores (agent-memory-2026-07-22) create immutable versions on every write for point-in-time recovery, and must not combine agent-memory-2026-07-22 with managed-agents-2026-04-01 on memory store calls."
+  tag: VER
+  url: https://platform.claude.com/docs/en/managed-agents/memory
+  title: "Using agent memory"
+  source: anthropic-docs
+  quote: "Every change to a memory creates an immutable memory version, giving you an audit trail and point-in-time recovery for everything the agent writes."
+  accessed: 2026-11-19
+  version_note: "Memory stores beta header agent-memory-2026-07-22; capped at 100 kB per memory and 10,000 memories per store."
+
+- id: F31
+  claim: "Anthropic's long-running harness research recommends structured JSON progress/feature files over Markdown because models are less likely to inappropriately overwrite or corrupt JSON state."
+  tag: REC
+  url: https://www.anthropic.com/research/effective-harnesses-for-long-running-agents
+  title: "Effective harnesses for long-running agents"
+  source: anthropic-research
+  quote: "After some experimentation, we landed on using JSON for this, as the model is less likely to inappropriately change or overwrite JSON files compared to Markdown files."
+  accessed: 2026-11-19
+
+- id: F32
+  claim: "Official Anthropic SDKs automatically retry transient failures (connection errors, 429s, 5xx) twice with exponential backoff, though mid-stream SSE errors after HTTP 200 bypass HTTP retry logic."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "The official SDK automatically retries transient failures (such as connection errors, rate limits, and 5xx server errors) with exponential backoff, twice by default, honoring the retry-after header when present."
+  accessed: 2026-11-19
+
+- id: F33
+  claim: "MCP ToolAnnotations define idempotentHint (default false) to signal whether repeating a tool call with identical arguments causes additional environmental side effects."
+  tag: STD
+  url: https://modelcontextprotocol.io/specification/2025-11-25/schema
+  title: "Schema Reference"
+  source: mcp-spec
+  quote: "If true, calling the tool repeatedly with the same arguments will have no additional effect on its environment."
+  accessed: 2026-11-19
+
+- id: F34
+  claim: "Google SRE recommends bounding retries per request and using randomized exponential backoff with jitter to prevent retry storms and cascading failures."
+  tag: REC
+  url: https://sre.google/sre-book/addressing-cascading-failures/
+  title: "Cascading Failures: Reducing System Outage"
+  source: standard
+  quote: "Always use randomized exponential backoff when scheduling retries."
+  accessed: 2026-11-19

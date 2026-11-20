@@ -1,0 +1,404 @@
+[
+  {
+    "id": "F1",
+    "claim": "MCP 2026-07-28 is a published release.",
+    "tag": "STD",
+    "url": "https://blog.modelcontextprotocol.io/posts/2026-07-28/",
+    "title": "The 2026-07-28 Specification",
+    "source": "mcp-spec",
+    "quote": "Today, we’re officially pushing the release button on the next version of the MCP specification, 2026-07-28, along with the SDKs that will allow you to start building clients and servers right away.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F2",
+    "claim": "The 2026 revision uses per-request versions, not initialization negotiation.",
+    "tag": "STD",
+    "url": "https://blog.modelcontextprotocol.io/posts/2026-07-28/",
+    "title": "The 2026-07-28 Specification",
+    "source": "mcp-spec",
+    "quote": "Each request now travels on its own, carrying its protocol version, client identity, and client capabilities in _meta.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F3",
+    "claim": "The 2025 revision negotiates the client version in initialize.",
+    "tag": "STD",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle",
+    "title": "Lifecycle",
+    "source": "mcp-spec",
+    "quote": "In the initialize request, the client MUST send a protocol version it supports. This SHOULD be the latest version supported by the client. If the server supports the requested protocol version, it MUST respond with the same version.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F4",
+    "claim": "The client should disconnect if it cannot support the server counteroffer.",
+    "tag": "STD",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle",
+    "title": "Lifecycle",
+    "source": "mcp-spec",
+    "quote": "If the client does not support the version in the server’s response, it SHOULD disconnect.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F5",
+    "claim": "Streamable HTTP replaced the earlier HTTP+SSE transport.",
+    "tag": "STD",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/transports",
+    "title": "Transports",
+    "source": "mcp-spec",
+    "quote": "This replaces the HTTP+SSE transport from protocol version 2024-11-05.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F6",
+    "claim": "Claude Code deprecates the legacy SSE transport.",
+    "tag": "REC",
+    "url": "https://code.claude.com/docs/en/mcp",
+    "title": "Connect Claude Code to tools via MCP",
+    "source": "claude-code-docs",
+    "quote": "The SSE (Server-Sent Events) transport is deprecated. Use HTTP servers instead, where available.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F7",
+    "claim": "The 2025 authorization profile requires RFC 9728 metadata and discovery.",
+    "tag": "STD",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization",
+    "title": "Authorization",
+    "source": "mcp-spec",
+    "quote": "MCP servers MUST implement OAuth 2.0 Protected Resource Metadata (RFC9728). MCP clients MUST use OAuth 2.0 Protected Resource Metadata for authorization server discovery.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F8",
+    "claim": "Clients implement resource indicators for the intended resource.",
+    "tag": "STD",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization",
+    "title": "Authorization",
+    "source": "mcp-spec",
+    "quote": "MCP clients MUST implement Resource Indicators for OAuth 2.0 as defined in RFC 8707 to explicitly specify the target resource for which the token is being requested.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F9",
+    "claim": "Servers validate audience and must not accept or transit foreign tokens.",
+    "tag": "STD",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization",
+    "title": "Authorization",
+    "source": "mcp-spec",
+    "quote": "MCP servers MUST only accept tokens that are valid for use with their own resources. MCP servers MUST NOT accept or transit any other tokens.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F10",
+    "claim": "An MCP server must not pass the client token through.",
+    "tag": "STD",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization",
+    "title": "Authorization",
+    "source": "mcp-spec",
+    "quote": "The MCP server MUST NOT pass through the token it received from the MCP client.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F11",
+    "claim": "In the handshake-era spec servers advertising listChanged should notify on changes.",
+    "tag": "STD",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/server/tools",
+    "title": "Tools",
+    "source": "mcp-spec",
+    "quote": "When the list of available tools changes, servers that declared the listChanged capability SHOULD send a notification:",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F12",
+    "claim": "In the modern era list-change delivery requires an opted-in subscription.",
+    "tag": "STD",
+    "url": "https://ts.sdk.modelcontextprotocol.io/v2/migration/support-2026-07-28",
+    "title": "Supporting protocol revision 2026-07-28",
+    "source": "mcp-spec",
+    "quote": "The 2026-07-28 revision delivers tools/prompts/resources list_changed and resources/updated only on a subscriptions/listen stream the client opened — the server never sends an un-requested notification type.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F13",
+    "claim": "The Messages connector requires a remote HTTP endpoint.",
+    "tag": "FACT",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector",
+    "title": "MCP connector",
+    "source": "anthropic-docs",
+    "quote": "The server must be publicly exposed through HTTP (supports both Streamable HTTP and SSE transports). Local STDIO servers cannot be connected directly.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F14",
+    "claim": "The old Messages connector beta is deprecated in favor of the newer header.",
+    "tag": "VER",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector",
+    "title": "MCP connector",
+    "source": "anthropic-docs",
+    "quote": "New beta header: Change from mcp-client-2025-04-04 to mcp-client-2025-11-20.",
+    "accessed": "2026-11-19",
+    "version_note": "Documentation accessed 2026-11-19; confirm platform and model availability before deployment."
+  },
+  {
+    "id": "F15",
+    "claim": "Connector tool configuration moved into tools.",
+    "tag": "FACT",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector",
+    "title": "MCP connector",
+    "source": "anthropic-docs",
+    "quote": "Tool configuration moved: Tool configuration now lives in the tools array as MCPToolset objects, not in the MCP server definition.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F16",
+    "claim": "A newer beta supports pinning a returned MCP tool list.",
+    "tag": "VER",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector",
+    "title": "MCP connector",
+    "source": "anthropic-docs",
+    "quote": "With the mcp-client-2026-09-15 beta header, the API records the tool list each server returns, and you can pin that list.",
+    "accessed": "2026-11-19",
+    "version_note": "Documentation accessed 2026-11-19; confirm platform and model availability before deployment."
+  },
+  {
+    "id": "F17",
+    "claim": "MCP connector exchanges are not covered by ZDR.",
+    "tag": "FACT",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector",
+    "title": "MCP connector",
+    "source": "anthropic-docs",
+    "quote": "The MCP connector is not covered by ZDR arrangements. Data exchanged with MCP servers, including tool definitions and execution results, is retained according to Anthropic’s standard data retention policy.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F18",
+    "claim": "Claude Code local MCP scope is private and project-specific.",
+    "tag": "FACT",
+    "url": "https://code.claude.com/docs/en/mcp",
+    "title": "Connect Claude Code to tools via MCP",
+    "source": "claude-code-docs",
+    "quote": "Local scope is the default. A local-scoped server loads only in the project where you added it and stays private to you.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F19",
+    "claim": "Claude Code project scope stores shared config in .mcp.json.",
+    "tag": "FACT",
+    "url": "https://code.claude.com/docs/en/mcp",
+    "title": "Connect Claude Code to tools via MCP",
+    "source": "claude-code-docs",
+    "quote": "Project-scoped servers enable team collaboration by storing configurations in a .mcp.json file at your project’s root directory.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F20",
+    "claim": "New-generation dateless model IDs identify pinned snapshots.",
+    "tag": "VER",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions",
+    "title": "Model IDs and versioning",
+    "source": "anthropic-docs",
+    "quote": "For the 4.6 generation and later, the dateless ID is the canonical model ID for that release. It maps to a single, fixed model snapshot.",
+    "accessed": "2026-11-19",
+    "version_note": "Documentation accessed 2026-11-19; confirm platform and model availability before deployment."
+  },
+  {
+    "id": "F21",
+    "claim": "Earlier Claude API aliases may point to the latest dated snapshot.",
+    "tag": "VER",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions",
+    "title": "Model IDs and versioning",
+    "source": "anthropic-docs",
+    "quote": "On the Claude API, these models also have shorter aliases (for example, claude-sonnet-4-5) that point to the most recent dated snapshot for that minor version.",
+    "accessed": "2026-11-19",
+    "version_note": "Documentation accessed 2026-11-19; confirm platform and model availability before deployment."
+  },
+  {
+    "id": "F22",
+    "claim": "Pinned model weights do not guarantee identical serving behavior.",
+    "tag": "VER",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions",
+    "title": "Model IDs and versioning",
+    "source": "anthropic-docs",
+    "quote": "Occasionally, infrastructure updates produce minor differences in observable behavior even when the model ID and weights have not changed.",
+    "accessed": "2026-11-19",
+    "version_note": "Documentation accessed 2026-11-19; confirm platform and model availability before deployment."
+  },
+  {
+    "id": "F23",
+    "claim": "Complete migration before retirement.",
+    "tag": "REC",
+    "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+    "title": "Model deprecations",
+    "source": "anthropic-docs",
+    "quote": "Once a model is deprecated, migrate all usage to a suitable replacement before the retirement date. Once the model is retired, requests to it fail.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F24",
+    "claim": "Partner platforms may have distinct retirement schedules.",
+    "tag": "VER",
+    "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+    "title": "Model deprecations",
+    "source": "anthropic-docs",
+    "quote": "Partner-operated platforms, Claude Models on Google Cloud (Google managed) and Amazon Bedrock, set their own retirement schedules, so a model’s lifecycle status and dates can differ.",
+    "accessed": "2026-11-19",
+    "version_note": "Documentation accessed 2026-11-19; confirm platform and model availability before deployment."
+  },
+  {
+    "id": "F25",
+    "claim": "Changing an MCP tool list is an edit under Fable 5.2 prefix checks.",
+    "tag": "VER",
+    "url": "https://platform.claude.com/docs/en/models/fable-5-2/migration-guide",
+    "title": "Claude Fable 5.2 and Claude Mythos 5.2 migration guide",
+    "source": "anthropic-docs",
+    "quote": "For Claude Fable 5.2 thinking blocks, a tool list that changes between requests is an edit.",
+    "accessed": "2026-11-19",
+    "version_note": "Documentation accessed 2026-11-19; confirm platform and model availability before deployment."
+  },
+  {
+    "id": "F26",
+    "claim": "Fable 5.2 prefix violations return HTTP 400.",
+    "tag": "VER",
+    "url": "https://platform.claude.com/docs/en/models/fable-5-2/migration-guide",
+    "title": "Claude Fable 5.2 and Claude Mythos 5.2 migration guide",
+    "source": "anthropic-docs",
+    "quote": "A prefix check fails if you change system, tools, or earlier messages mid-conversation and then send thinking blocks back. If a prefix check fails, the request receives a 400 error.",
+    "accessed": "2026-11-19",
+    "version_note": "Documentation accessed 2026-11-19; confirm platform and model availability before deployment."
+  },
+  {
+    "id": "F27",
+    "claim": "Fable 5.2 rejects forced tool choice accepted by Opus 5.",
+    "tag": "VER",
+    "url": "https://platform.claude.com/docs/en/models/fable-5-2/migration-guide",
+    "title": "Claude Fable 5.2 and Claude Mythos 5.2 migration guide",
+    "source": "anthropic-docs",
+    "quote": "Claude Opus 5 accepts tool_choice any and tool. Claude Fable 5.2 rejects both.",
+    "accessed": "2026-11-19",
+    "version_note": "Documentation accessed 2026-11-19; confirm platform and model availability before deployment."
+  },
+  {
+    "id": "F28",
+    "claim": "Fable 5.2 uses platform-specific Bedrock inference profile IDs.",
+    "tag": "VER",
+    "url": "https://platform.claude.com/docs/en/models/fable-5-2/migration-guide",
+    "title": "Claude Fable 5.2 and Claude Mythos 5.2 migration guide",
+    "source": "anthropic-docs",
+    "quote": "The model ID is claude-fable-5-2 on every platform except Amazon Bedrock. There, it’s global.anthropic.claude-fable-5-2 or us.anthropic.claude-fable-5-2, and only the bedrock-runtime endpoint serves the model.",
+    "accessed": "2026-11-19",
+    "version_note": "Documentation accessed 2026-11-19; confirm platform and model availability before deployment."
+  },
+  {
+    "id": "F29",
+    "claim": "Foundry requests use deployment names.",
+    "tag": "FACT",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry",
+    "title": "Claude in Microsoft Foundry",
+    "source": "anthropic-docs",
+    "quote": "Use the deployment name (not necessarily the model ID) in your API requests.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F30",
+    "claim": "Claude Code points to a gateway with ANTHROPIC_BASE_URL.",
+    "tag": "FACT",
+    "url": "https://code.claude.com/docs/en/llm-gateway",
+    "title": "Other LLM gateways",
+    "source": "claude-code-docs",
+    "quote": "ANTHROPIC_BASE_URL is the variable that points Claude Code at the gateway.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F31",
+    "claim": "Rollback to Fable 5.1 cannot preserve Fable 5.2 thinking blocks.",
+    "tag": "VER",
+    "url": "https://platform.claude.com/docs/en/models/fable-5-2/migration-guide",
+    "title": "Claude Fable 5.2 and Claude Mythos 5.2 migration guide",
+    "source": "anthropic-docs",
+    "quote": "In the other direction, Claude Fable 5.1 can’t read Claude Fable 5.2’s blocks.",
+    "accessed": "2026-11-19",
+    "version_note": "Documentation accessed 2026-11-19; confirm platform and model availability before deployment."
+  },
+  {
+    "id": "F32",
+    "claim": "Fable 5.2 Foundry fast mode uses a deployment name rather than speed.",
+    "tag": "VER",
+    "url": "https://platform.claude.com/docs/en/models/fable-5-2/migration-guide",
+    "title": "Claude Fable 5.2 and Claude Mythos 5.2 migration guide",
+    "source": "anthropic-docs",
+    "quote": "There, fast mode has its own model ID: send requests to a claude-fable-5-2-fast deployment and leave out speed.",
+    "accessed": "2026-11-19",
+    "version_note": "Documentation accessed 2026-11-19; confirm platform and model availability before deployment."
+  },
+  {
+    "id": "F33",
+    "claim": "Stdio authorization uses environment-supplied credentials rather than the HTTP profile.",
+    "tag": "STD",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization",
+    "title": "Authorization",
+    "source": "mcp-spec",
+    "quote": "Implementations using an STDIO transport SHOULD NOT follow this specification, and instead retrieve credentials from the environment.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F34",
+    "claim": "Claude consumer-app system prompt updates do not apply to the Claude API.",
+    "tag": "FACT",
+    "url": "https://platform.claude.com/docs/en/release-notes/system-prompts/overview",
+    "title": "System prompts",
+    "source": "anthropic-docs",
+    "quote": "Anthropic periodically updates the system prompt to improve Claude’s responses. These updates do not apply to the Claude API.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F35",
+    "claim": "Invalid or expired tokens receive HTTP 401 under the 2025 authorization profile.",
+    "tag": "STD",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization",
+    "title": "Authorization",
+    "source": "mcp-spec",
+    "quote": "Invalid or expired tokens MUST receive a HTTP 401 response.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F36",
+    "claim": "The authorization profile requires OAuth 2.1 authorization servers.",
+    "tag": "STD",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization",
+    "title": "Authorization",
+    "source": "mcp-spec",
+    "quote": "Authorization servers MUST implement OAuth 2.1 with appropriate security measures for both confidential and public clients.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F37",
+    "claim": "User-scoped servers load across projects and are private.",
+    "tag": "FACT",
+    "url": "https://code.claude.com/docs/en/mcp",
+    "title": "Connect Claude Code to tools via MCP",
+    "source": "claude-code-docs",
+    "quote": "User-scoped servers are stored in ~/.claude.json and provide cross-project accessibility, making them available across all projects on your machine while remaining private to your user account.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F38",
+    "claim": "The connector supports tool calls only.",
+    "tag": "FACT",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector",
+    "title": "MCP connector",
+    "source": "anthropic-docs",
+    "quote": "Of the feature set of the MCP specification, only tool calls are currently supported.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F39",
+    "claim": "The server URL must use HTTPS.",
+    "tag": "FACT",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector",
+    "title": "MCP connector",
+    "source": "anthropic-docs",
+    "quote": "The URL of the MCP server. Must start with https://.",
+    "accessed": "2026-11-19"
+  }
+]

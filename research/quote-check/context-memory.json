@@ -1,0 +1,177 @@
+[
+  {
+    "id": "F1",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/context-windows#how-the-context-window-works"
+  },
+  {
+    "id": "F2",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/context-windows#how-the-context-window-works"
+  },
+  {
+    "id": "F3",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-sizes-by-model"
+  },
+  {
+    "id": "F4",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/context-windows#manage-context-with-compaction"
+  },
+  {
+    "id": "F5",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-overflow-behavior"
+  },
+  {
+    "id": "F6",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-overflow-behavior"
+  },
+  {
+    "id": "F7",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/context-windows#context-awareness"
+  },
+  {
+    "id": "F8",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing#long-context-pricing"
+  },
+  {
+    "id": "F9",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/token-counting#pricing-and-rate-limits"
+  },
+  {
+    "id": "F10",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/token-counting#supported-models"
+  },
+  {
+    "id": "F11",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/context-editing#context-editing-occurs-server-side"
+  },
+  {
+    "id": "F12",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/context-editing#context-editing-and-prompt-caching"
+  },
+  {
+    "id": "F13",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/context-editing#combining-strategies"
+  },
+  {
+    "id": "F14",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/context-editing#client-side-compaction-sdk"
+  },
+  {
+    "id": "F15",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/compaction"
+  },
+  {
+    "id": "F16",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/compaction-on-demand#request-a-summary"
+  },
+  {
+    "id": "F17",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/compaction-on-demand#how-it-fits-with-the-rest-of-the-api"
+  },
+  {
+    "id": "F18",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/compaction-threshold#understanding-usage"
+  },
+  {
+    "id": "F19",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/compaction-threshold#current-limitations"
+  },
+  {
+    "id": "F20",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool"
+  },
+  {
+    "id": "F21",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool#using-with-compaction"
+  },
+  {
+    "id": "F22",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching#structuring-your-prompt"
+  },
+  {
+    "id": "F23",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching#how-automatic-prefix-checking-works"
+  },
+  {
+    "id": "F24",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching#cache-limitations"
+  },
+  {
+    "id": "F25",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/mid-conversation-system-messages"
+  },
+  {
+    "id": "F26",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/mid-conversation-system-messages#mid-conversation-tool-changes"
+  },
+  {
+    "id": "F27",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/mid-conversation-system-messages#limitations"
+  },
+  {
+    "id": "F28",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool"
+  },
+  {
+    "id": "F29",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-use-with-prompt-caching#defer_loading-and-cache-preservation"
+  },
+  {
+    "id": "F30",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/programmatic-tool-calling#token-efficiency"
+  },
+  {
+    "id": "F31",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/manage-tool-context#combining-approaches"
+  },
+  {
+    "id": "F32",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/context-window#what-survives-compaction"
+  },
+  {
+    "id": "F33",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/model-config#default-auto-compact-thresholds"
+  },
+  {
+    "id": "F34",
+    "status": "ok",
+    "url": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+  },
+  {
+    "id": "F35",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/prompt-caching#how-the-cache-is-organized"
+  }
+]

@@ -1,0 +1,312 @@
+- id: F1
+  claim: "Anthropic distinguishes workflows (predefined code paths orchestrating LLMs and tools) from agents (LLMs dynamically directing their own processes and tool usage)."
+  tag: FACT
+  url: https://www.anthropic.com/research/building-effective-agents
+  title: "Building effective AI agents"
+  source: anthropic-research
+  quote: "Workflows are systems where LLMs and tools are orchestrated through predefined code paths. Agents, on the other hand, are systems where LLMs dynamically direct their own processes and tool usage, maintaining control over how they accomplish tasks."
+  accessed: 2026-11-19
+
+- id: F2
+  claim: "Prompt chaining decomposes fixed subtasks sequentially with optional programmatic gates, trading latency for accuracy, while routing classifies inputs to specialized downstream prompts and models."
+  tag: REC
+  url: https://www.anthropic.com/research/building-effective-agents
+  title: "Building effective AI agents"
+  source: anthropic-research
+  quote: "Prompt chaining decomposes a task into a sequence of steps, where each LLM call processes the output of the previous one. You can add programmatic checks (see \"gate” in the diagram below) on any intermediate steps to ensure that the process is still on track."
+  accessed: 2026-11-19
+
+- id: F3
+  claim: "Parallelization has two variations: sectioning (independent subtasks in parallel) and voting (running the same task multiple times for diverse outputs or higher confidence)."
+  tag: FACT
+  url: https://www.anthropic.com/research/building-effective-agents
+  title: "Building effective AI agents"
+  source: anthropic-research
+  quote: "Parallelization is effective when the divided subtasks can be parallelized for speed, or when multiple perspectives or attempts are needed for higher confidence results."
+  accessed: 2026-11-19
+
+- id: F4
+  claim: "In the orchestrator-workers workflow, a central LLM dynamically determines subtasks from the input rather than using predefined sections, delegates to worker LLMs, and synthesizes results."
+  tag: FACT
+  url: https://www.anthropic.com/research/building-effective-agents
+  title: "Building effective AI agents"
+  source: anthropic-research
+  quote: "In the orchestrator-workers workflow, a central LLM dynamically breaks down tasks, delegates them to worker LLMs, and synthesizes their results."
+  accessed: 2026-11-19
+
+- id: F5
+  claim: "The evaluator-optimizer workflow pairs a generator LLM with an evaluator LLM in a feedback loop when clear evaluation criteria exist and iterative refinement adds measurable value."
+  tag: REC
+  url: https://www.anthropic.com/research/building-effective-agents
+  title: "Building effective AI agents"
+  source: anthropic-research
+  quote: "In the evaluator-optimizer workflow, one LLM call generates a response while another provides evaluation and feedback in a loop."
+  accessed: 2026-11-19
+
+- id: F6
+  claim: "In Anthropic's internal research eval, a multi-agent system with Claude Opus 4 lead and Claude Sonnet 4 subagents outperformed single-agent Opus 4 by 90.2%, and token usage alone explained 80% of BrowseComp variance."
+  tag: FACT
+  url: https://www.anthropic.com/research/multi-agent-research-system
+  title: "How we built our multi-agent research system"
+  source: anthropic-research
+  quote: "We found that a multi-agent system with Claude Opus 4 as the lead agent and Claude Sonnet 4 subagents outperformed single-agent Claude Opus 4 by 90.2% on our internal research eval."
+  accessed: 2026-11-19
+
+- id: F7
+  claim: "Multi-agent systems consume roughly 15x more tokens than standard chat interactions (versus ~4x for single agents), requiring high-value tasks with heavy parallelization or context exceeding one window."
+  tag: FACT
+  url: https://www.anthropic.com/research/multi-agent-research-system
+  title: "How we built our multi-agent research system"
+  source: anthropic-research
+  quote: "In our data, agents typically use about 4× more tokens than chat interactions, and multi-agent systems use about 15× more tokens than chats. For economic viability, multi-agent systems require tasks where the value of the task is high enough to pay for the increased performance."
+  accessed: 2026-11-19
+
+- id: F8
+  claim: "Lead orchestrators need explicit effort-scaling rules and structured delegation specs (objective, output format, tools/sources, task boundaries) to prevent duplicate work and overinvestment in simple queries."
+  tag: REC
+  url: https://www.anthropic.com/research/multi-agent-research-system
+  title: "How we built our multi-agent research system"
+  source: anthropic-research
+  quote: "Each subagent needs an objective, an output format, guidance on the tools and sources to use, and clear task boundaries. Without detailed task descriptions, agents duplicate work, leave gaps, or fail to find necessary information."
+  accessed: 2026-11-19
+
+- id: F9
+  claim: "Combining two layers of parallelism—spawning 3-5 subagents in parallel and executing 3+ tool calls in parallel inside subagents—cut research time by up to 90% for complex queries."
+  tag: FACT
+  url: https://www.anthropic.com/research/multi-agent-research-system
+  title: "How we built our multi-agent research system"
+  source: anthropic-research
+  quote: "For speed, we introduced two kinds of parallelization: (1) the lead agent spins up 3-5 subagents in parallel rather than serially; (2) the subagents use 3+ tools in parallel. These changes cut research time by up to 90% for complex queries, allowing Research to do more work in minutes instead of hours while covering more information than other systems."
+  accessed: 2026-11-19
+
+- id: F10
+  claim: "Because agents are stateful and errors compound, production multi-agent systems require checkpoint/resume recovery and rainbow deployments that shift traffic gradually without disrupting active runs."
+  tag: REC
+  url: https://www.anthropic.com/research/multi-agent-research-system
+  title: "How we built our multi-agent research system"
+  source: anthropic-research
+  quote: "Instead, we use rainbow deployments to avoid disrupting running agents, by gradually shifting traffic from old to new versions while keeping both running simultaneously."
+  accessed: 2026-11-19
+
+- id: F11
+  claim: "Synchronous subagent execution simplifies coordination but blocks the lead agent on the slowest subagent and prevents mid-flight steering; asynchronous execution increases parallelism at the cost of state consistency and error propagation complexity."
+  tag: FACT
+  url: https://www.anthropic.com/research/multi-agent-research-system
+  title: "How we built our multi-agent research system"
+  source: anthropic-research
+  quote: "Currently, our lead agents execute subagents synchronously, waiting for each set of subagents to complete before proceeding. This simplifies coordination, but creates bottlenecks in the information flow between agents."
+  accessed: 2026-11-19
+
+- id: F12
+  claim: "Writing large structured subagent outputs directly to an artifact store or filesystem and returning lightweight references to the coordinator avoids 'game of telephone' degradation and token copying overhead."
+  tag: REC
+  url: https://www.anthropic.com/research/multi-agent-research-system
+  title: "How we built our multi-agent research system"
+  source: anthropic-research
+  quote: "Subagents call tools to store their work in external systems, then pass lightweight references back to the coordinator. This prevents information loss during multi-stage processing and reduces token overhead from copying large outputs through conversation history."
+  accessed: 2026-11-19
+
+- id: F13
+  claim: "Work should be decomposed by context boundaries rather than problem type (planner/implementer/tester/reviewer), because splitting tightly coupled phases creates handoff loss and excessive coordination token burn."
+  tag: REC
+  url: https://claude.com/blog/building-multi-agent-systems-when-and-how-to-use-them
+  title: "When to use multi-agent systems (and when not to) | Claude by Anthropic"
+  source: anthropic-engineering
+  quote: "The key insight is to adopt a context-centric view rather than a problem-centric view when decomposing work."
+  accessed: 2026-11-19
+
+- id: F14
+  claim: "Verification subagents suffer from the 'early victory problem' (declaring pass after one or two checks) unless given explicit instructions to run full suites, edge cases, and negative tests."
+  tag: REC
+  url: https://claude.com/blog/building-multi-agent-systems-when-and-how-to-use-them
+  title: "When to use multi-agent systems (and when not to) | Claude by Anthropic"
+  source: anthropic-engineering
+  quote: "The most significant failure mode for verification subagents is marking outputs as passing without thorough testing. The verifier runs one or two tests, observes them pass, and declares success."
+  accessed: 2026-11-19
+
+- id: F15
+  claim: "Non-fork SDK subagents start with a fresh isolated context window containing only their own system prompt, the Agent tool's prompt string, project CLAUDE.md (unless omitClaudeMd is set), and scoped tool definitions, returning only their final message to the parent."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/subagents
+  title: "Subagents in the SDK - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Unless the subagent is a fork, its context window starts fresh, with no parent conversation, but isn’t empty. The only content you pass from parent to subagent is the Agent tool’s prompt string, so include any file paths, error messages, or decisions the subagent needs directly in that prompt."
+  accessed: 2026-11-19
+
+- id: F16
+  claim: "Multiple SDK subagents can run concurrently in the background (returning status: async_launched), finishing in the time of the slowest subagent rather than the sum, or block when Claude needs the result (status: completed)."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/subagents
+  title: "Subagents in the SDK - Claude Code Docs"
+  source: claude-code-docs
+  quote: "multiple subagents can run concurrently, so independent subtasks finish in the time of the slowest one rather than the sum of all of them."
+  accessed: 2026-11-19
+
+- id: F17
+  claim: "AgentDefinition supports tools (allowlist) and disallowedTools (denylist including mcp__server, mcp__server__*, and mcp__* globs); setting CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS=1 removes built-in subagents."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/subagents
+  title: "Subagents in the SDK - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Setting CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS=1 removes that default, and such a call fails with subagent_type is required."
+  accessed: 2026-11-19
+
+- id: F18
+  claim: "SDK subagent fan-out is bounded by CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH (default 3 layers), CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS (default 20), and maxBudgetUsd/max_budget_usd (stops background subagents and ends with error_max_budget_usd)."
+  tag: VER
+  url: https://code.claude.com/docs/en/agent-sdk/subagents
+  title: "Subagents in the SDK - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Enforces the cap in three ways: refuses to spawn more subagents, returning Budget limit reached, stops background subagents that are still running, and ends the query with the error_max_budget_usd result subtype."
+  accessed: 2026-11-19
+  version_note: "Requires TypeScript Agent SDK v0.3.219+ or Python Agent SDK v0.2.127+ (Claude Code v2.1.219+)."
+
+- id: F19
+  claim: "In the Python Agent SDK, AgentDefinition keeps camelCase field names (e.g., disallowedTools, permissionMode, maxTurns) unlike snake_case ClaudeAgentOptions, and ClaudeSDKClient.stop_task(task_id) cancels a running background task."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/python
+  title: "Agent SDK reference - Python - Claude Code Docs"
+  source: claude-code-docs
+  quote: "AgentDefinition field names use camelCase, such as disallowedTools, permissionMode, and maxTurns. These names map directly to the wire format shared with the TypeScript SDK."
+  accessed: 2026-11-19
+
+- id: F20
+  claim: "Within a turn, the Agent SDK executes read-only tools concurrently and state-modifying tools sequentially (custom tools require readOnlyHint for parallel execution), and ResultMessage.modelUsage reports whole-tree token and cost totals including subagents."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/agent-loop
+  title: "How the agent loop works - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Read-only tools (like Read, Glob, Grep, and MCP tools marked as read-only) can run concurrently. Tools that modify state (like Edit, Write, and Bash) run sequentially to avoid conflicts."
+  accessed: 2026-11-19
+
+- id: F21
+  claim: "Calling interrupt() on a Query (TypeScript) or ClaudeSDKClient (Python) cancels the current response with an error_during_execution result while keeping the session open for subsequent messages."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/streaming-vs-single-mode
+  title: "Send messages to a running agent - Claude Code Docs"
+  source: claude-code-docs
+  quote: "When you call interrupt() during a response, that response ends with an error_during_execution result. Messages you sent before the interrupt that Claude hadn’t read yet still reach Claude once the interrupted response ends."
+  accessed: 2026-11-19
+
+- id: F22
+  claim: "The outputFormat / output_format option enforces JSON Schema (draft-07, Zod, or Pydantic) validation with retries, delivering typed structured_output on ResultMessage or error_max_structured_output_retries on failure."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/structured-outputs
+  title: "Get structured output from agents - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Define a JSON Schema for the structure you need, and the SDK validates the output against it, re-prompting on mismatch. If validation does not succeed within the retry limit, the result is an error instead of structured data; see Error handling."
+  accessed: 2026-11-19
+
+- id: F23
+  claim: "The Agent SDK evaluates tool permissions in six fixed steps: Hooks -> Deny rules -> Ask rules -> Permission mode -> Allow rules -> canUseTool callback; auto-approved tools skip canUseTool, so checks on auto-approved tools must live in PreToolUse hooks."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/permissions
+  title: "Configure permissions - Claude Code Docs"
+  source: claude-code-docs
+  quote: "A tool call approved at any earlier step, by acceptEdits or bypassPermissions, or by an allow rule, skips your canUseTool callback, so permission checks you put there are silently bypassed for that tool."
+  accessed: 2026-11-19
+
+- id: F24
+  claim: "A subagent inherits plan, acceptEdits, auto, or bypassPermissions from the main session (overriding its own permissionMode); under default or dontAsk, it uses its own permissionMode except bypassPermissions is never applied."
+  tag: VER
+  url: https://code.claude.com/docs/en/agent-sdk/permissions
+  title: "Configure permissions - Claude Code Docs"
+  source: claude-code-docs
+  quote: "The subagent inherits plan, acceptEdits, auto, or bypassPermissions from the main session, and under a default- or dontAsk-mode main session it runs in the mode you set. Even then, Claude Code never applies a \"bypassPermissions\" value, and applies an \"auto\" value only when auto mode is available to that subagent."
+  accessed: 2026-11-19
+  version_note: "The bypassPermissions restriction on subagents requires Claude Code v2.1.267 or later."
+
+- id: F25
+  claim: "The canUseTool callback handles runtime tool approvals and AskUserQuestion prompts (returning allow with updatedInput or deny with message), pausing execution indefinitely; AskUserQuestion is unavailable in subagents spawned via the Agent tool."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/user-input
+  title: "Handle approvals and user input - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Claude requests user input in two situations: when it needs permission to use a tool (like deleting files or running commands), and when it has clarifying questions (via the AskUserQuestion tool). Both trigger your canUseTool callback, which pauses execution until you return a response."
+  accessed: 2026-11-19
+
+- id: F26
+  claim: "PreToolUse hooks return permissionDecision (allow, deny, ask, or defer with precedence deny > defer > ask > allow), receive agent_id/agent_type inside subagents, and require onFailure: 'block' to fail closed on callback errors or timeouts."
+  tag: VER
+  url: https://code.claude.com/docs/en/agent-sdk/hooks
+  title: "Intercept and control agent behavior with hooks - Claude Code Docs"
+  source: claude-code-docs
+  quote: "When multiple PreToolUse hooks return different decisions, deny takes priority over defer, which takes priority over ask, which takes priority over allow."
+  accessed: 2026-11-19
+  version_note: "onFailure: 'block' requires TypeScript Agent SDK v0.3.317+ or Python Agent SDK v0.2.177+."
+
+- id: F27
+  claim: "In non-interactive (-p) single-tool-call turns, a PreToolUse hook returning permissionDecision: 'defer' pauses the turn with stop_reason: 'tool_deferred' and deferred_tool_use so an external approval system can resume the session later without holding a process open."
+  tag: FACT
+  url: https://code.claude.com/docs/en/hooks
+  title: "Hooks reference - Claude Code Docs"
+  source: claude-code-docs
+  quote: "The hook returns permissionDecision: \"defer\". The tool doesn’t execute. The turn ends with a result carrying stop_reason: \"tool_deferred\", and the pending tool call stays in the transcript."
+  accessed: 2026-11-19
+
+- id: F28
+  claim: "Claude Code resolves subagent definitions by scope (managed settings > --agents > .claude/agents/ > ~/.claude/agents/ > plugins), supports git worktree isolation (isolation: worktree), and scans subagent outputs for control-tag or turn-marker imitations before the parent reads them."
+  tag: VER
+  url: https://code.claude.com/docs/en/sub-agents
+  title: "Create custom subagents - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Claude Code scans each subagent’s final report before Claude reads it. A subagent may have read files, web pages, or command output you never reviewed, and text from those sources can carry instructions aimed at the main conversation."
+  accessed: 2026-11-19
+  version_note: "Subagent output scanning applies in Claude Code v2.1.210+."
+
+- id: F29
+  claim: "Subagent API errors are contained without silently corrupting state: foreground subagents return partial text (or fail with Agent terminated early due to an API error), background subagents report the failure and last output, and fallback model chains switch models mid-run."
+  tag: FACT
+  url: https://code.claude.com/docs/en/sub-agents
+  title: "Create custom subagents - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Background: the subagent is marked failed, and the message Claude receives when it ends names the API error and includes the subagent’s last output, so partial work isn’t lost."
+  accessed: 2026-11-19
+
+- id: F30
+  claim: "Agent Teams (experimental, CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1) differ from subagents by allowing direct peer messaging via JSON mailboxes and a file-locked shared task list, enforced by TeammateIdle and TaskCompleted hooks, with no nested teams or /resume restoration for in-process teammates."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-teams
+  title: "Orchestrate teams of Claude Code sessions - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Subagents report results back to the main agent. In agent teams, teammates share a task list, claim work, and communicate directly with each other."
+  accessed: 2026-11-19
+
+- id: F31
+  claim: "Dynamic workflows in Claude Code/SDK move orchestration loops, branching, and intermediate state into an executed JavaScript script via the Workflow tool so Claude's context holds only the final answer across dozens to hundreds of subagents."
+  tag: FACT
+  url: https://code.claude.com/docs/en/workflows
+  title: "Orchestrate subagents at scale with dynamic workflows - Claude Code Docs"
+  source: claude-code-docs
+  quote: "A workflow script holds the loop, the branching, and the intermediate results itself, so Claude’s context holds only the final answer."
+  accessed: 2026-11-19
+
+- id: F32
+  claim: "Claude Managed Agents (multiagent_20261001, beta header managed-agents-2026-04-01) supports predefined and inline subagents, dynamic workflows, and an advisor model, enforcing 1-level delegation depth, max 20 predefined agents per list, and agent-scoped MCP servers with session-scoped vault_ids."
+  tag: VER
+  url: https://platform.claude.com/docs/en/managed-agents/multiagent-orchestration
+  title: "Multiagent orchestration - Claude Platform Docs"
+  source: anthropic-docs
+  quote: "The agent can delegate to only one level of agents. Referencing another agent that has multiagent set fails the create or update request with a 400 validation error."
+  accessed: 2026-11-19
+  version_note: "Managed Agents multiagent orchestration is in beta under header managed-agents-2026-04-01."
+
+- id: F33
+  claim: "Managed Agents limits sessions to 25 active/idle child threads (advisor and workflow-run threads exempt), supports targeted cancellation via user.interrupt with session_thread_id, and cross-posts child thread tool confirmations (always_ask or unresolved auto) to the primary event stream."
+  tag: VER
+  url: https://platform.claude.com/docs/en/managed-agents/session-threads
+  title: "Session threads - Claude Platform Docs"
+  source: anthropic-docs
+  quote: "Send user.interrupt with session_thread_id to stop a specific thread. Omitting session_thread_id interrupts every non-archived thread in the session, including the primary."
+  accessed: 2026-11-19
+  version_note: "Managed Agents session threads are in beta under header managed-agents-2026-04-01."
+
+- id: F34
+  claim: "Managed Agents workflow runs support up to 64 concurrent threads per run, 1,000 spawned agents per run lifetime, and 10 open runs per session; failed agents retry once on a new thread, and hitting the session budget pauses all open runs until the budget is raised or removed."
+  tag: VER
+  url: https://platform.claude.com/docs/en/managed-agents/workflow-runs
+  title: "Workflow runs - Claude Platform Docs"
+  source: anthropic-docs
+  quote: "When one of its agents fails, the server usually runs that agent once more, on a new thread, while the run’s other agents keep working. If it fails again, the program can handle the failure or let it end the run."
+  accessed: 2026-11-19
+  version_note: "Managed Agents workflow runs are in beta under header managed-agents-2026-04-01."

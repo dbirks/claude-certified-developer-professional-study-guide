@@ -1,0 +1,305 @@
+- id: F1
+  claim: "Conventional RAG embeds chunks, retrieves them through semantic similarity, and adds selected chunks to the prompt."
+  tag: FACT
+  url: https://www.anthropic.com/research/contextual-retrieval
+  title: "Contextual retrieval in AI systems"
+  source: anthropic-research
+  quote: "At runtime, when a user inputs a query to the model, the vector database is used to find the most relevant chunks based on semantic similarity to the query. Then, the most relevant chunks are added to the prompt sent to the generative model."
+  accessed: 2026-11-19
+- id: F2
+  claim: "Contextual Retrieval adds chunk-specific explanatory context before embedding and BM25 indexing."
+  tag: FACT
+  url: https://www.anthropic.com/research/contextual-retrieval
+  title: "Contextual retrieval in AI systems"
+  source: anthropic-research
+  quote: "Contextual Retrieval solves this problem by prepending chunk-specific explanatory context to each chunk before embedding (“Contextual Embeddings”) and creating the BM25 index (“Contextual BM25”)."
+  accessed: 2026-11-19
+- id: F3
+  claim: "Anthropic reported 35% and 49% reductions in top-20 retrieval failure for contextual embedding and contextual embedding plus BM25."
+  tag: FACT
+  url: https://www.anthropic.com/research/contextual-retrieval
+  title: "Contextual retrieval in AI systems"
+  source: anthropic-research
+  quote: |
+    Our experiments showed that:
+      * Contextual Embeddings reduced the top-20-chunk retrieval failure rate by 35% (5.7% → 3.7%).
+      * Combining Contextual Embeddings and Contextual BM25 reduced the top-20-chunk retrieval failure rate by 49% (5.7% → 2.9%).
+  accessed: 2026-11-19
+- id: F4
+  claim: "Chunk size, boundaries, and overlap affect retrieval; Voyage and Gemini embeddings were particularly effective in Anthropic's test."
+  tag: REC
+  url: https://www.anthropic.com/research/contextual-retrieval
+  title: "Contextual retrieval in AI systems"
+  source: anthropic-research
+  quote: "Chunk boundaries: Consider how you split your documents into chunks. The choice of chunk size, chunk boundary, and chunk overlap can affect retrieval performance"
+  accessed: 2026-11-19
+- id: F5
+  claim: "BM25 contributes lexical exact-match retrieval for precise words, phrases, identifiers, and technical terms."
+  tag: FACT
+  url: https://www.anthropic.com/research/contextual-retrieval
+  title: "Contextual retrieval in AI systems"
+  source: anthropic-research
+  quote: "BM25 (Best Matching 25) is a ranking function that uses lexical matching to find precise word or phrase matches. It's particularly effective for queries that include unique identifiers or technical terms."
+  accessed: 2026-11-19
+- id: F6
+  claim: "Anthropic's reranking flow retrieved up to 150 candidates, reranked them against the query, selected the top 20, and reported a 67% top-20 failure-rate reduction in its setup."
+  tag: FACT
+  url: https://www.anthropic.com/research/contextual-retrieval
+  title: "Contextual retrieval in AI systems"
+  source: anthropic-research
+  quote: "Specifically, we found that Reranked Contextual Embedding and Contextual BM25 reduced the top-20-chunk retrieval failure rate by 67% (5.7% → 1.9%)."
+  accessed: 2026-11-19
+- id: F7
+  claim: "Reranking adds latency and cost tradeoffs that should be evaluated for the application."
+  tag: REC
+  url: https://www.anthropic.com/research/contextual-retrieval
+  title: "Contextual retrieval in AI systems"
+  source: anthropic-research
+  quote: "There is an inherent trade-off between reranking more chunks for better performance vs. reranking fewer for lower latency and cost."
+  accessed: 2026-11-19
+- id: F8
+  claim: "Claude Code uses just-in-time agentic retrieval to load relevant data dynamically through tools."
+  tag: FACT
+  url: https://www.anthropic.com/research/effective-context-engineering-for-ai-agents
+  title: "Effective context engineering for AI agents"
+  source: anthropic-engineering
+  quote: "Rather than pre-processing all relevant data up front, agents built with the “just in time” approach maintain lightweight identifiers (file paths, stored queries, web links, etc.) and use these references to dynamically load data into context at runtime using tools. Anthropic’s agentic coding solution Claude Code uses this approach to perform complex data analysis over large databases."
+  accessed: 2026-11-19
+- id: F9
+  claim: "Claude Code combines up-front CLAUDE.md context with just-in-time file search, which can avoid stale indexing."
+  tag: FACT
+  url: https://www.anthropic.com/research/effective-context-engineering-for-ai-agents
+  title: "Effective context engineering for AI agents"
+  source: anthropic-engineering
+  quote: "Claude Code is an agent that employs this hybrid model: CLAUDE.md files are naively dropped into context up front, while primitives like glob and grep allow it to navigate its environment and retrieve files just-in-time, effectively bypassing the issues of stale indexing and complex syntax trees."
+  accessed: 2026-11-19
+- id: F10
+  claim: "Agentic exploration is slower than precomputed retrieval; a hybrid may retrieve some data up front and allow autonomous exploration when useful."
+  tag: REC
+  url: https://www.anthropic.com/research/effective-context-engineering-for-ai-agents
+  title: "Effective context engineering for AI agents"
+  source: anthropic-engineering
+  quote: "In certain settings, the most effective agents might employ a hybrid strategy, retrieving some data up front for speed, and pursuing further autonomous exploration at its discretion. The decision boundary for the ‘right’ level of autonomy depends on the task."
+  accessed: 2026-11-19
+- id: F11
+  claim: "Messages API citations are enabled per document block, and all documents in one request must consistently enable or disable citations."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/citations
+  title: "Citations"
+  source: anthropic-docs
+  quote: "Set citations.enabled=true on each of your documents. Currently, citations must be enabled on all or none of the documents within a request."
+  accessed: 2026-11-19
+- id: F12
+  claim: "Document citation locations use char, page, or content-block indices with documented zero- or one-based conventions."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/citations
+  title: "Citations"
+  source: anthropic-docs
+  quote: "For PDFs: Citations include the page number range (1-indexed). For plain text documents: Citations include the character index range (0-indexed). For custom content documents: Citations include the content block index range (0-indexed) corresponding to the original content list provided."
+  accessed: 2026-11-19
+- id: F13
+  claim: "Custom-content documents preserve developer-defined content blocks as citation units without additional chunking."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/citations
+  title: "Citations"
+  source: anthropic-docs
+  quote: "In the document’s source, type is content, and the content field holds a list of content blocks. The API does no further chunking: each text block that you provide is one chunk, the smallest unit that Claude can cite."
+  accessed: 2026-11-19
+- id: F14
+  claim: "Search result blocks allow custom RAG tools to pass attributed source content that Claude can cite."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/search-results
+  title: "Search results"
+  source: anthropic-docs
+  quote: "Search result content blocks let Claude cite your own content the same way it cites web search results: each citation carries the source and title you provided. Use them in RAG (Retrieval-Augmented Generation) applications where Claude needs to attribute answers to your documents."
+  accessed: 2026-11-19
+- id: F15
+  claim: "Claude's citations feature returns pointers to provided source documents, but applications still need to assess whether sources support the generated claim."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/citations
+  title: "Citations"
+  source: anthropic-docs
+  quote: "Better citation reliability: Because the API parses citations into the response formats described in the following sections and extracts cited_text directly, citations are guaranteed to contain valid pointers to the provided documents."
+  accessed: 2026-11-19
+- id: F16
+  claim: "The Messages API web search tool provides citations for search results, with tool versions and search/domain controls documented in the live reference."
+  tag: VER
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool
+  title: "Web search tool"
+  source: anthropic-docs
+  quote: "Citations are always enabled for web search, and each web_search_result_location includes:"
+  accessed: 2026-11-19
+  version_note: "Claude Platform web_search tool documentation accessed 2026-11-19; tool version identifiers evolve."
+- id: F17
+  claim: "Web fetch citations are optional and disabled by default; enable them explicitly."
+  tag: VER
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool
+  title: "Web fetch tool"
+  source: anthropic-docs
+  quote: "Unlike web search where citations are always enabled, citations are optional for web fetch and disabled by default. Set \"citations\": {\"enabled\": true} to enable Claude to cite specific passages from fetched documents."
+  accessed: 2026-11-19
+  version_note: "Claude Platform web_fetch tool documentation accessed 2026-11-19; the documented current tool version was web_fetch_20260318."
+- id: F18
+  claim: "Anthropic recommends explicitly allowing Claude to admit uncertainty."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-hallucinations
+  title: "Reduce hallucinations"
+  source: anthropic-docs
+  quote: "Allow Claude to say “I don’t know”: Explicitly give Claude permission to admit uncertainty."
+  accessed: 2026-11-19
+- id: F19
+  claim: "Anthropic recommends grounding factual work in direct quotes and checking claims against citations, retracting claims without support."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-hallucinations
+  title: "Reduce hallucinations"
+  source: anthropic-docs
+  quote: "Verify with citations: Make Claude’s response auditable by having it cite quotes and sources for each of its claims. You can also have Claude verify each claim by finding a supporting quote after it generates a response. If it can’t find a quote, it must retract the claim."
+  accessed: 2026-11-19
+- id: F20
+  claim: "Voyage recommends query/document input types for retrieval embeddings and documents the associated prompt behavior and truncation option."
+  tag: REC
+  url: https://docs.voyageai.com/docs/embeddings
+  title: "Text Embeddings"
+  source: other
+  quote: 'For retrieval/search purposes, where a "query" is used to search for relevant information among a collection of data, referred to as "documents", we recommend specifying whether your inputs ("texts") are intended as queries or documents by setting input_type to query or document, respectively.'
+  accessed: 2026-11-19
+- id: F21
+  claim: "Voyage describes rerankers as jointly scoring query-document pairs and refining preliminary retrieval candidates."
+  tag: FACT
+  url: https://docs.voyageai.com/docs/reranker
+  title: "Rerankers"
+  source: other
+  quote: "Unlike embedding models that encode queries and documents separately, rerankers are cross-encoders that jointly process a pair of query and document, enabling more accurate relevancy prediction."
+  accessed: 2026-11-19
+- id: F23
+  claim: "Citations and strict structured outputs cannot be combined; structured extraction should validate values and citations after parsing."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/citations
+  title: "Citations"
+  source: anthropic-docs
+  quote: "Citations cannot be used together with structured outputs. If you enable citations on any user-provided document (document blocks or search_result blocks) and also include the output_config.format parameter (or the deprecated output_format parameter), the API returns a 400 error."
+  accessed: 2026-11-19
+- id: F24
+  claim: "Anthropic says an entire knowledge base below about 200,000 tokens can sometimes be supplied directly instead of using RAG."
+  tag: REC
+  url: https://www.anthropic.com/research/contextual-retrieval
+  title: "Contextual retrieval in AI systems"
+  source: anthropic-research
+  quote: "If your knowledge base is smaller than 200,000 tokens (about 500 pages of material), you can just include the entire knowledge base in the prompt that you give the model, with no need for RAG or similar methods."
+  accessed: 2026-11-19
+
+- id: F25
+  claim: "Anthropic describes merging lexical and semantic candidates by deduplicating results with rank fusion."
+  tag: FACT
+  url: https://www.anthropic.com/research/contextual-retrieval
+  title: "Contextual retrieval in AI systems"
+  source: anthropic-research
+  quote: "Combine and deduplicate results from (3) and (4) using rank fusion techniques;"
+  accessed: 2026-11-19
+- id: F26
+  claim: "Anthropic's contextualizer prepended about 50–100 tokens of contextual text to chunks before indexing."
+  tag: FACT
+  url: https://www.anthropic.com/research/contextual-retrieval
+  title: "Contextual retrieval in AI systems"
+  source: anthropic-research
+  quote: "The resulting contextual text, usually 50-100 tokens, is prepended to the chunk before embedding it and before creating the BM25 index."
+  accessed: 2026-11-19
+
+- id: F27
+  claim: "Voyage's rerank API accepts a query and document list with a model, optional top_k, and truncation options."
+  tag: VER
+  url: https://docs.voyageai.com/docs/reranker
+  title: "Rerankers"
+  source: other
+  quote: "voyageai.Client.rerank (query: str, documents: List[str], model: str, top_k: Optional[int] = None, truncation: bool = True)"
+  accessed: 2026-11-19
+  version_note: "Voyage reranker API documentation accessed 2026-11-19; model recommendations and limits can change."
+- id: F28
+  claim: "The documented Claude web search tool versions include basic search, dynamic filtering, and response-inclusion control variants."
+  tag: VER
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool
+  title: "Web search tool"
+  source: anthropic-docs
+  quote: |
+    Three versions of the web search tool are available:
+      * web_search_20250305: basic web search
+      * web_search_20260209: adds dynamic filtering
+      * web_search_20260318: adds response inclusion control for agentic workflows
+  accessed: 2026-11-19
+  version_note: "Claude Platform documentation accessed 2026-11-19; tool version identifiers are version-sensitive."
+- id: F29
+  claim: "The current examples use web_fetch_20260318, and later versions support dynamic filtering."
+  tag: VER
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool
+  title: "Web fetch tool"
+  source: anthropic-docs
+  quote: "To enable dynamic filtering, use web_fetch_20260209 or any later version. The following examples use web_fetch_20260318:"
+  accessed: 2026-11-19
+  version_note: "Claude Platform documentation accessed 2026-11-19; tool version identifiers are version-sensitive."
+- id: F31
+  claim: "Claude document citation indices use exclusive end bounds, with zero-based character/block indices and one-based page numbers."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/citations
+  title: "Citations"
+  source: anthropic-docs
+  quote: "Character indices are 0-indexed with exclusive end indices. Page numbers are 1-indexed with exclusive end page numbers. Content block indices are 0-indexed with exclusive end indices from the content list provided in the custom content document."
+  accessed: 2026-11-19
+- id: F32
+  claim: "Runtime exploration is slower than retrieving precomputed data and requires tools and heuristics that help an agent navigate."
+  tag: FACT
+  url: https://www.anthropic.com/research/effective-context-engineering-for-ai-agents
+  title: "Effective context engineering for AI agents"
+  source: anthropic-engineering
+  quote: "Of course, there's a trade-off: runtime exploration is slower than retrieving pre-computed data. Not only that, but opinionated and thoughtful engineering is required to ensure that an LLM has the right tools and heuristics for effectively navigating its information landscape."
+  accessed: 2026-11-19
+- id: F33
+  claim: "A search_result block requires type, source, title, and content fields."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/search-results
+  title: "Search results"
+  source: anthropic-docs
+  quote: |
+    type | string | Must be "search_result"
+    source | string | The source of the content. Any stable string works: a URL, or an internal identifier such as kb://article-1234
+    title | string | A descriptive title for the search result
+    content | array | An array of text blocks containing the actual content
+  accessed: 2026-11-19
+- id: F34
+  claim: "Anthropic's contextual retrieval tests found Voyage and Gemini embeddings particularly effective, while results still depended on embedding model."
+  tag: FACT
+  url: https://www.anthropic.com/research/contextual-retrieval
+  title: "Contextual retrieval in AI systems"
+  source: anthropic-research
+  quote: "Whereas Contextual Retrieval improves performance across all embedding models we tested, some models may benefit more than others. We found Gemini and Voyage embeddings to be particularly effective."
+  accessed: 2026-11-19
+
+- id: F35
+  claim: "Search result citations are disabled by default and all search results in a request must use the same setting."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/search-results
+  title: "Search results"
+  source: anthropic-docs
+  quote: 'Citations are disabled by default; every example on this page sets "enabled": true explicitly. All search results in a request must use the same setting (see Citation control)'
+  accessed: 2026-11-19
+- id: F36
+  claim: "Anthropic's reranking experiment retrieved an initial candidate set, scored candidates against the query, selected a smaller top set, and sent that context to Claude."
+  tag: FACT
+  url: https://www.anthropic.com/research/contextual-retrieval
+  title: "Contextual retrieval in AI systems"
+  source: anthropic-research
+  quote: |
+    The key steps are:
+      1. Perform initial retrieval to get the top potentially relevant chunks (we used the top 150);
+      2. Pass the top-N chunks, along with the user's query, through the reranking model;
+      3. Using a reranking model, give each chunk a score based on its relevance and importance to the prompt, then select the top-K chunks (we used the top 20);
+      4. Pass the top-K chunks into the model as context to generate the final result.
+  accessed: 2026-11-19
+
+- id: F22
+  claim: "Anthropic defines 1 minus recall@20 as the percentage of relevant documents not retrieved within the top 20 chunks."
+  tag: FACT
+  url: https://www.anthropic.com/research/contextual-retrieval
+  title: "Contextual retrieval in AI systems"
+  source: anthropic-research
+  quote: "We use 1 minus recall@20 as our evaluation metric, which measures the percentage of relevant documents that fail to be retrieved within the top 20 chunks."
+  accessed: 2026-11-19

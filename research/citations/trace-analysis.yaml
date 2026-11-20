@@ -1,0 +1,232 @@
+- id: F1
+  claim: "Head sampling decides early without the complete trace."
+  tag: FACT
+  url: https://opentelemetry.io/docs/concepts/sampling/
+  title: "Sampling"
+  source: standard
+  quote: "Head sampling is a sampling technique used to make a sampling decision as early as possible. A decision to sample or drop a span or trace is not made by inspecting the trace as a whole."
+  accessed: 2026-11-19
+- id: F2
+  claim: "Head sampling alone cannot ensure capture of all traces containing errors."
+  tag: FACT
+  url: https://opentelemetry.io/docs/concepts/sampling/
+  title: "Sampling"
+  source: standard
+  quote: "The primary downside to head sampling is that it is not possible to make a sampling decision based on data in the entire trace. For example, you cannot ensure that all traces with an error within them are sampled with head sampling alone."
+  accessed: 2026-11-19
+- id: F3
+  claim: "Tail sampling considers all or most spans and can apply trace-wide criteria."
+  tag: FACT
+  url: https://opentelemetry.io/docs/concepts/sampling/
+  title: "Sampling"
+  source: standard
+  quote: "Tail sampling is where the decision to sample a trace takes place by considering all or most of the spans within the trace."
+  accessed: 2026-11-19
+- id: F4
+  claim: "Some pipelines combine head and tail sampling to protect the pipeline."
+  tag: FACT
+  url: https://opentelemetry.io/docs/concepts/sampling/
+  title: "Sampling"
+  source: standard
+  quote: "Finally, for some systems, tail sampling might be used in conjunction with Head Sampling."
+  accessed: 2026-11-19
+- id: F5
+  claim: "The collector needs trace-affine routing and holds spans in memory."
+  tag: FACT
+  url: https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/tailsamplingprocessor/README.md
+  title: "Tail Sampling Processor"
+  source: standard
+  quote: "The processor keeps spans in memory while it waits to make a sampling decision. All spans for a given trace must be sent to the same Collector instance."
+  accessed: 2026-11-19
+- id: F6
+  claim: "The processor supports policy selection by status, latency and attributes."
+  tag: FACT
+  url: https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/tailsamplingprocessor/README.md
+  title: "Tail Sampling Processor"
+  source: standard
+  quote: "status_code: Sample based upon the status code (OK, ERROR or UNSET)"
+  accessed: 2026-11-19
+- id: F7
+  claim: "Tail sampling uses a configurable decision wait."
+  tag: FACT
+  url: https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/tailsamplingprocessor/README.md
+  title: "Tail Sampling Processor"
+  source: standard
+  quote: "decision_wait (default = 30s): Time before timer handling for a trace."
+  accessed: 2026-11-19
+- id: F8
+  claim: "Collector capacity pressure can discard traces before sampling."
+  tag: FACT
+  url: https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/tailsamplingprocessor/README.md
+  title: "Tail Sampling Processor"
+  source: standard
+  quote: "If the collector is processing more traces in-memory than the num_traces configuration option allows, some will have to be dropped before they can be sampled."
+  accessed: 2026-11-19
+- id: F9
+  claim: "Late spans can lead to inconsistent decisions."
+  tag: FACT
+  url: https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/tailsamplingprocessor/README.md
+  title: "Tail Sampling Processor"
+  source: standard
+  quote: "Late spans can cause different sampling decisions for different parts of the trace."
+  accessed: 2026-11-19
+- id: F10
+  claim: "Overflow can preserve totals while filtered or grouped metric queries undercount."
+  tag: FACT
+  url: https://opentelemetry.io/blog/2026/cardinality-limits-in-opentelemetry/
+  title: "Metric cardinality limits in OpenTelemetry: a practical guide"
+  source: standard
+  quote: "That protection is useful, but it has a consequence many users do not expect: when a metric stream overflows, the total value remains correct, while queries that filter or group by attributes can undercount."
+  accessed: 2026-11-19
+- id: F11
+  claim: "Metrics aggregate by the full attribute combination."
+  tag: FACT
+  url: https://opentelemetry.io/blog/2026/cardinality-limits-in-opentelemetry/
+  title: "Metric cardinality limits in OpenTelemetry: a practical guide"
+  source: standard
+  quote: "The SDK aggregates measurements by the full set of attribute values. Each unique attribute combination becomes a separate data point that the SDK tracks in memory."
+  accessed: 2026-11-19
+- id: F12
+  claim: "Claude Code beta tracing has explicit enablement and exporter settings."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Tracing is off by default. To enable it, set both CLAUDE_CODE_ENABLE_TELEMETRY=1 and CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1, then set OTEL_TRACES_EXPORTER to choose where spans are sent."
+  accessed: 2026-11-19
+- id: F13
+  claim: "Claude Code redacts prompt and tool content in spans by default."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Spans redact user prompt text, tool input details, and tool content by default."
+  accessed: 2026-11-19
+- id: F14
+  claim: "Prompt ID joins events triggered by a user prompt."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "When a user submits a prompt, Claude Code may make multiple API calls and run several tools. The prompt.id attribute lets you tie all of those events back to the single prompt that triggered them."
+  accessed: 2026-11-19
+- id: F15
+  claim: "Tool results are absent for rejected tool calls."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Logged when a tool completes execution. Not emitted if the tool call was rejected; see the Tool decision event for rejections."
+  accessed: 2026-11-19
+- id: F16
+  claim: "Tool execution duration excludes permission wait."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "duration_ms | Time spent running the tool body"
+  accessed: 2026-11-19
+- id: F17
+  claim: "Agent SDK shares Claude Code runtime and exports OTel metrics and events when enabled."
+  tag: FACT
+  url: https://platform.claude.com/cookbook/claude-agent-sdk-04-migrating-from-openai-agents-sdk
+  title: "Migrating from the OpenAI Agents SDK"
+  source: anthropic-docs
+  quote: "The SDK shares the Claude Code runtime, which exports OTel metrics and events when enabled:"
+  accessed: 2026-11-19
+- id: F18
+  claim: "MCP tool spans and custom tool spans have different origins."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/opentelemetry/spans
+  title: "OpenTelemetry span reference"
+  source: anthropic-docs
+  quote: "anthropic.custom_tool_use <tool> is the span for each use of a tool that the application defines and a tool runner runs. Only the SDK emits this span."
+  accessed: 2026-11-19
+- id: F19
+  claim: "Managed Agents session and thread spans can be grouped by IDs across traces."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/opentelemetry
+  title: "OpenTelemetry tracing for the Claude API"
+  source: anthropic-docs
+  quote: "A session’s spans can be in several traces, for example when you send a later request from a new root trace. With multiagent on, a session can also have several threads. To find the spans you need, group them by an ID."
+  accessed: 2026-11-19
+- id: F20
+  claim: "Tool errors include tool_error for failed code or error results."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/opentelemetry/spans
+  title: "OpenTelemetry span reference"
+  source: anthropic-docs
+  quote: "The error type, if the tool use failed: tool_error when the tool’s code raises an error or when the tool returns an error result."
+  accessed: 2026-11-19
+- id: F21
+  claim: "Read transcripts and grades to validate graders and diagnose failed tasks."
+  tag: FACT
+  url: https://www.anthropic.com/research/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-engineering
+  quote: "You won’t know if your graders are working well unless you read the transcripts and grades from many trials."
+  accessed: 2026-11-19
+- id: F22
+  claim: "The outcome is the final state in the environment, distinct from transcript claims."
+  tag: FACT
+  url: https://www.anthropic.com/research/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-engineering
+  quote: "The outcome is the final state in the environment at the end of the trial."
+  accessed: 2026-11-19
+- id: F23
+  claim: "Clio extracts facets and clusters conversations for bottom-up discovery."
+  tag: FACT
+  url: https://www.anthropic.com/research/clio
+  title: "Clio: Privacy-preserving insights into AI use"
+  source: anthropic-research
+  quote: "Clio takes a different approach, enabling bottom-up discovery of patterns by distilling conversations into abstracted, understandable topic clusters."
+  accessed: 2026-11-19
+- id: F24
+  claim: "Clio uses thresholds to suppress low-frequency topics."
+  tag: FACT
+  url: https://www.anthropic.com/research/clio
+  title: "Clio: Privacy-preserving insights into AI use"
+  source: anthropic-research
+  quote: "We also have a minimum threshold for the number of unique users or conversations, so that low-frequency topics (which might be specific to individuals) aren’t inadvertently exposed."
+  accessed: 2026-11-19
+- id: F25
+  claim: "Clio has surfaced cross-account patterns invisible in individual conversations."
+  tag: FACT
+  url: https://www.anthropic.com/research/clio
+  title: "Clio: Privacy-preserving insights into AI use"
+  source: anthropic-research
+  quote: "Clio has proven effective at identifying patterns of coordinated, sophisticated misuse that would otherwise be invisible when looking at individual conversations, and that might evade simpler detection methods."
+  accessed: 2026-11-19
+- id: F26
+  claim: "The requested model is available as a span attribute."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/opentelemetry/spans
+  title: "OpenTelemetry span reference"
+  source: anthropic-docs
+  quote: "gen_ai.request.model | string | The request’s model."
+  accessed: 2026-11-19
+- id: F27
+  claim: "Tool-result fields include tool name, success and execution duration."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "tool_name: Name of the tool"
+  accessed: 2026-11-19
+- id: F28
+  claim: "API request events carry model and duration."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "duration_ms: Request duration in milliseconds"
+  accessed: 2026-11-19
+- id: F29
+  claim: "Claude API and SDK telemetry can include Messages API requests, tool uses and Managed Agents sessions."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/opentelemetry
+  title: "OpenTelemetry tracing for the Claude API"
+  source: anthropic-docs
+  quote: "The Claude API and the SDK can trace your Messages API requests, tool uses, and Managed Agents sessions with OpenTelemetry (OTel)."
+  accessed: 2026-11-19

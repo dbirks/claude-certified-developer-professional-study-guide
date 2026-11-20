@@ -1,0 +1,172 @@
+[
+  {
+    "id": "F1",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/sessions"
+  },
+  {
+    "id": "F2",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/sessions"
+  },
+  {
+    "id": "F3",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/sessions"
+  },
+  {
+    "id": "F4",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/sessions"
+  },
+  {
+    "id": "F5",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/sessions"
+  },
+  {
+    "id": "F6",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/session-storage"
+  },
+  {
+    "id": "F7",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/session-storage"
+  },
+  {
+    "id": "F8",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/python"
+  },
+  {
+    "id": "F9",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/sessions"
+  },
+  {
+    "id": "F10",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/sessions"
+  },
+  {
+    "id": "F11",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/checkpointing"
+  },
+  {
+    "id": "F12",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/checkpointing"
+  },
+  {
+    "id": "F13",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/file-checkpointing"
+  },
+  {
+    "id": "F14",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/python"
+  },
+  {
+    "id": "F15",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/managed-agents/overview"
+  },
+  {
+    "id": "F16",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/managed-agents/session-operations"
+  },
+  {
+    "id": "F17",
+    "status": "not-found",
+    "url": "https://platform.claude.com/docs/en/managed-agents/session-operations"
+  },
+  {
+    "id": "F18",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/managed-agents/events-and-streaming"
+  },
+  {
+    "id": "F19",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/managed-agents"
+  },
+  {
+    "id": "F20",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/managed-agents"
+  },
+  {
+    "id": "F21",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations"
+  },
+  {
+    "id": "F22",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/model-config"
+  },
+  {
+    "id": "F23",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/prompt-caching"
+  },
+  {
+    "id": "F24",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/preserved-thinking"
+  },
+  {
+    "id": "F25",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/preserved-thinking"
+  },
+  {
+    "id": "F26",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/preserved-thinking/fix-bound-to-a-different-conversation"
+  },
+  {
+    "id": "F27",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/preserved-thinking/change-tools-or-instructions"
+  },
+  {
+    "id": "F28",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool"
+  },
+  {
+    "id": "F29",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/memory"
+  },
+  {
+    "id": "F30",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/managed-agents/memory"
+  },
+  {
+    "id": "F31",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/effective-harnesses-for-long-running-agents"
+  },
+  {
+    "id": "F32",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/errors"
+  },
+  {
+    "id": "F33",
+    "status": "ok",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/schema"
+  },
+  {
+    "id": "F34",
+    "status": "ok",
+    "url": "https://sre.google/sre-book/addressing-cascading-failures/"
+  }
+]

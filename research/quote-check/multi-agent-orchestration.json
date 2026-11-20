@@ -1,0 +1,172 @@
+[
+  {
+    "id": "F1",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/building-effective-agents"
+  },
+  {
+    "id": "F2",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/building-effective-agents"
+  },
+  {
+    "id": "F3",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/building-effective-agents"
+  },
+  {
+    "id": "F4",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/building-effective-agents"
+  },
+  {
+    "id": "F5",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/building-effective-agents"
+  },
+  {
+    "id": "F6",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/multi-agent-research-system"
+  },
+  {
+    "id": "F7",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/multi-agent-research-system"
+  },
+  {
+    "id": "F8",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/multi-agent-research-system"
+  },
+  {
+    "id": "F9",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/multi-agent-research-system"
+  },
+  {
+    "id": "F10",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/multi-agent-research-system"
+  },
+  {
+    "id": "F11",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/multi-agent-research-system"
+  },
+  {
+    "id": "F12",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/multi-agent-research-system"
+  },
+  {
+    "id": "F13",
+    "status": "ok",
+    "url": "https://claude.com/blog/building-multi-agent-systems-when-and-how-to-use-them"
+  },
+  {
+    "id": "F14",
+    "status": "ok",
+    "url": "https://claude.com/blog/building-multi-agent-systems-when-and-how-to-use-them"
+  },
+  {
+    "id": "F15",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/subagents"
+  },
+  {
+    "id": "F16",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/subagents"
+  },
+  {
+    "id": "F17",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/subagents"
+  },
+  {
+    "id": "F18",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/subagents"
+  },
+  {
+    "id": "F19",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/python"
+  },
+  {
+    "id": "F20",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/agent-loop"
+  },
+  {
+    "id": "F21",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/streaming-vs-single-mode"
+  },
+  {
+    "id": "F22",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/structured-outputs"
+  },
+  {
+    "id": "F23",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/permissions"
+  },
+  {
+    "id": "F24",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/permissions"
+  },
+  {
+    "id": "F25",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/user-input"
+  },
+  {
+    "id": "F26",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/hooks"
+  },
+  {
+    "id": "F27",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/hooks"
+  },
+  {
+    "id": "F28",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/sub-agents"
+  },
+  {
+    "id": "F29",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/sub-agents"
+  },
+  {
+    "id": "F30",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-teams"
+  },
+  {
+    "id": "F31",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/workflows"
+  },
+  {
+    "id": "F32",
+    "status": "not-found",
+    "url": "https://platform.claude.com/docs/en/managed-agents/multiagent-orchestration"
+  },
+  {
+    "id": "F33",
+    "status": "not-found",
+    "url": "https://platform.claude.com/docs/en/managed-agents/session-threads"
+  },
+  {
+    "id": "F34",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/managed-agents/workflow-runs"
+  }
+]
