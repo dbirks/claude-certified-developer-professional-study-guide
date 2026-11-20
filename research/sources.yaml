@@ -107,6 +107,7 @@
   cited_by:
     - multi-agent-orchestration:F26
     - runtime-guardrails:F7
+    - runtime-guardrails:F53
 - url: https://code.claude.com/docs/en/agent-sdk/observability
   title: Observability with OpenTelemetry
   source: claude-code-docs
@@ -132,6 +133,7 @@
     - multi-agent-orchestration:F58
     - runtime-guardrails:F8
     - runtime-guardrails:F9
+    - runtime-guardrails:F14
     - threat-defense:F27
     - threat-defense:F41
     - identity-secrets-audit:F33
@@ -247,6 +249,7 @@
   accessed: 2026-11-19
   cited_by:
     - runtime-guardrails:F33
+    - runtime-guardrails:F51
 - url: https://code.claude.com/docs/en/best-practices
   title: Best practices for Claude Code - Claude Code Docs
   source: claude-code-docs
@@ -409,6 +412,8 @@
     - runtime-guardrails:F5
     - runtime-guardrails:F6
     - runtime-guardrails:F42
+    - runtime-guardrails:F47
+    - runtime-guardrails:F54
     - parallel-agents:F16
     - verification-review:F7
     - unattended-operations:F26
@@ -520,6 +525,8 @@
     - identity-secrets-audit:F24
     - identity-secrets-audit:F25
     - identity-secrets-audit:F46
+    - identity-secrets-audit:F48
+    - identity-secrets-audit:F52
     - parallel-agents:F24
     - parallel-agents:F25
     - parallel-agents:F26
@@ -529,12 +536,6 @@
     - org-configuration:F18
     - org-configuration:F19
     - org-configuration:F20
-- url: https://code.claude.com/docs/en/permission-modes
-  title: Choose a permission mode
-  source: claude-code-docs
-  accessed: 2026-11-19
-  cited_by:
-    - runtime-guardrails:F14
 - url: https://code.claude.com/docs/en/permissions
   title: Configure permissions
   source: claude-code-docs
@@ -604,6 +605,7 @@
     - runtime-guardrails:F20
     - runtime-guardrails:F37
     - runtime-guardrails:F38
+    - runtime-guardrails:F49
     - threat-defense:F24
 - url: https://code.claude.com/docs/en/scheduled-tasks
   title: Run prompts on a schedule
@@ -995,7 +997,6 @@
     - cost-architecture:F25
     - cost-architecture:F27
     - cost-architecture:F29
-    - cost-architecture:F37
 - url: https://platform.claude.com/docs/en/about-claude/pricing
   title: Pricing
   source: anthropic-docs
@@ -1271,6 +1272,7 @@
     - monitoring-alerting:F34
     - cost-architecture:F35
     - cost-architecture:F36
+    - cost-architecture:F41
 - url: https://platform.claude.com/docs/en/api/service-tiers
   title: Service tiers
   source: anthropic-docs
@@ -1545,6 +1547,9 @@
     - runtime-guardrails:F39
     - runtime-guardrails:F40
     - runtime-guardrails:F41
+    - runtime-guardrails:F45
+    - runtime-guardrails:F48
+    - runtime-guardrails:F52
 - url: https://platform.claude.com/docs/en/build-with-claude/search-results
   title: Search results
   source: anthropic-docs
@@ -1602,6 +1607,7 @@
     - context-memory:F9
     - context-memory:F10
     - cost-architecture:F30
+    - cost-architecture:F39
 - url: https://platform.claude.com/docs/en/build-with-claude/working-with-messages
   title: Using the Messages API
   source: anthropic-docs
@@ -1673,6 +1679,7 @@
   accessed: 2026-11-19
   cited_by:
     - identity-secrets-audit:F26
+    - identity-secrets-audit:F50
 - url: https://platform.claude.com/docs/en/manage-claude/compliance-api-access
   title: Set up the Compliance API
   source: anthropic-docs
@@ -1737,6 +1744,7 @@
     - monitoring-alerting:F15
     - cost-architecture:F31
     - cost-architecture:F32
+    - cost-architecture:F38
     - cost-architecture:F33
 - url: https://platform.claude.com/docs/en/manage-claude/usage-cost-api
   title: Usage and Cost API
@@ -1769,6 +1777,9 @@
     - identity-secrets-audit:F40
     - identity-secrets-audit:F41
     - identity-secrets-audit:F42
+    - identity-secrets-audit:F51
+    - identity-secrets-audit:F53
+    - identity-secrets-audit:F54
 - url: https://platform.claude.com/docs/en/manage-claude/workspaces
   title: Workspaces
   source: anthropic-docs
@@ -1778,6 +1789,7 @@
     - scale-throughput:F48
     - monitoring-alerting:F32
     - cost-architecture:F34
+    - cost-architecture:F40
 - url: https://platform.claude.com/docs/en/managed-agents/choosing-an-environment
   title: Choosing an agent environment
   source: anthropic-docs
@@ -1961,6 +1973,7 @@
   cited_by:
     - runtime-guardrails:F24
     - runtime-guardrails:F25
+    - runtime-guardrails:F55
     - threat-defense:F10
     - threat-defense:F11
     - threat-defense:F12
@@ -2091,6 +2104,7 @@
   cited_by:
     - runtime-guardrails:F31
     - runtime-guardrails:F32
+    - runtime-guardrails:F50
 - url: https://www.anthropic.com/engineering/claude-code-sandboxing
   title: "Beyond permission prompts: making Claude Code more secure and autonomous"
   source: anthropic-engineering
