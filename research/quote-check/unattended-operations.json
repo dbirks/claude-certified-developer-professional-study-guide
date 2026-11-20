@@ -173,5 +173,30 @@
     "id": "F35",
     "status": "ok",
     "url": "https://code.claude.com/docs/en/hooks#stop"
+  },
+  {
+    "id": "F36",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/cli-reference"
+  },
+  {
+    "id": "F37",
+    "status": "ok",
+    "url": "https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_run"
+  },
+  {
+    "id": "F38",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/file-checkpointing#implement-checkpointing"
+  },
+  {
+    "id": "F39",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/file-checkpointing#how-checkpointing-works"
+  },
+  {
+    "id": "F40",
+    "status": "ok",
+    "url": "https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_run"
   }
 ]

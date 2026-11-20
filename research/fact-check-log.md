@@ -194,6 +194,12 @@ Log: [fact-check/trace-analysis.md](fact-check/trace-analysis.md) · passes: 1 �
 
 - 29 original source-claim groups checked: 20 supported, 9 partially supported and fixed, 0 groups removed. Added 12 citations (F30–F41). Checked 0 code blocks; the chapter contains no fenced code or Python. Counts group repeated uses of each original citation as one source-claim group; additional uncited claims and editorial inferences were reviewed separately.
 
+### 8.3 Unattended and Event-Driven Agent Operations
+
+Log: [fact-check/unattended-operations.md](fact-check/unattended-operations.md) · passes: 1 · reviewer(s): OpenAI GPT-6
+
+- Checked 100 original citation occurrences against 35 citation entries and their source pages as needed. At the source-entry level, 29 supported the associated text directly or with surrounding documentation; 6 needed correction or expanded context. Fixed 6 claim groups and removed 2 unsupported generalizations. Added 5 citations. Checked 1 YAML code block; there are no Python code blocks to parse. The objective's goal, schedule, event response, checkpoint, notification, and escalation elements are covered. The ExamLens states editorial decision patterns and preserves the sample rationales concerning stop conditions, judge calibration, and external deterministic controls.
+
 ### 8.2 Verification and AI Code Review Operations
 
 Log: [fact-check/verification-review.md](fact-check/verification-review.md) · passes: 1 · reviewer(s): GPT-6

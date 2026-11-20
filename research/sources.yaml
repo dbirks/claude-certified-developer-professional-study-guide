@@ -106,6 +106,8 @@
     - durable-execution:F51
     - unattended-operations:F11
     - unattended-operations:F12
+    - unattended-operations:F38
+    - unattended-operations:F39
 - url: https://code.claude.com/docs/en/agent-sdk/hooks
   title: Intercept and control agent behavior with hooks - Claude Code Docs
   source: claude-code-docs
@@ -286,6 +288,7 @@
     - unattended-operations:F5
     - unattended-operations:F6
     - unattended-operations:F33
+    - unattended-operations:F36
 - url: https://code.claude.com/docs/en/code-review
   title: Code Review
   source: claude-code-docs
@@ -728,6 +731,13 @@
     - parallel-agents:F7
     - parallel-agents:F8
     - parallel-agents:F9
+- url: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows
+  title: Events that trigger workflows
+  source: other
+  accessed: 2026-11-19
+  cited_by:
+    - unattended-operations:F37
+    - unattended-operations:F40
 - url: https://docs.litellm.ai/docs/proxy/client_setup/claude_code
   title: Claude Code (CLI) | liteLLM
   source: other

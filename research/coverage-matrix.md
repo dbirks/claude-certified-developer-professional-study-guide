@@ -30,7 +30,7 @@ Columns: research packet exists · citation entries · quotes verified verbatim 
 | 7.3 | Identity, Secrets, and Audit at Scale | 11% | yes | 52 | 52/52 | [fact-checked](../content/07-security/03-identity-secrets-audit.mdx) · 2204 words · 52 cited | done |
 | 8.1 | Parallel Agent Orchestration for Engineering Work | 10% | yes | 30 | 30/30 | [draft](../content/08-agent-fleets/01-parallel-agents.mdx) · 2068 words · 30 cited | — |
 | 8.2 | Verification and AI Code Review Operations | 10% | yes | 39 | 39/39 | [fact-checked](../content/08-agent-fleets/02-verification-review.mdx) · 2594 words · 39 cited | done |
-| 8.3 | Unattended and Event-Driven Agent Operations | 10% | yes | 35 | 35/35 | [draft](../content/08-agent-fleets/03-unattended-operations.mdx) · 2483 words · 39 cited | — |
-| 8.4 | Organization-Wide Coding Agent Configuration | 10% | yes | 33 | 33/33 | [draft](../content/08-agent-fleets/04-org-configuration.mdx) · 2543 words · 33 cited | — |
+| 8.3 | Unattended and Event-Driven Agent Operations | 10% | yes | 40 | 40/40 | [fact-checked](../content/08-agent-fleets/03-unattended-operations.mdx) · 2489 words · 40 cited | done |
+| 8.4 | Organization-Wide Coding Agent Configuration | 10% | yes | 33 | 33/33 | [draft](../content/08-agent-fleets/04-org-configuration.mdx) · 2550 words · 35 cited | — |
 
-Unique source URLs: 253 · citation entries: 1077
+Unique source URLs: 254 · citation entries: 1082
