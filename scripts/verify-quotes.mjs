@@ -5,6 +5,8 @@
 // Writes research/quote-check/<slug>.json and prints a summary. Exit 1 if any quote is not found.
 import { readFileSync, readdirSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { parse } from 'yaml';
 
@@ -56,6 +58,15 @@ async function fetchText(url) {
     try {
       const res = await fetch(v, { headers: { 'user-agent': 'Mozilla/5.0 (study-guide quote checker)', accept: 'text/html,text/markdown,*/*' }, redirect: 'follow', signal: AbortSignal.timeout(30000) });
       if (!res.ok) continue;
+      if ((res.headers.get('content-type') || '').includes('pdf') || /\.pdf($|\?)/i.test(v)) {
+        // PDFs: extract text with pypdf (via uvx) so quotes from papers and slide decks can be checked.
+        const pdf = join(tmpdir(), 'ccdvp-' + key + '.pdf');
+        writeFileSync(pdf, Buffer.from(await res.arrayBuffer()));
+        try {
+          text += ' ' + execFileSync('uvx', ['--with', 'pypdf', 'python', '-c', 'import pypdf,sys; print(" ".join((p.extract_text() or "") for p in pypdf.PdfReader(sys.argv[1]).pages))', pdf], { encoding: 'utf8', maxBuffer: 64 << 20, stdio: ['ignore', 'pipe', 'ignore'] });
+        } catch {}
+        continue;
+      }
       const body = await res.text();
       // Raw body too: Next.js pages embed content in JSON payloads.
       text += ' ' + htmlToText(body) + ' ' + body.replace(/\\n/g, ' ').replace(/\\"/g, '"').replace(/\\u0026/g, '&').replace(/\\u003c/g, '<').replace(/\\u003e/g, '>');
@@ -82,7 +93,8 @@ for (const slug of slugs) {
     else if (!page.includes(q)) {
       // Tolerate markdown/link punctuation differences: retry without punctuation.
       const strip = (s) => s.replace(/[^a-z0-9]+/g, ' ').trim();
-      status = strip(page).includes(strip(q)) ? 'ok-loose' : 'not-found';
+      const dehyphen = (t) => t.replace(/-\s+/g, '');
+      status = strip(page).includes(strip(q)) || strip(dehyphen(page)).includes(strip(dehyphen(q))) ? 'ok-loose' : 'not-found';
     }
     if (status === 'not-found' || status === 'empty-quote' || status === 'fetch-failed') failures++;
     results.push({ id: c.id, status, url: c.url });
