@@ -7,16 +7,16 @@ Columns: research packet exists · citation entries · quotes verified verbatim 
 
 | ID | Skill | Domain weight | Packet | Citations | Quotes verified | Chapter | Fact-check |
 |---|---|---|---|---|---|---|---|
-| 1.1 | Multi-Agent Orchestration | 17% | yes | 34 | 34/34 | [draft](../content/01-agent-architecture/01-multi-agent-orchestration.mdx) · 2732 words · 34 cited | — |
+| 1.1 | Multi-Agent Orchestration | 17% | yes | 34 | 34/34 | [draft](../content/01-agent-architecture/01-multi-agent-orchestration.mdx) · 2316 words · 34 cited | — |
 | 1.2 | Durable Execution and State Management | 17% | yes | 49 | 49/49 | [fact-checked](../content/01-agent-architecture/02-durable-execution.mdx) · 2776 words · 49 cited | done |
-| 1.3 | Architecture Selection at Scale | 17% | yes | 30 | 30/30 | [draft](../content/01-agent-architecture/03-architecture-selection.mdx) · 2488 words · 30 cited | — |
-| 1.4 | Context and Memory Architecture | 17% | yes | 35 | 35/35 | [draft](../content/01-agent-architecture/04-context-memory.mdx) · 3417 words · 34 cited | — |
+| 1.3 | Architecture Selection at Scale | 17% | yes | 31 | 31/31 | [fact-checked](../content/01-agent-architecture/03-architecture-selection.mdx) · 1940 words · 31 cited | done |
+| 1.4 | Context and Memory Architecture | 17% | yes | 35 | 35/35 | [draft](../content/01-agent-architecture/04-context-memory.mdx) · 2872 words · 35 cited | — |
 | 2.1 | Reliability Engineering for Claude Services | 20% | yes | 45 | 45/45 | [fact-checked](../content/02-production-integration/01-reliability.mdx) · 2698 words · 45 cited | done |
 | 2.2 | Scale and Throughput Management | 20% | yes | 55 | 55/55 | [fact-checked](../content/02-production-integration/02-scale-throughput.mdx) · 2758 words · 55 cited | done |
-| 2.3 | Production MCP and Change Management | 20% | yes | 39 | 39/39 | [draft](../content/02-production-integration/03-mcp-change-management.mdx) · 2502 words · 39 cited | — |
+| 2.3 | Production MCP and Change Management | 20% | yes | 39 | 39/39 | [draft](../content/02-production-integration/03-mcp-change-management.mdx) · 1948 words · 39 cited | — |
 | 2.4 | Retrieval and Knowledge Grounding at Scale | 20% | yes | 42 | 42/42 | [fact-checked](../content/02-production-integration/04-retrieval-grounding.mdx) · 2721 words · 42 cited | done |
 | 3.1 | Telemetry and Instrumentation | 12% | yes | 35 | 35/35 | [draft](../content/03-observability/01-telemetry.mdx) · 2779 words · 35 cited | — |
-| 3.2 | Production Monitoring and Alerting | 12% | yes | 33 | 33/33 | — | — |
+| 3.2 | Production Monitoring and Alerting | 12% | yes | 33 | 33/33 | [draft](../content/03-observability/02-monitoring-alerting.mdx) · 2635 words · 33 cited | — |
 | 3.3 | Trace Analysis at Scale | 12% | yes | 29 | 29/29 | — | — |
 | 4.1 | Complex Failure Diagnosis | 10% | yes | 30 | 30/30 | — | — |
 | 4.2 | Incident Response and Learning Loops | 10% | yes | 38 | 38/38 | — | — |
@@ -33,4 +33,4 @@ Columns: research packet exists · citation entries · quotes verified verbatim 
 | 8.3 | Unattended and Event-Driven Agent Operations | 10% | yes | 35 | 35/35 | — | — |
 | 8.4 | Organization-Wide Coding Agent Configuration | 10% | yes | 33 | 33/33 | — | — |
 
-Unique source URLs: 254 · citation entries: 897
+Unique source URLs: 254 · citation entries: 898

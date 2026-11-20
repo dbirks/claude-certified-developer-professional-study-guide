@@ -1048,6 +1048,7 @@
     - architecture-selection:F12
     - architecture-selection:F26
     - architecture-selection:F27
+    - architecture-selection:F31
     - failure-diagnosis:F19
 - url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool
   title: Tool search tool

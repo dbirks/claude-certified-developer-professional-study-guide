@@ -1,0 +1,194 @@
+---
+title: "Architecture Selection at Scale"
+summary: "Decide between workflow and agentic patterns from measured cost, reliability, and quality data, and pick the execution layer and shared standards."
+kind: skill
+skill: "1.3"
+slug: architecture-selection
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+A **workflow** orchestrates LLMs and tools through predefined code paths; an **agent** lets the model dynamically direct its own process and tool use.<Cite id="F1 F2" /> Use production data to decide whether changing control flow pays and which execution layer and shared patterns to adopt. Anthropic's starting point is the simplest solution that meets the need, which can mean no agentic system at all.<Cite id="F3" />
+
+## Workflow, agent, and multi-agent are control-flow choices
+
+The patterns differ in who picks the next step: your code or the model. A chain that classifies, retrieves, then drafts is a workflow even if the product is marketed as an agent, because the path is fixed in code; an agent can decide which action to take next and when to finish.<Cite id="F1 F2" />
+
+Where more complexity is warranted, workflows offer predictability and consistency for well-defined tasks, while agents are the better option where flexibility and model-driven decision-making are needed at scale.<Cite id="F5" /> Autonomy costs: agentic systems often trade latency and cost for better task performance.<Cite id="F4" /> Frameworks simplify integration, but their extra abstraction can obscure the underlying prompts and responses and make debugging harder.<Cite id="F6" />
+
+A **multi-agent system** delegates work among multiple agents. Anthropic found that such systems excel at valuable tasks with heavy parallelization, information exceeding a single context window, and numerous complex tools.<Cite id="F7" /> Domains needing all agents to share context, or with many inter-agent dependencies, were a poor fit in that research.<Cite id="F9" />
+
+| Pattern | Who chooses each next step | Cost behavior to expect | Evidence that it fits |
+|---|---|---|---|
+| One augmented call | Nobody — fixed prompt | One model call; measure its cost | Simplest solution meets the quality bar.<Cite id="F3" /> |
+| Workflow | Your code, in predefined paths | Calls depend on the predefined path | Well-defined task needing predictability.<Cite id="F5" /> |
+| Single agent | The model, each turn | More iterations can increase cost and latency | Needs model-directed flexibility.<Cite id="F4 F5" /> |
+| Multi-agent | Orchestrator plus model-directed subtasks | Research data: agents about 4× the tokens of chat, multi-agent about 15× chat.<Cite id="F8" /> | Parallelizable work, volume beyond one context window, many complex tools.<Cite id="F7 F9" /> |
+
+Both multipliers are relative to **chat**, not to a single agent, so 15× is neither an agent-to-multi-agent rule nor a pricing rule.<Cite id="F8" /> Choose the harness separately from the control-flow pattern; evaluate whether it supports the workflow or agent loop you need.
+
+## Measure the running system before you change it
+
+Fix the unit first. Recommended practice: define it as one accepted user task, carry a stable task ID across retries, tool calls, and handoffs, and freeze the rubric and observation window before comparing options. Record every attempt, including abandoned, timed-out, escalated, and failed ones. Official guidance agrees: define success criteria clearly, then evaluate against them across several criteria, since most use cases need multidimensional evaluation.<Cite id="F24 F25" /> Validate a sample with independent human labels and measure grader agreement; a plausible answer can still be wrong.
+
+**Cost per successful task** is the ratio to report: total fully loaded cost of all eligible attempts divided by successful tasks. Load the numerator with model input and output, cache reads and writes, tool and infrastructure charges, retries, parallel subagents, grading, and human intervention where material. Also report cost per attempted task and absolute spend, because a lower cost per success can hide unacceptable error rates or higher total spend. With zero successes the ratio is undefined: report zero successes and the total cost.
+
+| Metric | Compute it as | What it catches |
+|---|---|---|
+| Cost per successful task | Fully loaded cost of all eligible attempts / successful tasks | True unit economics of a working feature |
+| Cost per attempted task | Same cost / eligible tasks | Waste spent on tasks that never succeeded |
+| Absolute spend | Sum over the window, all arms | A "cheaper" option that costs more in total |
+| End-to-end p50 / p95 | Task accepted → final output | Deadline fit, and tail pain average latency hides |
+| Time to first output | Request → first token or step | Responsiveness for interactive clients |
+| Timeout / deadline-miss rate | Timed-out tasks / eligible tasks | Work that failed slowly rather than not at all |
+| Tool-call failure rate | Failed calls / total calls | Dependency health per tool, model, tenant |
+| Task-level impact | Tasks with ≥1 failed call / eligible tasks | Exposure created by making more calls |
+
+Instrument each tool separately for attempts, error type, retry count, timeouts, and latency, and keep the last two rows apart: a per-call rate says nothing about how many tasks were exposed. Correlate loop length and tokens with failures, and fix or isolate an outage-prone dependency before blaming the architecture.
+
+Compare options on matched or randomized traffic under the same rubric, risk controls, tool access, deadline, and budget, accounting for confidence intervals, rare high-severity failures, and selection bias. Use holdouts and canaries, monitor cohort-level guardrails, and keep a rapid rollback path. Shadow runs with side effects disabled estimate quality but do not demonstrate real execution reliability. The most accurate option is not automatically best when reliability, budget, safety, or deadline requirements fail.
+
+## A hypothetical: workflow versus bounded agent
+
+These figures are a hypothetical from the study notes, not a benchmark: an OAuth-protected ticket-triage service, 10,000 eligible tasks per arm in a randomized trial, identical tool permissions, evaluator, and escalation policy. Costs cover every attempt, tool execution, retry, and human review; success means correct resolution within 90 seconds without a policy breach.
+
+| Metric | Fixed workflow | Bounded single agent |
+|---|---:|---:|
+| Eligible tasks | 10,000 | 10,000 |
+| Successful tasks | 8,000 (80%) | 9,200 (92%) |
+| Total cost | $4,000 | $5,060 |
+| Cost / attempted task | $0.40 | $0.506 |
+| Cost / successful task | $0.50 | $0.55 |
+| End-to-end p95 | 35 s | 70 s |
+| Failed tool calls / total calls | 400 / 20,000 = 2% | 1,200 / 60,000 = 2% |
+| Tasks with at least one failed tool call | 380 (3.8%) | 1,050 (10.5%) |
+
+Read the deltas. The agent adds 1,200 successful tasks for $1,060 extra per 10,000 attempts — **$0.883 per incremental success** — while cost per success rises from $0.50 to $0.55. The per-call tool failure rate is identical, but the agent made three times as many calls and more tasks hit at least one failed call: 3.8% versus 10.5%. These totals alone do not establish the cause of the difference. That neither means the dependency got worse nor that the agent is safe; it is a separate measurement.
+
+Suppose the business requires at least 90% success, p95 under 80 seconds, no severe policy regression, and values an incremental success at $2.00: the bounded agent is then a candidate despite the higher cost per success. A human-reviewed quality sample, statistical uncertainty, separate severity rates, and a successful canary are still required before broad rollout. If the 2,000 difficult tasks carry most of the gain, test a router and its missed-exception rate first. The example is arithmetic only; no SDK code is implied.
+
+## Choose the execution layer
+
+Four distinct products sit between "we call the API" and "we run an agent." For each, name who operates the loop, who runs the tools, and who stores session state.
+
+The **Messages SDK tool runner** handles the agentic loop, error wrapping, and type safety so you do not have to.<Cite id="F11" /> By default it manages conversation state, appending the assistant message and any tool results to its own history each turn.<Cite id="F12" /> Use the manual loop for human-in-the-loop approval, custom logging, or conditional execution.<Cite id="F11" /> In the Python beta runner, `@beta_tool` defines tools with type hints and docstrings,<Cite id="F26" /> `client.beta.messages.tool_runner(...)` builds the loop.<Cite id="F31" /> Pass `max_iterations` to bound it.<Cite id="F27" /> Plan to store any durable state your application needs; the default runner history alone does not establish a durable-session guarantee.
+
+The **Claude Agent SDK** embeds Claude Code's agent in your own Python or TypeScript application, in a process you operate.<Cite id="F10" /> **Claude Code headless** runs non-interactively: add `-p`, or its equivalent `--print`, to any `claude` command,<Cite id="F18" /> and `claude -p "..." --output-format json` returns structured JSON with the result, the session ID, and metadata.<Cite id="F19" />
+
+**Claude Managed Agents** provides the harness and infrastructure for running Claude as an autonomous agent,<Cite id="F13" /> and keeps event history you can fetch in full.<Cite id="F14" /> A cloud environment runs an isolated container per session with languages and tools preinstalled, so you host nothing.<Cite id="F15" /> In a self-hosted sandbox, a program you run, called a worker, carries out the agent's bash and file tool calls on your machines and sends each result back,<Cite id="F16" /> and what a tool returns to the model still reaches the Managed Agents service.<Cite id="F17" /> Self-hosted service is a separate option: the whole service on your own infrastructure.<Cite id="F30" />
+
+<Callout type="version" title="Checked 2026-11-19">
+
+Managed Agents is in beta, and beta requests require the `managed-agents-2026-04-01` header on all requests.<Cite id="F28" /> Agent SDK versions, a specific framework's persistence and isolation guarantees, and Skill frontmatter portability were not pinned here; verify the release you deploy.
+
+</Callout>
+
+| Layer | Who operates execution | Loop state | What to verify |
+|---|---|---|---|
+| Tool runner / manual loop | Your process | Runner-managed message history by default.<Cite id="F12" /> | Runner error handling vs. manual approval, conditional execution, bespoke logging.<Cite id="F11" /> |
+| Agent SDK | Your process embedding Claude Code's agent.<Cite id="F10" /> | Yours to provision | Hosting, storage, isolation, and policy are explicit work |
+| Headless CLI (`-p`) | Your script or CI runner | Session metadata in JSON output.<Cite id="F19" /> | Controlled execution environment and machine-readable result.<Cite id="F18 F19" /> |
+| Managed Agents, cloud environment | Anthropic runs a per-session isolated container.<Cite id="F15" /> | Managed service keeps event history.<Cite id="F14" /> | Beta availability, data handling, network policy, session economics.<Cite id="F13 F28" /> |
+| Managed Agents, self-hosted sandbox | Your worker runs bash and file calls on your machines.<Cite id="F16" /> | Managed service; tool results still reach it.<Cite id="F17" /> | Whether retention rules allow tool output to leave your infrastructure.<Cite id="F16 F17" /> |
+| Third-party framework | Your process | Whatever that release actually does | Request visibility, tool semantics, permission boundaries, observability, session durability, supported models, hosting, upgrade and exit costs.<Cite id="F6" /> |
+
+## Migrate in both directions
+
+Both directions need traced evidence, not a preference for autonomy. Recommended practice: move workflow → agent when the known decision tree fails on a material cohort and a controlled trial shows enough incremental successful tasks within your cost, tail-latency, and tool-safety limits. Route only that cohort to a bounded agent when the regular cases already work. Move agent → workflow when traces show a stable repeated tool sequence, or when quality and latency targets need fewer calls: prove the simpler path on the exceptions, keep the escalation route, and compare real outcomes. Revert or constrain autonomy if loop churn, tool failures, unsafe side effects, or tail latency rise, even if average answer quality improves.
+
+<Figure caption="Use comparable production outcomes to decide where dynamic control earns its cost.">
+  <Flow steps={["Eligible task", "Cohort / router", { label: "Fixed workflow or bounded agent", note: "same rubric, tools, deadline, budget" }, "Tools", { label: "Outcome + cost telemetry", note: "success, cost, latency, errors" }, "Evaluate vs thresholds", { label: "Canary or rollback", note: "feeds both migration directions" }]} />
+</Figure>
+
+Assume equivalent authorized tools and data, representative traffic under one completion definition, and safety and privacy compliance for every candidate.
+
+| Observed condition or constraint | Candidate | Why, and what must be checked |
+|---|---|---|
+| Stable paths, known steps, low variance, tight deadline | Fixed workflow or one augmented call | Deterministic orchestration limits calls and branching; verify the quality threshold and explicit failure handling |
+| Unknown steps, repeated workflow exceptions, recoverable tool choices | Bounded single agent | Dynamic selection can recover diverse cases; compare incremental successful outcomes against cost, tool errors, tail latency |
+| Independent, high-value research branches exceeding one context window | Multi-agent | Parallel exploration may improve coverage; measure duplicate work, aggregation failures, full token cost; avoid strongly dependent shared-state work.<Cite id="F7 F9" /> |
+| Precise application control, limited tool catalog | Messages API manual loop or tool runner | Runner handles the normal loop; manual control suits approval, conditional execution, bespoke logging; plan application storage for durable state; runner history is managed by default.<Cite id="F12" /> |
+| Custom product needs Claude Code tools, permissions, hooks, sessions | Agent SDK | Embed the harness in a process the team operates; provision hosting, storage, isolation, policy.<Cite id="F10" /> |
+| Unattended repository or CI task | Claude Code headless `-p` | CLI integrates with scripts and returns session metadata; supply a controlled execution environment.<Cite id="F18 F19" /> |
+| Long-running async work, reduced infrastructure burden | Managed Agents | Hosted harness and cloud sandbox reduce runtime ownership; self-hosted sandbox and self-hosted service are distinct.<Cite id="F13 F14 F15 F16 F17 F30" /> |
+| An existing framework already solves the orchestration | Evaluate that framework | Test the actual release for request visibility, permissions, observability, session durability, exit costs.<Cite id="F6" /> |
+
+## Set reusable-pattern standards
+
+Treat shared patterns as versioned engineering assets, each with an owner, purpose, supported runtimes, input/output contract, allowed tools, risk classification, example use, evaluation cases, change log, and rollback. Put reusable instructions in Skills, isolated roles in subagents, authenticated integration code and typed schemas in reviewed shared tool libraries, and lifecycle checks in hooks.
+
+| Asset | Location and shape | Standard to enforce |
+|---|---|---|
+| Project Skill | `.claude/skills/&lt;skill-name>/SKILL.md`; commit it so the team gets it too.<Cite id="F20" /> | One purpose, versioned, with evaluation cases |
+| Project subagent | `.claude/agents/`; YAML frontmatter followed by a Markdown system prompt; check into version control so the team can improve it collaboratively.<Cite id="F21 F29" /> | Explicit scope, permitted tools, return format, handoff requirements |
+| Shared tool library | Your reviewed code | Timeout and retry semantics, idempotency, least privilege; never duplicate OAuth secrets into prompts |
+| Hook | `PreToolUse` runs after Claude creates tool parameters and before processing the call, and can allow, deny, ask, or defer it.<Cite id="F22 F23" /> | Lifecycle policy, not a credential boundary |
+
+Keep authorization for irreversible actions in a trusted service as well as in any hook. Validate Skill and subagent discovery and precedence in each runtime before claiming portability.
+
+## Decision criteria
+
+Compare candidates in this order:
+
+1. Confirm the quality bar and risk controls hold on representative traffic, then compare cost per successful task, cost per attempted task, and absolute spend.<Cite id="F24 F25" />
+2. Check deadline fit: p95 and time to first output against the product requirement, since agents trade latency and cost for performance.<Cite id="F4" />
+3. Check task-level reliability: tasks affected by tool failures, recovery behavior, and severity rates, not per-call error percentages.
+4. Check ownership boundaries: who runs the loop, who runs the tools, where event history lives, what leaves your infrastructure.<Cite id="F10 F13 F15 F16 F17" />
+5. Check the exit: upgrade path, portability of Skill and subagent definitions, cost of returning to the simpler pattern.
+
+Evidence worth demanding: production traces grouped by task cohort, a router's missed-exception rate if you plan to route, incremental cost per additional success against the value of one success, and a canary that passed with real side effects enabled.
+
+## Failure modes and recovery
+
+<Callout type="mistake" title="Using 15× as a multi-agent-versus-agent multiplier">
+
+The reported figures are agents at about 4× and multi-agent systems at about 15× the tokens of **chat** in Anthropic's research system.<Cite id="F8" /> Using them as a universal 15×-versus-single-agent rule, or as a pricing rule, misprices every option. Measure tokens per successful task on your own traffic.
+
+</Callout>
+
+<Callout type="mistake" title="Assuming a self-hosted sandbox keeps data on your infrastructure">
+
+Your worker executes the agent's bash and file tool calls locally, but what a tool returns to the model still reaches the Managed Agents service, and self-hosting the whole service is a separate option.<Cite id="F16 F17 F30" /> Draw that data-flow boundary in the design review and check it against retention and network policy.
+
+</Callout>
+
+<Callout type="mistake" title="Treating instructions or a hook as the permission system">
+
+`PreToolUse` can allow, deny, ask, or defer a call after parameters are generated.<Cite id="F22 F23" /> Prompt text alone does not enforce permissions, and a local hook does not intercept every data path. Enforce authorization for consequential actions in the service that holds the credential.
+
+</Callout>
+
+Two more recurring mistakes. Calling a fixed orchestration an autonomous agent because it uses tools, or assuming a framework choice sets the control-flow pattern: classify by who decides each next step.<Cite id="F1 F2" /> Comparing only successful-run cost, or reading equal per-call rates as equal task-level reliability: recompute cost over all eligible attempts and reliability at task level.
+
+## Exam lens
+
+These decision patterns are editorial inference, not exam questions.
+
+<ExamLens>
+
+- Weigh verified completion and cost per successful task against latency and tool failures; the answer is rarely the lowest per-request price.
+- Decide from traces whether variable paths require model decisions, or stable repeated paths justify replacing an agent with a workflow.
+- Distinguish an embedded harness, an in-process tool loop, a headless CLI, and a hosted managed service; check who operates execution and session state.<Cite id="F10 F11 F13 F18" />
+- Choose independently testable shared Skills, subagents, tools, and hooks, with deterministic enforcement for consequential actions outside the prompt.<Cite id="F21 F22 F23" />
+
+</ExamLens>
+
+## Self-check
+
+<SelfCheck question="A workflow succeeds 8,000 times for $4,000; an agent succeeds 9,200 times for $5,060, both on 10,000 attempts. Which has lower cost per success?">
+
+The workflow: $0.50 versus $0.55. The agent adds 1,200 successes at $0.883 each; compare incremental cost per extra success to the value of one.
+
+</SelfCheck>
+
+<SelfCheck question="A tool fails on 2% of calls in both arms, but the agent makes three times as many calls. Are task-level failure rates equal?">
+
+No. Equal per-call rates do not imply equal task exposure; measure tasks affected and recovery separately.
+
+</SelfCheck>
+
+<SelfCheck question="Does a self-hosted sandbox mean the whole Managed Agents service runs on your infrastructure?">
+
+No. A worker can execute tools locally while the managed service receives the tool results; self-hosting the service is a separate option.<Cite id="F16 F17 F30" />
+
+</SelfCheck>
