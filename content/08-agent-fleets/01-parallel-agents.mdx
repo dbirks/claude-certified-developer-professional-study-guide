@@ -8,6 +8,16 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
+<KeyPoints>
+
+- Claude Code has five parallel approaches: subagents, agent view, agent teams, dynamic workflows, and Projects.<Cite id="F1" />
+- Give each worker disjoint file ownership; sequential, same-file, or heavily dependent work stays in one session.<Cite id="F12 F19" />
+- Agent teams are not worktree-isolated, `-p` runs do not spawn teammates, and Anthropic recommends 3 to 5 teammates.<Cite id="F12 F13 F14" />
+- Non-interactive `-p` runs leave worktrees and creation locks behind, and repository `.claude/settings.json` cannot configure OTel exporters.<Cite id="F8 F24" />
+- `api_error` is terminal after retries and never fires for refusals, which emit `api_refusal`; alert on both.<Cite id="F27 F28" />
+
+</KeyPoints>
+
 **Parallel agent orchestration** means coordinating multiple Claude Code workers on one engineering task while keeping edits, verification, and integration under control. A **git worktree** is a separate checkout on its own branch, giving a session its own files to edit.<Cite id="F2" /> Claude Code has five parallel approaches: **subagents**, **agent view**, **agent teams**, **dynamic workflows**, and **Projects**. They differ in how involved you stay and whether the work runs on your machine or in the cloud.<Cite id="F1" /> Every extra worker adds token spend: for agent teams, token usage scales with the number of active teammates and how long each one runs.<Cite id="F18" />
 
 ## Five execution models

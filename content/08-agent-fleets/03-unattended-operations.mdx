@@ -8,6 +8,16 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
+<KeyPoints>
+
+- `/goal` needs a verifiable condition, `/loop` is session-scoped, and cloud scheduled tasks run without a local session.<Cite id="F15 F17 F19" />
+- `--max-turns` is unlimited by default and `--max-budget-usd` is an estimate that can overshoot and resets on resume.<Cite id="F4 F5 F33" />
+- `--allowedTools` preapproves calls but does not restrict the tool set, and non-bare `-p` runs load repo hooks and `.mcp.json`.<Cite id="F36 F8" />
+- With `--permission-prompts none`, denials let the run continue, so verify completion with your own tests rather than `Stop` or the exit code.<Cite id="F7 F27" />
+- Sessions persist the conversation, not the filesystem, and file checkpointing rewinds only `Write`, `Edit`, and `NotebookEdit` changes.<Cite id="F10 F11" />
+
+</KeyPoints>
+
 **Unattended operation** means a Claude Code run that nobody is watching: it starts from a goal, a schedule, or a repository event, and must finish, fail, or escalate on its own. `claude -p` exposes the Claude Code agent loop non-interactively, and the Agent SDK carries the same tools, agent loop, and context management in Python and TypeScript.<Cite id="F1" /> Set spending and access limits, verify outcomes, and plan recovery and escalation before starting a run.
 
 ## Trigger, bounds, and evidence

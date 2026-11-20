@@ -8,6 +8,16 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
+<KeyPoints>
+
+- Prompt text shapes what Claude tries; permission rules, hooks, and sandboxes are enforced outside the model, so keep irreversible controls deterministic.<Cite id="F11" />
+- Rules check `deny`, then `ask`, then `allow`, first match wins; `canUseTool` runs last and never sees auto-approved calls.<Cite id="F9 F10" />
+- A command hook exiting `1` without valid JSON is a non-blocking error, so set `onFailure: "block"` to fail closed.<Cite id="F1 F7" />
+- The built-in Bash sandbox wraps shell commands only: file tools, MCP servers, and hooks run outside it.<Cite id="F18" />
+- A refusal is a successful `200` with `stop_reason: "refusal"`, so branch on `stop_reason` and retry on a different model.<Cite id="F28 F41" />
+
+</KeyPoints>
+
 **Runtime guardrails** are checks enforced outside the model: hooks, permission rules, permission modes, OS sandboxes, egress proxies, approval gates, and refusal handling. Prompt text and `CLAUDE.md` shape what Claude tries to do, but permission rules are enforced by Claude Code, not by the model.<Cite id="F11" /> Keep irreversible controls deterministic. Use probabilistic screens for abuse patterns that a rule expression cannot describe. Every layer leaves something unguarded, so match the controls to the agent's tools, inputs, and sinks.
 
 ## How the layers fit together

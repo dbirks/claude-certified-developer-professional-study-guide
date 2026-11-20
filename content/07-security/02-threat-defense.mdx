@@ -8,6 +8,16 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
+<KeyPoints>
+
+- The lethal trifecta is private data access, untrusted content, plus an external channel; prefer removing or gating a leg of it.<Cite id="F9" />
+- Deliver third-party content as JSON-encoded `tool_result` blocks, never in `system` prompts or plain `user` text.<Cite id="F10 F11" />
+- System-prompt data restrictions can be bypassed and no classifier is immune, so enforce authorization downstream of the model.<Cite id="F4 F8 F19" />
+- Client tool results count as URL sources by default, so an echo tool can launder a fetch target; set that source to `none`.<Cite id="F38" />
+- Isolation needs filesystem and network together, and Claude Code's shell sandbox wraps shell commands only.<Cite id="F23 F24" />
+
+</KeyPoints>
+
 A tool-using agent can turn untrusted content into actions with its credentials and tools. Its **attack surface** is the set of inputs, tools, data, and outputs an attacker can influence or exploit. Defenses include access limits, action gates, secure MCP configuration, and adversarial testing.
 
 ## Attack surface: untrusted content reaching the model

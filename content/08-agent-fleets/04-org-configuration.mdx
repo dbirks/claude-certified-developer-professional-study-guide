@@ -8,6 +8,16 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
+<KeyPoints>
+
+- Five settings scopes resolve highest first, with managed settings on top, and permission rules evaluate `deny`, then `ask`, then `allow`.<Cite id="F1 F9" />
+- Arrays such as `permissions.allow` merge across scopes, so set `allowManagedPermissionRulesOnly: true` when users must not widen them.<Cite id="F2 F10" />
+- Server-managed settings are skipped under `ANTHROPIC_BASE_URL` or a cloud-provider variable, and `managedSourcesBehavior: "first-wins"` can shadow lower admin sources.<Cite id="F7 F5" />
+- `serverName` is a user-chosen label, so match MCP servers on `serverUrl` or `serverCommand`; `deniedMcpServers` overrides the allowlist.<Cite id="F16 F17" />
+- `CLAUDE.md` is context, not enforcement: controls that must hold belong in managed permission rules, sandbox policy, and managed hooks.<Cite id="F30" />
+
+</KeyPoints>
+
 **Organization-wide coding-agent configuration** is the centrally managed policy that controls Claude Code sessions across an organization. It can set permissions, MCP access, plugin policy, routing, and telemetry. **Managed settings** are the organization’s policy tier and usually have the highest precedence; administrators can deliver them through files, OS policy, or server-managed settings.<Cite id="F1" /> These controls do not all behave alike. `CLAUDE.md` instructions guide behavior but do not enforce it.<Cite id="F30" /> MCP allowlists can be widened by lower scopes unless managed-only enforcement is enabled.<Cite id="F15" /> Server-managed settings are skipped for some authentication and routing configurations.<Cite id="F7" />
 
 ## How the settings stack resolves

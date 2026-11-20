@@ -8,6 +8,16 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
+<KeyPoints>
+
+- Verification capacity, not generation capacity, sets how much you can delegate; with loops one engineer runs dozens or hundreds of sessions.<Cite id="F5" />
+- Give Claude a deterministic pass/fail check and require command output as evidence instead of a claim that tests pass.<Cite id="F6" />
+- Introduce a new AI reviewer in shadow or `observe` mode, then calibrate precision, per-stage recall, and false positives before gating.<Cite id="F23 F24 F25" />
+- The review check run never concludes `failure`, so gate on parsed `Important` severity or unresolved threads, and fail on a missing verdict.<Cite id="F13 F14" />
+- Allocate human approvers by risk tier, and never let an agent's approval fill a slot that calls for a person.<Cite id="F29" />
+
+</KeyPoints>
+
 **Verification operations** are the controls that decide whether a code change is accepted, and by what evidence, before and after a human reads it. When agents generate code faster than people can review it, review becomes the limiting stage: code output per Anthropic engineer grew 200% year over year, and code review became the a delivery bottleneck.<Cite id="F1" /> The decisions this skill tests are narrow: which checks to move before the pull request, how to introduce an AI reviewer in shadow mode, what evidence calibrates it before it may block a merge, and where humans stay in the loop.
 
 ## How the verification funnel works
