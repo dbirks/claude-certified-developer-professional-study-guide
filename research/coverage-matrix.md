@@ -25,12 +25,12 @@ Columns: research packet exists · citation entries · quotes verified verbatim 
 | 5.3 | Online Quality Measurement | 12% | yes | 31 | 31/31 | — | — |
 | 6.1 | Cost Architecture at Scale | 8% | yes | 37 | 37/37 | [draft](../content/06-cost-latency/01-cost-architecture.mdx) · 2634 words · 37 cited | — |
 | 6.2 | Latency Engineering | 8% | yes | 27 | 27/27 | [draft](../content/06-cost-latency/02-latency-engineering.mdx) · 2583 words · 27 cited | — |
-| 7.1 | Runtime Guardrail Systems | 11% | yes | 35 | 35/35 | [draft](../content/07-security/01-runtime-guardrails.mdx) · 1853 words · 35 cited | — |
-| 7.2 | Threat Defense and Adversarial Testing for Agentic Systems | 11% | yes | 36 | 36/36 | [draft](../content/07-security/02-threat-defense.mdx) · 1864 words · 36 cited | — |
-| 7.3 | Identity, Secrets, and Audit at Scale | 11% | yes | 35 | 35/35 | [draft](../content/07-security/03-identity-secrets-audit.mdx) · 2186 words · 35 cited | — |
-| 8.1 | Parallel Agent Orchestration for Engineering Work | 10% | yes | 30 | 30/30 | — | — |
+| 7.1 | Runtime Guardrail Systems | 11% | yes | 41 | 35/35 | [draft](../content/07-security/01-runtime-guardrails.mdx) · 1853 words · 35 cited | — |
+| 7.2 | Threat Defense and Adversarial Testing for Agentic Systems | 11% | yes | 43 | 43/43 | [fact-checked](../content/07-security/02-threat-defense.mdx) · 1980 words · 43 cited | done |
+| 7.3 | Identity, Secrets, and Audit at Scale | 11% | yes | 38 | 35/35 | [draft](../content/07-security/03-identity-secrets-audit.mdx) · 2141 words · 36 cited | — |
+| 8.1 | Parallel Agent Orchestration for Engineering Work | 10% | yes | 30 | 30/30 | [draft](../content/08-agent-fleets/01-parallel-agents.mdx) · 1986 words · 30 cited | — |
 | 8.2 | Verification and AI Code Review Operations | 10% | yes | 32 | 32/32 | — | — |
 | 8.3 | Unattended and Event-Driven Agent Operations | 10% | yes | 35 | 35/35 | — | — |
 | 8.4 | Organization-Wide Coding Agent Configuration | 10% | yes | 33 | 33/33 | — | — |
 
-Unique source URLs: 254 · citation entries: 1014
+Unique source URLs: 254 · citation entries: 1030

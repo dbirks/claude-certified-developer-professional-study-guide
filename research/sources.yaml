@@ -133,6 +133,7 @@
     - runtime-guardrails:F8
     - runtime-guardrails:F9
     - threat-defense:F27
+    - threat-defense:F41
     - identity-secrets-audit:F33
 - url: https://code.claude.com/docs/en/agent-sdk/python
   title: Agent SDK reference - Python - Claude Code Docs
@@ -468,6 +469,7 @@
   cited_by:
     - durable-execution:F29
     - threat-defense:F26
+    - identity-secrets-audit:F38
     - org-configuration:F30
 - url: https://code.claude.com/docs/en/microsoft-foundry
   title: Claude Code on Microsoft Foundry
@@ -597,6 +599,8 @@
     - runtime-guardrails:F18
     - runtime-guardrails:F19
     - runtime-guardrails:F20
+    - runtime-guardrails:F37
+    - runtime-guardrails:F38
     - threat-defense:F24
 - url: https://code.claude.com/docs/en/scheduled-tasks
   title: Run prompts on a schedule
@@ -845,6 +849,7 @@
     - identity-secrets-audit:F18
     - identity-secrets-audit:F19
     - identity-secrets-audit:F20
+    - identity-secrets-audit:F39
 - url: https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization
   title: Authorization
   source: mcp-spec
@@ -1026,6 +1031,7 @@
     - mcp-change-management:F38
     - mcp-change-management:F39
     - threat-defense:F17
+    - threat-defense:F39
     - identity-secrets-audit:F21
 - url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool
   title: Advisor tool
@@ -1126,6 +1132,7 @@
     - threat-defense:F13
     - threat-defense:F14
     - threat-defense:F15
+    - threat-defense:F38
 - url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool
   title: Web search tool
   source: anthropic-docs
@@ -1521,6 +1528,10 @@
     - runtime-guardrails:F28
     - runtime-guardrails:F29
     - runtime-guardrails:F30
+    - runtime-guardrails:F36
+    - runtime-guardrails:F39
+    - runtime-guardrails:F40
+    - runtime-guardrails:F41
 - url: https://platform.claude.com/docs/en/build-with-claude/search-results
   title: Search results
   source: anthropic-docs
@@ -1726,6 +1737,7 @@
   cited_by:
     - identity-secrets-audit:F9
     - identity-secrets-audit:F36
+    - identity-secrets-audit:F37
 - url: https://platform.claude.com/docs/en/manage-claude/workload-identity-federation
   title: Workload Identity Federation
   source: anthropic-docs
@@ -1933,6 +1945,7 @@
     - threat-defense:F10
     - threat-defense:F11
     - threat-defense:F12
+    - threat-defense:F37
 - url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-hallucinations
   title: Reduce hallucinations
   source: anthropic-docs
@@ -2139,6 +2152,8 @@
   cited_by:
     - threat-defense:F21
     - threat-defense:F22
+    - threat-defense:F40
+    - threat-defense:F42
 - url: https://www.anthropic.com/research/claude-code-sandboxing
   title: Making Claude Code safer with sandboxing
   source: anthropic-research
@@ -2264,6 +2279,7 @@
   cited_by:
     - threat-defense:F19
     - threat-defense:F20
+    - threat-defense:F43
 - url: https://www.itl.nist.gov/div898/handbook/ppc/section3/ppc333.htm
   title: Selecting Sample Sizes
   source: standard

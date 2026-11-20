@@ -178,5 +178,40 @@
     "id": "F36",
     "status": "ok",
     "url": "https://www.anthropic.com/news/challenges-in-red-teaming-ai-systems"
+  },
+  {
+    "id": "F37",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks"
+  },
+  {
+    "id": "F38",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool"
+  },
+  {
+    "id": "F39",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector"
+  },
+  {
+    "id": "F40",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/claude-code-auto-mode"
+  },
+  {
+    "id": "F41",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/permissions"
+  },
+  {
+    "id": "F42",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/claude-code-auto-mode"
+  },
+  {
+    "id": "F43",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/prompt-injection-defenses"
   }
 ]

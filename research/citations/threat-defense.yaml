@@ -323,3 +323,68 @@
   source: anthropic-research
   quote: "To do this, we employ a red team / blue team dynamic, where we use a model to generate attacks that are likely to elicit the target behavior (red team) and then fine-tune a model on those red teamed outputs in order to make it more robust to similar types of attack (blue team)."
   accessed: 2026-11-19
+
+- id: F37
+  claim: "A tool-output screen should handle classifier refusals as an absent verdict."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks
+  title: "Mitigate jailbreaks and prompt injections"
+  source: anthropic-docs
+  quote: 'Treat a stop_reason: "refusal" response from Claude Haiku 5.5 the same way: its safety classifiers can decline the screening request itself, which leaves no verdict to read.'
+  accessed: 2026-11-19
+
+- id: F38
+  claim: "Client tool results are allowed URL sources by default, including echoed model text."
+  tag: VER
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool
+  title: "Web fetch tool"
+  source: anthropic-docs
+  quote: "By default, client-side tool results are an allowed source even when they echo text that Claude produced (for example, a command that prints its input, or an error message that quotes it)."
+  accessed: 2026-11-19
+  version_note: "Web fetch URL validation and url_sources configuration."
+
+- id: F39
+  claim: "MCP toolsets can disable tools by default and explicitly enable selected tools."
+  tag: VER
+  url: https://platform.claude.com/docs/en/agents-and-tools/mcp-connector
+  title: "MCP connector"
+  source: anthropic-docs
+  quote: "Set enabled: false as the default, then explicitly enable specific tools:"
+  accessed: 2026-11-19
+  version_note: "Messages API MCP toolset configuration."
+
+- id: F40
+  claim: "Auto mode's classifier sees user messages and tool calls, with assistant messages and tool outputs stripped."
+  tag: FACT
+  url: https://www.anthropic.com/research/claude-code-auto-mode
+  title: "How we built Claude Code auto mode"
+  source: anthropic-research
+  quote: "The classifier sees only user messages and the agent's tool calls; we strip out Claude's own messages and tool outputs, making it reasoning-blind by design."
+  accessed: 2026-11-19
+
+- id: F41
+  claim: "Permission evaluation can decide a call, pass it to canUseTool, or continue."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/permissions
+  title: "Configure permissions"
+  source: claude-code-docs
+  quote: "When Claude requests a tool, Claude Code checks the call at these steps. Each step can decide the call, send it to your canUseTool callback, or pass it on:"
+  accessed: 2026-11-19
+
+- id: F42
+  claim: "The auto mode input probe warns the agent about suspicious content before passing it along."
+  tag: FACT
+  url: https://www.anthropic.com/research/claude-code-auto-mode
+  title: "How we built Claude Code auto mode"
+  source: anthropic-research
+  quote: "When content looks like an attempt to hijack behavior, the probe adds a warning to the agent's context before the result is passed along—telling the agent to treat this content as suspect and anchor on what the user actually asked for."
+  accessed: 2026-11-19
+
+- id: F43
+  claim: "Anthropic tested browser defenses against an adaptive Best-of-N attacker."
+  tag: FACT
+  url: https://www.anthropic.com/research/prompt-injection-defenses
+  title: "Mitigating the risk of prompt injections in browser use"
+  source: anthropic-research
+  quote: 'The chart below compares the version of the Claude browser extension that we’re launching today against our original launch configuration, when evaluated against an internal adaptive "Best-of-N" attacker that tries and combines many different prompt injection techniques that are known to be effective.'
+  accessed: 2026-11-19
