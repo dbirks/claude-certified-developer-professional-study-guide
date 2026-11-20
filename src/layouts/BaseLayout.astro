@@ -5,6 +5,11 @@ import Toc from '../components/Toc.astro';
 import SearchDialog from '../components/SearchDialog.astro';
 import CitePopover from '../components/CitePopover.astro';
 import Icon from '../components/Icon.astro';
+// Preload the four Latin faces every page uses so text doesn't reflow when fonts arrive (CLS; see docs/perf-report.md).
+import manropeUrl from '@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2?url';
+import youngSerifUrl from '@fontsource/young-serif/files/young-serif-latin-400-normal.woff2?url';
+import dmMono400Url from '@fontsource/dm-mono/files/dm-mono-latin-400-normal.woff2?url';
+import dmMono500Url from '@fontsource/dm-mono/files/dm-mono-latin-500-normal.woff2?url';
 import { getToc, type TocNode } from '../lib/toc';
 import { url } from '../lib/site';
 
@@ -30,6 +35,7 @@ const fullTitle = currentId ? `${title} · CCDV-P Study Guide` : 'CCDV-P Study G
     <meta name="description" content={description} />
     <meta name="color-scheme" content="light dark" />
     <link rel="icon" href={url('favicon.svg')} type="image/svg+xml" />
+    {[manropeUrl, youngSerifUrl, dmMono400Url, dmMono500Url].map((href) => <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />)}
     <script is:inline>
       // Apply stored or system theme before first paint (no flash).
       (function () {
@@ -55,7 +61,7 @@ const fullTitle = currentId ? `${title} · CCDV-P Study Guide` : 'CCDV-P Study G
           <button id="search-open" class="icon-btn topbar__search" type="button" aria-label="Search" aria-haspopup="dialog">
             <Icon name="search" size={18} stroke={2.75} />
             <span class="topbar__search-text" aria-hidden="true">Search the guide</span>
-            <kbd class="topbar__search-key" aria-hidden="true">/</kbd>
+            <span class="topbar__search-key" aria-hidden="true" title="Press / to search"><Icon name="square-slash" size={18} stroke={2} /></span>
           </button>
           <span class="read-pill" id="read-pill" aria-hidden="true" hidden>
             <span class="read-pill__bar"><span class="read-pill__fill" id="read-pill-fill"></span></span>
