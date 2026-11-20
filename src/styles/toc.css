@@ -56,7 +56,31 @@
     overflow-y: auto;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
+    /* The drawer owns the horizontal axis (drag-to-close); vertical list scrolling and pinch-zoom stay native. */
+    touch-action: pan-y pinch-zoom;
     padding: 0 var(--toc-pad-x) calc(28px + env(safe-area-inset-bottom));
+  }
+
+  /* Grab handle for the drag-to-close gesture: 4x36px on the panel's right edge, mid-height.
+     .toc-panel__head is sticky, so hanging it off the head keeps it pinned to the visible area
+     (an absolutely positioned child of the panel itself would scroll away with the TOC list)
+     while still riding the panel's transform during the drag. Decorative: empty content. */
+  .toc-panel__head::after {
+    content: '';
+    position: absolute;
+    top: calc(50dvh - 18px);
+    right: 6px;
+    width: 4px;
+    height: 36px;
+    border-radius: 2px;
+    background: var(--border-strong);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 180ms ease;
+  }
+
+  :root[data-theme='dark'] .toc-panel__head::after {
+    background: rgba(255, 255, 255, 0.18);
   }
 
   :root[data-theme='dark'] .toc-panel {
@@ -77,6 +101,17 @@
     transition: none;
   }
 
+  /* Released short of the threshold: ease home to the open position. */
+  .toc-panel.is-springing {
+    transition: transform 200ms ease-out;
+  }
+
+  /* The handle only shows while the drawer is open (or being dragged either way). */
+  .toc-panel[data-state='open'] .toc-panel__head::after,
+  .toc-panel.is-dragging .toc-panel__head::after {
+    opacity: 1;
+  }
+
   .toc-backdrop {
     position: fixed;
     inset: 0;
@@ -84,6 +119,7 @@
     background: var(--backdrop); /* light rgba(43,35,48,.38) · dark rgba(20,18,24,.5) */
     opacity: 0;
     transition: opacity 180ms ease;
+    touch-action: pan-y pinch-zoom;
   }
 
   .toc-backdrop.is-visible {
@@ -508,6 +544,8 @@ body.scroll-locked {
 @media (prefers-reduced-motion: reduce) {
   .toc-panel,
   .toc-panel.is-dragging,
+  .toc-panel.is-springing,
+  .toc-panel__head::after,
   .toc-backdrop,
   .toc__twisty svg {
     transition: none;

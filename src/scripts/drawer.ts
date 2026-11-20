@@ -1,6 +1,9 @@
 /**
  * Mobile TOC drawer: slide-out panel below 1024px, opened by #toc-toggle or a swipe from the
- * left screen edge, closed by the X, the backdrop, Escape, navigation or a left swipe.
+ * left screen edge, closed by the X, the backdrop, Escape, navigation or a left drag on the
+ * panel / backdrop. The closing drag tracks the finger: the panel slides under it, the backdrop
+ * fades with the progress, and releasing past the threshold (or flicking left) commits the close
+ * while anything else springs back. A tap on the backdrop closes immediately.
  * On desktop the panel is a static sidebar and everything here is inert.
  */
 
@@ -43,6 +46,7 @@ export function initDrawer(): void {
     if (open || !mobile.matches) return;
     window.clearTimeout(hideBackdropTimer);
     open = true;
+    backdrop.style.opacity = '';
     lastFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     panel.dataset.state = 'open';
     panel.setAttribute('role', 'dialog');
@@ -65,8 +69,13 @@ export function initDrawer(): void {
     panel.removeAttribute('role');
     panel.removeAttribute('aria-modal');
     panel.classList.remove('is-dragging');
+    panel.classList.remove('is-springing');
+    panel.style.transition = '';
     panel.style.transform = '';
     toggle.setAttribute('aria-expanded', 'false');
+    // Dropping the drag's inline opacity and the is-visible class in the same task lets the
+    // backdrop fade out from wherever the finger left it instead of jumping.
+    backdrop.style.opacity = '';
     backdrop.classList.remove('is-visible');
     window.clearTimeout(hideBackdropTimer);
     hideBackdropTimer = window.setTimeout(() => {
@@ -212,36 +221,175 @@ export function initDrawer(): void {
   document.addEventListener('touchend', endSwipe, { passive: true });
   document.addEventListener('touchcancel', endSwipe, { passive: true });
 
-  /* --------------------------------------------------- swipe left to close */
+  /* ------------------------------------------------ drag left to close (finger tracking) */
 
-  let closeStartX = 0;
-  let closeStartY = 0;
-  let closeDx = 0;
-  let closeDy = 0;
+  const CLOSE_INTENT = 8; // px of movement before deciding horizontal vs vertical
+  const CLOSE_RATIO = 1.2; // |dx| must beat |dy| by this much to count as a drag
+  const CLOSE_COMMIT_RATIO = 0.3; // panel widths travelled (or a flick) commits the close
+  const CLOSE_FLICK_VELOCITY = -0.35; // px per ms, leftward
+  const FLICK_WINDOW = 80; // ms of trail the flick estimate looks back over
+  const RUBBER_BAND_PX = 12; // max overscroll right of the open position
+  const RUBBER_BAND_FACTOR = 0.15;
+  const SPRING_BACK_MS = 210;
 
+  let dragActive = false; // finger is down on the panel / backdrop while open
+  let dragHorizontal = false; // intent decided: this is a close drag
+  let dragStartX = 0;
+  let dragStartY = 0;
+  let dragDx = 0;
+  let dragDy = 0;
+  let trail: { t: number; x: number }[] = [];
+  let springBackTimer: number | undefined;
+  let swallowPanelClick = false; // the drag released over a link: kill the synthesised click
+
+  /** 'panel' | 'backdrop' for a touch that started on one of the two drag surfaces, else null. */
+  function dragSurface(target: EventTarget | null): 'panel' | 'backdrop' | null {
+    if (!(target instanceof Element)) return null;
+    if (target === backdrop || backdrop.contains(target)) return 'backdrop';
+    if (target === panel || panel.contains(target)) return 'panel';
+    return null;
+  }
+
+  function addSample(t: number, x: number): void {
+    trail.push({ t, x });
+    while (trail.length > 2 && t - trail[0].t > FLICK_WINDOW) trail.shift();
+  }
+
+  /** Average velocity over the freshest ~FLICK_WINDOW ms of the trail (negative = leftward). */
+  function flickVelocity(): number {
+    if (trail.length < 2) return 0;
+    const last = trail[trail.length - 1];
+    let first = last;
+    for (const sample of trail) {
+      if (last.t - sample.t <= FLICK_WINDOW) {
+        first = sample;
+        break;
+      }
+    }
+    const dt = last.t - first.t;
+    return dt > 0 ? (last.x - first.x) / dt : 0;
+  }
+
+  /** Move the panel to `shift` px (negative = left) and fade the backdrop by the same progress. */
+  function setDragPosition(shift: number): void {
+    panel.style.transform = `translateX(${shift}px)`;
+    const progress = Math.max(0, Math.min(1, -shift / panelWidth));
+    backdrop.style.opacity = String(1 - progress);
+  }
+
+  function dragTouchStart(event: TouchEvent): void {
+    if (!open || !mobile.matches || event.touches.length !== 1) {
+      dragActive = false;
+      return;
+    }
+    if (!dragSurface(event.target)) {
+      dragActive = false;
+      return;
+    }
+    const touch = event.touches[0];
+    dragActive = true;
+    dragHorizontal = false;
+    dragStartX = touch.clientX;
+    dragStartY = touch.clientY;
+    dragDx = 0;
+    dragDy = 0;
+    panelWidth = panel.getBoundingClientRect().width || panelWidth || 320;
+    trail = [{ t: event.timeStamp || performance.now(), x: touch.clientX }];
+  }
+
+  function dragTouchMove(event: TouchEvent): void {
+    if (!dragActive || !open) return;
+    const touch = event.touches[0];
+    if (!touch) return;
+    dragDx = touch.clientX - dragStartX;
+    dragDy = touch.clientY - dragStartY;
+    addSample(event.timeStamp || performance.now(), touch.clientX);
+    if (!dragHorizontal) {
+      if (Math.abs(dragDx) <= CLOSE_INTENT && Math.abs(dragDy) <= CLOSE_INTENT) return;
+      // Vertical (or rightward-first) intent: drop out and let the TOC list scroll natively.
+      if (dragDx >= 0 || Math.abs(dragDx) <= CLOSE_RATIO * Math.abs(dragDy)) {
+        dragActive = false;
+        trail = [];
+        return;
+      }
+      dragHorizontal = true;
+      panel.classList.add('is-dragging');
+      panel.style.transition = 'none';
+    }
+    setDragPosition(
+      dragDx < 0 ? dragDx : Math.min(RUBBER_BAND_PX, dragDx * RUBBER_BAND_FACTOR),
+    );
+  }
+
+  function dragTouchEnd(event: TouchEvent): void {
+    if (!dragActive) return;
+    dragActive = false;
+    const touch = event.changedTouches[0];
+    if (touch) {
+      dragDx = touch.clientX - dragStartX;
+      dragDy = touch.clientY - dragStartY;
+      addSample(event.timeStamp || performance.now(), touch.clientX);
+    }
+    const startedOnBackdrop = dragSurface(event.target) === 'backdrop';
+    const wasHorizontal = dragHorizontal;
+    const flicked = flickVelocity() < CLOSE_FLICK_VELOCITY;
+    dragHorizontal = false;
+    trail = [];
+    panel.classList.remove('is-dragging');
+    panel.style.transition = '';
+
+    if (!wasHorizontal) {
+      // A tap (< 8px of movement) on the dimmed area closes right away; a tap on the panel is
+      // left to the ordinary click handlers (X button, links).
+      if (
+        startedOnBackdrop &&
+        Math.abs(dragDx) < CLOSE_INTENT &&
+        Math.abs(dragDy) < CLOSE_INTENT
+      ) {
+        closeDrawer();
+      }
+      return;
+    }
+
+    const travelled = Math.min(0, dragDx);
+    if (-travelled > CLOSE_COMMIT_RATIO * panelWidth || flicked) {
+      // Release from the current position: closeDrawer() drops the inline transform, so the
+      // panel slides out from translateX(dx) to the closed translateX(-100%) over the CSS 200ms.
+      if (-travelled > RUBBER_BAND_PX) swallowPanelClick = true;
+      closeDrawer();
+      return;
+    }
+
+    // Spring back to open: the inline transform goes away, the panel eases home.
+    panel.classList.add('is-springing');
+    panel.style.transform = '';
+    backdrop.style.opacity = '';
+    window.clearTimeout(springBackTimer);
+    springBackTimer = window.setTimeout(() => panel.classList.remove('is-springing'), SPRING_BACK_MS);
+  }
+
+  document.addEventListener('touchstart', dragTouchStart, { passive: true });
+  document.addEventListener('touchmove', dragTouchMove, { passive: true });
+  document.addEventListener('touchend', dragTouchEnd, { passive: true });
+  document.addEventListener('touchcancel', dragTouchEnd, { passive: true });
+
+  // Chrome may still synthesise a click for a short drag; never let it activate a TOC link.
   panel.addEventListener(
-    'touchstart',
-    (event: TouchEvent) => {
-      if (!open || event.touches.length !== 1) return;
-      closeStartX = event.touches[0].clientX;
-      closeStartY = event.touches[0].clientY;
-      closeDx = 0;
-      closeDy = 0;
+    'click',
+    (event) => {
+      if (!swallowPanelClick) return;
+      swallowPanelClick = false;
+      event.preventDefault();
+      event.stopPropagation();
     },
-    { passive: true },
+    true,
   );
-
-  panel.addEventListener(
-    'touchend',
-    (event: TouchEvent) => {
-      if (!open) return;
-      const changed = event.changedTouches[0];
-      if (!changed) return;
-      closeDx = changed.clientX - closeStartX;
-      closeDy = changed.clientY - closeStartY;
-      if (closeDx < -COMMIT_DISTANCE && Math.abs(closeDx) > DIRECTION_RATIO * Math.abs(closeDy)) closeDrawer();
+  document.addEventListener(
+    'touchstart',
+    () => {
+      swallowPanelClick = false;
     },
-    { passive: true },
+    { capture: true, passive: true },
   );
 
   window.__ccdvpDrawer = { open: openDrawer, close: closeDrawer, isOpen };
