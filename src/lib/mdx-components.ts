@@ -6,5 +6,6 @@ import SelfCheck from '../components/mdx/SelfCheck.astro';
 import Figure from '../components/mdx/Figure.astro';
 import Flow from '../components/mdx/Flow.astro';
 import Sequence from '../components/mdx/Sequence.astro';
+import SignalTable from '../components/mdx/SignalTable.astro';
 
-export const mdxComponents = { Cite, Callout, ExamLens, SelfCheck, Figure, Flow, Sequence };
+export const mdxComponents = { Cite, Callout, ExamLens, SelfCheck, Figure, Flow, Sequence, SignalTable };

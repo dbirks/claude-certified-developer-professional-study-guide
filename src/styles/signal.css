@@ -1,0 +1,87 @@
+/* SignalTable: white card of "signal → verdict" rows (Gelato frame 2a, left phone top). */
+
+.signal-table {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  padding: 6px;
+  margin: 0 0 20px;
+}
+
+.signal-table ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Rows butt together so the alternating fills read as stripes. */
+.signal-table .signal-table__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  margin-top: 0;
+}
+
+.signal-table .signal-table__row:nth-child(odd) {
+  background: var(--surface-alt);
+}
+
+/* Signal text: DM Mono, no inline-code chip (override code.css `:not(pre) > code`). */
+.signal-table .signal-table__signal {
+  min-width: 0;
+  background: none;
+  border: 0;
+  padding: 0;
+  border-radius: 0;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+  white-space: normal;
+  text-align: left;
+}
+
+/* Verdict pill. */
+.signal-table .signal-table__tag {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: var(--r-pill);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.signal-table__tag--fail {
+  background: var(--strawberry);
+  color: var(--strawberry-ink);
+}
+
+.signal-table__tag--retry {
+  background: var(--pistachio);
+  color: var(--pistachio-ink);
+}
+
+.signal-table__tag--conditional {
+  background: var(--butter);
+  color: var(--butter-ink);
+}
+
+.signal-table .signal-table__caption {
+  padding: 8px 12px 4px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--ink-muted);
+}

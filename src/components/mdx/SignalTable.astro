@@ -1,0 +1,45 @@
+---
+// SignalTable: compact "signal → verdict" card (Gelato frame 2a, left phone top).
+// rows = [{ signal: "400 invalid_request_error", verdict: "fail" }, …]
+// verdict: fail → "Fail fast" · retry → "Retry" · conditional → "Depends"
+type SignalVerdict = 'fail' | 'retry' | 'conditional';
+
+interface SignalRow {
+  signal: string;
+  verdict: SignalVerdict;
+}
+
+interface Props {
+  rows: SignalRow[];
+  caption?: string;
+}
+
+const LABELS: Record<SignalVerdict, string> = {
+  fail: 'Fail fast',
+  retry: 'Retry',
+  conditional: 'Depends',
+};
+
+const { rows, caption } = Astro.props;
+const items = (Array.isArray(rows) ? rows : []).map((row) => ({
+  signal: row.signal,
+  // Unknown verdicts degrade to the neutral "Depends" pill rather than rendering an empty tag.
+  verdict: LABELS[row.verdict] ? row.verdict : 'conditional',
+}));
+---
+
+<figure class="signal-table">
+  <ul role="list">
+    {
+      items.map((item) => (
+        <li class="signal-table__row">
+          <code class="signal-table__signal">{item.signal}</code>
+          <span class={`signal-table__tag signal-table__tag--${item.verdict}`}>
+            {LABELS[item.verdict]}
+          </span>
+        </li>
+      ))
+    }
+  </ul>
+  {caption ? <figcaption class="signal-table__caption">{caption}</figcaption> : null}
+</figure>

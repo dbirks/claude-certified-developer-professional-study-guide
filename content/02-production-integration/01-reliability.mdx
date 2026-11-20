@@ -25,6 +25,24 @@ Client and account errors generally need a change before a retry can succeed:
 
 Conflict and transient errors behave differently. `409 conflict_error` sits in between: resolve the concurrent modification or duplicate value before retrying.<Cite id="F3" /> `429 rate_limit_error` spans RPM, ITPM, OTPM, ramp limits (`ramp_limit_exceeded`), and monthly tier spend caps (`enforced_spend_limit_reached`).<Cite id="F6 F39" /> `500 api_error` and `504 timeout_error` are server-side (`timeout_error` can also arrive with `500` if the server time limit is reached before the response starts),<Cite id="F7" /> and `529 overloaded_error` signals high traffic across all users.<Cite id="F8" />
 
+<SignalTable
+  caption="At a glance: retry or fail fast?"
+  rows={[
+    { signal: "400 invalid_request_error", verdict: "fail" },
+    { signal: "401 authentication_error", verdict: "fail" },
+    { signal: "402 / 403 / 404", verdict: "fail" },
+    { signal: "408 request timeout", verdict: "retry" },
+    { signal: "409 conflict_error", verdict: "conditional" },
+    { signal: "413 request_too_large", verdict: "fail" },
+    { signal: "429 enforced_spend_limit_reached", verdict: "fail" },
+    { signal: "429 rate / ramp limit", verdict: "retry" },
+    { signal: "500 / 504", verdict: "retry" },
+    { signal: "529 overloaded_error", verdict: "retry" },
+    { signal: "200 + mid-stream event: error", verdict: "conditional" },
+    { signal: "Connection drop / client timeout", verdict: "conditional" }
+  ]}
+/>
+
 | Signal | Exception (Python / TS) | Retry? | Action |
 |---|---|---|---|
 | `400 invalid_request_error` | `BadRequestError` | No | Fix schema or unsupported parameter, or raise the user-set org/workspace limit.<Cite id="F1" /> |
