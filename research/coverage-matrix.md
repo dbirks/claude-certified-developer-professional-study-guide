@@ -18,7 +18,7 @@ Columns: research packet exists · citation entries · quotes verified verbatim 
 | 3.1 | Telemetry and Instrumentation | 12% | yes | 69 | 69/69 | [fact-checked](../content/03-observability/01-telemetry.mdx) · 2783 words · 69 cited | done |
 | 3.2 | Production Monitoring and Alerting | 12% | yes | 35 | 35/35 | [fact-checked](../content/03-observability/02-monitoring-alerting.mdx) · 2543 words · 35 cited | done |
 | 3.3 | Trace Analysis at Scale | 12% | yes | 41 | 41/41 | [fact-checked](../content/03-observability/03-trace-analysis.mdx) · 2586 words · 41 cited | done |
-| 4.1 | Complex Failure Diagnosis | 10% | yes | 38 | 38/38 | [draft](../content/04-debugging/01-failure-diagnosis.mdx) · 2441 words · 37 cited | done |
+| 4.1 | Complex Failure Diagnosis | 10% | yes | 38 | 38/38 | [fact-checked](../content/04-debugging/01-failure-diagnosis.mdx) · 2441 words · 37 cited | done |
 | 4.2 | Incident Response and Learning Loops | 10% | yes | 42 | 42/42 | [fact-checked](../content/04-debugging/02-incident-response.mdx) · 2499 words · 42 cited | done |
 | 5.1 | Evaluation System Design | 12% | yes | 42 | 42/42 | [fact-checked](../content/05-evaluation/01-evaluation-design.mdx) · 2414 words · 41 cited | done |
 | 5.2 | LLM-as-Judge Engineering | 12% | yes | 45 | 45/45 | [fact-checked](../content/05-evaluation/02-llm-as-judge.mdx) · 2591 words · 45 cited | done |

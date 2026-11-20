@@ -148,5 +148,45 @@
     "id": "F30",
     "status": "ok-loose",
     "url": "https://platform.claude.com/docs/en/build-with-claude/thinking"
+  },
+  {
+    "id": "F31",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons"
+  },
+  {
+    "id": "F32",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons"
+  },
+  {
+    "id": "F33",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons"
+  },
+  {
+    "id": "F34",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/handle-streaming-refusals"
+  },
+  {
+    "id": "F35",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/handle-streaming-refusals"
+  },
+  {
+    "id": "F36",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/handle-streaming-refusals"
+  },
+  {
+    "id": "F37",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/troubleshooting"
+  },
+  {
+    "id": "F38",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/cli-sdks-libraries/sdks/python"
   }
 ]

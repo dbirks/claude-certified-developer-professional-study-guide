@@ -1,0 +1,179 @@
+---
+title: "Complex Failure Diagnosis"
+summary: "Decide whether a production agent failure came from the model, the harness, tools, or data by replaying evidence layer by layer."
+kind: skill
+skill: "4.1"
+slug: failure-diagnosis
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+**Complex failure diagnosis** means assigning an unexpected agent outcome to the first layer whose output diverged from expectation. The visible symptom may appear later. The model can finish cleanly while the harness serializes the transcript incorrectly, a tool can return an error inside a successful API response,<Cite id="F19 F20" /> and retrieval can omit the document the answer needed. The Messages API response includes `stop_reason`, `stop_sequence`, and `usage` fields.<Cite id="F7" /> Every API response also includes a `request-id` header you can correlate with your own trace ID.<Cite id="F22" />
+
+## How it works: the evidence chain
+
+A **failure origin** is the layer where an agent run first produced an unexpected result. The documented `stop_reason` values identify control-flow boundaries, not whether the answer is good.<Cite id="F31" /> A `tool_use` stop means Claude is calling a tool your application must run.<Cite id="F8" /> A refusal stop carries `stop_details` describing the refusal.<Cite id="F11" /> `max_tokens` means Claude reached the output limit in the request. If the response contains an incomplete tool-use block, retry with a higher `max_tokens` value to get the complete block.<Cite id="F5 F32" />
+
+| `stop_reason` | Boundary it marks | First check in the trace |
+|---|---|---|
+| `end_turn` | Natural completion. | Compare output against the expected outcome, not the status code. <Cite id="F31" /> |
+| `max_tokens` | Request output cap reached. <Cite id="F5" /> | Did the turn end before the expected tool-use or result boundary? |
+| `stop_sequence` | A custom stop sequence matched. <Cite id="F31" /> | Did your configured stop sequence fire as intended? |
+| `tool_use` | Claude is calling a tool you run. <Cite id="F8" /> | Is every `tool_use.id` answered in the next user message? <Cite id="F1" /> |
+| `pause_turn` | A server-side loop paused. <Cite id="F4" /> | Was the paused assistant turn replayed unchanged with the same tools? |
+| `refusal` | Safety refusal path; normal HTTP 200. <Cite id="F11" /> | Was partial streamed output already shown to the user? |
+| `model_context_window_exceeded` | Context window limit reached. <Cite id="F31" /> | Did context management remove required information? |
+
+Record the full envelope before anything is redacted or re-rendered: response `id`, `model`, `stop_reason`, `stop_sequence`, `usage`, every content block type, and the `request-id` header.<Cite id="F7 F22" /> Also preserve the exact request body you sent. A diagnosis that starts from chat-rendered history may lose tool-use IDs and thinking blocks that the next request must reproduce.
+
+<Figure caption="Walk the chain from transport to model behavior and stop at the first divergence. Each branch has a discriminating replay.">
+  <Flow direction="vertical" steps={[
+    { label: "Unexpected production outcome" },
+    { label: "Transport and API status", note: "status code, error body, request-id" },
+    { label: "stop_reason", note: "end_turn, max_tokens, tool_use, pause_turn, refusal, context overflow" },
+    { label: "Harness transcript integrity", note: "replay with corrected tool_result pairing" },
+    { label: "Tool, policy, and service result", note: "run the same tool input outside the agent" },
+    { label: "Retrieval evidence", note: "replay the query, freeze the chunks, score recall" },
+    { label: "Model behavior", note: "repeated fixed-input trials" }
+  ]} />
+</Figure>
+
+## Multi-turn and multi-agent transcript integrity
+
+**Transcript integrity** means the history you send back matches the structure the API returned, with every tool call answered. The contract is explicit: each `tool_use` block in an assistant turn needs a matching `tool_result` whose `tool_use_id` echoes that `tool_use.id`, and in the user message containing results, the `tool_result` blocks must come first in the content array.<Cite id="F1 F3" /> Missing results or explanatory text before results are documented causes of the unresolved-tool 400.<Cite id="F3" />
+
+Parallel calls break the same contract when a harness unrolls them. Return every result for a parallel tool batch in a single user message; splitting them into separate messages changes the conversation pattern Claude sees and can suppress later parallel tool use.<Cite id="F2" /> If the assistant turn carries thinking or redacted-thinking blocks, echo that whole turn back verbatim — rewriting or omitting those blocks can produce a 400 on a tool-use continuation.<Cite id="F6" />
+
+`pause_turn` marks a paused server-side tool loop. Append the response content unchanged as an assistant message, resend the same `tools`, and do not add a user message after that assistant message.<Cite id="F33" /> Client-executed tools use `tool_use`, not `pause_turn`.<Cite id="F24" /> Treating a paused server loop like a client tool call can strand work the service still owns.
+
+Long conversations add a silent rewrite. Compaction replaces earlier conversation content with a summary, and thinking blocks from before a compaction block are not carried forward, so the summary is all the model retains of that earlier work.<Cite id="F15" /> When a constraint disappears after many turns, read the summary before suspecting the model, and carry hard constraints, decisions, and unresolved requirements across the boundary explicitly.
+
+In a multi-agent run, ask which thread diverged before asking which agent is wrong. Managed Agents session observability exposes usage and a timeline with one lane per thread,<Cite id="F21" /> so align events across lanes by timestamp and by tool and request IDs before attributing a shared failure to a single agent.
+
+**Worked example.** A coordinator delegates an invoice lookup to two worker threads; Claude returns two client `tool_use` blocks, the harness executes both, then posts each result as its own user message and drops one result after a timeout on a retry. The final request returns HTTP 400 and the user sees a generic “agent failed”. The transcript sketch below is illustrative pseudocode, not runnable code.
+
+```text
+assistant: tool_use(id=a1), tool_use(id=b1); stop_reason=tool_use
+tool services: a1 succeeded (42 ms); b1 succeeded (61 ms)
+bad harness transcript: user(tool_result a1), user(tool_result b1)
+corrected transcript: user(tool_result a1, tool_result b1)
+```
+
+Capture the incident bundle keyed by session, thread, and `request-id`: the original assistant message verbatim, its `stop_reason`, every content block type and `tool_use.id`, each invocation's principal, argument hash, timings, status and result, and the exact next request body.<Cite id="F21 F22" /> Replay it with only the transcript corrected and cached tool outputs reused; do not invoke the write-capable tool again. If the 400 disappears, history serialization was causal. If it stays, diff the thinking blocks and tool definitions against the capture, then validate tool-specific service, auth, and network behavior with live dependencies restored one at a time.
+
+## Model, harness, tool, or data: isolating the origin
+
+Origin isolation is a sequence of discriminating tests, cheapest first. Status and stop boundary narrow the field immediately: a 4xx validation response points at request shape, configuration, permissions, or unsupported parameters; a successful response with `tool_use` or `pause_turn` points at loop progression; `max_tokens` and `model_context_window_exceeded` mark capacity boundaries; `refusal` marks the safety path.<Cite id="F1 F5 F8 F11 F20 F30" /> Do not label all unexpected results “model hallucination” before those boundaries are read.
+
+| Suspected layer | Evidence that points there | Discriminating test |
+|---|---|---|
+| Harness serialization | 400 naming `tool_use` ids without `tool_result`, text before results, mutated thinking blocks<Cite id="F1 F3 F6" /> | Replay with one result per id, results first, assistant turn verbatim |
+| Tool implementation | Exception and stack trace logged when a tool raises; the SDK tool runner returns an error tool result<Cite id="F19" /> | Call the same tool input outside the agent with the same identity |
+| Permission policy | Error tool result with `is_error: true` and the content `Permission to use {tool_name} has been denied.`<Cite id="F20" /> | Compare the policy decision, then rerun under a principal that holds the grant |
+| Transport or auth | 401 `authentication_error` from a malformed, revoked, or expired key;<Cite id="F29" /> a long request that fails with no response because a network dropped the idle connection<Cite id="F28" /> | Fix credentials, then stream or batch the long call and watch for the same drop |
+| Retrieval and data | Expected evidence absent from the chunks actually sent<Cite id="F14" /> | Replay the query against the same index snapshot and filters; score recall alone |
+| Model output and grounding | Relevant evidence present, answer still unsupported<Cite id="F14" /> | Freeze the supplied chunks and test answer entailment |
+
+Permission denials and transport faults are the easiest misdiagnoses to make. A Managed Agents `auto` policy can deny a call and hand the agent an error tool result with `is_error: true`,<Cite id="F20" /> which looks like a tool failure in the transcript and is not one. A long-running request can also fail without any response from Anthropic because an intermediary network dropped the idle connection;<Cite id="F28" /> that is evidence about your transport, not about tool choice.
+
+### Retrieval versus grounding
+
+Retrieval-grounding failures have two different owners, so measure them separately: Anthropic's guidance is to evaluate the retrieval system and the end-to-end system apart from each other.<Cite id="F14" /> If expected evidence is missing from retrieved chunks, investigate query construction, filters, ranking, or corpus freshness. If relevant evidence is present and the answer is still unsupported, investigate prompt grounding and model behavior.<Cite id="F14" /> Make the evidence auditable while you are at it: `search_result` content blocks pass your retrieved content with the source and title you supplied, and citations come back when citations are enabled, so you can check whether a response was grounded in what was actually sent.<Cite id="F13" />
+
+For an answer that states a renewal date absent from the cited text, preserve the exact query, index snapshot, ACL filters, ranked candidate IDs and scores, and the chunks actually sent. If the renewal clause was never retrieved, correct retrieval, filtering, or freshness and measure recall. If it was retrieved, check whether it was truncated or contradicted elsewhere, then test the answer's entailment against that frozen chunk set.
+
+## Refusals and non-deterministic failures
+
+### Refusals are successful responses
+
+A classifier refusal is its own failure class because it is a successful HTTP 200 response with `stop_reason: refusal` and structured `stop_details`.<Cite id="F36" /> In a stream, `stop_details` arrives on the `message_delta` event alongside `stop_reason`.<Cite id="F11" /> Count refusals apart from HTTP error rates, and buffer user-visible output until the terminal state so partial content never reads as a finished answer.
+
+When you receive `stop_reason: refusal`, reset the conversation context before continuing.<Cite id="F12" /> The docs say a same-model retry usually produces another refusal and recommend a fallback model.<Cite id="F34" /> Refusals can also appear as streaming classifier stops, 400 input or copyright validation errors, or standard text responses from the model; inspect which form occurred before choosing a response.<Cite id="F35" />
+
+### Non-determinism
+
+Treat “flaky” as a hypothesis to measure, not a cause. Identical inputs might still produce different outputs across API calls even with `temperature` set to `0`.<Cite id="F9" /> Sampling parameters are not a reproducibility switch: beginning with API version `2026-10-21`, a request that includes `temperature`, `top_p`, or `top_k` at any value returns a 400 on every model.<Cite id="F30" /> Check the exact model and API version before touching them.
+
+Measure variation by replay: run the unchanged request as a small fixed-input batch — twenty trials is an engineering example, not an Anthropic requirement — and record the distribution of tool choice, refusal, answer correctness, latency, and stop reason. Freeze tool and retrieval outputs first, then restore live dependencies one at a time to see which one moves the distribution.
+
+An unchanged model ID does not close the case. Pinning a model ID keeps the model weights unchanged, yet infrastructure updates can still produce minor differences in observable behavior.<Cite id="F10" /> Log the exact model identifier and API version on every incident, diff SDK, harness, prompt, and tool definitions, and run a regression comparison when behavior shifts.
+
+<Callout type="version" title="Checked 2026-11-19">
+
+Sampling-parameter rejection begins at Messages API version `2026-10-21`, and the Claude Code commands and debug-log paths below are current documentation as of this date. Both change between releases; re-verify before you script against them.<Cite id="F17 F26 F30" />
+
+</Callout>
+
+## Turning on the evidence
+
+Use the platform's own switches before building instrumentation. The Anthropic Python SDK logs request and response detail when `ANTHROPIC_LOG` is set to `debug` or `info`.<Cite id="F38" /> Once your application registers an OpenTelemetry tracer provider, the SDK emits a span for each request it sends.<Cite id="F18" /> The beta SDK tool runner catches tool exceptions and returns an error tool result; the Python SDK logs the full exception and stack trace through the standard logging module when a tool raises an unhandled exception.<Cite id="F19" /> The TypeScript SDK takes the client option `logLevel: "debug"` or `ANTHROPIC_LOG`; at debug level all HTTP requests and responses are logged, including headers and bodies — some authentication headers are redacted, but request and response bodies may still hold sensitive data, so handle those logs as sensitive.<Cite id="F23" />
+
+For Claude Code sessions, `/doctor` runs an automated check of installation, settings, extensions, and context usage.<Cite id="F16" /> `/mcp` checks MCP server status.<Cite id="F37" /> `/debug` starts capturing runtime issues from the moment you run it; `claude --debug` starts capture at session start.<Cite id="F17" /> Debug logs go to `~/.claude/debug/<session-id>.txt` by default, or to the path set by `CLAUDE_CODE_DEBUG_LOGS_DIR`,<Cite id="F26" /> and `/export` saves the current conversation as plain text.<Cite id="F25" /> Treat that export as review evidence; for replay, preserve your harness's structured transcript and trace IDs alongside the platform's `request-id`.<Cite id="F22" />
+
+## Decision criteria
+
+Pick the layer with the earliest observable divergence, and accept a hypothesis only when a replay changes the outcome.
+
+1. Read status and error body first. A 4xx is a request-shape, configuration, permission, or unsupported-parameter problem before it is a model problem;<Cite id="F1" /> a 401 is a credential problem.<Cite id="F29" />
+2. Read the stop boundary on every 200. `tool_use` and `pause_turn` mean loop progression, `max_tokens` and `model_context_window_exceeded` mean capacity, and `refusal` means the safety path.<Cite id="F4 F5 F8 F11" />
+3. Prove transcript integrity by replay. Validate the serialized history against the exact returned assistant content, one result per `tool_use` id, results first, parallel batches in one message, thinking verbatim.<Cite id="F1 F2 F3 F6" />
+4. Test tools outside the agent with the same identity and arguments, and separate an explicit permission denial from an implementation exception.<Cite id="F19 F20" />
+5. Score retrieval alone before judging the answer, then test entailment on frozen chunks.<Cite id="F13 F14" />
+6. Only then evaluate model behavior statistically: repeated fixed-input replay, plus a check for compaction loss and serving-infrastructure change.<Cite id="F9 F10 F15" />
+
+The evidence that decides between layers is correlation, not narrative: `request-id`, message ID, your trace ID, session and thread IDs, and tool-use IDs.<Cite id="F21 F22" /> Where the reviewed sources give no universal rule — a shared trace schema for custom harnesses, one diagnostic command for OAuth, DNS, TLS, or proxy faults — use the deployed tool's own transport and identity telemetry, and do not infer a model failure from a tool timeout alone.
+
+## Failure modes and recovery
+
+The deepest trap is scoring a successful transport as a successful task. Every successful Messages API response has a `stop_reason`, so a request can return HTTP 200 and still be truncated, refused, or stopped by the context window.<Cite id="F31 F5 F11" /> Recovery is mechanical: branch on the stop reason, and for refusals reset context and use a fallback model.<Cite id="F12 F34" />
+
+<Callout type="mistake" title="Rebuilding the assistant turn from rendered text">
+
+Reconstructing a tool-use turn from selected text drops IDs and thinking blocks. Replay the returned structure; echo the assistant turn back verbatim, thinking blocks included.<Cite id="F6" />
+
+</Callout>
+
+<Callout type="mistake" title="Calling a policy or network fault a model error">
+
+An `is_error: true` permission result and an idle-connection drop both look like “the agent picked the wrong tool”.<Cite id="F20 F28" /> Check the policy decision and the transport before the prompt.
+
+</Callout>
+
+<Callout type="mistake" title="Naming an unsupported answer a grounding failure">
+
+If the relevant document never reached the model, the retrieval side owns it. Prove the chunk was supplied, then test grounding.<Cite id="F14" />
+
+</Callout>
+
+Two more recur in agent loops. Sending each parallel result as its own user turn makes parallel work degrade to sequential and can lose results — put them in one message, results first.<Cite id="F2 F3" /> Mishandling `pause_turn` by appending a user message or omitting the previous `tools` leaves a server-side loop unfinished.<Cite id="F4" /> And assuming determinism from configuration misleads the investigation: `temperature=0` does not guarantee identical output,<Cite id="F9" /> a pinned model ID does not freeze serving behavior,<Cite id="F10" /> and a compaction summary does not preserve constraints you never restated.<Cite id="F15" />
+
+## Exam lens
+
+<ExamLens>
+
+- **Editorial inference:** A 400 after `tool_use` with a missing or misplaced `tool_result` points to transcript serialization; replaying with the correct block order tests that hypothesis.<Cite id="F1 F3" />
+- **Editorial inference:** Continue `pause_turn` as an assistant response with the same tools; adding a user message can strand server-side work.<Cite id="F33" />
+- **Editorial inference:** A refusal stop is a successful HTTP response, so track it separately from HTTP errors and handle partial streams deliberately.<Cite id="F35" />
+- **Editorial inference:** In RAG, inspect retrieved evidence before blaming the model; retrieval quality and end-to-end answer quality are separate measurements.<Cite id="F14" />
+
+</ExamLens>
+
+## Self-check
+
+<SelfCheck question="The model returned two tool_use blocks; your harness sent each result in a different user message and the next response omitted the second result. What is the first discriminating fix?">
+
+Return both matching results in one user message, `tool_result` blocks before any text, then compare the exact serialized history against the assistant response.<Cite id="F1 F2 F3" />
+
+</SelfCheck>
+
+<SelfCheck question="The API returned HTTP 200 with partial streamed text and stop_reason: refusal. Is this an HTTP or tool failure?">
+
+No. Record a refusal event, do not present partial output as final, reset the conversation context before continuing, and retry on a different model because the same model usually refuses again.<Cite id="F11 F12 F34" />
+
+</SelfCheck>
+
+<SelfCheck question="A RAG answer is wrong. Which two measurements separate data retrieval from generation?">
+
+Retrieval quality against the expected evidence first, then end-to-end answer accuracy and grounding using the chunks that retrieval supplied.<Cite id="F13 F14" />
+
+</SelfCheck>
