@@ -1,1 +1,65 @@
-/* owned by a worker; see docs/ARCHITECTURE.md */
+/* Code: inline code, shiki pre blocks (dual theme), room for the copy button. */
+
+:not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+/* Shiki dual themes (defaultColor: false) — the switch that makes colors work. */
+.astro-code,
+.astro-code span {
+  color: var(--shiki-light);
+  background-color: var(--shiki-light-bg);
+}
+
+html[data-theme='dark'] .astro-code,
+html[data-theme='dark'] .astro-code span {
+  color: var(--shiki-dark);
+  background-color: var(--shiki-dark-bg);
+}
+
+/* Token spans inherit the pre's --shiki-*-bg, which would paint a full-width strip
+   behind every line. The pre owns the block background; spans stay transparent
+   unless a token defines its own highlight background. */
+.astro-code > code {
+  --shiki-light-bg: transparent;
+  --shiki-dark-bg: transparent;
+}
+
+pre {
+  position: relative;
+}
+
+pre.astro-code {
+  background-color: var(--code-bg) !important;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin: 0 0 20px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.55;
+  overflow-x: auto;
+  max-width: 100%;
+  tab-size: 4;
+  -moz-tab-size: 4;
+  -webkit-overflow-scrolling: touch;
+}
+
+pre code {
+  display: block;
+  background: none;
+  border: 0;
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
+  font-family: inherit;
+  white-space: pre;
+  overflow-wrap: normal;
+}

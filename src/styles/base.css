@@ -1,1 +1,177 @@
-/* owned by a worker; see docs/ARCHITECTURE.md */
+/* Reset, body, links, focus ring, skip link, .sr-only, icon buttons, theme icons. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--topbar-h) + 16px);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.65;
+  font-feature-settings: 'cv11';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ul,
+ol,
+figure,
+blockquote {
+  margin: 0;
+}
+
+ul,
+ol {
+  padding-left: 1.4em;
+}
+
+img,
+svg,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--accent-ink);
+  text-decoration-line: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* --- utilities --- */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+body.scroll-locked {
+  overflow: hidden;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 8px 14px;
+  background: var(--surface);
+  color: var(--accent-ink);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  font-size: 15px;
+  text-decoration: none;
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+}
+
+/* --- icon buttons (touch target 44px) --- */
+
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--ink-muted);
+  border-radius: var(--radius);
+  cursor: pointer;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.icon-btn:hover {
+  background: var(--bg-subtle);
+  color: var(--ink);
+}
+
+/* --- theme icons: show the theme you'd switch TO --- */
+
+.theme-icon--sun {
+  display: none;
+}
+
+.theme-icon--moon {
+  display: block;
+}
+
+html[data-theme='dark'] .theme-icon--sun {
+  display: block;
+}
+
+html[data-theme='dark'] .theme-icon--moon {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,1 +1,92 @@
-/* owned by a worker; see docs/ARCHITECTURE.md */
+/* Print: hide chrome, single column, plain black on white, expand links and code. */
+
+@media print {
+  .topbar,
+  .toc-panel,
+  .toc-backdrop,
+  .onpage,
+  .pager,
+  .back-to-top,
+  .progress,
+  .copy-btn,
+  #search-dialog,
+  #cite-pop,
+  .heading-anchor,
+  .skip-link {
+    display: none !important;
+  }
+
+  .shell {
+    display: block;
+  }
+
+  .main {
+    padding: 0;
+  }
+
+  .prose {
+    max-width: none;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 11pt;
+  }
+
+  a,
+  a:visited {
+    color: #000 !important;
+    text-decoration: underline;
+  }
+
+  a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 9pt;
+    word-break: break-all;
+  }
+
+  a.cite::after,
+  .cite a::after,
+  a[href^='#']::after {
+    content: none;
+  }
+
+  pre,
+  pre.astro-code,
+  pre code,
+  .astro-code,
+  .astro-code span {
+    white-space: pre-wrap;
+    background: #fff !important;
+    color: #000 !important;
+    border: 1px solid #bbb;
+    overflow: visible;
+  }
+
+  pre,
+  pre.astro-code,
+  blockquote,
+  table,
+  tr,
+  img {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  h2,
+  h3,
+  h4 {
+    break-after: avoid;
+    page-break-after: avoid;
+    color: #000 !important;
+  }
+
+  .sources blockquote {
+    display: block;
+    visibility: visible;
+    color: #333 !important;
+    border-left: 2px solid #999;
+  }
+}

@@ -1,1 +1,118 @@
-/* owned by a worker; see docs/ARCHITECTURE.md */
+/* Article typography inside .prose: headings, paragraphs, lists, quotes, tables, rules. */
+
+.prose {
+  color: var(--ink);
+}
+
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5 {
+  color: var(--ink);
+  text-wrap: balance;
+  scroll-margin-top: calc(var(--topbar-h) + 16px);
+}
+
+.prose h2 {
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 48px 0 12px;
+  padding-top: var(--space-2);
+}
+
+@media (min-width: 1024px) {
+  .prose h2 {
+    font-size: 28px;
+  }
+}
+
+.prose h3 {
+  font-family: var(--font-sans);
+  font-size: 19px;
+  font-weight: 650;
+  line-height: 1.35;
+  margin: 32px 0 var(--space-2);
+}
+
+.prose h4 {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.4;
+  margin: var(--space-5) 0 6px;
+}
+
+.prose p {
+  margin: 0 0 var(--space-4);
+}
+
+.prose ul,
+.prose ol {
+  margin: 0 0 var(--space-4);
+}
+
+.prose li + li {
+  margin-top: var(--space-1);
+}
+
+.prose li > ul,
+.prose li > ol {
+  margin: var(--space-1) 0;
+}
+
+.prose strong {
+  font-weight: 650;
+}
+
+.prose blockquote {
+  border-left: 3px solid var(--accent);
+  padding: var(--space-1) 0 var(--space-1) var(--space-4);
+  color: var(--ink-muted);
+  margin: 0 0 var(--space-4);
+}
+
+.prose blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+/* Tables: no wrapper element is available, so the table itself scrolls horizontally. */
+.prose table {
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  margin: 0 0 20px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.prose th {
+  text-align: left;
+  font-weight: 650;
+  background: var(--bg-subtle);
+  border-bottom: 2px solid var(--border-strong);
+}
+
+.prose th,
+.prose td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.prose td code {
+  white-space: nowrap;
+}
+
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: var(--space-5) 0;
+}
+
+.prose img {
+  max-width: 100%;
+  height: auto;
+}

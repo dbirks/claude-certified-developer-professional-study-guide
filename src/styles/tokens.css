@@ -1,1 +1,68 @@
-/* owned by a worker; see docs/ARCHITECTURE.md */
+/* Design tokens — colors, fonts, sizes (light + dark). Values fixed by docs/ARCHITECTURE.md. */
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/source-serif-4';
+@import '@fontsource-variable/jetbrains-mono';
+
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --bg: #faf9f6;
+  --bg-subtle: #f3f1ec;
+  --surface: #ffffff;
+  --ink: #1f2328;
+  --ink-muted: #5b6169;
+  --border: #e3dfd6;
+  --border-strong: #cfc9bc;
+  --accent: #1f6f6b;
+  --accent-ink: #17524f;
+  --accent-soft: #e3f0ee;
+  --code-bg: #f4f2ee;
+  --warn: #8a5210;
+  --warn-soft: #fbf1e2;
+  --bad: #a33a2b;
+  --bad-soft: #fbeae7;
+  --focus: #2a7de1;
+  --backdrop: rgba(20, 22, 26, 0.38);
+  --shadow: 0 8px 28px rgba(20, 22, 26, 0.14);
+
+  --font-serif: 'Source Serif 4 Variable', Georgia, serif;
+  --font-sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'DejaVu Sans Mono', monospace;
+
+  --measure: 72ch;
+  --topbar-h: 52px;
+  --sidebar-w: 300px;
+  --onpage-w: 220px;
+  --radius: 8px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #15181c;
+  --bg-subtle: #1b1f24;
+  --surface: #1e2329;
+  --ink: #e6e3dc;
+  --ink-muted: #a3a9b1;
+  --border: #2e343b;
+  --border-strong: #3d444c;
+  --accent: #5fb8b0;
+  --accent-ink: #8fd3cc;
+  --accent-soft: #1d3533;
+  --code-bg: #1b1f24;
+  --warn: #e0a458;
+  --warn-soft: #2e2618;
+  --bad: #e58a7c;
+  --bad-soft: #33201d;
+  --focus: #6aa8f0;
+  --backdrop: rgba(0, 0, 0, 0.55);
+  --shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+}
