@@ -64,6 +64,8 @@
     - verification-review:F24
     - verification-review:F25
     - verification-review:F32
+    - verification-review:F33
+    - verification-review:F35
 - url: https://claude.dev/blog/solving-code-review-at-anthropic/
   title: How the Claude Code team does code review
   source: anthropic-engineering
@@ -75,6 +77,10 @@
     - verification-review:F28
     - verification-review:F29
     - verification-review:F30
+    - verification-review:F36
+    - verification-review:F37
+    - verification-review:F38
+    - verification-review:F39
 - url: https://code.claude.com/docs/en/agent-sdk/agent-loop
   title: How the agent loop works - Claude Code Docs
   source: claude-code-docs
@@ -306,6 +312,7 @@
     - verification-review:F13
     - verification-review:F14
     - verification-review:F19
+    - verification-review:F34
 - url: https://code.claude.com/docs/en/code-review-setup
   title: Set up Code Review
   source: claude-code-docs
@@ -1012,6 +1019,7 @@
     - cost-architecture:F8
     - cost-architecture:F9
     - cost-architecture:F10
+    - cost-architecture:F44
 - url: https://platform.claude.com/docs/en/about-claude/use-case-guides/content-moderation
   title: Content moderation
   source: anthropic-docs
@@ -1310,6 +1318,8 @@
     - llm-as-judge:F26
     - cost-architecture:F18
     - cost-architecture:F19
+    - cost-architecture:F42
+    - cost-architecture:F43
 - url: https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics
   title: Cache diagnostics
   source: anthropic-docs

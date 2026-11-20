@@ -158,5 +158,40 @@
     "id": "F32",
     "status": "ok",
     "url": "https://claude.dev/blog/how-the-claude-code-team-thinks-about-verification/"
+  },
+  {
+    "id": "F33",
+    "status": "ok",
+    "url": "https://claude.dev/blog/how-the-claude-code-team-thinks-about-verification/"
+  },
+  {
+    "id": "F34",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/code-review-pull-requests#check-run-output"
+  },
+  {
+    "id": "F35",
+    "status": "ok",
+    "url": "https://claude.dev/blog/how-the-claude-code-team-thinks-about-verification/"
+  },
+  {
+    "id": "F36",
+    "status": "ok",
+    "url": "https://claude.dev/blog/solving-code-review-at-anthropic/"
+  },
+  {
+    "id": "F37",
+    "status": "ok-loose",
+    "url": "https://claude.dev/blog/solving-code-review-at-anthropic/"
+  },
+  {
+    "id": "F38",
+    "status": "ok-loose",
+    "url": "https://claude.dev/blog/solving-code-review-at-anthropic/"
+  },
+  {
+    "id": "F39",
+    "status": "ok-loose",
+    "url": "https://claude.dev/blog/solving-code-review-at-anthropic/"
   }
 ]

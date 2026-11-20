@@ -285,3 +285,66 @@
   source: anthropic-engineering
   quote: "In our own repos, we stamp each commit with how it was verified. The stamp even includes \"none\" so we can query for commits that weren't verified."
   accessed: 2026-11-19
+
+- id: F33
+  claim: "The Claude Code team recommends end-to-end, property, and differential tests."
+  tag: REC
+  url: https://claude.dev/blog/how-the-claude-code-team-thinks-about-verification/
+  title: "How the Claude Code team thinks about verification"
+  source: anthropic-engineering
+  quote: "How end-to-end, property and differential tests let coding agents verify their work with evidence, and what the Claude Code team does to keep its verifiers honest."
+  accessed: 2026-11-19
+
+- id: F34
+  claim: "The check run includes findings whose inline comments GitHub did not accept."
+  tag: FACT
+  url: https://code.claude.com/docs/en/code-review-pull-requests#check-run-output
+  title: "Read and request reviews on a pull request"
+  source: claude-code-docs
+  quote: "The Details link on the Claude Code Review check run opens the findings in one table sorted by severity, including any finding whose inline comment GitHub didn’t accept:"
+  accessed: 2026-11-19
+
+- id: F35
+  claim: "The evaluation uses incident and revert examples with answer keys and stable changes as controls."
+  tag: FACT
+  url: https://claude.dev/blog/how-the-claude-code-team-thinks-about-verification/
+  title: "How the Claude Code team thinks about verification"
+  source: anthropic-engineering
+  quote: "They recreate the repo to the state at the time of review for each example, and provide a one-sentence answer key to what the bug was. Only findings that correctly describe the bug in question get points. They use merged and stable changes as a control to prevent over-flagging."
+  accessed: 2026-11-19
+
+- id: F36
+  claim: "The team limits review rounds and changes re-review behavior."
+  tag: FACT
+  url: https://claude.dev/blog/solving-code-review-at-anthropic/
+  title: "How the Claude Code team does code review"
+  source: anthropic-engineering
+  quote: "A round cap. After three rounds, the reviewer asks the author to step back and reconsider the approach."
+  accessed: 2026-11-19
+
+- id: F37
+  claim: "The Claude Code team uses risk tiers for human approvals."
+  tag: FACT
+  url: https://claude.dev/blog/solving-code-review-at-anthropic/
+  title: "How the Claude Code team does code review"
+  source: anthropic-engineering
+  quote: "Low | Docs, copy, internal-only features, additive changes behind a flag | None required once automated review and security checks are green"
+  accessed: 2026-11-19
+
+- id: F38
+  claim: "The Claude Code team assigns one human approval to medium-risk changes."
+  tag: FACT
+  url: https://claude.dev/blog/solving-code-review-at-anthropic/
+  title: "How the Claude Code team does code review"
+  source: anthropic-engineering
+  quote: "Medium | Ordinary product changes, and changes to sensitive areas such as caching, the auto-updater, or system prompts | One person"
+  accessed: 2026-11-19
+
+- id: F39
+  claim: "The Claude Code team assigns two human approvals to high-risk changes."
+  tag: FACT
+  url: https://claude.dev/blog/solving-code-review-at-anthropic/
+  title: "How the Claude Code team does code review"
+  source: anthropic-engineering
+  quote: "High | The highest-risk code, plus a small set of paths that always need two people | Two people"
+  accessed: 2026-11-19

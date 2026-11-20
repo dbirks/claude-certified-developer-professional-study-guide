@@ -1,0 +1,235 @@
+---
+title: "Verification and AI Code Review Operations"
+summary: "Decide which checks run before a pull request, how to calibrate an AI reviewer in shadow mode, and where human approvals belong."
+kind: skill
+skill: "8.2"
+slug: verification-review
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+**Verification operations** are the controls that decide whether a code change is accepted, and by what evidence, before and after a human reads it. When agents generate code faster than people can review it, review becomes the limiting stage: code output per Anthropic engineer grew 200% year over year, and code review became the a delivery bottleneck.<Cite id="F1" /> The decisions this skill tests are narrow: which checks to move before the pull request, how to introduce an AI reviewer in shadow mode, what evidence calibrates it before it may block a merge, and where humans stay in the loop.
+
+## How the verification funnel works
+
+A **verification funnel** orders checks from early feedback through review and release. Each stage can catch defects missed by earlier checks. Model-based review sits in the middle; human approval sits at the top, applied by risk.
+
+The volume behind this design is documented. Anthropic engineers ship 8x as much code per quarter as they did from 2021 to 2025, and Anthropic states that reviews and monitoring must scale alongside it or the pipeline becomes an Amdahl's Law bottleneck.<Cite id="F2" /> In Claude Code's own repository, roughly 90% of the code is authored by Claude; from June to September 2026 merged pull requests more than doubled while the share that had to be reverted fell by more than 40%.<Cite id="F3" /> Daily landed changes in Anthropic's monorepo went from about 2,500 in May to more than 30,000 in September, which makes manual line-by-line review infeasible at that rate.<Cite id="F3 F4" />
+
+Verification capacity, not generation capacity, sets how much work you can delegate. Anthropic's framing is that without verification loops an engineer can supervise only one or two Claude sessions at a time because they must check everything personally, while with them one engineer can run dozens or hundreds in parallel.<Cite id="F5" />
+
+<Figure caption="End-to-end verification and AI code review lifecycle: pre-PR feedback loops, shadow-mode calibration, and risk-tiered human oversight support high-velocity delivery while monitoring revert and incident rates.">
+  <Flow direction="vertical" steps={["Pre-PR inner loop", { label: "PR opened or updated", note: "author attaches command output as evidence" }, { label: "Deterministic required CI", note: "lint, types, E2E, property-based, differential" }, { label: "AI code and security review (shadow / observe)", note: "parallel Find then Verify then Rank; REVIEW.md read from protected base branch" }, { label: "Calibration eval and telemetry", note: "confusion matrix vs incident/revert set plus clean PR control, comment disposition, rounds to pass" }, { label: "Enforced merge gate", note: "promoted only after precision and FPR are calibrated; parses bughunter-severity and caps rounds" }, { label: "Risk-tiered human oversight", note: "Low 0 humans for trusted authors, Medium 1, High 2 plus CODEOWNERS" }, { label: "Merge queue, staged release, fast rollback" }, { label: "Incident and revert feedback loop", note: "updates CLAUDE.md, REVIEW.md, and the calibration eval set" }]} />
+</Figure>
+
+Two practices reduce risk. An AI reviewer runs in shadow or observe mode, where it produces comments and logs instead of verdicts, until its measurements justify gating.<Cite id="F23 F24" /> Protect review configuration so a proposed change cannot weaken the rules used to evaluate itself.<Cite id="F16 F20" />
+
+## Pre-PR verification loops
+
+A **verification loop** is a check that returns pass or fail, which lets Claude close the loop itself: make the change, run the check, read the output, fix what broke, run again.<Cite id="F6" /> Give Claude deterministic signals — tests, a build exit code, a linter, a fixture diff, or a browser screenshot — and require the command output as evidence rather than accepting a claim that tests pass.<Cite id="F6" />
+
+Three enforcement points carry most of the load:
+
+1. **`Stop` hooks** run at turn end. A hook that exits with code `2` blocks the stop and feeds its `stderr` back to Claude; Claude Code applies an 8-consecutive-continuation cap, raised by setting `CLAUDE_CODE_STOP_HOOK_BLOCK_CAP`.<Cite id="F7" /> The counter resets when Claude calls a tool. The cap can override a block, so use CI for an independent merge requirement.<Cite id="F7" />
+2. **`/goal`** wraps a session-scoped prompt-based `Stop` hook: after each turn, Claude Code sends the condition and the conversation so far to a configured small fast model, which returns `Met`, `Not yet met`, or `Impossible`.<Cite id="F8" />
+3. **`/verify`** builds the project's app, runs it, and observes the result rather than relying on tests or type checks.<Cite id="F9" />
+
+The check itself has to resist gaming. Agents optimize toward the signal in front of them, so Anthropic recommends end-to-end, property-based, and differential tests. In its workflow Claude escalates a check still failing after three repair rounds.<Cite id="F10 F33" />
+
+| Check | What it examines | Role |
+|---|---|---|
+| Unit tests | A function against a narrow contract | Weakest here; pair with broader suites<Cite id="F10" /> |
+| End-to-end tests | A flow through the running app | Stronger<Cite id="F10" /> |
+| Property-based (`fast-check`, `Hypothesis`, `proptest`) | Invariants across sampled inputs | Stronger<Cite id="F10" /> |
+| Differential tests | Differences between implementations on sampled inputs | Stronger<Cite id="F10" /> |
+| Rubric grader (separate model call) | Output against a written quality rubric | Up to 10 points better task success than a plain prompting loop in Anthropic's structured-file testing<Cite id="F11" /> |
+
+For security specifically, the `security-guidance` plugin layers three automatic in-session checks before code reaches a pull request: a deterministic per-edit pattern match with no model involved, an end-of-turn background diff review, and a fresh-context agentic review at commit and push.<Cite id="F22" />
+
+## Review surfaces: managed, local, and CI
+
+**Managed Code Review** is Anthropic's hosted reviewer for Team and Enterprise plans on GitHub. It runs on Anthropic infrastructure in four stages: **Find**, where several agents examine the diff and surrounding code in parallel; **Verify**, which checks candidate findings against the code and filters false positives; **Rank**, which deduplicates and orders by severity; and **Post**, which posts the results.<Cite id="F12" /> Access is read-only and the service does not execute the reviewed code.<Cite id="F12" /> Findings are tagged `Important`, `Nit`, or `Pre-existing`.<Cite id="F13" />
+
+Admins choose review depth (`Quick`, `Standard`, `Deep`), when reviews run (`Once after PR creation`, `After every push`, or `Manual`, where a review can be requested with `@claude review`), and monthly spend caps; automatic reviews skip draft pull requests and forks.<Cite id="F15" /> Average cost runs about $15–$25 per review, billed through usage credits.<Cite id="F15" /> `REVIEW.md` customizes what it checks; Code Review reads `REVIEW.md` from the pull request's base branch or the default branch, never from the pull request's own changes, and honors severity downgrades, exclusions, and nit caps only when branch protection is confirmed.<Cite id="F16" />
+
+| Surface | Runs where, and when | Limit to know |
+|---|---|---|
+| Managed Code Review | Anthropic infrastructure, on PR open, on push, or on `@claude review`<Cite id="F12 F15" /> | Its check run never concludes `failure`<Cite id="F13" /> |
+| `/code-review` (alias `/review`) | Local session, fresh forked subagent; effort `low` through `max` trades false positives for coverage<Cite id="F17" /> | Local scope only<Cite id="F17" /> |
+| `/code-review ultra`, `claude ultrareview` | Cloud sandbox fleet; every finding is independently reproduced<Cite id="F18" /> | 5–15 min; 500 files and 8,000 changed lines by default<Cite id="F18" /> |
+| `claude-code-security-review@main` | GitHub Action for security review<Cite id="F21" /> | Not hardened against prompt injection; Anthropic recommends maintainer approval for external contributors<Cite id="F21" /> |
+| `claude-code-action@v1` | GitHub runners; `@claude` mention or `prompt` input<Cite id="F19" /> | Needs a distinct `trigger_phrase` alongside Code Review<Cite id="F19" /> |
+
+When it runs against a pull request it restores a fixed list of configuration paths — `.claude/`, `.mcp.json`, `.claude.json`, `CLAUDE.md` and related files — from the base branch, and its security documentation requires not checking out untrusted pull request heads on `pull_request_target` or `workflow_run` triggers.<Cite id="F20" />
+
+<Callout type="version" title="Checked 2026-11-19">
+
+Plan availability, review price, review depth, trigger phrases, and effort levels can change. Re-verify before relying on a specific limit, price, or command flag.
+
+</Callout>
+
+## Merge-gate mechanics
+
+A finished managed review blocks nothing by itself. The `Claude Code Review` check run concludes `neutral`, or `skipped` after pushes that change no files and keep the earlier result; it never concludes `failure`, so a completed review does not fail a required check, and merge blocking is left to repository rules or your own CI.<Cite id="F13" />
+
+Two enforcement routes exist. Requiring GitHub conversation resolution blocks the merge while finding threads stay open.<Cite id="F34" /> A CI step can instead parse the machine-readable severity comment that Code Review places as the last line of the check run's `output.text`, gate on `Important` findings there, and treat a missing severity line as **no verdict** rather than zero findings — a failed, timed-out, canceled, or superseded run and some completed reviews omit the line.<Cite id="F14" /> Read `output.title` first: a title beginning `Code review not repeated` means earlier `Important` findings are still open, while a title ending `no new changes` allows a pass.<Cite id="F13 F14" />
+
+A gate should select the current head commit's review and follow the documented title and severity order. Require an explicit successful verdict; handle missing or stale results as no verdict. Conversation resolution alone may not cover findings that GitHub did not accept as inline comments.<Cite id="F34" />
+
+## Shadow mode, then calibration
+
+Anthropic describes introducing its new AI reviewers in **shadow mode**: the agent posts comments for human approval until trust is earned, and the team red-teams it by trying to insert malicious changes.<Cite id="F23" /> Anthropic's commit gate uses three modes — `off`, `observe`, and `enforce` — where `observe` logs what would have been blocked so false positives can be reviewed before anyone is impacted.<Cite id="F24" /> A reviewer that starts as a hard blocker on day one converts an unmeasured model into a delivery outage.
+
+**Calibration** measures reviewer findings against human judgments before a team grants gating authority. Anthropic scores candidate reviewers against an eval set built from past incidents and reverts, with expert-confirmed keys, plus clean merged pull requests as a control for over-flagging, and records recall separately at raw findings, post-verification, and final review.<Cite id="F25 F35" /> Stage-by-stage recall matters because an end-to-end score cannot tell you whether discovery missed a bug or the false-positive filter dropped a bug it had already found.<Cite id="F25" />
+
+| Metric | Definition | What it detects |
+|---|---|---|
+| Precision | Fraction of flagged PRs that were truly defective | Alert fatigue from over-flagging<Cite id="F25" /> |
+| Recall, per stage (raw, post-verification, final) | Fraction of defective PRs found at each stage | Bugs lost to an over-aggressive verification filter<Cite id="F25" /> |
+| False-positive rate | Fraction of clean control PRs wrongly flagged | Measures over-flagging<Cite id="F35" /> |
+| Comment disposition | Fixed, rejected as wrong, intentional, or ignored | Whether humans act on the findings |
+| Rounds to pass | Review-fix cycles until green | Convergence failure in the author-reviewer loop<Cite id="F28" /> |
+
+Internally, Code Review raised pull requests receiving substantive comments from 16% to 54%; on PRs over 1,000 lines changed, 84% get findings averaging 7.5 issues, against 31% and 0.5 issues on PRs under 50 lines, and less than 1% of findings are marked incorrect.<Cite id="F26" />
+
+Run this evaluator, which is runnable Python 3, on a shadow-mode window to decide whether a reviewer earns gating authority. It scores flagged PRs against incident and revert ground truth plus a clean-PR control set, inspired by Anthropic's calibration design; the acceptance thresholds are examples to set from your own cost of a wrong verdict.<Cite id="F25" />
+
+```python
+# Runnable Python 3.10+ (standard library only) — Shadow-Mode Reviewer Gate Evaluator
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class ShadowEvalCounts:
+    tp: int  # Defective PRs correctly flagged as Important
+    fp: int  # Clean control PRs wrongly flagged as Important
+    fn: int  # Defective PRs missed (passed as clean)
+    tn: int  # Clean control PRs correctly passed
+
+    def metrics(self) -> dict[str, float]:
+        if min(self.tp, self.fp, self.fn, self.tn) < 0:
+            raise ValueError("counts must be nonnegative")
+        if not (self.tp + self.fp and self.tp + self.fn and self.fp + self.tn):
+            raise ValueError("precision, recall, and false-positive rate require denominators")
+        precision = self.tp / (self.tp + self.fp)
+        recall = self.tp / (self.tp + self.fn)
+        fpr = self.fp / (self.fp + self.tn)
+        f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0
+        return {
+            "precision": round(precision, 4),
+            "recall": round(recall, 4),
+            "fpr": round(fpr, 4),
+            "f1": round(f1, 4),
+        }
+
+def ready_for_merge_gate(
+    counts: ShadowEvalCounts,
+    min_precision: float = 0.80,
+    min_recall: float = 0.75,
+    max_fpr: float = 0.05,
+) -> tuple[bool, dict[str, float]]:
+    m = counts.metrics()
+    passed = (
+        m["precision"] >= min_precision
+        and m["recall"] >= min_recall
+        and m["fpr"] <= max_fpr
+    )
+    return passed, m
+
+unfiltered = ShadowEvalCounts(tp=38, fp=42, fn=2, tn=118)
+calibrated = ShadowEvalCounts(tp=34, fp=6, fn=6, tn=154)
+
+for name, run in [("unfiltered_baseline", unfiltered), ("calibrated_verified", calibrated)]:
+    ok, stats = ready_for_merge_gate(run)
+    print(f"{name}: gate_ready={ok} metrics={stats}")
+```
+
+In these hypothetical counts, the baseline fails the example gate and the calibrated run clears it. A flagged defective PR is counted as true positive here; a real evaluation should also check whether the finding identifies the actual defect.<Cite id="F35" /> Recommended practice is to promote only `Important` findings, or security findings, into a CI merge gate, and only once precision and false-positive rate are measured, `REVIEW.md` exclusions and nit caps are tuned, and convergence controls are active.
+
+## Convergence when the author is an agent
+
+**Convergence** means a review loop terminates in a bounded number of rounds. It breaks differently when the author is an agent: a person waves off a nit in seconds, whereas an agent fixes it, which means another commit and another round of review. An agent author and an agent reviewer can keep each other busy indefinitely — one Anthropic CLI pull request looped more than 50 rounds overnight — so Anthropic tracks comment disposition and enforces convergence caps.<Cite id="F27" />
+
+The Claude Code team asks the author to reconsider after three rounds, uses diff-only re-review after the first few passes, flags bug classes, and avoids repeated findings.<Cite id="F36" /> Review instructions can also exclude paths and cap nits.<Cite id="F16" />
+
+| Convergence measure | Before | After |
+|---|---|---|
+| Passed after one review and fix round | 65% | 78%<Cite id="F28" /> |
+| Needed five or more rounds | 8.9% | 1.5%<Cite id="F28" /> |
+| Mean reviews to pass | 2.08 | 1.32<Cite id="F28" /> |
+
+Extra rounds consume CI minutes and push commits that invalidate earlier approvals, so suppressing style noise is a throughput measure, not a style preference.<Cite id="F27 F29" />
+
+## Human oversight design
+
+The Claude Code team allocates human approvals by the risk tier of the change. An agent's approval never counts as a person's: automated review can clear a low-risk change but cannot fill a slot that calls for a human.<Cite id="F29" />
+
+| Tier | Human approvers | Condition |
+|---|---|---|
+| Low | 0 | Trusted author, automated review and security checks pass<Cite id="F29 F37" /> |
+| Medium | 1 | A human reviewer is required even when automated review passes<Cite id="F38" /> |
+| High | 2 | Highest-risk code and designated paths<Cite id="F39" /> |
+
+Oversight capacity is a measured quantity: track human approvals per pull request at median and 95th percentile, human comments, and how long a pull request waits on a person, with revert and incident rates as the guardrail — if those rise, you have moved human time rather than saved it.<Cite id="F30" />
+
+Provenance makes each change auditable after the fact. By default, Claude Code adds a `Co-Authored-By` commit trailer naming the model in use, including the subagent model for a subagent commit.<Cite id="F31" /> Anthropic additionally stamps each commit with how it was verified, including the value `"none"`, so unverified commits can be queried across the repository.<Cite id="F32" />
+
+## Decision criteria
+
+- **Designing the inner loop.** Give Claude a deterministic pass/fail check and require command output as evidence; enforce it at turn end with a `Stop` hook exiting `2`.<Cite id="F6 F7" />
+- **Behavior, not assertions.** Use `/verify` when tests and type checks would not reveal whether the running app behaves correctly.<Cite id="F9" />
+- **Agent-authored work.** Prefer end-to-end, property-based, and differential checks, and cap autonomous repair attempts at three rounds before escalating to a human.<Cite id="F10" />
+- **Choosing a review surface.** `/code-review` for a fast, unbiased local pass at a chosen effort level; managed Code Review or `claude ultrareview` for a verified multi-agent sweep of a PR or large diff.<Cite id="F17 F18 F12" />
+- **Enabling a new reviewer.** Start in shadow or `observe` mode, then compare precision, per-stage recall, and false-positive rate against incident-derived and clean control sets.<Cite id="F23 F24 F25" />
+- **Promoting a reviewer to a gate.** Gate on parsed `Important` counts or unresolved threads, never on the check run's own conclusion.<Cite id="F13 F14" />
+- **Setting human requirements.** Route by risk tier, keep `CODEOWNERS` on high-blast-radius paths, and never let a bot approval satisfy a human slot.<Cite id="F29" />
+- **Judging the change.** Believe revert and incident rates over throughput charts.<Cite id="F30" />
+
+## Failure modes and recovery
+
+<Callout type="mistake" title="Making the review check run required">
+Adding `Claude Code Review` as a required GitHub status check approves PRs with open `Important` bugs, because the run concludes `neutral` or `skipped` and never `failure`.<Cite id="F13" /> Require conversation resolution before merging, or run CI that reads `output.title` and the severity payload and fails on `normal > 0`.<Cite id="F14" />
+</Callout>
+
+<Callout type="mistake" title="Reading a missing severity line as zero findings">
+Failed, timed-out, canceled, superseded, and some completed runs omit the severity comment.<Cite id="F14" /> Treat a missing line as no verdict and fail closed; an explicit `normal: 0` or the documented no-new-changes title can pass.<Cite id="F14" />
+</Callout>
+
+<Callout type="mistake" title="Loading review config from the pull request head">
+A pull request that can edit its own `REVIEW.md` can downgrade its own severity, and one that can inject `.claude/` or `.mcp.json` can inject hooks and MCP servers. Code Review reads `REVIEW.md` from the base or default branch, never from the pull request's own changes, and honors downgrades and exclusions only under confirmed branch protection.<Cite id="F16" /> The GitHub Action restores its configuration paths from the base branch and warns against checking out untrusted pull request heads on `pull_request_target` or `workflow_run`.<Cite id="F20" />
+</Callout>
+
+Also common, and cheap to fix:
+
+- **One `@claude` trigger for two systems.** `@claude review` starts the GitHub Action too when it keeps its default `trigger_phrase`; set the Action to a different phrase.<Cite id="F19" />
+- **Automatic security scans on fork PRs.** `claude-code-security-review` is not hardened against prompt injection, so require approval for all external contributors.<Cite id="F21" />
+- **Counting agent approvals as human approvals.** Automated review cannot fill a required human slot.<Cite id="F29" />
+- **Trusting completion claims.** Require the command output, and use checks that are hard to satisfy without fixing the defect.<Cite id="F6 F10" />
+
+## Exam lens
+
+<ExamLens>
+- **A new AI reviewer appears in a high-velocity pipeline.** Choose shadow or `observe` rollout with calibration against human-labeled incidents and clean control PRs before any merge blocking. Compare disagreements with independent human reviewers, adjudicate them, and remeasure on held-out examples after tuning.
+- **PRs bounce through dozens of commits, or humans ignore comments.** Diagnose nit inflation and missing convergence controls; fix with secondary verification filtering, `REVIEW.md` exclusions and nit caps, diff-only re-review, and a three-round cap — not a second stacked reviewer model.
+- **A PR merged despite open `Important` findings, or bypassed a review rule.** Check whether config was read from the PR head instead of the protected base branch, and whether the gate relied on a `neutral` check-run conclusion instead of parsing the severity payload or requiring thread resolution.
+- **Generation outpaces human capacity.** Push deterministic checks and `/verify` pre-PR, route low-risk trusted-author changes through automated gates, reserve humans for `CODEOWNERS` paths, and watch revert and incident rates as the guardrail.
+</ExamLens>
+
+## Self-check
+
+<SelfCheck question="Why can adding `Claude Code Review` as a required GitHub check fail to block PRs with `Important` bugs, and what are the two documented ways to enforce merge gating?">
+
+The check run concludes `neutral` or `skipped` and never `failure`, so a completed required check does not fail because of findings.<Cite id="F13" /> Enforce gating either by requiring GitHub conversation resolution before merge, since findings open unresolved threads, or by a CI script that checks `output.title` for `Code review not repeated` and parses the severity payload for `normal > 0`, failing when the severity line is absent.<Cite id="F14" />
+
+</SelfCheck>
+
+<SelfCheck question="During shadow-mode calibration, why is recall scored separately at raw findings, post-verification, and final review, alongside a clean-PR control set?">
+
+An end-to-end score cannot distinguish bugs the reviewer never found from bugs it found and then dropped in verification; separate stage recall shows when a false-positive filter is stripping real bugs.<Cite id="F25" /> The clean merged-PR control measures over-flagging.<Cite id="F35" />
+
+</SelfCheck>
+
+<SelfCheck question="Why do false-positive nits degrade throughput faster when PR authors are agents, and what controls restore convergence?">
+
+A person dismisses a nit in seconds, while an agent fixes it, which produces another commit and another review round, and can also invalidate prior approvals.<Cite id="F27 F29" /> Suppressing style noise and CI-enforced rules in `REVIEW.md`, capping nit volume, a three-round cap, diff-only re-review after early passes, and duplicate suppression restore convergence.<Cite id="F16 F28" />
+
+</SelfCheck>
