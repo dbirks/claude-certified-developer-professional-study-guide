@@ -649,3 +649,38 @@
 .prose h2 + .exam-lens .exam-lens__title {
   justify-content: flex-end;
 }
+
+/* Key points: compact takeaway card at the top of a chapter (butter, like a study note). */
+.key-points {
+  background: var(--butter);
+  color: var(--butter-body);
+  border-radius: var(--r-lg, 22px);
+  padding: 16px 18px 6px;
+  margin: 0 0 24px;
+}
+.key-points__title {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--butter-ink);
+  margin: 0 0 8px;
+}
+.key-points__body {
+  font-size: 15px;
+  line-height: 1.55;
+}
+.key-points__body ul {
+  margin: 0;
+  padding-left: 1.1em;
+}
+.key-points__body li {
+  margin-bottom: 8px;
+}
+.key-points code {
+  background: rgba(255, 255, 255, 0.6);
+}
+html[data-theme='dark'] .key-points code {
+  background: rgba(0, 0, 0, 0.3);
+}

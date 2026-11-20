@@ -1,5 +1,6 @@
 // Components available in every MDX chapter without imports. See docs/ARCHITECTURE.md §MDX components.
 import Cite from '../components/mdx/Cite.astro';
+import KeyPoints from '../components/mdx/KeyPoints.astro';
 import Callout from '../components/mdx/Callout.astro';
 import ExamLens from '../components/mdx/ExamLens.astro';
 import SelfCheck from '../components/mdx/SelfCheck.astro';
@@ -8,4 +9,4 @@ import Flow from '../components/mdx/Flow.astro';
 import Sequence from '../components/mdx/Sequence.astro';
 import SignalTable from '../components/mdx/SignalTable.astro';
 
-export const mdxComponents = { Cite, Callout, ExamLens, SelfCheck, Figure, Flow, Sequence, SignalTable };
+export const mdxComponents = { Cite, KeyPoints, Callout, ExamLens, SelfCheck, Figure, Flow, Sequence, SignalTable };
