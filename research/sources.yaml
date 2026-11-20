@@ -226,6 +226,7 @@
     - parallel-agents:F13
     - parallel-agents:F14
     - parallel-agents:F15
+    - parallel-agents:F16
 - url: https://code.claude.com/docs/en/agents
   title: Run agents in parallel - Claude Code Docs
   source: claude-code-docs
@@ -248,7 +249,7 @@
     - parallel-agents:F30
     - parallel-agents:F32
     - parallel-agents:F34
-    - parallel-agents:F42
+    - parallel-agents:F41
 - url: https://code.claude.com/docs/en/auto-mode-config
   title: Configure auto mode
   source: claude-code-docs
@@ -342,6 +343,7 @@
   accessed: 2026-11-19
   cited_by:
     - context-memory:F32
+    - context-memory:F47
 - url: https://code.claude.com/docs/en/costs
   title: Manage costs effectively - Claude Code Docs
   source: claude-code-docs
@@ -424,7 +426,6 @@
     - runtime-guardrails:F42
     - runtime-guardrails:F47
     - runtime-guardrails:F54
-    - parallel-agents:F16
     - verification-review:F7
     - unattended-operations:F26
     - unattended-operations:F27
@@ -551,6 +552,7 @@
     - parallel-agents:F38
     - parallel-agents:F39
     - parallel-agents:F40
+    - parallel-agents:F42
     - parallel-agents:F43
     - org-configuration:F18
     - org-configuration:F19
@@ -747,6 +749,7 @@
     - parallel-agents:F8
     - parallel-agents:F9
     - parallel-agents:F10
+    - parallel-agents:F44
 - url: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows
   title: Events that trigger workflows
   source: other
@@ -902,6 +905,7 @@
     - mcp-change-management:F33
     - mcp-change-management:F35
     - mcp-change-management:F36
+    - mcp-change-management:F43
 - url: https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle
   title: Lifecycle
   source: mcp-spec
@@ -1082,6 +1086,8 @@
     - mcp-change-management:F17
     - mcp-change-management:F38
     - mcp-change-management:F39
+    - mcp-change-management:F44
+    - mcp-change-management:F45
     - threat-defense:F17
     - threat-defense:F39
     - identity-secrets-audit:F21
@@ -1434,6 +1440,12 @@
   accessed: 2026-11-19
   cited_by:
     - context-memory:F15
+- url: https://platform.claude.com/docs/en/build-with-claude/compaction-keep-recent-turns
+  title: Compaction that keeps recent turns
+  source: anthropic-docs
+  accessed: 2026-11-19
+  cited_by:
+    - context-memory:F39
 - url: https://platform.claude.com/docs/en/build-with-claude/compaction-on-demand
   title: Compaction on demand
   source: anthropic-docs
@@ -1443,7 +1455,6 @@
     - context-memory:F17
     - context-memory:F37
     - context-memory:F38
-    - context-memory:F39
 - url: https://platform.claude.com/docs/en/build-with-claude/compaction-threshold
   title: Compaction at a token threshold
   source: anthropic-docs
@@ -1474,6 +1485,7 @@
     - context-memory:F5
     - context-memory:F6
     - context-memory:F7
+    - context-memory:F46
 - url: https://platform.claude.com/docs/en/build-with-claude/effort
   title: Effort
   source: anthropic-docs
@@ -1961,6 +1973,8 @@
     - mcp-change-management:F28
     - mcp-change-management:F31
     - mcp-change-management:F32
+    - mcp-change-management:F46
+    - mcp-change-management:F47
     - evaluation-design:F34
 - url: https://platform.claude.com/docs/en/models/overview
   title: Models overview

@@ -21,3 +21,23 @@ Checked: 2026-11-19 · Reviewer: GPT-6
 ## Remaining concerns
 - Beta headers, model/platform availability, and partner-platform lifecycle details can change; recheck for the deployment’s exact platform at implementation time.
 - The connector source is platform-specific; the chapter advises checking current availability rather than implying parity across providers.
+
+## Second pass (GPT-6)
+
+Reviewed 78 cited passages in the resulting chapter: 70 supported as written and 8 corrected or narrowed; removed 0 passages. Added 5 citations (F43–F47). Checked both code blocks; the Python example parses and is labeled pseudocode. Reviewed uncited factual statements, objective coverage, and exam decision patterns.
+
+### Changes
+
+- MCP definition — described its purpose separately from the stateless 2026 core (F40).
+- Authentication — clarified that authorization is optional, scoped HTTP 401 to the 2025 profile, and made a URL migration conditional on a change of resource identity (F8, F35, F43).
+- Tool definitions — removed the implication that every description is mandatory (F42).
+- Connector — corrected the obsolete claim that the November 2025 header is the only current beta. Restored the September 2026 beta’s documented listing and pinning behavior, platform constraint, and unchanged-message requirement (F14, F44, F45).
+- Prefix checks — scoped HTTP 400 to the Fable 5.2 default and explained the beta option to drop affected reasoning; clarified that status codes alone do not diagnose a fault (F26, F47).
+- Model rollback — explained that on the documented platforms the API drops incompatible thinking blocks and continues without that reasoning (F31, F46).
+- Platform table — limited the general model-ID row to the Claude API so it does not conflict with Foundry deployment names (F28, F29).
+- Tool migration — recommended testing additions and reconciling notifications; delivery alone does not establish compatibility (F11, F12).
+- Exam lens — labeled the scenarios as editorial decision patterns and checked them against all three official sample rationales. All objective elements have explanatory coverage.
+
+### Remaining concerns
+
+- Beta availability and platform behavior can change. Verify the exact deployment and beta headers before release. Quote checks do not establish account access.

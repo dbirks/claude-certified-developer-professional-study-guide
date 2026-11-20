@@ -90,7 +90,7 @@ Log: [fact-check/llm-as-judge.md](fact-check/llm-as-judge.md) · passes: 1 · re
 
 ### 2.3 Production MCP and Change Management
 
-Log: [fact-check/mcp-change-management.md](fact-check/mcp-change-management.md) · passes: 1 · reviewer(s): GPT-6
+Log: [fact-check/mcp-change-management.md](fact-check/mcp-change-management.md) · passes: 2 · reviewer(s): GPT-6
 
 - 42 citation claims reviewed (including the removed entry): 41 supported in the final citation file, 1 unsupported claim removed. Reworded 3 statements for source scope and precision. Citations added: 3 (F40–F42). Code blocks checked: 2; Python parsed successfully. Coverage: all elements in the official objective addressed.
 

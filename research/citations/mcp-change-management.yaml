@@ -419,5 +419,55 @@
     "source": "mcp-spec",
     "quote": "Each tool is uniquely identified by a name and includes metadata describing its schema.",
     "accessed": "2026-11-19"
+  },
+  {
+    "id": "F43",
+    "claim": "MCP authorization is optional; HTTP implementations supporting it should conform to the profile.",
+    "tag": "STD",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization",
+    "title": "Authorization",
+    "source": "mcp-spec",
+    "quote": "Authorization is OPTIONAL for MCP implementations. When supported:",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F44",
+    "claim": "The newer connector beta can pin tool lists on supported platforms.",
+    "tag": "FACT",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector",
+    "title": "MCP connector",
+    "source": "anthropic-docs",
+    "quote": "With the mcp-client-2026-09-15 beta header, the API records the tool list each server returns, and you can pin that list.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F45",
+    "claim": "The connector can reuse a recorded list when the assistant message is returned unchanged.",
+    "tag": "FACT",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector",
+    "title": "MCP connector",
+    "source": "anthropic-docs",
+    "quote": "Send the assistant message back unchanged, mcp_tool_listing blocks included, and keep sending mcp-client-2026-09-15 on every request that carries one. Later requests then use the recorded list for that server instead of asking it again.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F46",
+    "claim": "On a model switch the API drops thinking blocks the new model cannot read.",
+    "tag": "FACT",
+    "url": "https://platform.claude.com/docs/en/models/fable-5-2/migration-guide",
+    "title": "Claude Fable 5.2 and Claude Mythos 5.2 migration guide",
+    "source": "anthropic-docs",
+    "quote": "If a router switch, a client-side retry, or a classifier refusal fallback moves a conversation from Claude Fable 5.2 to another model, Claude Fable 5.1 included, the API drops the blocks that model can’t read.",
+    "accessed": "2026-11-19"
+  },
+  {
+    "id": "F47",
+    "claim": "A prefix mismatch can be handled by dropping affected blocks.",
+    "tag": "FACT",
+    "url": "https://platform.claude.com/docs/en/models/fable-5-2/migration-guide",
+    "title": "Claude Fable 5.2 and Claude Mythos 5.2 migration guide",
+    "source": "anthropic-docs",
+    "quote": "To drop the affected blocks and continue without that reasoning while you fix the edit, set it to \"drop_block\".",
+    "accessed": "2026-11-19"
   }
 ]
