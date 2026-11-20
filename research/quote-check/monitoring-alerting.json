@@ -163,5 +163,15 @@
     "id": "F33",
     "status": "ok",
     "url": "https://platform.claude.com/docs/en/manage-claude/spend-limits-api"
+  },
+  {
+    "id": "F34",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F35",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics"
   }
 ]

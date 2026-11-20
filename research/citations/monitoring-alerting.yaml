@@ -298,3 +298,21 @@
   source: anthropic-docs
   quote: "The Spend Limits API is available to Claude Enterprise organizations only. It is not available to Claude Platform (Claude Console) organizations."
   accessed: 2026-11-19
+
+- id: F34
+  claim: "Cached input tokens are billed at the cache-read rate, which is a fraction of the base input price."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "Those cached tokens are billed at the cache read rate, a fraction of the base input price."
+  accessed: 2026-11-19
+
+- id: F35
+  claim: "Cache diagnostics compare fingerprints when both requests opt in; expiry or minimum cacheable length can also explain a miss."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics
+  title: "Cache diagnostics"
+  source: anthropic-docs
+  quote: "Include the diagnostics object on every turn. The object is the opt-in: the API stores a fingerprint only for requests that include it."
+  accessed: 2026-11-19

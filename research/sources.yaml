@@ -136,6 +136,8 @@
   accessed: 2026-11-19
   cited_by:
     - multi-agent-orchestration:F19
+    - multi-agent-orchestration:F39
+    - multi-agent-orchestration:F46
     - durable-execution:F8
     - durable-execution:F14
     - durable-execution:F35
@@ -187,6 +189,8 @@
     - multi-agent-orchestration:F16
     - multi-agent-orchestration:F17
     - multi-agent-orchestration:F18
+    - multi-agent-orchestration:F37
+    - multi-agent-orchestration:F49
 - url: https://code.claude.com/docs/en/agent-sdk/user-input
   title: Handle approvals and user input - Claude Code Docs
   source: claude-code-docs
@@ -200,6 +204,7 @@
   accessed: 2026-11-19
   cited_by:
     - multi-agent-orchestration:F30
+    - multi-agent-orchestration:F40
     - parallel-agents:F13
     - parallel-agents:F14
     - parallel-agents:F15
@@ -655,6 +660,8 @@
   cited_by:
     - multi-agent-orchestration:F28
     - multi-agent-orchestration:F29
+    - multi-agent-orchestration:F38
+    - multi-agent-orchestration:F47
     - architecture-selection:F21
     - architecture-selection:F29
 - url: https://code.claude.com/docs/en/third-party-integrations
@@ -1222,6 +1229,7 @@
     - monitoring-alerting:F23
     - monitoring-alerting:F30
     - monitoring-alerting:F31
+    - monitoring-alerting:F34
     - cost-architecture:F35
     - cost-architecture:F36
 - url: https://platform.claude.com/docs/en/api/service-tiers
@@ -1273,6 +1281,7 @@
     - telemetry:F52
     - telemetry:F69
     - monitoring-alerting:F24
+    - monitoring-alerting:F35
     - cost-architecture:F17
 - url: https://platform.claude.com/docs/en/build-with-claude/citations
   title: Citations
@@ -1732,6 +1741,7 @@
   accessed: 2026-11-19
   cited_by:
     - multi-agent-orchestration:F32
+    - multi-agent-orchestration:F42
 - url: https://platform.claude.com/docs/en/managed-agents/overview
   title: Claude Managed Agents overview
   source: anthropic-docs
@@ -1781,6 +1791,8 @@
   accessed: 2026-11-19
   cited_by:
     - multi-agent-orchestration:F33
+    - multi-agent-orchestration:F45
+    - multi-agent-orchestration:F48
 - url: https://platform.claude.com/docs/en/managed-agents/tools
   title: Tools
   source: anthropic-docs
@@ -1793,6 +1805,10 @@
   accessed: 2026-11-19
   cited_by:
     - multi-agent-orchestration:F34
+    - multi-agent-orchestration:F41
+    - multi-agent-orchestration:F43
+    - multi-agent-orchestration:F44
+    - multi-agent-orchestration:F50
 - url: https://platform.claude.com/docs/en/models/fable-5-2/migration-guide
   title: Claude Fable 5.2 and Claude Mythos 5.2 migration guide
   source: anthropic-docs
@@ -2057,6 +2073,7 @@
     - multi-agent-orchestration:F3
     - multi-agent-orchestration:F4
     - multi-agent-orchestration:F5
+    - multi-agent-orchestration:F35
     - architecture-selection:F1
     - architecture-selection:F2
     - architecture-selection:F3
@@ -2188,6 +2205,7 @@
     - multi-agent-orchestration:F10
     - multi-agent-orchestration:F11
     - multi-agent-orchestration:F12
+    - multi-agent-orchestration:F36
     - architecture-selection:F7
     - architecture-selection:F8
     - architecture-selection:F9
