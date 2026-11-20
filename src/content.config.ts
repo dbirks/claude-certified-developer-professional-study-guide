@@ -10,6 +10,8 @@ const chapters = defineCollection({
     pattern: [
       ...(process.env.CCDVP_ONLY ? [`**/*${process.env.CCDVP_ONLY}.mdx`, '00-introduction.mdx'] : ['**/*.mdx']),
       ...(process.env.CCDVP_DEMO === '1' || process.env.CCDVP_ONLY === 'component-demo' ? [] : ['!reference/component-demo.mdx']),
+      // Practice question pages are unpublished (owner prefers study material over drills); CCDVP_PRACTICE=1 builds them.
+      ...(process.env.CCDVP_PRACTICE === '1' ? [] : ['!practice/**']),
     ],
     base: './content',
   }),
