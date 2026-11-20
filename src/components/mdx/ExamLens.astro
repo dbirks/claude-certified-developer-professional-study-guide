@@ -1,4 +1,13 @@
 ---
-// STUB — replaced by worker mdx-components.
+// ExamLens: editorial decision pattern, explicitly labeled as inference, not official exam content.
 ---
-<div class="stub-ExamLens"><slot /></div>
+
+<aside class="exam-lens" aria-label="Exam lens">
+  <p class="exam-lens__title">
+    Exam lens
+    <span class="exam-lens__note">editorial inference, not official exam content</span>
+  </p>
+  <div class="exam-lens__body">
+    <slot />
+  </div>
+</aside>

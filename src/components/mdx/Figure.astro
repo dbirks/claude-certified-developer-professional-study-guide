@@ -1,4 +1,15 @@
 ---
-// STUB — replaced by worker mdx-components.
+// Figure: bordered body plus caption. Holds Flow, Sequence, tables or images.
+interface Props {
+  caption: string;
+}
+
+const { caption } = Astro.props;
 ---
-<div class="stub-Figure"><slot /></div>
+
+<figure class="figure">
+  <div class="figure__body">
+    <slot />
+  </div>
+  <figcaption class="figure__caption">{caption}</figcaption>
+</figure>

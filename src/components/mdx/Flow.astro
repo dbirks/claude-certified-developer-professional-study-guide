@@ -1,4 +1,27 @@
 ---
-// STUB — replaced by worker mdx-components.
+// Flow: an ordered list of stages. Steps are plain strings or { label, note, tone }.
+// Arrows between steps are CSS content, so the list itself stays the accessible structure.
+type FlowTone = 'bad' | 'good';
+type FlowStepInput = string | { label: string; note?: string; tone?: FlowTone };
+
+interface Props {
+  steps: FlowStepInput[];
+  direction?: 'horizontal' | 'vertical';
+}
+
+const { steps, direction = 'horizontal' } = Astro.props;
+const items = (Array.isArray(steps) ? steps : []).map((step) =>
+  typeof step === 'string' ? { label: step } : step,
+);
 ---
-<div class="stub-Flow"><slot /></div>
+
+<ol class={`flow flow--${direction}`} aria-label={`Flow with ${items.length} steps`}>
+  {
+    items.map((step) => (
+      <li class={`flow__step${step.tone ? ` flow__step--${step.tone}` : ''}`}>
+        <span class="flow__label">{step.label}</span>
+        {step.note ? <span class="flow__note">{step.note}</span> : null}
+      </li>
+    ))
+  }
+</ol>

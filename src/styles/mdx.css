@@ -1,1 +1,351 @@
-/* owned by a worker; see docs/ARCHITECTURE.md */
+/* MDX teaching components: Callout, ExamLens, SelfCheck, Figure, Flow, Sequence. */
+
+/* ---------- Callout ---------- */
+
+.callout {
+  border-left: 3px solid var(--border-strong);
+  border-radius: 0 8px 8px 0;
+  background: var(--bg-subtle);
+  padding: 12px 16px;
+  margin: 20px 0;
+  font-size: 16px;
+}
+
+.callout--mistake {
+  border-left-color: var(--bad);
+  background: var(--bad-soft);
+}
+
+.callout--version {
+  border-left-color: var(--warn);
+  background: var(--warn-soft);
+}
+
+.callout--note {
+  border-left-color: var(--border-strong);
+  background: var(--bg-subtle);
+}
+
+.callout__title {
+  margin: 0 0 4px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.callout__kind {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.callout--mistake .callout__kind {
+  color: var(--bad);
+}
+
+.callout--version .callout__kind {
+  color: var(--warn);
+}
+
+.callout--note .callout__kind {
+  color: var(--ink-muted);
+}
+
+.callout__name {
+  margin-left: 8px;
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.callout__body > *:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- Exam lens ---------- */
+
+.exam-lens {
+  border: 1px solid var(--accent);
+  background: var(--accent-soft);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 24px 0;
+}
+
+.exam-lens__title {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+}
+
+.exam-lens__note {
+  margin-left: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-muted);
+}
+
+.exam-lens__body > *:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- Self-check ---------- */
+
+.self-check {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  margin: 12px 0;
+  padding: 0;
+}
+
+.self-check > summary {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.self-check > summary::-webkit-details-marker {
+  display: none;
+}
+
+.self-check > summary::marker {
+  content: '';
+}
+
+.self-check__q {
+  flex: 1;
+  font-weight: 600;
+}
+
+.self-check__hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-ink);
+  white-space: nowrap;
+}
+
+.self-check__chevron {
+  color: var(--accent-ink);
+  transition: transform 150ms ease;
+}
+
+.self-check[open] > summary .self-check__chevron {
+  transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .self-check__chevron {
+    transition: none;
+  }
+}
+
+.self-check__a {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+}
+
+.self-check__a > *:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- Figure ---------- */
+
+.figure {
+  margin: 24px 0;
+}
+
+.figure__body {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 16px;
+  overflow-x: auto;
+}
+
+.figure__body > *:last-child {
+  margin-bottom: 0;
+}
+
+.figure__caption {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--ink-muted);
+  text-align: left;
+}
+
+/* ---------- Flow ---------- */
+
+.flow {
+  display: flex;
+  list-style: none;
+  /* Left padding keeps the wrapped-row arrow (li + li::before at left: -26px) inside the
+     figure body's overflow box. */
+  padding: 0 0 0 14px;
+  margin: 0;
+}
+
+.flow--horizontal {
+  flex-wrap: wrap;
+  gap: 28px 32px;
+  align-items: stretch;
+}
+
+.flow__step {
+  position: relative;
+  min-width: 0;
+  max-width: 200px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--bg);
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.flow__note {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ink-muted);
+}
+
+.flow__step + .flow__step::before {
+  content: '→';
+  position: absolute;
+  left: -26px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--ink-muted);
+}
+
+.flow__step--bad {
+  border-color: var(--bad);
+  background: var(--bad-soft);
+}
+
+.flow__step--good {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* Vertical flow, and horizontal flow on phones, stacks with downward arrows. */
+.flow--vertical {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 22px;
+}
+
+.flow--vertical .flow__step + .flow__step::before {
+  content: '↓';
+  left: 16px;
+  top: -22px;
+  transform: none;
+}
+
+@media (max-width: 639px) {
+  .flow--horizontal {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 22px;
+  }
+
+  .flow--horizontal .flow__step + .flow__step::before {
+    content: '↓';
+    left: 16px;
+    top: -22px;
+    transform: none;
+  }
+}
+
+/* ---------- Sequence ---------- */
+
+.seq__svg {
+  display: block;
+  height: auto;
+}
+
+.seq__box {
+  fill: var(--surface);
+  stroke: var(--border-strong);
+  stroke-width: 1;
+}
+
+.seq__actor {
+  fill: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.seq__life {
+  fill: none;
+  stroke: var(--border-strong);
+  stroke-dasharray: 4 4;
+}
+
+.seq__msg {
+  fill: none;
+  stroke: var(--ink-muted);
+  stroke-width: 1.5;
+}
+
+.seq__msg--dashed {
+  stroke-dasharray: 5 4;
+}
+
+.seq__arrow {
+  fill: var(--ink-muted);
+}
+
+.seq__label {
+  fill: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.seq__note {
+  stroke-width: 1;
+}
+
+.seq__note--neutral {
+  fill: var(--bg-subtle);
+  stroke: var(--border-strong);
+}
+
+.seq__note--bad {
+  fill: var(--bad-soft);
+  stroke: var(--bad);
+}
+
+.seq__note--good {
+  fill: var(--accent-soft);
+  stroke: var(--accent);
+}
+
+.seq__note-text {
+  fill: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+}
+
+.seq__alt {
+  margin: 0;
+}

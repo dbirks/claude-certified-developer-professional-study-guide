@@ -1,4 +1,29 @@
 ---
-// STUB — replaced by worker mdx-components.
+// Callout: a small teaching aside. type: mistake | version | note. See docs/ARCHITECTURE.md §MDX components.
+type CalloutType = 'mistake' | 'version' | 'note';
+
+interface Props {
+  type?: CalloutType;
+  title?: string;
+}
+
+const KIND_LABEL: Record<CalloutType, string> = {
+  mistake: 'Common mistake',
+  version: 'Version note',
+  note: 'Note',
+};
+
+const { type = 'note', title } = Astro.props;
+const kind = KIND_LABEL[type] ?? KIND_LABEL.note;
+const label = title ? `${kind}: ${title}` : kind;
 ---
-<div class="stub-Callout"><slot /></div>
+
+<aside class={`callout callout--${type}`} aria-label={label}>
+  <p class="callout__title">
+    <span class="callout__kind">{kind}</span>
+    {title && <span class="callout__name">{title}</span>}
+  </p>
+  <div class="callout__body">
+    <slot />
+  </div>
+</aside>
