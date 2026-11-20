@@ -212,3 +212,20 @@ test('search domain filter chip narrows results to one domain', async ({ page })
   expect(filtered, 'filter narrowed the result set').toBeLessThanOrEqual(unfiltered);
   expect(await chip.getAttribute('class')).toContain('pagefind-ui__filter-value--checked');
 });
+
+test('search results are visible, not covered by the filter chips (mobile)', async ({ page }, info) => {
+  test.skip(info.project.name !== 'mobile', 'mobile layout');
+  await page.goto('production-integration/reliability/');
+  await page.locator('#search-open').click();
+  await page.locator('#search-root input').fill('retry budget');
+  const first = page.locator('.pagefind-ui__result').first();
+  await expect(first).toBeVisible({ timeout: 10000 });
+  const hit = await first.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    const at = document.elementFromPoint(r.left + r.width / 2, r.top + Math.min(40, r.height / 2));
+    return !!at && el.contains(at);
+  });
+  expect(hit, 'the first result must be the topmost element at its own position').toBe(true);
+  const panelH = await page.locator('.pagefind-ui__filter-panel').evaluate((el) => el.getBoundingClientRect().height);
+  expect(panelH).toBeLessThan(80);
+});
