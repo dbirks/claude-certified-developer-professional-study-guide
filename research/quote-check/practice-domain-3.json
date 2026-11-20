@@ -1,0 +1,297 @@
+[
+  {
+    "id": "F1",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/opentelemetry"
+  },
+  {
+    "id": "F2",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/opentelemetry"
+  },
+  {
+    "id": "F3",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/opentelemetry"
+  },
+  {
+    "id": "F4",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/opentelemetry"
+  },
+  {
+    "id": "F5",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/opentelemetry"
+  },
+  {
+    "id": "F6",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/opentelemetry/api"
+  },
+  {
+    "id": "F7",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/opentelemetry/sdk"
+  },
+  {
+    "id": "F8",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/opentelemetry/spans"
+  },
+  {
+    "id": "F9",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F10",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F11",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F12",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F13",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/observability"
+  },
+  {
+    "id": "F14",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/observability"
+  },
+  {
+    "id": "F15",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/cost-tracking"
+  },
+  {
+    "id": "F16",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F17",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics"
+  },
+  {
+    "id": "F18",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics"
+  },
+  {
+    "id": "F19",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/errors"
+  },
+  {
+    "id": "F20",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
+  },
+  {
+    "id": "F21",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/api-and-data-retention"
+  },
+  {
+    "id": "F22",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics"
+  },
+  {
+    "id": "F23",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F24",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/observability"
+  },
+  {
+    "id": "F25",
+    "status": "ok",
+    "url": "https://sre.google/workbook/alerting-on-slos/"
+  },
+  {
+    "id": "F26",
+    "status": "ok",
+    "url": "https://sre.google/workbook/alerting-on-slos/"
+  },
+  {
+    "id": "F27",
+    "status": "ok",
+    "url": "https://sre.google/workbook/alerting-on-slos/"
+  },
+  {
+    "id": "F28",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons"
+  },
+  {
+    "id": "F29",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback"
+  },
+  {
+    "id": "F30",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api"
+  },
+  {
+    "id": "F31",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/usage-cost-api"
+  },
+  {
+    "id": "F32",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F33",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F34",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F35",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions"
+  },
+  {
+    "id": "F36",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions"
+  },
+  {
+    "id": "F37",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F38",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F39",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/workspaces"
+  },
+  {
+    "id": "F40",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/spend-limits-api"
+  },
+  {
+    "id": "F41",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/errors"
+  },
+  {
+    "id": "F42",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F43",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F44",
+    "status": "ok",
+    "url": "https://opentelemetry.io/docs/concepts/sampling/"
+  },
+  {
+    "id": "F45",
+    "status": "ok",
+    "url": "https://opentelemetry.io/docs/concepts/sampling/"
+  },
+  {
+    "id": "F46",
+    "status": "ok",
+    "url": "https://opentelemetry.io/docs/concepts/sampling/"
+  },
+  {
+    "id": "F47",
+    "status": "ok",
+    "url": "https://opentelemetry.io/docs/concepts/sampling/"
+  },
+  {
+    "id": "F48",
+    "status": "ok",
+    "url": "https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/tailsamplingprocessor/README.md"
+  },
+  {
+    "id": "F49",
+    "status": "ok",
+    "url": "https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/tailsamplingprocessor/README.md"
+  },
+  {
+    "id": "F50",
+    "status": "ok",
+    "url": "https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/tailsamplingprocessor/README.md"
+  },
+  {
+    "id": "F51",
+    "status": "ok",
+    "url": "https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/tailsamplingprocessor/README.md"
+  },
+  {
+    "id": "F52",
+    "status": "ok",
+    "url": "https://opentelemetry.io/blog/2026/cardinality-limits-in-opentelemetry/"
+  },
+  {
+    "id": "F53",
+    "status": "ok",
+    "url": "https://opentelemetry.io/blog/2026/cardinality-limits-in-opentelemetry/"
+  },
+  {
+    "id": "F54",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F55",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F56",
+    "status": "ok-loose",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F57",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/demystifying-evals-for-ai-agents"
+  },
+  {
+    "id": "F58",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/demystifying-evals-for-ai-agents"
+  },
+  {
+    "id": "F59",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/opentelemetry/spans"
+  }
+]

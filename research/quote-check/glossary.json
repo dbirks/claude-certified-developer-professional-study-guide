@@ -1,0 +1,177 @@
+[
+  {
+    "id": "F1",
+    "status": "ok",
+    "url": "https://docs.cloud.google.com/monitoring/api/ref_v3/rest/v3/services.serviceLevelObjectives"
+  },
+  {
+    "id": "F2",
+    "status": "not-found",
+    "url": "https://docs.cloud.google.com/monitoring/api/ref_v3/rest/v3/services.serviceLevelObjectives"
+  },
+  {
+    "id": "F3",
+    "status": "ok",
+    "url": "https://sre.google/workbook/alerting-on-slos/"
+  },
+  {
+    "id": "F4",
+    "status": "ok",
+    "url": "https://sre.google/workbook/alerting-on-slos/"
+  },
+  {
+    "id": "F5",
+    "status": "ok",
+    "url": "https://www.itl.nist.gov/div898/handbook/prc/section2/prc262.htm"
+  },
+  {
+    "id": "F6",
+    "status": "ok",
+    "url": "https://www.itl.nist.gov/div898/handbook/prc/section2/prc262.htm"
+  },
+  {
+    "id": "F7",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-latency"
+  },
+  {
+    "id": "F8",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/fast-mode"
+  },
+  {
+    "id": "F9",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/streaming"
+  },
+  {
+    "id": "F10",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/streaming"
+  },
+  {
+    "id": "F11",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F12",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F13",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F14",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing"
+  },
+  {
+    "id": "F15",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing"
+  },
+  {
+    "id": "F16",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing"
+  },
+  {
+    "id": "F17",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons"
+  },
+  {
+    "id": "F18",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons"
+  },
+  {
+    "id": "F19",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/working-with-messages"
+  },
+  {
+    "id": "F20",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing"
+  },
+  {
+    "id": "F21",
+    "status": "not-found",
+    "url": "https://docs.cloud.google.com/monitoring/api/ref_v3/rest/v3/services.serviceLevelObjectives"
+  },
+  {
+    "id": "F22",
+    "status": "ok",
+    "url": "https://opentelemetry.io/docs/specs/otel/metrics/api/"
+  },
+  {
+    "id": "F23",
+    "status": "ok-loose",
+    "url": "https://scikit-learn.org/stable/auto_examples/model_selection/plot_precision_recall.html"
+  },
+  {
+    "id": "F24",
+    "status": "ok",
+    "url": "https://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html"
+  },
+  {
+    "id": "F25",
+    "status": "not-found",
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5654219/"
+  },
+  {
+    "id": "F26",
+    "status": "not-found",
+    "url": "https://acf.gov/sites/default/files/documents/opre/Power%20Analysis%20Webinar-oct-2021.pdf"
+  },
+  {
+    "id": "F27",
+    "status": "not-found",
+    "url": "https://acf.gov/sites/default/files/documents/opre/Power%20Analysis%20Webinar-oct-2021.pdf"
+  },
+  {
+    "id": "F28",
+    "status": "ok",
+    "url": "https://mathworld.wolfram.com/LittlesLaw.html"
+  },
+  {
+    "id": "F29",
+    "status": "ok",
+    "url": "https://sre.google/sre-book/service-best-practices/"
+  },
+  {
+    "id": "F30",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/errors"
+  },
+  {
+    "id": "F31",
+    "status": "not-found",
+    "url": "https://web.stanford.edu/class/cs329z/slides/lecture15.pdf"
+  },
+  {
+    "id": "F32",
+    "status": "not-found",
+    "url": "https://web.stanford.edu/class/cs329z/slides/lecture15.pdf"
+  },
+  {
+    "id": "F33",
+    "status": "not-found",
+    "url": "https://arxiv.org/pdf/2107.03374"
+  },
+  {
+    "id": "F34",
+    "status": "ok",
+    "url": "https://opentelemetry.io/docs/concepts/signals/metrics/"
+  },
+  {
+    "id": "F35",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  }
+]

@@ -1,0 +1,672 @@
+- id: F1
+  claim: "Mid-stream SSE errors can occur after the API returns HTTP 200, bypassing standard HTTP error handling and retry mechanisms."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "When receiving a streaming response over server-sent events (SSE), an error can occur after the API returns a 200 response. In that case, error handling doesn’t follow these standard mechanisms."
+  accessed: 2026-11-19
+
+- id: F2
+  claim: "Mid-stream SSE errors occur after HTTP 200 headers are sent (as event: error, e.g., overloaded_error); on Claude 4.6+, stream recovery must use a user continuation message because assistant prefill is unsupported and returns 400."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/streaming
+  title: "Streaming messages"
+  source: anthropic-docs
+  quote: "For Claude 4.6 and later models, the same capture-and-resume strategy applies, but step 2 changes: instead of placing the partial response in an assistant message, add a user message that instructs the model to continue from where it left off."
+  accessed: 2026-11-19
+  version_note: "Assistant prefill continuation applies to Claude 4.5 and earlier; Claude 4.6+ requires a user continuation message."
+
+- id: F3
+  claim: "Claude 4.6 and later models and Claude Mythos Preview do not support assistant message prefill and return HTTP 400 invalid_request_error when given a prefilled last assistant message."
+  tag: VER
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "Claude 4.6 and later models and Claude Mythos Preview do not support prefilling assistant messages. Sending a request with a prefilled last assistant message to any of these models returns a 400 invalid_request_error"
+  accessed: 2026-11-19
+  version_note: "Applies to Claude 4.6 and later models and Claude Mythos Preview."
+
+- id: F4
+  claim: "Interrupted streams cannot partially recover tool_use or thinking blocks; stream resumption only recovers from the most recent text block."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/streaming
+  title: "Streaming messages"
+  source: anthropic-docs
+  quote: "Tool use and thinking blocks cannot be partially recovered. You can resume streaming from the most recent text block."
+  accessed: 2026-11-19
+
+- id: F5
+  claim: "Official Anthropic SDKs default to max_retries=2 (maxRetries: 2 in TypeScript), automatically retrying connection errors, 408, 409, 429, and >=500 errors with exponential backoff while honoring retry-after."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "The official SDK automatically retries transient failures (such as connection errors, rate limits, and 5xx server errors) with exponential backoff, twice by default, honoring the retry-after header when present."
+  accessed: 2026-11-19
+
+- id: F6
+  claim: "Rate limits are shared across inference_geo values, so switching between us and global draws from the same rate-limit pool."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "Rate limits are shared across all inference_geo values. Requests with inference_geo: \"us\" and inference_geo: \"global\" draw from the same rate limit pool."
+  accessed: 2026-11-19
+
+- id: F7
+  claim: "Microsoft Foundry deployments hosted on Azure reject unsupported features (code execution, Agent Skills, programmatic tool calling, Files API, and newer web search/fetch versions) with 400 Bad Request, and Foundry omits anthropic-ratelimit-* headers."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry
+  title: "Claude in Microsoft Foundry"
+  source: anthropic-docs
+  quote: "Requests that use these features against a deployment hosted on Azure return a 400 Bad Request error by design."
+  accessed: 2026-11-19
+
+- id: F8
+  claim: "Claude Platform on AWS provides the full Anthropic platform experience including Messages API, Agent Skills, code execution, and beta features through an AWS account."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/claude-platform-on-aws
+  title: "Claude Platform on AWS"
+  source: anthropic-docs
+  quote: "Claude Platform on AWS gives you the full Anthropic platform experience, including the Messages API, Agent Skills, code execution, and beta features"
+  accessed: 2026-11-19
+
+- id: F9
+  claim: "Claude Platform on AWS runs on a separate capacity pool from both the first-party Claude API and Amazon Bedrock, allowing multi-platform workloads to fail over between them while retaining near-complete Messages API parity."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/claude-platform-on-aws
+  title: "Claude Platform on AWS"
+  source: anthropic-docs
+  quote: "Claude Platform on AWS uses a separate capacity pool from both the first-party Claude API and Amazon Bedrock. You can run workloads on more than one platform and fail over between them."
+  accessed: 2026-11-19
+
+- id: F10
+  claim: "Server-side fallback (fallbacks parameter with server-side-fallback-2026-07-01 beta header) is in beta on the first-party Claude API and Google Cloud (Anthropic managed), and is unavailable on Bedrock, Google-managed Vertex AI, Microsoft Foundry, and Claude Haiku 5.5."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback
+  title: "Refusals and fallback"
+  source: anthropic-docs
+  quote: "Server-side fallback is in beta on the Claude API and on Claude Models on Google Cloud (Anthropic managed)"
+  accessed: 2026-11-19
+  version_note: "Beta header server-side-fallback-2026-07-01; supported on Claude API and Google Cloud (Anthropic managed); unsupported on Haiku 5.5, Bedrock, Google-managed Vertex AI, and Foundry."
+
+- id: F11
+  claim: "Anthropic SDKs include refusal-fallback middleware configured with a list of fallback models to automatically retry refused requests on any platform."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback
+  title: "Refusals and fallback"
+  source: anthropic-docs
+  quote: "The SDK includes a refusal-fallback middleware. You configure it once on the client with your list of fallback models."
+  accessed: 2026-11-19
+
+- id: F12
+  claim: "Amazon Bedrock provides global endpoints (dynamic multi-region routing, no premium) and regional CRIS endpoints (10% pricing premium for data residency), while lacking server-side fallback, Files API, server tools, Batches, and Managed Agents."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/claude-in-amazon-bedrock
+  title: "Claude in Amazon Bedrock (bedrock-mantle)"
+  source: anthropic-docs
+  quote: "Regional endpoints carry a 10 percent pricing premium over global endpoints."
+  accessed: 2026-11-19
+
+- id: F13
+  claim: "HTTP 429 rate_limit_error covers rate limits, ramp limits, and tier monthly spend caps; a tier spend-cap 429 has error.details.error_code enforced_spend_limit_reached, omits the retry-after header, and keeps failing even under SDK retries until access resumes."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "A tier spend-cap 429 has no retry-after header and keeps failing until access resumes"
+  accessed: 2026-11-19
+
+- id: F14
+  claim: "Combining per-request retry caps with a 10% per-client retry ratio budget reduces worst-case overload amplification from roughly 3x to 1.1x."
+  tag: STD
+  url: https://sre.google/sre-book/handling-overload/
+  title: "Handling Overload — Google SRE Book"
+  source: standard
+  quote: "However, layering on the per-client retry budget (a 10% retry ratio) reduces the growth to just 1.1x in the general case—a significant improvement."
+  accessed: 2026-11-19
+
+- id: F15
+  claim: "Refusals are not transient errors; re-sending a refused request to the same model usually results in another refusal, so callers should reset context or fall back to a different model."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/handle-streaming-refusals
+  title: "Handle streaming refusals"
+  source: anthropic-docs
+  quote: "Re-sending a refused request to the same model usually results in another refusal."
+  accessed: 2026-11-19
+
+- id: F16
+  claim: "reasoning_extraction refusals have no recommended fallback model; callers should revise the prompt or use adaptive thinking with display summarized instead of retrying."
+  tag: REC
+  url: https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback
+  title: "Refusals and fallback"
+  source: anthropic-docs
+  quote: "This category has no recommended fallback model, so change the prompt rather than retry the request."
+  accessed: 2026-11-19
+
+- id: F17
+  claim: "Cache reads do not consume default ITPM, but cache writes and uncached input do."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "For rate limit purposes, only input_tokens + cache_creation_input_tokens count toward your ITPM limit, making prompt caching an effective way to increase your throughput."
+  accessed: 2026-11-19
+
+- id: F18
+  claim: "Output limiting counts actual output, not max_tokens."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "OTPM rate limits are evaluated in real time as output tokens are produced, counting only the actual tokens generated. The max_tokens parameter does not factor into OTPM rate limit calculations, so there is no rate limit downside to setting a higher max_tokens value."
+  accessed: 2026-11-19
+
+- id: F19
+  claim: "Start tier standard Sonnet 5.5 rate limits."
+  tag: VER
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "Claude Sonnet 5.5 | 4,000 | 2,000,000 | 400,000"
+  accessed: 2026-11-19
+  version_note: "Claude API documentation as accessed 2026-11-19; limits and availability can change."
+
+- id: F20
+  claim: "Some model versions share rate-limit buckets."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "Sonnet 4.x rate limit is a total limit that applies to combined traffic across Sonnet 4.6 and Sonnet 4.5 (deprecated; see Model deprecations). Claude Sonnet 5.5 and Claude Sonnet 5 each have a separate rate limit and are not part of this combined bucket."
+  accessed: 2026-11-19
+
+- id: F21
+  claim: "Organization limits still bind workspace allocations."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "Organization-wide limits always apply, even if workspace limits add up to more."
+  accessed: 2026-11-19
+
+- id: F22
+  claim: "Sharp growth can trigger ramp limit 429 despite rate headroom."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "A ramp limit caps how fast your organization’s token usage on a model can grow. After a sharp increase in usage, requests can return a 429 error even while you’re under your ITPM and OTPM rate limits. A burst of requests within a few seconds can also count as a sharp increase."
+  accessed: 2026-11-19
+
+- id: F23
+  claim: "Ramp limit growth is based on recent peak plus a step."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "Your ramp limit is your organization’s highest per-minute usage of the model in the recent past, plus a step. Each minute you can go up to a step above that peak, so the limit rises as your successful usage grows. It stops rising at your rate limit."
+  accessed: 2026-11-19
+
+- id: F24
+  claim: "Ramp errors are distinguishable by error_code ramp_limit_exceeded."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "The error type is rate_limit_error, the same as for a rate limit. On the Messages API, error.details.error_code is ramp_limit_exceeded."
+  accessed: 2026-11-19
+
+- id: F25
+  claim: "User-configured spend limits usually return HTTP 400."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "When usage reaches a spend limit you set, requests return HTTP 400 with error type invalid_request_error."
+  accessed: 2026-11-19
+
+- id: F26
+  claim: "Batch expiration is 24 hours and results may be retrieved when done or after 24 hours."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/batch-processing
+  title: "Batch processing"
+  source: anthropic-docs
+  quote: "You can access batch results when all messages have completed or after 24 hours, whichever comes first. Batches expire if processing does not complete within 24 hours."
+  accessed: 2026-11-19
+
+- id: F27
+  claim: "Messages rate limits use RPM, ITPM, and OTPM and return 429."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "The rate limits for the Messages API are measured in requests per minute (RPM), input tokens per minute (ITPM), and output tokens per minute (OTPM) for each model class. If you exceed any of the rate limits, you get a 429 error describing which rate limit was exceeded. When the response has a retry-after header, wait that many seconds before retrying."
+  accessed: 2026-11-19
+
+- id: F28
+  claim: "Batch size and count ceilings."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/batch-processing
+  title: "Batch processing"
+  source: anthropic-docs
+  quote: "A Message Batch is limited to either 100,000 Message requests or 256 MB in size, whichever is reached first."
+  accessed: 2026-11-19
+
+- id: F29
+  claim: "Batch unsupported parameters include streaming, speed, fallbacks, and zero max tokens."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/batch-processing
+  title: "Batch processing"
+  source: anthropic-docs
+  quote: "A small number of parameters (stream, speed, fallbacks, and max_tokens: 0) are not supported."
+  accessed: 2026-11-19
+
+- id: F30
+  claim: "Results use unique custom IDs to match unordered requests."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/messages/batches/create
+  title: "Create a Message Batch"
+  source: anthropic-docs
+  quote: "Developer-provided ID created for each request in a Message Batch. Useful for matching results to requests, as results may be given out of request order. Must be unique for each request within the Message Batch."
+  accessed: 2026-11-19
+
+- id: F31
+  claim: "Ended batches produce one of four result types per request."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/batch-processing
+  title: "Batch processing"
+  source: anthropic-docs
+  quote: "Once batch processing has ended, each Messages request in the batch has a result. There are four result types:"
+  accessed: 2026-11-19
+
+- id: F32
+  claim: "Batch workspace spending may overshoot slightly."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/batch-processing
+  title: "Batch processing"
+  source: anthropic-docs
+  quote: "Because of high throughput and concurrent processing, batches might go slightly over the spend limit configured in the Claude Console for your Workspace."
+  accessed: 2026-11-19
+
+- id: F33
+  claim: "Batch cache hits are best effort due to parallel asynchronous scheduling."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/batch-processing
+  title: "Batch processing"
+  source: anthropic-docs
+  quote: "However, because batch requests are processed asynchronously and concurrently, cache hits are provided on a best-effort basis."
+  accessed: 2026-11-19
+
+- id: F34
+  claim: "Keys can be bound to one workspace."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/workspaces
+  title: "Workspaces"
+  source: anthropic-docs
+  quote: "API keys can be scoped to a single workspace. In this case, they can only access resources within that workspace."
+  accessed: 2026-11-19
+
+- id: F35
+  claim: "Changing an MCP tool list is an edit under Fable 5.2 prefix checks."
+  tag: VER
+  url: https://platform.claude.com/docs/en/models/fable-5-2/migration-guide
+  title: "Claude Fable 5.2 and Claude Mythos 5.2 migration guide"
+  source: anthropic-docs
+  quote: "For Claude Fable 5.2 thinking blocks, a tool list that changes between requests is an edit."
+  accessed: 2026-11-19
+  version_note: "Documentation accessed 2026-11-19; confirm platform and model availability before deployment."
+
+- id: F36
+  claim: "Fable 5.2 prefix violations return HTTP 400."
+  tag: VER
+  url: https://platform.claude.com/docs/en/models/fable-5-2/migration-guide
+  title: "Claude Fable 5.2 and Claude Mythos 5.2 migration guide"
+  source: anthropic-docs
+  quote: "A prefix check fails if you change system, tools, or earlier messages mid-conversation and then send thinking blocks back. If a prefix check fails, the request receives a 400 error."
+  accessed: 2026-11-19
+  version_note: "Documentation accessed 2026-11-19; confirm platform and model availability before deployment."
+
+- id: F37
+  claim: "A newer beta supports pinning a returned MCP tool list."
+  tag: VER
+  url: https://platform.claude.com/docs/en/agents-and-tools/mcp-connector
+  title: "MCP connector"
+  source: anthropic-docs
+  quote: "With the mcp-client-2026-09-15 beta header, the API records the tool list each server returns, and you can pin that list."
+  accessed: 2026-11-19
+  version_note: "Documentation accessed 2026-11-19; confirm platform and model availability before deployment."
+
+- id: F38
+  claim: "An MCP server must not pass the client token through."
+  tag: STD
+  url: https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization
+  title: "Authorization"
+  source: mcp-spec
+  quote: "The MCP server MUST NOT pass through the token it received from the MCP client."
+  accessed: 2026-11-19
+
+- id: F39
+  claim: "Invalid or expired tokens receive HTTP 401 under the 2025 authorization profile."
+  tag: STD
+  url: https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization
+  title: "Authorization"
+  source: mcp-spec
+  quote: "Invalid or expired tokens MUST receive a HTTP 401 response."
+  accessed: 2026-11-19
+
+- id: F40
+  claim: "Rollback to Fable 5.1 cannot preserve Fable 5.2 thinking blocks."
+  tag: VER
+  url: https://platform.claude.com/docs/en/models/fable-5-2/migration-guide
+  title: "Claude Fable 5.2 and Claude Mythos 5.2 migration guide"
+  source: anthropic-docs
+  quote: "In the other direction, Claude Fable 5.1 can’t read Claude Fable 5.2’s blocks."
+  accessed: 2026-11-19
+  version_note: "Documentation accessed 2026-11-19; confirm platform and model availability before deployment."
+
+- id: F41
+  claim: "The Messages connector requires a remote HTTP endpoint."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/mcp-connector
+  title: "MCP connector"
+  source: anthropic-docs
+  quote: "The server must be publicly exposed through HTTP (supports both Streamable HTTP and SSE transports). Local STDIO servers cannot be connected directly."
+  accessed: 2026-11-19
+
+- id: F42
+  claim: "The 2025 authorization profile requires RFC 9728 metadata and discovery."
+  tag: STD
+  url: https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization
+  title: "Authorization"
+  source: mcp-spec
+  quote: "MCP servers MUST implement OAuth 2.0 Protected Resource Metadata (RFC9728). MCP clients MUST use OAuth 2.0 Protected Resource Metadata for authorization server discovery."
+  accessed: 2026-11-19
+
+- id: F43
+  claim: "Clients implement resource indicators for the intended resource."
+  tag: STD
+  url: https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization
+  title: "Authorization"
+  source: mcp-spec
+  quote: "MCP clients MUST implement Resource Indicators for OAuth 2.0 as defined in RFC 8707 to explicitly specify the target resource for which the token is being requested."
+  accessed: 2026-11-19
+
+- id: F44
+  claim: "Servers validate audience and must not accept or transit foreign tokens."
+  tag: STD
+  url: https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization
+  title: "Authorization"
+  source: mcp-spec
+  quote: "MCP servers MUST only accept tokens that are valid for use with their own resources. MCP servers MUST NOT accept or transit any other tokens."
+  accessed: 2026-11-19
+
+- id: F45
+  claim: "MCP connector exchanges are not covered by ZDR."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/mcp-connector
+  title: "MCP connector"
+  source: anthropic-docs
+  quote: "The MCP connector is not covered by ZDR arrangements. Data exchanged with MCP servers, including tool definitions and execution results, is retained according to Anthropic’s standard data retention policy."
+  accessed: 2026-11-19
+
+- id: F46
+  claim: "Claude Code deprecates the legacy SSE transport."
+  tag: REC
+  url: https://code.claude.com/docs/en/mcp
+  title: "Connect Claude Code to tools via MCP"
+  source: claude-code-docs
+  quote: "The SSE (Server-Sent Events) transport is deprecated. Use HTTP servers instead, where available."
+  accessed: 2026-11-19
+
+- id: F47
+  claim: "The old Messages connector beta is deprecated in favor of the newer header."
+  tag: VER
+  url: https://platform.claude.com/docs/en/agents-and-tools/mcp-connector
+  title: "MCP connector"
+  source: anthropic-docs
+  quote: "New beta header: Change from mcp-client-2025-04-04 to mcp-client-2025-11-20."
+  accessed: 2026-11-19
+  version_note: "Documentation accessed 2026-11-19; confirm platform and model availability before deployment."
+
+- id: F48
+  claim: "Connector tool configuration moved into tools."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/mcp-connector
+  title: "MCP connector"
+  source: anthropic-docs
+  quote: "Tool configuration moved: Tool configuration now lives in the tools array as MCPToolset objects, not in the MCP server definition."
+  accessed: 2026-11-19
+
+- id: F49
+  claim: "Fable 5.2 rejects forced tool choice accepted by Opus 5."
+  tag: VER
+  url: https://platform.claude.com/docs/en/models/fable-5-2/migration-guide
+  title: "Claude Fable 5.2 and Claude Mythos 5.2 migration guide"
+  source: anthropic-docs
+  quote: "Claude Opus 5 accepts tool_choice any and tool. Claude Fable 5.2 rejects both."
+  accessed: 2026-11-19
+  version_note: "Documentation accessed 2026-11-19; confirm platform and model availability before deployment."
+
+- id: F50
+  claim: "Fable 5.2 uses platform-specific Bedrock inference profile IDs."
+  tag: VER
+  url: https://platform.claude.com/docs/en/models/fable-5-2/migration-guide
+  title: "Claude Fable 5.2 and Claude Mythos 5.2 migration guide"
+  source: anthropic-docs
+  quote: "The model ID is claude-fable-5-2 on every platform except Amazon Bedrock. There, it’s global.anthropic.claude-fable-5-2 or us.anthropic.claude-fable-5-2, and only the bedrock-runtime endpoint serves the model."
+  accessed: 2026-11-19
+  version_note: "Documentation accessed 2026-11-19; confirm platform and model availability before deployment."
+
+- id: F51
+  claim: "Foundry requests use deployment names."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry
+  title: "Claude in Microsoft Foundry"
+  source: anthropic-docs
+  quote: "Use the deployment name (not necessarily the model ID) in your API requests."
+  accessed: 2026-11-19
+
+- id: F52
+  claim: "Fable 5.2 Foundry fast mode uses a deployment name rather than speed."
+  tag: VER
+  url: https://platform.claude.com/docs/en/models/fable-5-2/migration-guide
+  title: "Claude Fable 5.2 and Claude Mythos 5.2 migration guide"
+  source: anthropic-docs
+  quote: "There, fast mode has its own model ID: send requests to a claude-fable-5-2-fast deployment and leave out speed."
+  accessed: 2026-11-19
+  version_note: "Documentation accessed 2026-11-19; confirm platform and model availability before deployment."
+
+- id: F53
+  claim: "Partner platforms may have distinct retirement schedules."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/model-deprecations
+  title: "Model deprecations"
+  source: anthropic-docs
+  quote: "Partner-operated platforms, Claude Models on Google Cloud (Google managed) and Amazon Bedrock, set their own retirement schedules, so a model’s lifecycle status and dates can differ."
+  accessed: 2026-11-19
+  version_note: "Documentation accessed 2026-11-19; confirm platform and model availability before deployment."
+
+- id: F54
+  claim: "Claude Code points to a gateway with ANTHROPIC_BASE_URL."
+  tag: FACT
+  url: https://code.claude.com/docs/en/llm-gateway
+  title: "Other LLM gateways"
+  source: claude-code-docs
+  quote: "ANTHROPIC_BASE_URL is the variable that points Claude Code at the gateway."
+  accessed: 2026-11-19
+
+- id: F55
+  claim: "Earlier Claude API aliases may point to the latest dated snapshot."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions
+  title: "Model IDs and versioning"
+  source: anthropic-docs
+  quote: "On the Claude API, these models also have shorter aliases (for example, claude-sonnet-4-5) that point to the most recent dated snapshot for that minor version."
+  accessed: 2026-11-19
+  version_note: "Documentation accessed 2026-11-19; confirm platform and model availability before deployment."
+
+- id: F56
+  claim: "Pinned model weights do not guarantee identical serving behavior."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions
+  title: "Model IDs and versioning"
+  source: anthropic-docs
+  quote: "Occasionally, infrastructure updates produce minor differences in observable behavior even when the model ID and weights have not changed."
+  accessed: 2026-11-19
+  version_note: "Documentation accessed 2026-11-19; confirm platform and model availability before deployment."
+
+- id: F57
+  claim: "Claude consumer-app system prompt updates do not apply to the Claude API."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/release-notes/system-prompts/overview
+  title: "System prompts"
+  source: anthropic-docs
+  quote: "Anthropic periodically updates the system prompt to improve Claude’s responses. These updates do not apply to the Claude API."
+  accessed: 2026-11-19
+
+- id: F58
+  claim: "BM25 contributes lexical exact-match retrieval for precise words, phrases, identifiers, and technical terms."
+  tag: FACT
+  url: https://www.anthropic.com/research/contextual-retrieval
+  title: "Contextual retrieval in AI systems"
+  source: anthropic-research
+  quote: "BM25 (Best Matching 25) is a ranking function that uses lexical matching to find precise word or phrase matches. It's particularly effective for queries that include unique identifiers or technical terms."
+  accessed: 2026-11-19
+
+- id: F59
+  claim: "Contextual Retrieval adds chunk-specific explanatory context before embedding and BM25 indexing."
+  tag: FACT
+  url: https://www.anthropic.com/research/contextual-retrieval
+  title: "Contextual retrieval in AI systems"
+  source: anthropic-research
+  quote: "Contextual Retrieval solves this problem by prepending chunk-specific explanatory context to each chunk before embedding (“Contextual Embeddings”) and creating the BM25 index (“Contextual BM25”)."
+  accessed: 2026-11-19
+
+- id: F60
+  claim: "Anthropic describes merging lexical and semantic candidates by deduplicating results with rank fusion."
+  tag: FACT
+  url: https://www.anthropic.com/research/contextual-retrieval
+  title: "Contextual retrieval in AI systems"
+  source: anthropic-research
+  quote: "Combine and deduplicate results from (3) and (4) using rank fusion techniques;"
+  accessed: 2026-11-19
+
+- id: F61
+  claim: "Anthropic reported a 67% top-20 retrieval failure reduction when contextual embeddings and contextual BM25 were combined with reranking in its test setup."
+  tag: FACT
+  url: https://www.anthropic.com/research/contextual-retrieval
+  title: "Contextual retrieval in AI systems"
+  source: anthropic-research
+  quote: "Specifically, we found that Reranked Contextual Embedding and Contextual BM25 reduced the top-20-chunk retrieval failure rate by 67% (5.7% → 1.9%)."
+  accessed: 2026-11-19
+
+- id: F62
+  claim: "Anthropic defines 1 minus recall@20 as the percentage of relevant documents not retrieved within the top 20 chunks."
+  tag: FACT
+  url: https://www.anthropic.com/research/contextual-retrieval
+  title: "Contextual retrieval in AI systems"
+  source: anthropic-research
+  quote: "We use 1 minus recall@20 as our evaluation metric, which measures the percentage of relevant documents that fail to be retrieved within the top 20 chunks."
+  accessed: 2026-11-19
+
+- id: F63
+  claim: "Anthropic recommends explicitly allowing Claude to admit uncertainty."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-hallucinations
+  title: "Reduce hallucinations"
+  source: anthropic-docs
+  quote: "Allow Claude to say “I don’t know”: Explicitly give Claude permission to admit uncertainty."
+  accessed: 2026-11-19
+
+- id: F64
+  claim: "Anthropic says an entire knowledge base below about 200,000 tokens can sometimes be supplied directly instead of using RAG."
+  tag: REC
+  url: https://www.anthropic.com/research/contextual-retrieval
+  title: "Contextual retrieval in AI systems"
+  source: anthropic-research
+  quote: "If your knowledge base is smaller than 200,000 tokens (about 500 pages of material), you can just include the entire knowledge base in the prompt that you give the model, with no need for RAG or similar methods."
+  accessed: 2026-11-19
+
+- id: F65
+  claim: "Citations and strict structured outputs cannot be combined in a Messages API request."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/citations
+  title: "Citations"
+  source: anthropic-docs
+  quote: "Citations cannot be used together with structured outputs. If you enable citations on any user-provided document (document blocks or search_result blocks) and also include the output_config.format parameter (or the deprecated output_format parameter), the API returns a 400 error."
+  accessed: 2026-11-19
+
+- id: F66
+  claim: "Messages API citations are enabled per document block, and all documents in one request must consistently enable or disable citations."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/citations
+  title: "Citations"
+  source: anthropic-docs
+  quote: "A request can’t mix documents that have citations enabled with documents that don’t."
+  accessed: 2026-11-19
+
+- id: F67
+  claim: "Search result citations are disabled by default and all search results in a request must use the same setting."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/search-results
+  title: "Search results"
+  source: anthropic-docs
+  quote: 'Citations are disabled by default; every example on this page sets "enabled": true explicitly. All search results in a request must use the same setting (see Citation control)'
+  accessed: 2026-11-19
+
+- id: F68
+  claim: "Web fetch citations are optional and disabled by default; enable them explicitly."
+  tag: VER
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool
+  title: "Web fetch tool"
+  source: anthropic-docs
+  quote: "Unlike web search, where citations are always enabled, citations are optional for web fetch and disabled by default."
+  accessed: 2026-11-19
+  version_note: "Claude Platform web_fetch tool documentation accessed 2026-11-19; the documented current tool version was web_fetch_20260318."
+
+- id: F69
+  claim: "Claude Code combines up-front CLAUDE.md context with just-in-time file search, which can avoid stale indexing."
+  tag: FACT
+  url: https://www.anthropic.com/research/effective-context-engineering-for-ai-agents
+  title: "Effective context engineering for AI agents"
+  source: anthropic-engineering
+  quote: "Claude Code is an agent that employs this hybrid model: CLAUDE.md files are naively dropped into context up front, while primitives like glob and grep allow it to navigate its environment and retrieve files just-in-time, effectively bypassing the issues of stale indexing and complex syntax trees."
+  accessed: 2026-11-19
+
+- id: F70
+  claim: "Anthropic recommends a hybrid strategy that retrieves some data up front and allows autonomous exploration when useful."
+  tag: REC
+  url: https://www.anthropic.com/research/effective-context-engineering-for-ai-agents
+  title: "Effective context engineering for AI agents"
+  source: anthropic-engineering
+  quote: "In certain settings, the most effective agents might employ a hybrid strategy, retrieving some data up front for speed, and pursuing further autonomous exploration at its discretion. The decision boundary for the ‘right’ level of autonomy depends on the task."
+  accessed: 2026-11-19
+
+- id: F71
+  claim: "Anthropic recommends grounding factual work in direct quotes and checking claims against citations, retracting claims without support."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-hallucinations
+  title: "Reduce hallucinations"
+  source: anthropic-docs
+  quote: "Verify with citations: Make Claude’s response auditable by having it cite quotes and sources for each of its claims. You can also have Claude verify each claim by finding a supporting quote after it generates a response. If it can’t find a quote, it must retract the claim."
+  accessed: 2026-11-19
+
+- id: F72
+  claim: "Claude's citations feature returns valid pointers to provided source documents."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/citations
+  title: "Citations"
+  source: anthropic-docs
+  quote: "Better citation reliability: Because the API parses citations into the response formats described in the following sections and extracts cited_text directly, citations are guaranteed to contain valid pointers to the provided documents."
+  accessed: 2026-11-19
+
+- id: F73
+  claim: "A document block's optional title and context fields are passed to Claude but are not cited from."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/citations
+  title: "Citations"
+  source: anthropic-docs
+  quote: "title and context are optional fields that are passed to the model but not used toward cited content."
+  accessed: 2026-11-19

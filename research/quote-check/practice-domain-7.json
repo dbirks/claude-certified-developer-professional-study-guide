@@ -1,0 +1,87 @@
+[
+  {
+    "id": "F1",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/permissions#allow-and-deny-rules"
+  },
+  {
+    "id": "F2",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/hooks#posttooluse-decision-control"
+  },
+  {
+    "id": "F3",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/sandboxing#what-runs-outside-the-sandbox"
+  },
+  {
+    "id": "F4",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/sandboxing#get-started"
+  },
+  {
+    "id": "F5",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/use-case-guides/content-moderation#evaluate-your-prompt"
+  },
+  {
+    "id": "F6",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool"
+  },
+  {
+    "id": "F7",
+    "status": "ok",
+    "url": "https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices"
+  },
+  {
+    "id": "F8",
+    "status": "ok",
+    "url": "https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices"
+  },
+  {
+    "id": "F9",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/building-strong-safety-evaluations"
+  },
+  {
+    "id": "F10",
+    "status": "ok",
+    "url": "https://www.anthropic.com/news/challenges-in-red-teaming-ai-systems"
+  },
+  {
+    "id": "F11",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/workload-identity-federation"
+  },
+  {
+    "id": "F12",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/workload-identity-federation"
+  },
+  {
+    "id": "F13",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/workload-identity-federation"
+  },
+  {
+    "id": "F14",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F15",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F16",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/compliance-integration-patterns"
+  },
+  {
+    "id": "F17",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/authentication"
+  }
+]

@@ -1,0 +1,644 @@
+- id: F1
+  claim: "Writing large structured subagent outputs directly to an artifact store or filesystem and returning lightweight references to the coordinator avoids 'game of telephone' degradation and token copying overhead."
+  tag: REC
+  url: https://www.anthropic.com/research/multi-agent-research-system
+  title: "How we built our multi-agent research system"
+  source: anthropic-research
+  quote: "Subagents call tools to store their work in external systems, then pass lightweight references back to the coordinator. This prevents information loss during multi-stage processing and reduces token overhead from copying large outputs through conversation history."
+  accessed: 2026-11-19
+
+- id: F2
+  claim: "Work should be decomposed by context boundaries rather than problem type (planner/implementer/tester/reviewer), because splitting tightly coupled phases creates handoff loss and excessive coordination token burn."
+  tag: REC
+  url: https://claude.com/blog/building-multi-agent-systems-when-and-how-to-use-them
+  title: "When to use multi-agent systems (and when not to) | Claude by Anthropic"
+  source: anthropic-engineering
+  quote: "The key insight is to adopt a context-centric view rather than a problem-centric view when decomposing work."
+  accessed: 2026-11-19
+
+- id: F3
+  claim: "Verification subagents suffer from the 'early victory problem' (declaring pass after one or two checks) unless given explicit instructions to run full suites, edge cases, and negative tests."
+  tag: REC
+  url: https://claude.com/blog/building-multi-agent-systems-when-and-how-to-use-them
+  title: "When to use multi-agent systems (and when not to) | Claude by Anthropic"
+  source: anthropic-engineering
+  quote: "The most significant failure mode for verification subagents is marking outputs as passing without thorough testing. The verifier runs one or two tests, observes them pass, and declares success."
+  accessed: 2026-11-19
+
+- id: F4
+  claim: "AgentDefinition supports tools (allowlist) and disallowedTools (denylist including mcp__server, mcp__server__*, and mcp__* globs); setting CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS=1 removes built-in subagents."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/subagents
+  title: "Subagents in the SDK - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Setting CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS=1 removes that default, and such a call fails with subagent_type is required."
+  accessed: 2026-11-19
+
+- id: F5
+  claim: "SDK subagent fan-out is bounded by CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH (default 3 layers), CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS (default 20), and maxBudgetUsd/max_budget_usd (stops background subagents and ends with error_max_budget_usd)."
+  tag: VER
+  url: https://code.claude.com/docs/en/agent-sdk/subagents
+  title: "Subagents in the SDK - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Enforces the cap in three ways: refuses to spawn more subagents, returning Budget limit reached, stops background subagents that are still running, and ends the query with the error_max_budget_usd result subtype."
+  accessed: 2026-11-19
+  version_note: "Requires TypeScript Agent SDK v0.3.219+ or Python Agent SDK v0.2.127+ (Claude Code v2.1.219+)."
+
+- id: F6
+  claim: "The Agent SDK evaluates tool permissions in six fixed steps: Hooks -> Deny rules -> Ask rules -> Permission mode -> Allow rules -> canUseTool callback; auto-approved tools skip canUseTool, so checks on auto-approved tools must live in PreToolUse hooks."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/permissions
+  title: "Configure permissions - Claude Code Docs"
+  source: claude-code-docs
+  quote: "A tool call approved at any earlier step, by acceptEdits or bypassPermissions, or by an allow rule, skips your canUseTool callback, so permission checks you put there are silently bypassed for that tool."
+  accessed: 2026-11-19
+
+- id: F7
+  claim: "A subagent inherits plan, acceptEdits, auto, or bypassPermissions from the main session (overriding its own permissionMode); under default or dontAsk, it uses its own permissionMode except bypassPermissions is never applied."
+  tag: VER
+  url: https://code.claude.com/docs/en/agent-sdk/permissions
+  title: "Configure permissions - Claude Code Docs"
+  source: claude-code-docs
+  quote: "The subagent inherits plan, acceptEdits, auto, or bypassPermissions from the main session, and under a default- or dontAsk-mode main session it runs in the mode you set. Even then, Claude Code never applies a \"bypassPermissions\" value, and applies an \"auto\" value only when auto mode is available to that subagent."
+  accessed: 2026-11-19
+  version_note: "The bypassPermissions restriction on subagents requires Claude Code v2.1.267 or later."
+
+- id: F8
+  claim: "The canUseTool callback handles runtime tool approvals and AskUserQuestion prompts (returning allow with updatedInput or deny with message), pausing execution indefinitely; AskUserQuestion is unavailable in subagents spawned via the Agent tool."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/user-input
+  title: "Handle approvals and user input - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Claude requests user input in two situations: when it needs permission to use a tool (like deleting files or running commands), and when it has clarifying questions (via the AskUserQuestion tool). Both trigger your canUseTool callback, which pauses execution until you return a response."
+  accessed: 2026-11-19
+
+- id: F9
+  claim: "PreToolUse hooks return permissionDecision (allow, deny, ask, or defer with precedence deny > defer > ask > allow), receive agent_id/agent_type inside subagents, and require onFailure: 'block' to fail closed on callback errors or timeouts."
+  tag: VER
+  url: https://code.claude.com/docs/en/agent-sdk/hooks
+  title: "Intercept and control agent behavior with hooks - Claude Code Docs"
+  source: claude-code-docs
+  quote: "When multiple PreToolUse hooks return different decisions, deny takes priority over defer, which takes priority over ask, which takes priority over allow."
+  accessed: 2026-11-19
+  version_note: "onFailure: 'block' requires TypeScript Agent SDK v0.3.317+ or Python Agent SDK v0.2.177+."
+
+- id: F10
+  claim: "In non-interactive (-p) single-tool-call turns, a PreToolUse hook returning permissionDecision: 'defer' pauses the turn with stop_reason: 'tool_deferred' and deferred_tool_use so an external approval system can resume the session later without holding a process open."
+  tag: FACT
+  url: https://code.claude.com/docs/en/hooks
+  title: "Hooks reference - Claude Code Docs"
+  source: claude-code-docs
+  quote: "The hook returns permissionDecision: \"defer\". The tool doesn’t execute. The turn ends with a result carrying stop_reason: \"tool_deferred\", and the pending tool call stays in the transcript."
+  accessed: 2026-11-19
+
+- id: F11
+  claim: "Agent Teams (experimental, CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1) differ from subagents by allowing direct peer messaging via JSON mailboxes and a file-locked shared task list, enforced by TeammateIdle and TaskCompleted hooks, with no nested teams or /resume restoration for in-process teammates."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-teams
+  title: "Orchestrate teams of Claude Code sessions - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Subagents report results back to the main agent. In agent teams, teammates share a task list, claim work, and communicate directly with each other."
+  accessed: 2026-11-19
+
+- id: F12
+  claim: "Agent SDK sessions persist only the conversation transcript, not filesystem state; file edits require file checkpointing."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/sessions
+  title: "Work with sessions"
+  source: claude-code-docs
+  quote: "Sessions persist the conversation, not the filesystem. To snapshot and revert file changes the agent made, use file checkpointing."
+  accessed: 2026-11-19
+
+- id: F13
+  claim: "A tool call that was still in flight when a Claude Code process crashed is not automatically re-executed upon session resume."
+  tag: FACT
+  url: https://code.claude.com/docs/en/sessions
+  title: "Manage sessions"
+  source: claude-code-docs
+  quote: "Interrupted tool calls: a tool that was still running when the previous process ended, for example in a crash, doesn’t get rerun when you resume."
+  accessed: 2026-11-19
+
+- id: F14
+  claim: "Raw JSONL session transcript entry formats are internal to Claude Code and may break across releases."
+  tag: FACT
+  url: https://code.claude.com/docs/en/sessions
+  title: "Manage sessions"
+  source: claude-code-docs
+  quote: "The entry format is internal to Claude Code and changes between versions, so scripts that parse these files directly can break on any release."
+  accessed: 2026-11-19
+
+- id: F15
+  claim: "Claude Code /rewind tracks files modified by file editing tools; files modified solely by Bash commands are not tracked or reverted."
+  tag: FACT
+  url: https://code.claude.com/docs/en/checkpointing
+  title: "Checkpointing"
+  source: claude-code-docs
+  quote: "Once Claude has edited a file with its file editing tools in your conversation, /rewind undoes changes that Bash commands make to that file afterward. A file that only Bash commands changed isn’t tracked and stays as it is."
+  accessed: 2026-11-19
+
+- id: F16
+  claim: "In the Agent SDK, rewind_files()/rewindFiles() restores tracked files on disk without rolling back the conversation history."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/file-checkpointing
+  title: "Rewind file changes with checkpointing"
+  source: claude-code-docs
+  quote: "File rewinding restores files on disk to a previous state. It does not rewind the conversation itself. The conversation history and context remain intact after calling rewindFiles() (TypeScript) or rewind_files() (Python)."
+  accessed: 2026-11-19
+
+- id: F17
+  claim: "Claude Managed Agents sessions persist conversation history, sandbox state, and outputs server-side until deleted, making hosted Managed Agents ineligible for Zero Data Retention or HIPAA."
+  tag: VER
+  url: https://platform.claude.com/docs/en/managed-agents/overview
+  title: "Claude Managed Agents overview"
+  source: anthropic-docs
+  quote: "Claude Managed Agents is stateful by design: sessions are long-running, resume cleanly after pauses, and store conversation history, sandbox state, and outputs server-side. Because of this, Managed Agents is not currently eligible for Zero Data Retention or HIPAA Business Associate Agreement (BAA) coverage."
+  accessed: 2026-11-19
+  version_note: "Managed Agents beta (managed-agents-2026-04-01); self-hosted Managed Agents is the exception for ZDR."
+
+- id: F18
+  claim: "Anthropic provides at least 60 days' notice before retiring publicly released models on Anthropic-operated platforms, while partner platforms (Bedrock, Google-managed Vertex) set independent schedules."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/model-deprecations
+  title: "Model deprecations"
+  source: anthropic-docs
+  quote: "Anthropic notifies customers with active deployments for models with upcoming retirements, providing at least 60 days’ notice before model retirement for publicly released models."
+  accessed: 2026-11-19
+  version_note: "Applies to Anthropic-operated platforms; claude-sonnet-4-5-20250929 retires November 30, 2026 (replacement claude-sonnet-5-5)."
+
+- id: F19
+  claim: "Prompt caches are scoped per model, so switching models mid-session invalidates the prefix cache and triggers a full uncached history read on the next request."
+  tag: FACT
+  url: https://code.claude.com/docs/en/prompt-caching
+  title: "How Claude Code uses prompt caching"
+  source: claude-code-docs
+  quote: "Each model has its own cache. Switching with /model means the next request reads the entire conversation history with no cache hits, even though the content is identical."
+  accessed: 2026-11-19
+
+- id: F20
+  claim: "Models with preserved thinking (Fable 5.2, Mythos 5.2, Fable 5.1, Mythos 5.1, Opus 5.5, Sonnet 5.5, Haiku 5.5) reject thinking.type='enabled' with a 400 error and require 'adaptive'."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/preserved-thinking
+  title: "Preserved thinking"
+  source: anthropic-docs
+  quote: "Models with preserved thinking reject thinking: {\"type\": \"enabled\"} with a 400 error. When you move a conversation to one of them from a model whose requests set \"enabled\", send \"adaptive\" instead."
+  accessed: 2026-11-19
+  version_note: "Preserved thinking models as of Nov 2026: Fable 5.1/5.2, Mythos 5.1/5.2, Opus 5.5, Sonnet 5.5, Haiku 5.5."
+
+- id: F21
+  claim: "Preserved thinking blocks cryptographically bind to system, tools, and prior messages; altering any prefix before a block triggers a prefix-check failure (400 error) unless prefix_mismatch_behavior='drop_block' is set with the thinking-binding-controls-2026-08-01 beta header."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/preserved-thinking/fix-bound-to-a-different-conversation
+  title: "Fix a thinking block bound to a different conversation"
+  source: anthropic-docs
+  quote: "Set thinking.block_binding.prefix_mismatch_behavior to \"drop_block\", and send the beta header anthropic-beta: thinking-binding-controls-2026-08-01. Do this on every later request in the conversation, because the API doesn’t store the setting between requests."
+  accessed: 2026-11-19
+  version_note: "Requires beta header thinking-binding-controls-2026-08-01; also note account-bound thinking drops across unlinked accounts on Fable 5.2, Mythos 5.2, Sonnet 5.5, and Haiku 5.5."
+
+- id: F22
+  claim: "When deploying updated system prompts or tool schemas, keep running conversations on the system and tools of their last successful request to avoid invalidating preserved thinking."
+  tag: REC
+  url: https://platform.claude.com/docs/en/build-with-claude/preserved-thinking/change-tools-or-instructions
+  title: "Change tools or instructions without failing the prefix check"
+  source: anthropic-docs
+  quote: "Keep sending each running conversation the system and tools of its last successful request, because its newest thinking was produced after that version. Going back to an earlier version would make that thinking invalid."
+  accessed: 2026-11-19
+
+- id: F23
+  claim: "Anthropic's long-running harness research recommends structured JSON progress/feature files over Markdown because models are less likely to inappropriately overwrite or corrupt JSON state."
+  tag: REC
+  url: https://www.anthropic.com/research/effective-harnesses-for-long-running-agents
+  title: "Effective harnesses for long-running agents"
+  source: anthropic-research
+  quote: "After some experimentation, we landed on using JSON for this, as the model is less likely to inappropriately change or overwrite JSON files compared to Markdown files."
+  accessed: 2026-11-19
+
+- id: F24
+  claim: "Official Anthropic SDKs automatically retry transient failures (connection errors, 429s, 5xx) twice with exponential backoff, though mid-stream SSE errors after HTTP 200 bypass HTTP retry logic."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "The official SDK automatically retries transient failures (such as connection errors, rate limits, and 5xx server errors) with exponential backoff, twice by default, honoring the retry-after header when present."
+  accessed: 2026-11-19
+
+- id: F25
+  claim: "MCP ToolAnnotations define idempotentHint (default false) to signal whether repeating a tool call with identical arguments causes additional environmental side effects."
+  tag: STD
+  url: https://modelcontextprotocol.io/specification/2025-11-25/schema
+  title: "Schema Reference"
+  source: mcp-spec
+  quote: "If true, calling the tool repeatedly with the same arguments will have no additional effect on its environment."
+  accessed: 2026-11-19
+
+- id: F26
+  claim: "All Claude Managed Agents sub-features are ineligible for HIPAA coverage."
+  tag: VER
+  url: https://platform.claude.com/docs/en/managed-agents/overview
+  title: "Claude Managed Agents overview"
+  source: anthropic-docs
+  quote: "Not eligible for HIPAA. Applies to all Managed Agents sub-features."
+  accessed: 2026-11-19
+  version_note: "Managed Agents beta (managed-agents-2026-04-01)."
+
+- id: F27
+  claim: "The client-side memory tool is eligible for zero data retention and HIPAA readiness."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool
+  title: "Memory tool"
+  source: anthropic-docs
+  quote: "Memory tool is available on every model and eligible for zero data retention and HIPAA readiness."
+  accessed: 2026-11-19
+
+- id: F28
+  claim: "Sending managed-agents-2026-04-01 together with agent-memory-2026-07-22 on a Managed Agents memory store call returns a 400 error."
+  tag: VER
+  url: https://platform.claude.com/docs/en/managed-agents/memory
+  title: "Using agent memory"
+  source: anthropic-docs
+  quote: "Sending managed-agents-2026-04-01 together with agent-memory-2026-07-22 on a memory store call returns a 400 error."
+  accessed: 2026-11-19
+  version_note: "Beta headers managed-agents-2026-04-01 and agent-memory-2026-07-22."
+
+- id: F29
+  claim: "Workflows follow predefined code paths."
+  tag: FACT
+  url: https://www.anthropic.com/research/building-effective-agents
+  title: "Building effective agents"
+  source: anthropic-engineering
+  quote: "Workflows are systems where LLMs and tools are orchestrated through predefined code paths."
+  accessed: 2026-11-19
+
+- id: F30
+  claim: "Start with the simplest solution, which may not be agentic."
+  tag: REC
+  url: https://www.anthropic.com/research/building-effective-agents
+  title: "Building effective agents"
+  source: anthropic-engineering
+  quote: "When building applications with LLMs, we recommend finding the simplest solution possible, and only increasing complexity when needed. This might mean not building agentic systems at all."
+  accessed: 2026-11-19
+
+- id: F31
+  claim: "Agents often trade cost and latency for task performance."
+  tag: FACT
+  url: https://www.anthropic.com/research/building-effective-agents
+  title: "Building effective agents"
+  source: anthropic-engineering
+  quote: "Agentic systems often trade latency and cost for better task performance, and you should consider when this tradeoff makes sense."
+  accessed: 2026-11-19
+
+- id: F32
+  claim: "Workflows suit well-defined tasks, agents flexible decisions."
+  tag: REC
+  url: https://www.anthropic.com/research/building-effective-agents
+  title: "Building effective agents"
+  source: anthropic-engineering
+  quote: "When more complexity is warranted, workflows offer predictability and consistency for well-defined tasks, whereas agents are the better option when flexibility and model-driven decision-making are needed at scale."
+  accessed: 2026-11-19
+
+- id: F33
+  claim: "Framework abstractions may obscure prompts and responses."
+  tag: FACT
+  url: https://www.anthropic.com/research/building-effective-agents
+  title: "Building effective agents"
+  source: anthropic-engineering
+  quote: "However, they often create extra layers of abstraction that can obscure the underlying prompts ​​and responses, making them harder to debug."
+  accessed: 2026-11-19
+
+- id: F34
+  claim: "The observed token multipliers were relative to chat."
+  tag: FACT
+  url: https://www.anthropic.com/research/multi-agent-research-system
+  title: "How we built our multi-agent research system"
+  source: anthropic-engineering
+  quote: "In our data, agents typically use about 4× more tokens than chat interactions, and multi-agent systems use about 15× more tokens than chats."
+  accessed: 2026-11-19
+
+- id: F35
+  claim: "The tool runner handles loop, errors, and types; use a manual loop for specified control needs."
+  tag: REC
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-runner
+  title: "Tool runner (SDK)"
+  source: anthropic-docs
+  quote: "The tool runner handles the agentic loop, error wrapping, and type safety so you don’t have to. When you need human-in-the-loop approval, custom logging, or conditional execution, use the manual loop instead."
+  accessed: 2026-11-19
+
+- id: F36
+  claim: "The runner manages conversation state by default."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-runner
+  title: "Tool runner (SDK)"
+  source: anthropic-docs
+  quote: "By default, the runner manages conversation state for you: after each tool-call turn, it appends the assistant message and any tool results to its own message history."
+  accessed: 2026-11-19
+
+- id: F37
+  claim: "Cloud environments give each session an isolated container."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/managed-agents/choosing-an-environment
+  title: "Choosing an agent environment"
+  source: anthropic-docs
+  quote: "Anthropic runs an isolated container for each session, with common languages and tools already installed, so there is nothing for you to host."
+  accessed: 2026-11-19
+
+- id: F38
+  claim: "Self-hosted tool results still reach the managed service."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/managed-agents/choosing-an-environment
+  title: "Choosing an agent environment"
+  source: anthropic-docs
+  quote: "What a tool returns to the model still reaches the Managed Agents service."
+  accessed: 2026-11-19
+
+- id: F39
+  claim: "Headless CLI uses -p or --print."
+  tag: FACT
+  url: https://code.claude.com/docs/en/headless
+  title: "Run Claude Code programmatically"
+  source: claude-code-docs
+  quote: "Add the -p (or --print) flag to any claude command to run it non-interactively."
+  accessed: 2026-11-19
+
+- id: F40
+  claim: "Headless JSON output has result, session ID, and metadata."
+  tag: FACT
+  url: https://code.claude.com/docs/en/headless
+  title: "Run Claude Code programmatically"
+  source: claude-code-docs
+  quote: "json: structured JSON with result, session ID, and metadata"
+  accessed: 2026-11-19
+
+- id: F41
+  claim: "Project skills can be committed to share."
+  tag: FACT
+  url: https://code.claude.com/docs/en/skills
+  title: "Extend Claude with skills"
+  source: claude-code-docs
+  quote: "Sessions in this repository, but not cloud threads in a project. Commit it so your team gets it too"
+  accessed: 2026-11-19
+
+- id: F42
+  claim: "Project subagents belong in .claude/agents and can be version controlled."
+  tag: REC
+  url: https://code.claude.com/docs/en/sub-agents
+  title: "Create custom subagents"
+  source: claude-code-docs
+  quote: "Project subagents (.claude/agents/) are ideal for subagents specific to a codebase. Check them into version control so your team can use and improve them collaboratively."
+  accessed: 2026-11-19
+
+- id: F43
+  claim: "PreToolUse runs after tool parameters and before tool execution."
+  tag: FACT
+  url: https://code.claude.com/docs/en/hooks
+  title: "Hooks reference"
+  source: claude-code-docs
+  quote: "Runs after Claude creates tool parameters and before processing the tool call."
+  accessed: 2026-11-19
+
+- id: F44
+  claim: "PreToolUse can allow, deny, ask, or defer."
+  tag: FACT
+  url: https://code.claude.com/docs/en/hooks
+  title: "Hooks reference"
+  source: claude-code-docs
+  quote: "Use PreToolUse decision control to allow, deny, ask, or defer the tool call."
+  accessed: 2026-11-19
+
+- id: F45
+  claim: "Most applications need multiple success criteria."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/test-and-evaluate/develop-tests
+  title: "Define success criteria and build evaluations"
+  source: anthropic-docs
+  quote: "Most use cases need multidimensional evaluation along several success criteria."
+  accessed: 2026-11-19
+
+- id: F46
+  claim: "Larger context windows still suffer from context rot, where model accuracy and recall degrade as token counts grow."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/context-windows#how-the-context-window-works
+  title: "Context windows"
+  source: anthropic-docs
+  quote: "As token count grows, accuracy and recall degrade, a phenomenon known as context rot. This makes curating what’s in context just as important as how much space is available."
+  accessed: 2026-11-19
+
+- id: F47
+  claim: "With prompt caching enabled, total context window consumption is the sum of input_tokens, cache_read_input_tokens, and cache_creation_input_tokens (plus generated output)."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/context-windows#how-the-context-window-works
+  title: "Context windows"
+  source: anthropic-docs
+  quote: "If you use prompt caching, the input count is split across input_tokens, cache_read_input_tokens, and cache_creation_input_tokens, and all three count toward the window."
+  accessed: 2026-11-19
+
+- id: F48
+  claim: "Prompt caching changes token billing, not context window occupancy: cached prefixes still count against the context limit."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/context-windows#manage-context-with-compaction
+  title: "Context windows"
+  source: anthropic-docs
+  quote: "Cached prompt prefixes still occupy the context window: prompt caching changes what you pay for those tokens, not whether they count."
+  accessed: 2026-11-19
+
+- id: F49
+  claim: "If the input alone exceeds the model's context window, the Messages API returns HTTP 400 invalid_request_error on every model."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-overflow-behavior
+  title: "Context windows"
+  source: anthropic-docs
+  quote: "If the input alone already exceeds the model’s context window, the API returns a 400 invalid_request_error (“prompt is too long”) on every model."
+  accessed: 2026-11-19
+
+- id: F50
+  claim: "Claude Haiku 5.5 prompt-length pricing (>100,000 tokens) counts all input tokens including cache reads and cache writes per request."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/pricing#long-context-pricing
+  title: "Pricing"
+  source: anthropic-docs
+  quote: "Claude Haiku 5.5 is priced by prompt length: a request whose prompt is over 100,000 tokens pays higher prices. A request’s prompt length counts all of its input tokens, including cache reads and cache writes."
+  accessed: 2026-11-19
+  version_note: "Claude Haiku 5.5 ($0.10/$0.50 MTok up to 100k; $0.50/$2.50 MTok over 100k)."
+
+- id: F51
+  claim: "The /v1/messages/count_tokens endpoint is free to use under separate tier-based RPM rate limits."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/token-counting#pricing-and-rate-limits
+  title: "Token counting"
+  source: anthropic-docs
+  quote: "Token counting is free to use but subject to requests per minute rate limits based on your usage tier."
+  accessed: 2026-11-19
+
+- id: F52
+  claim: "Claude 4.7 and later models use a newer tokenizer that produces roughly 30% more tokens for the same text, so token counts must be measured against the target model ID."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/token-counting#supported-models
+  title: "Token counting"
+  source: anthropic-docs
+  quote: "Claude 4.7 and later models and Claude Mythos Preview use a newer tokenizer. The same input text produces approximately 30 percent more tokens than on earlier models."
+  accessed: 2026-11-19
+  version_note: "Claude 4.7 and later models and Claude Mythos Preview."
+
+- id: F53
+  claim: "Tool result clearing invalidates prompt cache prefixes whenever content is cleared, so clear_at_least should enforce a minimum token savings threshold."
+  tag: REC
+  url: https://platform.claude.com/docs/en/build-with-claude/context-editing#context-editing-and-prompt-caching
+  title: "Context editing"
+  source: anthropic-docs
+  quote: "Tool result clearing: Invalidates cached prompt prefixes when content is cleared. To account for this, clear enough tokens to make the cache invalidation worthwhile. Use the clear_at_least parameter to ensure a minimum number of tokens is cleared each time."
+  accessed: 2026-11-19
+
+- id: F54
+  claim: "When combining context editing strategies in context_management.edits, clear_thinking_20251015 must be listed before clear_tool_uses_20250919."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/context-editing#combining-strategies
+  title: "Context editing"
+  source: anthropic-docs
+  quote: "When using multiple strategies, you must list the clear_thinking_20251015 strategy first in the edits array."
+  accessed: 2026-11-19
+
+- id: F55
+  claim: "Client-side SDK compaction_control is deprecated in TypeScript and Ruby SDKs and removed in Python SDK v1.0 in favor of server-side compaction."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/context-editing#client-side-compaction-sdk
+  title: "Context editing"
+  source: anthropic-docs
+  quote: "The compaction_control parameter is deprecated in the TypeScript and Ruby SDKs and will be removed in a future version. The TypeScript and Ruby SDKs emit a deprecation warning when it is enabled. The Python SDK removed it in v1.0."
+  accessed: 2026-11-19
+  version_note: "Python SDK v1.0+ removed compaction_control; use compact-2026-01-12 or compact-2026-09-04."
+
+- id: F56
+  claim: "Anthropic recommends on-demand compaction wherever available over threshold compaction or custom client-side summarizers."
+  tag: REC
+  url: https://platform.claude.com/docs/en/build-with-claude/compaction
+  title: "Compaction overview"
+  source: anthropic-docs
+  quote: "Use on-demand compaction wherever it is available."
+  accessed: 2026-11-19
+
+- id: F57
+  claim: "On-demand compaction uses the compact-2026-09-04 beta header on both the summary request and every subsequent request carrying the signed block, and cannot be combined with context_management."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/compaction-on-demand#request-a-summary
+  title: "Compaction on demand"
+  source: anthropic-docs
+  quote: "Send the compact-2026-09-04 beta header on the request that asks for the summary and on every later request that carries the signed block."
+  accessed: 2026-11-19
+  version_note: "Beta header compact-2026-09-04 on Claude 4.6+ Opus/Sonnet, Claude 5/5.5, Haiku 5.5, Fable, Mythos."
+
+- id: F58
+  claim: "Mid-conversation role: system messages inside the summarized range are summarized along with conversation turns and stop applying once replaced by the compaction block."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/compaction-on-demand#how-it-fits-with-the-rest-of-the-api
+  title: "Compaction on demand"
+  source: anthropic-docs
+  quote: "role: \"system\" messages inside the summarized range are summarized too, so their text instructions stop applying once the block replaces them."
+  accessed: 2026-11-19
+
+- id: F59
+  claim: "When compaction is enabled, total token consumption for billing and cost auditing must be summed across usage.iterations rather than read from top-level usage.input_tokens and usage.output_tokens."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/compaction-threshold#understanding-usage
+  title: "Compaction at a token threshold"
+  source: anthropic-docs
+  quote: "To track cost or audit usage when compaction is enabled, aggregate across usage.iterations instead of reading only usage.input_tokens and usage.output_tokens."
+  accessed: 2026-11-19
+
+- id: F60
+  claim: "When tools are defined in threshold compaction, the internal summarizer may occasionally emit a tool call instead of text, yielding a compaction block with content: null unless instructions forbid tool calls."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/compaction-threshold#current-limitations
+  title: "Compaction at a token threshold"
+  source: anthropic-docs
+  quote: "When your request includes tools, the model occasionally calls a tool during the internal summarization step instead of writing a summary. When this occurs, the response contains a compaction block with content: null."
+  accessed: 2026-11-19
+
+- id: F61
+  claim: "The memory_20250818 tool executes client-side: Claude requests operations on /memories and the application executes them against its own storage backend."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool
+  title: "Memory tool"
+  source: anthropic-docs
+  quote: "The memory tool operates client-side: Claude requests file operations, and your application runs them. You control where and how the data is stored through your own infrastructure."
+  accessed: 2026-11-19
+
+- id: F62
+  claim: "Combining compaction with the memory tool keeps active context small while preserving state that must survive summarization."
+  tag: REC
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool#using-with-compaction
+  title: "Memory tool"
+  source: anthropic-docs
+  quote: "For long-running agents, consider using both: compaction keeps the active context small without client-side bookkeeping, and memory preserves the information that must survive summarization."
+  accessed: 2026-11-19
+
+- id: F63
+  claim: "Prompt cache prefixes follow a strict cumulative hierarchy: tools, then system, then messages."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching#structuring-your-prompt
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "Cache prefixes are created in the following order: tools, system, then messages. This order forms a hierarchy where each level builds upon the previous ones."
+  accessed: 2026-11-19
+
+- id: F64
+  claim: "Appending a role: system message into messages after the cache breakpoint updates instructions mid-conversation with system authority without invalidating the cached prefix."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/mid-conversation-system-messages
+  title: "Mid-conversation system messages and tool changes"
+  source: anthropic-docs
+  quote: "You append a {\"role\": \"system\"} message at the point in the conversation where the new instruction becomes relevant, instead of editing the top-level system field. The cached prefix stays the same, so the next request still reads it from cache, and the new instruction is still applied as a system instruction rather than as ordinary user text."
+  accessed: 2026-11-19
+  version_note: "Available on Opus 4.8, Opus 5/5.5, Sonnet 5.5, Haiku 5.5, Fable/Mythos 5–5.2; not available on Claude Sonnet 5."
+
+- id: F65
+  claim: "External untrusted text (raw tool outputs, retrieved documents, web content) must never be placed in a mid-conversation system message because Claude grants it operator authority."
+  tag: REC
+  url: https://platform.claude.com/docs/en/build-with-claude/mid-conversation-system-messages#limitations
+  title: "Mid-conversation system messages and tool changes"
+  source: anthropic-docs
+  quote: "Do not place text from outside the conversation, such as raw tool output, retrieved documents, or web content, directly in a system message; doing so gives that text operator-level authority."
+  accessed: 2026-11-19
+
+- id: F66
+  claim: "Tool-selection accuracy degrades once more than 30–50 tools are loaded upfront; tool search avoids this by loading only a focused subset on demand."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool
+  title: "Tool search tool"
+  source: anthropic-docs
+  quote: "Claude’s ability to pick the right tool degrades once you exceed 30–50 available tools. Because tool search loads only a focused set of relevant tools on demand, selection accuracy stays high even across thousands of tools."
+  accessed: 2026-11-19
+
+- id: F67
+  claim: "Deferred tools are excluded from the system-prompt prefix and expanded inline via tool_reference blocks when discovered, leaving the cached prefix untouched."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-use-with-prompt-caching#defer_loading-and-cache-preservation
+  title: "Tool use with prompt caching"
+  source: anthropic-docs
+  quote: "Deferred tools are not included in the system-prompt prefix. When the model discovers a deferred tool through tool search, the definition is appended inline as a tool_reference block in the conversation history. The prefix is untouched, so prompt caching is preserved."
+  accessed: 2026-11-19
+
+- id: F68
+  claim: "Programmatic tool calling saves 20–40% of tokens on production requests with 10–49 tool definitions by keeping intermediate tool results out of Claude's context window."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/programmatic-tool-calling#token-efficiency
+  title: "Programmatic tool calling"
+  source: anthropic-docs
+  quote: "Across production API traffic, requests whose tools array contains 10 to 49 tool definitions see typical token savings of 20 to 40 percent with programmatic tool calling enabled."
+  accessed: 2026-11-19
+
+- id: F69
+  claim: "In Claude Code, path-scoped rules and nested subdirectory CLAUDE.md files reside in message history and are summarized away during compaction, unlike project-root CLAUDE.md which reloads from disk."
+  tag: FACT
+  url: https://code.claude.com/docs/en/context-window#what-survives-compaction
+  title: "Explore the context window"
+  source: claude-code-docs
+  quote: "Path-scoped rules and nested CLAUDE.md files load into message history when Claude reads, writes, or edits their trigger file, so compaction summarizes them away with everything else. If a rule must persist across compaction, drop the paths: frontmatter or move it to the project-root CLAUDE.md."
+  accessed: 2026-11-19
+
+- id: F70
+  claim: "Claude Code auto-compacts native 1M-context models at roughly 967K tokens by default."
+  tag: VER
+  url: https://code.claude.com/docs/en/model-config#default-auto-compact-thresholds
+  title: "Model configuration"
+  source: claude-code-docs
+  quote: "Models running with a native 1M window compact before the window fills, at about 967K tokens by default."
+  accessed: 2026-11-19
+  version_note: "Claude Code default for native 1M models (Fable, Sonnet 5+, Haiku 5.5, Opus 4.7+)."

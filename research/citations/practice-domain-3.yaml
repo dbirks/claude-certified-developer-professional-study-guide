@@ -1,0 +1,533 @@
+- id: F1
+  claim: "Anthropic's OpenTelemetry tracing for the Claude API and SDK defaults to metadata_only mode, excluding prompt and response content."
+  tag: VER
+  url: https://platform.claude.com/docs/en/manage-claude/opentelemetry
+  title: "OpenTelemetry tracing for the Claude API"
+  source: anthropic-docs
+  quote: "Metadata only (metadata_only in the SDK): The default. Spans include identifiers, timing, status, token counts, and text that you choose, such as the names and descriptions of your agents and tools and the names of your MCP servers."
+  accessed: 2026-11-19
+  version_note: "OpenTelemetry export for the Claude API and SDK is in beta as of November 2026."
+
+- id: F2
+  claim: "Full content mode on Claude API and SDK spans includes prompts and responses, capped at 0.75 MB per span by default."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/opentelemetry
+  title: "OpenTelemetry tracing for the Claude API"
+  source: anthropic-docs
+  quote: "With Full content, each span holds up to 0.75 MB of content by default. That fits a 200k-token context window of English text and stays below the 1 MB request limit of many observability platforms and proxies."
+  accessed: 2026-11-19
+
+- id: F3
+  claim: "When a Messages API request emits both an SDK CLIENT span and an API SERVER span named anthropic.messages.create, sum only the API spans to avoid double-counting tokens."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/opentelemetry
+  title: "OpenTelemetry tracing for the Claude API"
+  source: anthropic-docs
+  quote: "When a Messages API request has both an SDK span and an API span, sum its API spans. Both are named anthropic.messages.create, so tell them apart by kind: the SDK span is CLIENT and its child, the API span, is SERVER."
+  accessed: 2026-11-19
+
+- id: F4
+  claim: "On Anthropic OpenTelemetry spans, gen_ai.usage.input_tokens already includes cache reads and cache writes, so do not add cache token attributes onto it."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/opentelemetry
+  title: "OpenTelemetry tracing for the Claude API"
+  source: anthropic-docs
+  quote: "gen_ai.usage.input_tokens already includes the tokens read from and written to the prompt cache, so don't add the cache attributes to it."
+  accessed: 2026-11-19
+
+- id: F5
+  claim: "Full-content OpenTelemetry span export for Messages API requests is ZDR-compatible because exported content is held only in memory until delivered."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/opentelemetry
+  title: "OpenTelemetry tracing for the Claude API"
+  source: anthropic-docs
+  quote: "With zero data retention, you can still use Full content. For Messages API requests, the API holds the exported content only in memory until it delivers it to the destination."
+  accessed: 2026-11-19
+
+- id: F6
+  claim: "API server spans read the W3C traceparent header and emit no request or child spans if the sampled flag is off."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/opentelemetry/api
+  title: "Set up OpenTelemetry with the Claude API"
+  source: anthropic-docs
+  quote: "The API reads each request's trace context from the W3C traceparent header. If the sampled flag in the header is off, the API doesn't emit the request's span or the spans under it."
+  accessed: 2026-11-19
+
+- id: F7
+  claim: "Passing open_telemetry in Anthropic SDK client options overrides all ANTHROPIC_OPEN_TELEMETRY* environment variables as a whole, resetting omitted nested keys to defaults."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/opentelemetry/sdk
+  title: "Set up OpenTelemetry with the Anthropic SDK"
+  source: anthropic-docs
+  quote: "If you pass open_telemetry (typescript, java, php: openTelemetry; csharp: OpenTelemetry; go: option.With…()) to the client, it overrides that option's environment variables as a whole, including nested keys. Any nested key that you leave out uses its default from the table, even if its environment variable is set."
+  accessed: 2026-11-19
+
+- id: F8
+  claim: "API-side OpenTelemetry spans report billed token counts even on failed or canceled requests, whereas client SDK spans reflect only response-reported counts."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/opentelemetry/spans
+  title: "OpenTelemetry span reference"
+  source: anthropic-docs
+  quote: "On the API spans for a Messages API request, the token counts are the tokens that your organization is billed for, even when the request fails or the application cancels it. The SDK's anthropic.messages.create span has the counts that the response reports instead, so for a failed or canceled request they can be lower than on the API span, or absent."
+  accessed: 2026-11-19
+
+- id: F9
+  claim: "Claude Code distributed tracing requires both CLAUDE_CODE_ENABLE_TELEMETRY=1 and CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1 alongside OTEL_TRACES_EXPORTER."
+  tag: VER
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Tracing is off by default. To enable it, set both CLAUDE_CODE_ENABLE_TELEMETRY=1 and CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1, then set OTEL_TRACES_EXPORTER to choose where spans are sent."
+  accessed: 2026-11-19
+  version_note: "Distributed tracing in Claude Code is in beta."
+
+- id: F10
+  claim: "Claude Code redacts user prompts, tool details, and tool content by default unless OTEL_LOG_USER_PROMPTS=1, OTEL_LOG_TOOL_DETAILS=1, and OTEL_LOG_TOOL_CONTENT=1 are set."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Spans redact user prompt text, tool input details, and tool content by default. Set OTEL_LOG_USER_PROMPTS=1, OTEL_LOG_TOOL_DETAILS=1, and OTEL_LOG_TOOL_CONTENT=1 to include them."
+  accessed: 2026-11-19
+
+- id: F11
+  claim: "Claude Code reads inbound TRACEPARENT and TRACESTATE in Agent SDK and -p sessions to parent its interaction spans under the caller's trace."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "In Agent SDK and non-interactive sessions started with -p, Claude Code also reads TRACEPARENT and TRACESTATE from its own environment when starting each interaction span."
+  accessed: 2026-11-19
+
+- id: F12
+  claim: "Interactive Claude Code sessions ignore inbound TRACEPARENT to prevent inheriting ambient CI or container trace contexts."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Interactive sessions ignore inbound TRACEPARENT to avoid accidentally inheriting ambient values from CI or container environments."
+  accessed: 2026-11-19
+
+- id: F13
+  claim: "In the Agent SDK, Python merges ClaudeAgentOptions.env onto the inherited environment while TypeScript options.env replaces it entirely."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/observability
+  title: "Observability with OpenTelemetry"
+  source: claude-code-docs
+  quote: "In Python, env is merged on top of the inherited environment. In TypeScript, env replaces the inherited environment entirely, so include ...process.env in the object you pass."
+  accessed: 2026-11-19
+
+- id: F14
+  claim: "Never configure the console OTel exporter with the Agent SDK because stdout serves as the SDK's message channel."
+  tag: REC
+  url: https://code.claude.com/docs/en/agent-sdk/observability
+  title: "Observability with OpenTelemetry"
+  source: claude-code-docs
+  quote: "The console exporter writes telemetry to standard output, which the SDK uses as its message channel. Do not set console as an exporter value when running through the SDK."
+  accessed: 2026-11-19
+
+- id: F15
+  claim: "In Agent SDK ResultMessage, use model_usage (modelUsage) rather than usage for whole-tree token accounting when subagents are spawned."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/cost-tracking
+  title: "Track cost and usage"
+  source: claude-code-docs
+  quote: "Use modelUsage, or model_usage in Python, for whole-tree token accounting; the usage field undercounts as soon as nesting occurs."
+  accessed: 2026-11-19
+
+- id: F16
+  claim: "In Messages API responses, usage.input_tokens counts only uncached tokens after the last cache breakpoint, not total input tokens."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "The input_tokens field represents only the tokens that come after the last cache breakpoint in your request, not all the input tokens you sent."
+  accessed: 2026-11-19
+
+- id: F17
+  claim: "Cache diagnostics stores lightweight hash-and-token-estimate fingerprints keyed by response id to diagnose prefix divergence without storing raw prompt text."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics
+  title: "Cache diagnostics"
+  source: anthropic-docs
+  quote: "For each request that includes the diagnostics object, the API stores a lightweight fingerprint keyed by the response id. It stores nothing for requests that omit the object."
+  accessed: 2026-11-19
+
+- id: F18
+  claim: "Combining diagnostics with usage.cache_read_input_tokens separates prefix mutations from cache TTL expiry or prompts below the minimum cacheable length."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics
+  title: "Cache diagnostics"
+  source: anthropic-docs
+  quote: "diagnostics tells you whether your request changed, and usage.cache_read_input_tokens tells you whether the cache hit. Combining them tells you where to look."
+  accessed: 2026-11-19
+
+- id: F19
+  claim: "Every Claude API response includes a unique request-id header (and request_id in error bodies) for end-to-end log correlation and support escalation."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "Every API response includes a unique request-id header. This header contains a value such as req_018EeWyXxfu5pfWkrYcMdjWG. The same identifier appears as the request_id field in error response bodies."
+  accessed: 2026-11-19
+
+- id: F20
+  claim: "Citations cannot be combined with structured JSON output formatting (output_config.format) and return a 400 error if sent together."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/citations
+  title: "Citations"
+  source: anthropic-docs
+  quote: "If you enable citations on any user-provided document (document blocks or search_result blocks) and also include the output_config.format parameter (or the deprecated output_format parameter), the API returns a 400 error."
+  accessed: 2026-11-19
+
+- id: F21
+  claim: "Under ZDR, Anthropic does not store prompts or responses at rest, but the API does not block non-eligible stateful features—calling them steps outside ZDR for that data."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/api-and-data-retention
+  title: "API and data retention"
+  source: anthropic-docs
+  quote: "Under ZDR, the API does not block these features; using one is a choice to step outside your ZDR arrangement for that specific data, and the feature's own documented retention policy applies."
+  accessed: 2026-11-19
+
+- id: F22
+  claim: "Cache diagnostics compares consecutive requests via diagnostics.previous_message_id and reports the earliest prefix divergence in cache_miss_reason."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics
+  title: "Cache diagnostics"
+  source: anthropic-docs
+  quote: "On your next request, include the previous response’s id as diagnostics.previous_message_id. The API rebuilds the fingerprint for the new request, compares it against the stored one, and attaches a diagnostics object to the response describing the first point of divergence."
+  accessed: 2026-11-19
+
+- id: F23
+  claim: "Setting CLAUDE_CODE_PROPAGATE_TRACEPARENT=1 is required to propagate W3C trace context when using a custom ANTHROPIC_BASE_URL proxy."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "If you run Claude Code through a custom ANTHROPIC_BASE_URL proxy and want trace context propagated, set CLAUDE_CODE_PROPAGATE_TRACEPARENT=1."
+  accessed: 2026-11-19
+
+- id: F24
+  claim: "Setting CLAUDE_CODE_OTEL_DIAG_STDERR=1 surfaces silent OTel exporter errors through the Agent SDK stderr callback or option."
+  tag: VER
+  url: https://code.claude.com/docs/en/agent-sdk/observability
+  title: "Observability with OpenTelemetry"
+  source: claude-code-docs
+  quote: "To surface exporter errors, set CLAUDE_CODE_OTEL_DIAG_STDERR=1 alongside the exporter variables and read the diagnostics through the SDK's stderr callback (Python) or stderr option (TypeScript)."
+  accessed: 2026-11-19
+  version_note: "Requires Claude Code v2.1.179 or later."
+
+- id: F25
+  claim: "Multiwindow, multi-burn-rate alerting pairs a long window with a short window (1/12 of the long window) so alerts only fire while budget burn is active and reset quickly after recovery."
+  tag: STD
+  url: https://sre.google/workbook/alerting-on-slos/
+  title: "Alerting on SLOs"
+  source: standard
+  quote: "A good guideline is to make the short window 1/12 the duration of the long window"
+  accessed: 2026-11-19
+
+- id: F26
+  claim: "The Google SRE Workbook baseline for a 30-day 99.9% SLO pages at 2% budget burn in 1 hour (short window 5 minutes, 14.4x burn rate) and 5% in 6 hours (short window 30 minutes, 6x burn rate), and creates a ticket at 10% burn in 3 days (short window 6 hours, 1x burn rate)."
+  tag: STD
+  url: https://sre.google/workbook/alerting-on-slos/
+  title: "Alerting on SLOs"
+  source: standard
+  quote: "We recommend 2% budget consumption in one hour and 5% budget consumption in six hours as reasonable starting numbers for paging, and 10% budget consumption in three days as a good baseline for ticket alerts."
+  accessed: 2026-11-19
+
+- id: F27
+  claim: "Low-traffic services or quiet night/weekend periods distort burn-rate alerts because a single failed request can exceed a high burn-rate threshold; mitigations include synthetic traffic, aggregating related services, retries/fallbacks, or widening windows."
+  tag: STD
+  url: https://sre.google/workbook/alerting-on-slos/
+  title: "Alerting on SLOs"
+  source: standard
+  quote: "If a system has either a low number of users or natural low-traffic periods (such as nights and weekends), you may need to alter your approach."
+  accessed: 2026-11-19
+
+- id: F28
+  claim: "Every HTTP 200 Messages API response includes stop_reason (end_turn, max_tokens, stop_sequence, tool_use, pause_turn, refusal, or model_context_window_exceeded), separating successful processing from truncated or incomplete completions."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons
+  title: "Stop reasons and fallback"
+  source: anthropic-docs
+  quote: "The stop_reason field is part of every successful Messages API response. Unlike errors, which indicate failures in processing your request, stop_reason tells you why Claude completed its response generation."
+  accessed: 2026-11-19
+
+- id: F29
+  claim: "Safety classifier refusals on Claude Fable, Opus, Sonnet 5.5, and Haiku 5.5 return a normal HTTP 200 response with stop_reason: refusal and stop_details.category, so refusal rate must be tracked on stop_reason rather than HTTP error codes."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback
+  title: "Refusals and fallback"
+  source: anthropic-docs
+  quote: "When that happens, you receive a normal response, not an error, with stop_reason: \"refusal\". Its stop_details.category names the policy area"
+  accessed: 2026-11-19
+
+- id: F30
+  claim: "Usage and Cost Analytics API data typically refreshes within 4 hours (up to 24 hours) and may be revised until about 7 days after month-end; callers should pin ending_at to data_refreshed_at for consistent reads and wait 7 days post-month for final invoicing totals."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api
+  title: "Usage and Cost Analytics API"
+  source: anthropic-docs
+  quote: "Data typically refreshes within 4 hours of the underlying usage and can take up to 24 hours. Values can be revised as late events arrive and reconciliation runs, until about 7 days after the end of the calendar month."
+  accessed: 2026-11-19
+
+- id: F31
+  claim: "The legacy Usage and Cost API (/v1/organizations/usage_report/messages and /v1/organizations/cost_report) remains supported with ~5-minute freshness, but Anthropic recommends the Usage and Cost Analytics API for new integrations due to richer dimensions, request counts, and Default Workspace IDs."
+  tag: REC
+  url: https://platform.claude.com/docs/en/manage-claude/usage-cost-api
+  title: "Usage and Cost API"
+  source: anthropic-docs
+  quote: "The Usage and Cost API (/v1/organizations/usage_report/messages and /v1/organizations/cost_report) is a legacy API and remains supported. For new integrations, use the Usage and Cost Analytics API, which reports usage and cost with more grouping and filtering dimensions."
+  accessed: 2026-11-19
+
+- id: F32
+  claim: "Claude Code natively exports OpenTelemetry time-series metrics (including claude_code.session.count, claude_code.cost.usage, claude_code.token.usage, claude_code.code_edit_tool.decision, and claude_code.active_time.total), structured events, and optional beta traces."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Claude Code exports metrics as time series data via the standard metrics protocol, events via the logs/events protocol, and optionally distributed traces via OpenTelemetry."
+  accessed: 2026-11-19
+
+- id: F33
+  claim: "Claude Code OTel logs distinguish claude_code.api_error (HTTP/network failures) from claude_code.api_refusal (HTTP 200 streams with stop_reason: refusal), enabling separate alerting on safety refusals vs. API errors."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Refusals arrive on a successful response stream rather than as an HTTP error, so the api_error event doesn't fire for them. This event lets you track refusal frequency and group refusals by the same attributes as api_request and api_error."
+  accessed: 2026-11-19
+
+- id: F34
+  claim: "The Claude Console Usage page displays Rate Limit - Input Tokens (including cache read percentage) and Output Tokens charts; because cache_read_input_tokens do not count toward ITPM limits, prompt cache misses simultaneously spike token spend and erode rate-limit headroom."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "The API's default ITPM rate limits count only uncached input tokens."
+  accessed: 2026-11-19
+
+- id: F35
+  claim: "From Claude 4.6 onward, dateless model IDs (such as claude-sonnet-4-6 or claude-sonnet-5) are pinned snapshots with frozen weights rather than rolling aliases, whereas pre-4.6 models used dated snapshots (claude-sonnet-4-5-20250929) and optional convenience aliases (claude-sonnet-4-5)."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions
+  title: "Model IDs and versioning"
+  source: anthropic-docs
+  quote: "For the 4.6 generation and later, the dateless ID is the canonical model ID for that release. It maps to a single, fixed model snapshot. Anthropic does not update the weights or configuration of an existing model ID."
+  accessed: 2026-11-19
+
+- id: F36
+  claim: "Even when model ID and weights are pinned, updates to serving infrastructure—such as request routers, safety classifiers, and sampling logic—can cause observable behavioral shifts in production."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions
+  title: "Model IDs and versioning"
+  source: anthropic-docs
+  quote: "Model weights are fixed for a given ID, but the serving infrastructure around the model can change over time. This infrastructure includes components such as the request router, safety classifiers, and sampling logic."
+  accessed: 2026-11-19
+
+- id: F37
+  claim: "User-configured organization or workspace spend limits fail with HTTP 400 invalid_request_error (Claude Code workspaces may return 429), whereas hitting a tier monthly spend cap ($500 Start, $1,000 Build, $200,000 Scale) returns HTTP 429 rate_limit_error without retry-after until the next UTC month."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "When usage reaches a spend limit you set, requests return HTTP 400 with error type invalid_request_error."
+  accessed: 2026-11-19
+
+- id: F38
+  claim: "Ramp limits reject sudden token-rate spikes with HTTP 429 rate_limit_error (error.details.error_code: ramp_limit_exceeded) even while an organization remains below its nominal ITPM and OTPM limits."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "A ramp limit caps how fast your organization's token usage on a model can grow. After a sharp increase in usage, requests can return a 429 error even while you're under your ITPM and OTPM rate limits."
+  accessed: 2026-11-19
+
+- id: F39
+  claim: "Workspaces (wrkspc_..., default max 100 per org) isolate API keys, monthly spend limits, Console email spend alerts, and per-model rate limits; every authenticated API response returns anthropic-workspace-id."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/workspaces
+  title: "Workspaces"
+  source: anthropic-docs
+  quote: "Every organization has a Default Workspace that cannot be renamed, archived, or deleted. When you create additional workspaces, you can assign members, service accounts, API keys, and resource limits to each one."
+  accessed: 2026-11-19
+
+- id: F40
+  claim: "For Claude Enterprise organizations (not Claude Console orgs), the Spend Limits API reads each member's resolved effective spend limit and period-to-date spend and manages per-user overrides and limit-increase requests."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/spend-limits-api
+  title: "Spend Limits API"
+  source: anthropic-docs
+  quote: "The Spend Limits API is available to Claude Enterprise organizations only. It is not available to Claude Platform (Claude Console) organizations."
+  accessed: 2026-11-19
+
+- id: F41
+  claim: "HTTP 429 rate_limit_error covers rate limits, ramp limits, and tier monthly spend caps; a tier spend-cap 429 has error.details.error_code enforced_spend_limit_reached, omits the retry-after header, and keeps failing even under SDK retries until access resumes."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "A tier spend-cap 429 has no retry-after header and keeps failing until access resumes"
+  accessed: 2026-11-19
+
+- id: F42
+  claim: "Ramp-limit 429 responses on the Messages API set error.details.error_code to ramp_limit_exceeded."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "On the Messages API, error.details.error_code is ramp_limit_exceeded. Use it to tell this response apart from a rate limit."
+  accessed: 2026-11-19
+
+- id: F43
+  claim: "Messages API tier spend-cap 429s carry error_code enforced_spend_limit_reached."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "On the Messages API, error.details.error_code is enforced_spend_limit_reached. Use it to tell this response apart from a rate limit."
+  accessed: 2026-11-19
+
+- id: F44
+  claim: "Head sampling decides early without the complete trace."
+  tag: FACT
+  url: https://opentelemetry.io/docs/concepts/sampling/
+  title: "Sampling"
+  source: standard
+  quote: "Head sampling is a sampling technique used to make a sampling decision as early as possible. A decision to sample or drop a span or trace is not made by inspecting the trace as a whole."
+  accessed: 2026-11-19
+
+- id: F45
+  claim: "Head sampling alone cannot ensure capture of all traces containing errors."
+  tag: FACT
+  url: https://opentelemetry.io/docs/concepts/sampling/
+  title: "Sampling"
+  source: standard
+  quote: "The primary downside to head sampling is that it is not possible to make a sampling decision based on data in the entire trace. For example, you cannot ensure that all traces with an error within them are sampled with head sampling alone."
+  accessed: 2026-11-19
+
+- id: F46
+  claim: "Tail sampling considers all or most spans and can apply trace-wide criteria."
+  tag: FACT
+  url: https://opentelemetry.io/docs/concepts/sampling/
+  title: "Sampling"
+  source: standard
+  quote: "Tail sampling is where the decision to sample a trace takes place by considering all or most of the spans within the trace."
+  accessed: 2026-11-19
+
+- id: F47
+  claim: "Some pipelines combine head and tail sampling to protect the pipeline."
+  tag: FACT
+  url: https://opentelemetry.io/docs/concepts/sampling/
+  title: "Sampling"
+  source: standard
+  quote: "Finally, for some systems, tail sampling might be used in conjunction with Head Sampling."
+  accessed: 2026-11-19
+
+- id: F48
+  claim: "The collector needs trace-affine routing and holds spans in memory."
+  tag: FACT
+  url: https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/tailsamplingprocessor/README.md
+  title: "Tail Sampling Processor"
+  source: standard
+  quote: "The processor keeps spans in memory while it waits to make a sampling decision. All spans for a given trace must be sent to the same Collector instance."
+  accessed: 2026-11-19
+
+- id: F49
+  claim: "Tail sampling uses a configurable decision wait."
+  tag: FACT
+  url: https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/tailsamplingprocessor/README.md
+  title: "Tail Sampling Processor"
+  source: standard
+  quote: "decision_wait (default = 30s): Time before timer handling for a trace."
+  accessed: 2026-11-19
+
+- id: F50
+  claim: "Collector capacity pressure can discard traces before sampling."
+  tag: FACT
+  url: https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/tailsamplingprocessor/README.md
+  title: "Tail Sampling Processor"
+  source: standard
+  quote: "If the collector is processing more traces in-memory than the num_traces configuration option allows, some will have to be dropped before they can be sampled."
+  accessed: 2026-11-19
+
+- id: F51
+  claim: "Late spans can lead to inconsistent decisions."
+  tag: FACT
+  url: https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/tailsamplingprocessor/README.md
+  title: "Tail Sampling Processor"
+  source: standard
+  quote: "Late spans can cause different sampling decisions for different parts of the trace."
+  accessed: 2026-11-19
+
+- id: F52
+  claim: "Overflow can preserve totals while filtered or grouped metric queries undercount."
+  tag: FACT
+  url: https://opentelemetry.io/blog/2026/cardinality-limits-in-opentelemetry/
+  title: "Metric cardinality limits in OpenTelemetry: a practical guide"
+  source: standard
+  quote: "That protection is useful, but it has a consequence many users do not expect: when a metric stream overflows, the total value remains correct, while queries that filter or group by attributes can undercount."
+  accessed: 2026-11-19
+
+- id: F53
+  claim: "Metrics aggregate by the full attribute combination."
+  tag: FACT
+  url: https://opentelemetry.io/blog/2026/cardinality-limits-in-opentelemetry/
+  title: "Metric cardinality limits in OpenTelemetry: a practical guide"
+  source: standard
+  quote: "The SDK aggregates measurements by the full set of attribute values. Each unique attribute combination becomes a separate data point that the SDK tracks in memory."
+  accessed: 2026-11-19
+
+- id: F54
+  claim: "Prompt ID joins events triggered by a user prompt."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "When a user submits a prompt, Claude Code may make multiple API calls and run several tools. The prompt.id attribute lets you tie all of those events back to the single prompt that triggered them."
+  accessed: 2026-11-19
+
+- id: F55
+  claim: "Tool results are absent for rejected tool calls."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Logged when a tool completes execution. Not emitted if the tool call was rejected; see the Tool decision event for rejections."
+  accessed: 2026-11-19
+
+- id: F56
+  claim: "Tool execution duration excludes permission wait."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "duration_ms | Time spent running the tool body"
+  accessed: 2026-11-19
+
+- id: F57
+  claim: "Read transcripts and grades to validate graders and diagnose failed tasks."
+  tag: FACT
+  url: https://www.anthropic.com/research/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-engineering
+  quote: "You won't know if your graders are working well unless you read the transcripts and grades from many trials."
+  accessed: 2026-11-19
+
+- id: F58
+  claim: "The outcome is the final state in the environment, distinct from transcript claims."
+  tag: FACT
+  url: https://www.anthropic.com/research/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-engineering
+  quote: "The outcome is the final state in the environment at the end of the trial."
+  accessed: 2026-11-19
+
+- id: F59
+  claim: "The requested model is available as a span attribute."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/opentelemetry/spans
+  title: "OpenTelemetry span reference"
+  source: anthropic-docs
+  quote: "gen_ai.request.model | string | The request’s model."
+  accessed: 2026-11-19

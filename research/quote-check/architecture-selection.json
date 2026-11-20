@@ -96,7 +96,7 @@
   },
   {
     "id": "F20",
-    "status": "ok",
+    "status": "ok-loose",
     "url": "https://code.claude.com/docs/en/skills"
   },
   {
@@ -148,5 +148,10 @@
     "id": "F30",
     "status": "ok",
     "url": "https://platform.claude.com/docs/en/managed-agents/overview"
+  },
+  {
+    "id": "F31",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-runner"
   }
 ]

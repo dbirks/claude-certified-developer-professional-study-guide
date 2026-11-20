@@ -1,0 +1,352 @@
+[
+  {
+    "id": "F1",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/multi-agent-research-system"
+  },
+  {
+    "id": "F2",
+    "status": "ok",
+    "url": "https://claude.com/blog/building-multi-agent-systems-when-and-how-to-use-them"
+  },
+  {
+    "id": "F3",
+    "status": "ok",
+    "url": "https://claude.com/blog/building-multi-agent-systems-when-and-how-to-use-them"
+  },
+  {
+    "id": "F4",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/subagents"
+  },
+  {
+    "id": "F5",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/subagents"
+  },
+  {
+    "id": "F6",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/permissions"
+  },
+  {
+    "id": "F7",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/permissions"
+  },
+  {
+    "id": "F8",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/user-input"
+  },
+  {
+    "id": "F9",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/hooks"
+  },
+  {
+    "id": "F10",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/hooks"
+  },
+  {
+    "id": "F11",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-teams"
+  },
+  {
+    "id": "F12",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/sessions"
+  },
+  {
+    "id": "F13",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/sessions"
+  },
+  {
+    "id": "F14",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/sessions"
+  },
+  {
+    "id": "F15",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/checkpointing"
+  },
+  {
+    "id": "F16",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/file-checkpointing"
+  },
+  {
+    "id": "F17",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/managed-agents/overview"
+  },
+  {
+    "id": "F18",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations"
+  },
+  {
+    "id": "F19",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/prompt-caching"
+  },
+  {
+    "id": "F20",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/preserved-thinking"
+  },
+  {
+    "id": "F21",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/preserved-thinking/fix-bound-to-a-different-conversation"
+  },
+  {
+    "id": "F22",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/preserved-thinking/change-tools-or-instructions"
+  },
+  {
+    "id": "F23",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/effective-harnesses-for-long-running-agents"
+  },
+  {
+    "id": "F24",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/errors"
+  },
+  {
+    "id": "F25",
+    "status": "ok",
+    "url": "https://modelcontextprotocol.io/specification/2025-11-25/schema"
+  },
+  {
+    "id": "F26",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/managed-agents/overview"
+  },
+  {
+    "id": "F27",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool"
+  },
+  {
+    "id": "F28",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/managed-agents/memory"
+  },
+  {
+    "id": "F29",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/building-effective-agents"
+  },
+  {
+    "id": "F30",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/building-effective-agents"
+  },
+  {
+    "id": "F31",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/building-effective-agents"
+  },
+  {
+    "id": "F32",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/building-effective-agents"
+  },
+  {
+    "id": "F33",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/building-effective-agents"
+  },
+  {
+    "id": "F34",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/multi-agent-research-system"
+  },
+  {
+    "id": "F35",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-runner"
+  },
+  {
+    "id": "F36",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-runner"
+  },
+  {
+    "id": "F37",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/managed-agents/choosing-an-environment"
+  },
+  {
+    "id": "F38",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/managed-agents/choosing-an-environment"
+  },
+  {
+    "id": "F39",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/headless"
+  },
+  {
+    "id": "F40",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/headless"
+  },
+  {
+    "id": "F41",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/skills"
+  },
+  {
+    "id": "F42",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/sub-agents"
+  },
+  {
+    "id": "F43",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/hooks"
+  },
+  {
+    "id": "F44",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/hooks"
+  },
+  {
+    "id": "F45",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/develop-tests"
+  },
+  {
+    "id": "F46",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/context-windows#how-the-context-window-works"
+  },
+  {
+    "id": "F47",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/context-windows#how-the-context-window-works"
+  },
+  {
+    "id": "F48",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/context-windows#manage-context-with-compaction"
+  },
+  {
+    "id": "F49",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/context-windows#context-window-overflow-behavior"
+  },
+  {
+    "id": "F50",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing#long-context-pricing"
+  },
+  {
+    "id": "F51",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/token-counting#pricing-and-rate-limits"
+  },
+  {
+    "id": "F52",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/token-counting#supported-models"
+  },
+  {
+    "id": "F53",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/context-editing#context-editing-and-prompt-caching"
+  },
+  {
+    "id": "F54",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/context-editing#combining-strategies"
+  },
+  {
+    "id": "F55",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/context-editing#client-side-compaction-sdk"
+  },
+  {
+    "id": "F56",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/compaction"
+  },
+  {
+    "id": "F57",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/compaction-on-demand#request-a-summary"
+  },
+  {
+    "id": "F58",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/compaction-on-demand#how-it-fits-with-the-rest-of-the-api"
+  },
+  {
+    "id": "F59",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/compaction-threshold#understanding-usage"
+  },
+  {
+    "id": "F60",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/compaction-threshold#current-limitations"
+  },
+  {
+    "id": "F61",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool"
+  },
+  {
+    "id": "F62",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool#using-with-compaction"
+  },
+  {
+    "id": "F63",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching#structuring-your-prompt"
+  },
+  {
+    "id": "F64",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/mid-conversation-system-messages"
+  },
+  {
+    "id": "F65",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/mid-conversation-system-messages#limitations"
+  },
+  {
+    "id": "F66",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool"
+  },
+  {
+    "id": "F67",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-use-with-prompt-caching#defer_loading-and-cache-preservation"
+  },
+  {
+    "id": "F68",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/programmatic-tool-calling#token-efficiency"
+  },
+  {
+    "id": "F69",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/context-window#what-survives-compaction"
+  },
+  {
+    "id": "F70",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/model-config#default-auto-compact-thresholds"
+  }
+]

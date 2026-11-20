@@ -1,0 +1,177 @@
+[
+  {
+    "id": "F1",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/overview"
+  },
+  {
+    "id": "F2",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/overview"
+  },
+  {
+    "id": "F3",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-runner"
+  },
+  {
+    "id": "F4",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/managed-agents/overview"
+  },
+  {
+    "id": "F5",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/managed-agents/overview"
+  },
+  {
+    "id": "F6",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/headless"
+  },
+  {
+    "id": "F7",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/headless"
+  },
+  {
+    "id": "F8",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/headless"
+  },
+  {
+    "id": "F9",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/github-actions"
+  },
+  {
+    "id": "F10",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/mcp"
+  },
+  {
+    "id": "F11",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/mcp"
+  },
+  {
+    "id": "F12",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/mcp"
+  },
+  {
+    "id": "F13",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/skills"
+  },
+  {
+    "id": "F14",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/skills"
+  },
+  {
+    "id": "F15",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/sub-agents"
+  },
+  {
+    "id": "F16",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/plugins"
+  },
+  {
+    "id": "F17",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/plugin-marketplaces"
+  },
+  {
+    "id": "F18",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/memory"
+  },
+  {
+    "id": "F19",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/permissions"
+  },
+  {
+    "id": "F20",
+    "status": "ok-loose",
+    "url": "https://code.claude.com/docs/en/hooks"
+  },
+  {
+    "id": "F21",
+    "status": "ok-loose",
+    "url": "https://code.claude.com/docs/en/hooks"
+  },
+  {
+    "id": "F22",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/settings"
+  },
+  {
+    "id": "F23",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/sandboxing"
+  },
+  {
+    "id": "F24",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/authentication"
+  },
+  {
+    "id": "F25",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/claude-platform-on-aws"
+  },
+  {
+    "id": "F26",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/claude-platform-on-aws"
+  },
+  {
+    "id": "F27",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/claude-platform-on-aws"
+  },
+  {
+    "id": "F28",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/claude-models-on-google-cloud/anthropic-managed"
+  },
+  {
+    "id": "F29",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/claude-models-on-google-cloud/anthropic-managed"
+  },
+  {
+    "id": "F30",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/claude-models-on-google-cloud/google-managed"
+  },
+  {
+    "id": "F31",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/claude-models-on-google-cloud/google-managed"
+  },
+  {
+    "id": "F32",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/claude-models-on-google-cloud/google-managed"
+  },
+  {
+    "id": "F33",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry"
+  },
+  {
+    "id": "F34",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry"
+  },
+  {
+    "id": "F35",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/claude-models-on-google-cloud/google-managed"
+  }
+]

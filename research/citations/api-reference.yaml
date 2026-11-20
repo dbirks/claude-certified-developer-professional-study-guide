@@ -1,0 +1,367 @@
+- id: F1
+  claim: "Messages API supports single queries and stateless multi-turn conversations via POST /v1/messages."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/messages
+  title: "Messages"
+  source: anthropic-docs
+  quote: "The Messages API can be used for either single queries or stateless multi-turn conversations."
+  accessed: 2026-11-19
+
+- id: F2
+  claim: "Official SDKs automatically send authentication, anthropic-version, and content-type headers, while anthropic-workspace-id is passed explicitly when needed."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/overview
+  title: "API overview"
+  source: anthropic-docs
+  quote: "If you are using the Client SDKs, the SDK sends the authentication, version, and content-type headers automatically; you pass anthropic-workspace-id yourself when your key needs it."
+  accessed: 2026-11-19
+
+- id: F3
+  claim: "First-party Messages and Token Counting requests are capped at 128 MB (returning 413 request_too_large if exceeded), while Bedrock caps at 20 MB and Google-managed Vertex at 30 MB."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/overview
+  title: "API overview"
+  source: anthropic-docs
+  quote: "Partner-operated platforms have their own request size limits: Bedrock limits requests to 20 MB, and Claude Models on Google Cloud (Google managed) limits requests to 30 MB. Claude Platform on AWS, Claude Models on Google Cloud (Anthropic managed), and Microsoft Foundry support Messages and Token Counting requests of up to 32 MB."
+  accessed: 2026-11-19
+
+- id: F4
+  claim: "API version 2026-10-21 removes temperature, top_p, and top_k on every model and rejects them with a 400 error."
+  tag: VER
+  url: https://platform.claude.com/docs/en/api/versioning
+  title: "API versions"
+  source: anthropic-docs
+  quote: "The temperature, top_p, and top_k request parameters are removed. A request that sends any of them returns a 400 error on every model."
+  accessed: 2026-11-19
+  version_note: "Applies to anthropic-version: 2026-10-21."
+
+- id: F5
+  claim: "Setting max_tokens to 0 populates the prompt cache without generating output tokens."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/messages
+  title: "Messages"
+  source: anthropic-docs
+  quote: "Set to 0 to populate the prompt cache without generating a response."
+  accessed: 2026-11-19
+
+- id: F6
+  claim: "Anthropic SDKs require streaming when max_tokens exceeds 21,333 as a client-side timeout safeguard."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/thinking
+  title: "Thinking"
+  source: anthropic-docs
+  quote: "The SDK requires streaming when max_tokens is greater than 21,333, to avoid HTTP timeouts on long-running requests. This is a client-side validation, not an API restriction."
+  accessed: 2026-11-19
+
+- id: F7
+  claim: "Messages alternate user and assistant turns, and consecutive same-role messages are merged into a single turn."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/messages
+  title: "Messages"
+  source: anthropic-docs
+  quote: "Our models are trained to operate on alternating user and assistant conversational turns. When creating a new Message, you specify the prior conversational turns with the messages parameter, and the model then generates the next Message in the conversation. Consecutive user or assistant turns in your request will be combined into a single turn."
+  accessed: 2026-11-19
+
+- id: F8
+  claim: "Claude 4.6 and later models reject assistant-message prefill with a 400 error."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/thinking
+  title: "Thinking"
+  source: anthropic-docs
+  quote: "Claude 4.6 and later models and Claude Mythos Preview reject a prefilled final assistant turn with a 400 error, whether or not thinking is on (see Prefill not supported)."
+  accessed: 2026-11-19
+  version_note: "Claude 4.6+ models and Claude Mythos Preview."
+
+- id: F9
+  claim: "metadata.user_id must be an opaque identifier (UUID or hash, max 512 chars) with no PII."
+  tag: REC
+  url: https://platform.claude.com/docs/en/api/messages
+  title: "Messages"
+  source: anthropic-docs
+  quote: "This should be a uuid, hash value, or other opaque identifier. Anthropic may use this id to help detect abuse. Do not include any identifying information such as name, email address, or phone number."
+  accessed: 2026-11-19
+
+- id: F10
+  claim: "tool_choice defaults to auto when tools are provided; disable_parallel_tool_use lives inside tool_choice rather than at top level."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use
+  title: "Parallel tool use"
+  source: anthropic-docs
+  quote: "Parallel tool use is on by default. To turn it off, set disable_parallel_tool_use: true inside the tool_choice object. It is not a top-level request parameter."
+  accessed: 2026-11-19
+
+- id: F11
+  claim: "Forced tool_choice (any or tool) is rejected with 400 under manual extended thinking and unconditionally on Opus 5.5, Sonnet 5.5, Fable 5.1/5.2, and Mythos 5.1/5.2."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/thinking
+  title: "Thinking"
+  source: anthropic-docs
+  quote: "Forced tool use (tool_choice: {\"type\": \"any\"} or {\"type\": \"tool\", ...}) is incompatible with manual extended thinking but works with adaptive thinking. The exceptions are Claude Opus 5.5, Claude Sonnet 5.5, Claude Fable 5.2, Claude Mythos 5.2, Claude Fable 5.1, and Claude Mythos 5.1, which reject forced tool use on every request with a 400 error."
+  accessed: 2026-11-19
+  version_note: "Applies to Claude 5.x/5.5 lineup as documented 2026-11-19."
+
+- id: F12
+  claim: "thinking.display controls whether thinking blocks return summarized text, omitted empty strings with signatures, or beta progress updates."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/thinking
+  title: "Thinking"
+  source: anthropic-docs
+  quote: "The display field on the thinking configuration controls how thinking content is returned in API responses. display works in both modes: set it alongside type: \"adaptive\" or type: \"enabled\"."
+  accessed: 2026-11-19
+
+- id: F13
+  claim: "output_config.effort defaults to medium on Claude Opus 5.5 and Claude Haiku 5.5, and high on other effort-supporting models."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/effort
+  title: "Effort"
+  source: anthropic-docs
+  quote: "Most Claude models default to high effort, spending as many tokens as needed for excellent results; Claude Opus 5.5 and Claude Haiku 5.5 default to medium."
+  accessed: 2026-11-19
+  version_note: "Claude 4.5-5.5 effort defaults as documented 2026-11-19."
+
+- id: F14
+  claim: "Image blocks accept JPEG, PNG, GIF, and WebP (max 8000x8000 px), with animations flattened to the first frame."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/vision
+  title: "Vision"
+  source: anthropic-docs
+  quote: "Claude supports JPEG, PNG, GIF, and WebP images (image/jpeg, image/png, image/gif, image/webp). Animations are unsupported, and only the first frame is used."
+  accessed: 2026-11-19
+
+- id: F15
+  claim: "Requests with more than 20 images trigger a stricter per-image dimension limit across all image blocks, including history and tool results."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/vision
+  title: "Vision"
+  source: anthropic-docs
+  quote: "If a single API request contains more than 20 images, a stricter per-image dimension limit applies to every image in that request. All image blocks in the request count toward this threshold, including images from earlier conversation turns that you resend and images nested inside tool_result content (for example, screenshots returned to the computer use tool)."
+  accessed: 2026-11-19
+
+- id: F16
+  claim: "PDF document blocks support up to 600 pages per request (100 pages when the context window is under 1M tokens) and must not be password-encrypted."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/pdf-support
+  title: "PDF support"
+  source: anthropic-docs
+  quote: "Maximum pages per request | 600 (100 when the request's context window is under 1M tokens)"
+  accessed: 2026-11-19
+
+- id: F17
+  claim: "search_result blocks accept only text blocks in their content array and carry source, title, optional citations.enabled, and cache_control."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/search-results
+  title: "Search results"
+  source: anthropic-docs
+  quote: "Search results hold text only. Images and other media are not supported inside the content array."
+  accessed: 2026-11-19
+
+- id: F18
+  claim: "Both thinking blocks (with signature) and redacted_thinking blocks (with encrypted data) must be passed back unmodified during tool-use turns."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/thinking
+  title: "Thinking"
+  source: anthropic-docs
+  quote: "As with the signature field on regular thinking blocks, pass redacted_thinking blocks back to the API unchanged when continuing a multi-turn conversation with tools."
+  accessed: 2026-11-19
+
+- id: F19
+  claim: "tool_result blocks must go in a user message immediately following the assistant tool_use message with no intervening messages."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls
+  title: "Handle tool calls"
+  source: anthropic-docs
+  quote: "Tool result blocks must immediately follow their corresponding tool use blocks in the message history. You cannot include any messages between the assistant's tool use message and the user's tool result message."
+  accessed: 2026-11-19
+
+- id: F20
+  claim: "Within the user message, tool_result blocks must come first in the content array before any text blocks."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls
+  title: "Handle tool calls"
+  source: anthropic-docs
+  quote: "In the user message containing tool results, the tool_result blocks must come FIRST in the content array. Any text must come AFTER all tool results."
+  accessed: 2026-11-19
+
+- id: F21
+  claim: "For parallel tool_use blocks, return one matching tool_result per tool_use_id in a single user message."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use
+  title: "Parallel tool use"
+  source: anthropic-docs
+  quote: "Whichever strategy you use, return one tool_result for each tool_use block, all together in the next user message. Match each result to its call with tool_use_id, and put every tool_result block before any text content in that message."
+  accessed: 2026-11-19
+
+- id: F22
+  claim: "When an assistant response mixes client tool_use with an unresolved server_tool_use, the follow-up user message must contain only tool_result blocks with no trailing text."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls
+  title: "Handle tool calls"
+  source: anthropic-docs
+  quote: "If the assistant turn also called a server tool that has no result block yet, the user message must contain only tool_result blocks. Text after the results ends the turn early; for a server tool Claude called directly, the request then fails with a 400 error that names the unresolved server tool."
+  accessed: 2026-11-19
+
+- id: F23
+  claim: "Server web search errors return HTTP 200 with a web_search_tool_result_error block, and encrypted_content must be echoed unchanged in multi-turn history."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool
+  title: "Web search tool"
+  source: anthropic-docs
+  quote: "When the web search tool encounters an error (such as hitting rate limits), the Claude API still returns a 200 (success) response."
+  accessed: 2026-11-19
+
+- id: F24
+  claim: "Client tool names must match ^[a-zA-Z0-9_-]{1,128}$ and define parameters via JSON Schema input_schema."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools
+  title: "Define tools"
+  source: anthropic-docs
+  quote: "name | The name of the tool. Must match the regex ^[a-zA-Z0-9_-]{1,128}$."
+  accessed: 2026-11-19
+
+- id: F25
+  claim: "JSON structured outputs moved from output_format to output_config.format with no beta header; deprecated output_format requires structured-outputs-2025-11-13."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/structured-outputs
+  title: "Structured outputs"
+  source: anthropic-docs
+  quote: "The output_format parameter has moved to output_config.format, and beta headers are no longer required. The output_format parameter is deprecated. To use it anyway, add the structured-outputs-2025-11-13 beta header."
+  accessed: 2026-11-19
+  version_note: "Python SDK v1.0+ raises TypeError if a schema dict is passed to output_format."
+
+- id: F26
+  claim: "Structured outputs emit required object properties before optional properties regardless of declaration order."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/structured-outputs
+  title: "Structured outputs"
+  source: anthropic-docs
+  quote: "When using structured outputs, properties in objects maintain their defined ordering from your schema, with one important caveat: required properties appear first, followed by optional properties."
+  accessed: 2026-11-19
+
+- id: F27
+  claim: "Strict schemas are capped at 20 strict tools, 24 optional parameters, 16 union-type parameters per request, and a 180-second grammar compilation timeout."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/structured-outputs
+  title: "Structured outputs"
+  source: anthropic-docs
+  quote: "Strict tools per request | 20 | Maximum number of tools with strict: true. Non-strict tools don't count toward this limit."
+  accessed: 2026-11-19
+
+- id: F28
+  claim: "Structured outputs do not guarantee case matching on string enum/const values and may violate the schema on refusal or max_tokens stops."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/structured-outputs
+  title: "Structured outputs"
+  source: anthropic-docs
+  quote: "Structured outputs don't guarantee the capitalization of string enum and const values: Claude might return a value that differs from your schema only in capitalization, typically in the first letter of a word following a space."
+  accessed: 2026-11-19
+
+- id: F29
+  claim: "SSE streams flow message_start, content_block_start/delta/stop per block, message_delta, and message_stop, with whole blocks like redacted_thinking and web_search_tool_result emitting no deltas."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/streaming
+  title: "Streaming messages"
+  source: anthropic-docs
+  quote: "Some blocks arrive whole, with no deltas: redacted_thinking blocks, server tool results such as web_search_tool_result, and the fallback block at each model boundary of a server-side fallback."
+  accessed: 2026-11-19
+
+- id: F30
+  claim: "Tool input streams as input_json_delta partial_json strings that must be accumulated and parsed into an object."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/streaming
+  title: "Streaming messages"
+  source: anthropic-docs
+  quote: "The deltas for tool_use content blocks correspond to updates for the input field of the block. To support maximum granularity, the deltas are partial JSON strings, whereas the final tool_use.input is always an object."
+  accessed: 2026-11-19
+
+- id: F31
+  claim: "Enabling eager_input_streaming skips server-side JSON buffering and validation, so partial or truncated JSON can reach the client."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/fine-grained-tool-streaming
+  title: "Fine-grained tool streaming"
+  source: anthropic-docs
+  quote: "Because the API does not buffer or validate a tool's input before streaming it, you might receive partial or invalid JSON. A response that ends with the stop reason max_tokens can also cut a parameter off midway."
+  accessed: 2026-11-19
+
+- id: F32
+  claim: "Token counts in message_delta.usage are cumulative across the stream."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/streaming
+  title: "Streaming messages"
+  source: anthropic-docs
+  quote: "The token counts shown in the usage field of the message_delta event are cumulative."
+  accessed: 2026-11-19
+
+- id: F33
+  claim: "Total input tokens equal input_tokens plus cache_creation_input_tokens plus cache_read_input_tokens."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/messages
+  title: "Messages"
+  source: anthropic-docs
+  quote: "Total input tokens in a request is the summation of input_tokens, cache_creation_input_tokens, and cache_read_input_tokens."
+  accessed: 2026-11-19
+
+- id: F34
+  claim: "stop_reason is always non-null in non-streaming responses and appears in message_delta (after null in message_start) during streaming."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/messages
+  title: "Messages"
+  source: anthropic-docs
+  quote: "In non-streaming mode this value is always non-null. In streaming mode, it is null in the message_start event and non-null otherwise."
+  accessed: 2026-11-19
+
+- id: F35
+  claim: "Official SDKs automatically retry transient errors (connection, 429, 5xx) twice with exponential backoff, honoring retry-after."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "The official SDK automatically retries transient failures (such as connection errors, rate limits, and 5xx server errors) with exponential backoff, twice by default, honoring the retry-after header when present."
+  accessed: 2026-11-19
+
+- id: F36
+  claim: "Starting with Claude 4.6, dateless model IDs are pinned snapshots rather than rolling aliases."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions
+  title: "Model IDs and versioning"
+  source: anthropic-docs
+  quote: "For the 4.6 generation and later, the dateless ID is the canonical model ID for that release. It maps to a single, fixed model snapshot."
+  accessed: 2026-11-19
+  version_note: "Applies to Claude 4.6+ models; pre-4.6 models use dated snapshots plus dateless aliases."
+
+- id: F37
+  claim: "Current 5.x/4.6+ models have 1M-token context windows and 128K synchronous max output (up to 300K on Batches API with output-300k-2026-03-24)."
+  tag: VER
+  url: https://platform.claude.com/docs/en/models/overview
+  title: "Models overview"
+  source: anthropic-docs
+  quote: "On the Message Batches API, Claude Opus 5.5, Claude Opus 5, Claude Sonnet 5.5, Claude Sonnet 5, Claude Haiku 5.5, Claude Opus 4.8, Claude Opus 4.7, Claude Opus 4.6, and Claude Sonnet 4.6 support up to 300k output tokens with the output-300k-2026-03-24 beta header."
+  accessed: 2026-11-19
+  version_note: "Current lineup as of 2026-11-19."
+
+- id: F38
+  claim: "Multiple beta headers can be comma-separated in one anthropic-beta header; Google-managed Vertex reads only the first header."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/beta-headers
+  title: "Beta headers"
+  source: anthropic-docs
+  quote: "To send several betas, put their names in one header, separated by commas: Claude Models on Google Cloud (Google managed) reads only one anthropic-beta header and ignores the rest, so betas in the others don't take effect."
+  accessed: 2026-11-19
+
+- id: F39
+  claim: "Prompt caching evaluates prefixes in fixed order: tools, then system, then messages, up to each cache_control breakpoint."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "Prompt caching covers the full prefix: tools, system, and messages (in that order), up to and including the block designated with cache_control."
+  accessed: 2026-11-19
+
+- id: F40
+  claim: "Fast mode (speed: fast) needs no beta header on Opus 5.5 or Fable/Mythos 5.2, but requires fast-mode-2026-02-01 on Opus 5 and Opus 4.8."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/fast-mode
+  title: "Fast mode"
+  source: anthropic-docs
+  quote: "Fast mode is in research preview on Claude Opus 5 and deprecated on Claude Opus 4.8, and needs the fast-mode-2026-02-01 beta header on both models."
+  accessed: 2026-11-19
+  version_note: "Opus 4.8 fast mode removal scheduled November 30, 2026."

@@ -1,0 +1,202 @@
+[
+  {
+    "id": "F1",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/messages"
+  },
+  {
+    "id": "F2",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/overview"
+  },
+  {
+    "id": "F3",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/overview"
+  },
+  {
+    "id": "F4",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/versioning"
+  },
+  {
+    "id": "F5",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/messages"
+  },
+  {
+    "id": "F6",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/thinking"
+  },
+  {
+    "id": "F7",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/messages"
+  },
+  {
+    "id": "F8",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/thinking"
+  },
+  {
+    "id": "F9",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/messages"
+  },
+  {
+    "id": "F10",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use"
+  },
+  {
+    "id": "F11",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/thinking"
+  },
+  {
+    "id": "F12",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/thinking"
+  },
+  {
+    "id": "F13",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/effort"
+  },
+  {
+    "id": "F14",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/vision"
+  },
+  {
+    "id": "F15",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/vision"
+  },
+  {
+    "id": "F16",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/pdf-support"
+  },
+  {
+    "id": "F17",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/search-results"
+  },
+  {
+    "id": "F18",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/thinking"
+  },
+  {
+    "id": "F19",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls"
+  },
+  {
+    "id": "F20",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls"
+  },
+  {
+    "id": "F21",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use"
+  },
+  {
+    "id": "F22",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls"
+  },
+  {
+    "id": "F23",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool"
+  },
+  {
+    "id": "F24",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools"
+  },
+  {
+    "id": "F25",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/structured-outputs"
+  },
+  {
+    "id": "F26",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/structured-outputs"
+  },
+  {
+    "id": "F27",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/structured-outputs"
+  },
+  {
+    "id": "F28",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/structured-outputs"
+  },
+  {
+    "id": "F29",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/streaming"
+  },
+  {
+    "id": "F30",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/streaming"
+  },
+  {
+    "id": "F31",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/fine-grained-tool-streaming"
+  },
+  {
+    "id": "F32",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/streaming"
+  },
+  {
+    "id": "F33",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/messages"
+  },
+  {
+    "id": "F34",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/messages"
+  },
+  {
+    "id": "F35",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/errors"
+  },
+  {
+    "id": "F36",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions"
+  },
+  {
+    "id": "F37",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/models/overview"
+  },
+  {
+    "id": "F38",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/beta-headers"
+  },
+  {
+    "id": "F39",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F40",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/fast-mode"
+  }
+]

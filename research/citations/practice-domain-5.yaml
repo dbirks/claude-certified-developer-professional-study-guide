@@ -1,0 +1,506 @@
+- id: F1
+  claim: "Capability evals start at a low pass rate to measure headroom, whereas regression evals target a nearly 100% pass rate and graduate from mastered capability tasks."
+  tag: REC
+  url: https://www.anthropic.com/research/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-research
+  quote: "Regression evals ask, “Does the agent still handle all the tasks it used to?” and should have a nearly 100% pass rate. They protect against backsliding, as a decline in score signals that something is broken and needs to be improved."
+  accessed: 2026-11-19
+
+- id: F2
+  claim: "Once capability evals reach high pass rates, they can graduate into a continuous regression suite."
+  tag: REC
+  url: https://www.anthropic.com/research/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-research
+  quote: "After an agent is launched and optimized, capability evals with high pass rates can “graduate” to become a regression suite that is run continuously to catch any drift. Tasks that once measured “Can we do this at all?” then measure “Can we still do this reliably?”"
+  accessed: 2026-11-19
+
+- id: F3
+  claim: "pass@k measures the probability of at least one success in k trials (rising with k), while pass^k measures the probability that all k trials succeed (falling exponentially with k)."
+  tag: FACT
+  url: https://www.anthropic.com/research/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-research
+  quote: "pass^k measures the probability that all k trials succeed. As k increases, pass^k falls since demanding consistency across more trials is a harder bar to clear. If your agent has a 75% per-trial success rate and you run 3 trials, the probability of passing all three is (0.75)³ ≈ 42%. This metric especially matters for customer-facing agents where users expect reliable behavior every time."
+  accessed: 2026-11-19
+
+- id: F4
+  claim: "pass@k and pass^k diverge as k grows, making pass@k suited to tools where one valid solution suffices and pass^k suited to agents requiring consistent reliability."
+  tag: REC
+  url: https://www.anthropic.com/research/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-research
+  quote: "pass@k and pass^k diverge as trials increase. At k=1, they're identical (both equal the per-trial success rate). By k=10, they tell opposite stories: pass@k approaches 100% while pass^k falls to 0%. Both metrics are useful, and which to use depends on product requirements: pass@k for tools where one success matters, pass^k for agents where consistency is essential."
+  accessed: 2026-11-19
+
+- id: F5
+  claim: "Eval datasets must be balanced with both positive triggers and negative non-trigger cases to prevent one-sided over- or under-triggering."
+  tag: REC
+  url: https://www.anthropic.com/research/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-research
+  quote: "Test both the cases where a behavior should occur and where it shouldn't. One-sided evals create one-sided optimization. For instance, if you only test whether the agent searches when it should, you might end up with an agent that searches for almost everything. Try to avoid class-imbalanced evals."
+  accessed: 2026-11-19
+
+- id: F6
+  claim: "Each eval trial must run in an isolated, clean environment so shared state cannot cause correlated failures or leak solutions from prior trials."
+  tag: REC
+  url: https://www.anthropic.com/research/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-research
+  quote: "Each trial should be “isolated” by starting from a clean environment. Unnecessary shared state between runs (leftover files, cached data, resource exhaustion) can cause correlated failures due to infrastructure flakiness rather than agent performance. Shared state can also artificially inflate performance. For example, in some internal evals we observed Claude gaining an unfair advantage on some tasks by examining the git history from previous trials."
+  accessed: 2026-11-19
+
+- id: F7
+  claim: "Grading rigid tool-call sequences creates brittle tests; Anthropic recommends grading what the agent produced and awarding partial credit for multi-component tasks."
+  tag: REC
+  url: https://www.anthropic.com/research/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-research
+  quote: "There is a common instinct to check that agents followed very specific steps like a sequence of tool calls in the right order. We’ve found this approach too rigid and results in overly brittle tests, as agents regularly find valid approaches that eval designers didn’t anticipate. So as not to unnecessarily punish creativity, it’s often better to grade what the agent produced, not the path it took."
+  accessed: 2026-11-19
+
+- id: F8
+  claim: "Reading transcripts is essential to confirm whether failures reflect agent mistakes or broken graders, and to diagnose eval saturation when scores plateau near ceiling."
+  tag: REC
+  url: https://www.anthropic.com/research/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-research
+  quote: "An eval at 100% tracks regressions but provides no signal for improvement. Eval saturation occurs when an agent passes all of the solvable tasks, leaving no room for improvement."
+  accessed: 2026-11-19
+
+- id: F9
+  claim: "Research and RAG agent evals should combine groundedness checks, coverage checks, and source quality checks, with LLM judges frequently calibrated against expert human judgment."
+  tag: REC
+  url: https://www.anthropic.com/research/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-research
+  quote: "Groundedness checks verify that claims are supported by retrieved sources, coverage checks define key facts a good answer must include, and source quality checks confirm the consulted sources are authoritative, rather than simply the first retrieved."
+  accessed: 2026-11-19
+
+- id: F10
+  claim: "Evaluation design should mirror real-world task distributions with edge cases, automate grading where possible, and favor higher question volume with automated grading over small human-graded sets."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/develop-tests
+  title: "Define success criteria and build evaluations"
+  source: anthropic-docs
+  quote: "Prioritize volume over quality: More questions with slightly lower signal automated grading is better than fewer questions with high-quality human hand-graded evals."
+  accessed: 2026-11-19
+
+- id: F11
+  claim: "claude plugin eval excludes plugin-specific checks like tool_used: Skill from both arms' scores (scored: false) so the no-plugin baseline is not artificially pushed to zero."
+  tag: FACT
+  url: https://code.claude.com/docs/en/plugin-evals
+  title: "Test plugins with evals"
+  source: claude-code-docs
+  quote: "A check like \"the skill was invoked\" can never pass without the plugin, so counting it would push the without-arm toward zero and inflate Δ. To keep the two arms comparable, Claude Code excludes such graders from the score in both arms and reports them in the with-arm as pass/fail indicators only."
+  accessed: 2026-11-19
+
+- id: F12
+  claim: "claude plugin eval supports deterministic checks (regex, tool_used, tool_order, file_exists) and model-judged checks (llm requiring 2 of 3 judge votes, and baseline)."
+  tag: FACT
+  url: https://code.claude.com/docs/en/plugin-evals
+  title: "Test plugins with evals"
+  source: claude-code-docs
+  quote: "Of the six types, regex, tool_used, tool_order, and file_exists are computed from the transcript and files and cost nothing, while llm and baseline call a judge model and add to the run's cost. There are no custom-code graders."
+  accessed: 2026-11-19
+
+- id: F13
+  claim: "In CI pipelines, claude plugin eval should pin --model and --judge-model, pass --trust-plugin, emit --json, set --max-cost-usd, and gate on exit codes 0, 1, or 2."
+  tag: REC
+  url: https://code.claude.com/docs/en/plugin-evals
+  title: "Test plugins with evals"
+  source: claude-code-docs
+  quote: "In your CI job, run the suite with --json to write the result for archiving, and fail the build on the exit code. Pass --trust-plugin so the job never waits at the first-run trust prompt, pin both models so scores are comparable over time, keep the report local, and set a cost ceiling as an upper limit:"
+  accessed: 2026-11-19
+
+- id: F14
+  claim: "RAG evaluation should measure retrieval pipeline performance separately from end-to-end generation accuracy."
+  tag: REC
+  url: https://platform.claude.com/cookbook/capabilities-retrieval-augmented-generation-guide
+  title: "Retrieval Augmented Generation | Claude Cookbook"
+  source: anthropic-docs
+  quote: "When evaluating RAG applications, it's critical to evaluate the performance of the retrieval system and end to end system separately."
+  accessed: 2026-11-19
+
+- id: F15
+  claim: "RAG retrieval evaluation tracks Precision, Recall, F1, and Mean Reciprocal Rank (MRR@k), often prioritizing high recall so the LLM receives all needed context."
+  tag: REC
+  url: https://platform.claude.com/cookbook/capabilities-retrieval-augmented-generation-guide
+  title: "Retrieval Augmented Generation | Claude Cookbook"
+  source: anthropic-docs
+  quote: "In many RAG systems, high recall is often prioritized, as LLMs can filter out less relevant information during generation."
+  accessed: 2026-11-19
+
+- id: F16
+  claim: "Anthropic evaluated Contextual Retrieval using 1 minus recall@20 to measure top-20 chunk retrieval failure rates across contextual embeddings, BM25, and reranking."
+  tag: FACT
+  url: https://www.anthropic.com/research/contextual-retrieval
+  title: "Contextual retrieval in AI systems"
+  source: anthropic-research
+  quote: "We use 1 minus recall@20 as our evaluation metric, which measures the percentage of relevant documents that fail to be retrieved within the top 20 chunks."
+  accessed: 2026-11-19
+
+- id: F17
+  claim: "The Messages API citations feature guarantees valid pointers to provided documents and extracts cited_text directly without charging output tokens."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/citations
+  title: "Citations"
+  source: anthropic-docs
+  quote: "Better citation reliability: Because the API parses citations into the response formats described in the following sections and extracts cited_text directly, citations are guaranteed to contain valid pointers to the provided documents."
+  accessed: 2026-11-19
+
+- id: F18
+  claim: "For guaranteed JSON schema compliance across evals and production, use Structured Outputs; assistant prefilling is unsupported on Claude 4.6 and later models."
+  tag: VER
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/increase-consistency
+  title: "Increase output consistency"
+  source: anthropic-docs
+  quote: "If you need Claude to always output valid JSON that conforms to a specific schema, use Structured Outputs instead of the prompt engineering techniques below. Structured outputs provide guaranteed schema compliance and are specifically designed for this use case."
+  accessed: 2026-11-19
+  version_note: "Prefilling is unsupported on Claude 4.6 and later models (and Claude Mythos Preview)."
+
+- id: F19
+  claim: "LLM-based grading rubrics should be detailed and clear, and complex use cases or criteria may require multiple rubrics."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/develop-tests
+  title: "Define success criteria and build evaluations"
+  source: anthropic-docs
+  quote: "A given use case, or even a specific success criterion for that use case, might require several rubrics for holistic evaluation."
+  accessed: 2026-11-19
+
+- id: F20
+  claim: "LLM judge prompts should request empirical or specific outputs such as binary labels or 1-5 scales rather than purely qualitative prose."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/develop-tests
+  title: "Define success criteria and build evaluations"
+  source: anthropic-docs
+  quote: "Be empirical or specific: For example, instruct the LLM to output only ‘correct’ or ‘incorrect’, or to judge from a scale of 1–5. Purely qualitative evaluations are hard to assess quickly and at scale."
+  accessed: 2026-11-19
+
+- id: F21
+  claim: "Using a grader model with thinking enabled so it reasons before producing an evaluation score improves grading performance on complex judgments."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/develop-tests
+  title: "Define success criteria and build evaluations"
+  source: anthropic-docs
+  quote: "Encourage reasoning: Use a grader model with thinking on, so that it reasons before it produces an evaluation score. This increases evaluation performance, particularly for tasks requiring complex judgment."
+  accessed: 2026-11-19
+
+- id: F22
+  claim: "Model-based graders require iterative validation and close calibration against human experts to confirm low divergence between human and LLM scores."
+  tag: REC
+  url: https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-engineering
+  quote: "Model grading often takes careful iteration to validate accuracy. LLM-as-judge graders should be closely calibrated with human experts to gain confidence that there is little divergence between the human grading and model grading."
+  accessed: 2026-11-19
+
+- id: F23
+  claim: "Giving an LLM judge an 'Unknown' escape hatch reduces hallucinated verdicts, and grading each dimension with an isolated judge improves clarity over one multi-dimension judge."
+  tag: REC
+  url: https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-engineering
+  quote: "To avoid hallucinations, give the LLM a way out, like providing an instruction to return “Unknown” when it doesn’t have enough information. It can also help to create clear, structured rubrics to grade each dimension of a task, and then grade each dimension with an isolated LLM-as-judge rather than using one to grade all dimensions."
+  accessed: 2026-11-19
+
+- id: F24
+  claim: "Inspecting evaluation transcripts alongside grader outputs is necessary to distinguish genuine model failures from faulty graders."
+  tag: REC
+  url: https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-engineering
+  quote: "You won't know if your graders are working well unless you read the transcripts and grades from many trials. At Anthropic, we invested in tooling for viewing eval transcripts and we regularly take the time to read them. When a task fails, the transcript tells you whether the agent made a genuine mistake or whether your graders rejected a valid solution."
+  accessed: 2026-11-19
+
+- id: F25
+  claim: "Evaluation suites should balance positive and negative cases because one-sided test sets optimize one failure direction at the expense of the other."
+  tag: REC
+  url: https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-engineering
+  quote: "Test both the cases where a behavior should occur and where it shouldn't. One-sided evals create one-sided optimization."
+  accessed: 2026-11-19
+
+- id: F26
+  claim: "Eval scores should not be trusted at face value until transcripts are audited to rule out unfair grading, ambiguous tasks, or harness constraints."
+  tag: REC
+  url: https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-engineering
+  quote: "As a rule, we do not take eval scores at face value until someone digs into the details of the eval and reads some transcripts. If grading is unfair, tasks are ambiguous, valid solutions are penalized, or the harness constrains the model, the eval should be revised."
+  accessed: 2026-11-19
+
+- id: F27
+  claim: "Starting with Claude 4.6, dateless canonical model IDs map to single fixed snapshots whose weights Anthropic never silently updates."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions
+  title: "Model IDs and versioning"
+  source: anthropic-docs
+  quote: "For the 4.6 generation and later, the dateless ID is the canonical model ID for that release. It maps to a single, fixed model snapshot. Anthropic does not update the weights or configuration of an existing model ID. When an updated version is available, it ships under a new model ID."
+  accessed: 2026-11-19
+  version_note: "Applies to Claude 4.6 generation and later; pre-4.6 models use dated snapshot IDs and separate convenience aliases."
+
+- id: F28
+  claim: "Pre-4.6 dateless strings such as claude-sonnet-4-5 are moving aliases that resolve to the latest dated snapshot, unlike 4.6+ canonical IDs."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions
+  title: "Model IDs and versioning"
+  source: anthropic-docs
+  quote: "An alias such as claude-sonnet-4-5 is a convenience pointer that resolves to the most recent dated snapshot for that minor version. A 4.6-generation ID such as claude-sonnet-4-6 is not an alias. It is the snapshot."
+  accessed: 2026-11-19
+  version_note: "Applies when comparing pre-4.6 aliases against Claude 4.6+ dateless snapshot IDs."
+
+- id: F29
+  claim: "Even when model IDs and weights are pinned, serving-infrastructure updates can introduce minor behavioral drift over time."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions
+  title: "Model IDs and versioning"
+  source: anthropic-docs
+  quote: "Model weights are fixed for a given ID, but the serving infrastructure around the model can change over time. This infrastructure includes components such as the request router, safety classifiers, and sampling logic."
+  accessed: 2026-11-19
+
+- id: F30
+  claim: "Constrained decoding grammars for structured outputs apply only to Claude's direct output and not to thinking blocks, allowing unconstrained reasoning before schema-enforced output."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/structured-outputs
+  title: "Structured outputs"
+  source: anthropic-docs
+  quote: "Grammar scope: Grammars apply only to Claude’s direct output, not to tool use calls, tool results, or thinking tags (when using thinking). Grammar state resets between sections, allowing Claude to think freely while still producing structured output in the final response."
+  accessed: 2026-11-19
+
+- id: F31
+  claim: "Structured outputs do not guarantee exact string casing on enum and const values, so judge parsers should compare enum strings case-insensitively."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/structured-outputs
+  title: "Structured outputs"
+  source: anthropic-docs
+  quote: "Structured outputs don’t guarantee the capitalization of string enum and const values: Claude might return a value that differs from your schema only in capitalization, typically in the first letter of a word following a space."
+  accessed: 2026-11-19
+
+- id: F32
+  claim: "Asking for thinking tags or a reasoning/thinking JSON field in structured judge prompts can trigger a reasoning_extraction refusal."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback
+  title: "Refusals and fallback"
+  source: anthropic-docs
+  quote: "A reasoning_extraction refusal usually comes from a prompt that asks the model to put its thinking or reasoning in the output, either verbatim or in a fixed format."
+  accessed: 2026-11-19
+
+- id: F33
+  claim: "For reasoning_extraction refusals, no fallback model is recommended; instead inspect summarized thinking blocks with display set to summarized or ask for a short explanation and evidence."
+  tag: REC
+  url: https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback
+  title: "Refusals and fallback"
+  source: anthropic-docs
+  quote: "To see how the model reasoned, set display: \"summarized\" and read the thinking blocks. This category has no recommended fallback model, so change the prompt rather than retry the request."
+  accessed: 2026-11-19
+
+- id: F34
+  claim: "Pairwise comparison scales quadratically with the number of candidates, while pointwise single-answer grading loses sensitivity to subtle differences and fluctuates more when the judge changes."
+  tag: STD
+  url: https://arxiv.org/html/2306.05685v4
+  title: "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena"
+  source: standard
+  quote: "For example, the pairwise comparison may lack scalability when the number of players increases, given that the number of possible pairs grows quadratically; single answer grading may be unable to discern subtle differences between specific pairs, and its results may become unstable, as absolute scores are likely to fluctuate more than relative pairwise results if the judge model changes."
+  accessed: 2026-11-19
+
+- id: F35
+  claim: "Zheng et al. define position bias as an LLM judge's propensity to favor answers in specific prompt positions over others."
+  tag: STD
+  url: https://arxiv.org/html/2306.05685v4
+  title: "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena"
+  source: standard
+  quote: "Position bias is when an LLM exhibits a propensity to favor certain positions over others."
+  accessed: 2026-11-19
+
+- id: F36
+  claim: "Verbosity bias causes LLM judges to prefer longer, wordier answers over clearer, higher-quality, or more accurate concise answers."
+  tag: STD
+  url: https://arxiv.org/html/2306.05685v4
+  title: "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena"
+  source: standard
+  quote: "Verbosity bias is when an LLM judge favors longer, verbose responses, even if they are not as clear, high-quality, or accurate as shorter alternatives."
+  accessed: 2026-11-19
+
+- id: F37
+  claim: "Cohen's kappa measures chance-corrected categorical agreement between exactly two raters evaluating N items across C mutually exclusive categories."
+  tag: STD
+  url: https://en.wikipedia.org/wiki/Cohen%27s_kappa
+  title: "Cohen's kappa"
+  source: standard
+  quote: "Cohen's kappa measures the agreement between two raters who each classify N items into C mutually exclusive categories."
+  accessed: 2026-11-19
+
+- id: F38
+  claim: "Krippendorff's alpha handles any number of coders, incomplete or missing ratings, small samples, and nominal, ordinal, interval, or ratio scales."
+  tag: STD
+  url: https://en.wikipedia.org/wiki/Krippendorff%27s_alpha
+  title: "Krippendorff's alpha"
+  source: standard
+  quote: "Krippendorff's alpha is applicable to any number of coders, each assigning one value to one unit of analysis, to incomplete (missing) data, to any number of values available for coding a variable, to binary, nominal, ordinal, interval, ratio, polar, and circular metrics"
+  accessed: 2026-11-19
+
+- id: F39
+  claim: "Standard Krippendorff's alpha benchmarks treat alpha >= 0.800 as reliable and 0.667 <= alpha < 0.800 as sufficient only for tentative conclusions (with < 0.667 discarded)."
+  tag: STD
+  url: https://en.wikipedia.org/wiki/Krippendorff%27s_alpha
+  title: "Krippendorff's alpha"
+  source: standard
+  quote: "In the absence of knowledge of the risks of drawing false conclusions from unreliable data, social scientists commonly rely on data with reliabilities α ≥ 0.800, consider data with 0.800 > α ≥ 0.667 only to draw tentative conclusions"
+  accessed: 2026-11-19
+
+- id: F40
+  claim: "Anthropic recommends a combination of automated evals, monitoring and human calibration."
+  tag: FACT
+  url: https://www.anthropic.com/research/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-research
+  quote: "The most effective teams combine these methods: automated evals for fast iteration, production monitoring for ground truth, and periodic human review for calibration."
+  accessed: 2026-11-19
+
+- id: F41
+  claim: "User-reported failures can be turned into evaluation tasks."
+  tag: FACT
+  url: https://www.anthropic.com/research/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-research
+  quote: "Converting user-reported failures into test cases ensures your suite reflects actual usage; prioritizing by user impact helps you invest effort where it counts."
+  accessed: 2026-11-19
+
+- id: F42
+  claim: "Clio applies minimum unique-user or conversation thresholds."
+  tag: FACT
+  url: https://www.anthropic.com/research/clio
+  title: "Clio: A system for privacy-preserving insights into real-world AI use"
+  source: anthropic-research
+  quote: "We also have a minimum threshold for the number of unique users or conversations, so that low-frequency topics (which might be specific to individuals) aren’t inadvertently exposed."
+  accessed: 2026-11-19
+
+- id: F43
+  claim: "Clio checks summaries for identifying information before display."
+  tag: FACT
+  url: https://www.anthropic.com/research/clio
+  title: "Clio: A system for privacy-preserving insights into real-world AI use"
+  source: anthropic-research
+  quote: "As a final check, Claude verifies that cluster summaries don’t contain any overly specific or identifying information before they’re displayed to the human user."
+  accessed: 2026-11-19
+
+- id: F44
+  claim: "Privacy protection is imperfect."
+  tag: FACT
+  url: https://www.anthropic.com/research/clio
+  title: "Clio: A system for privacy-preserving insights into real-world AI use"
+  source: anthropic-research
+  quote: "Despite Clio's strong performance in our privacy evaluations, it's possible, as with any real-world privacy system, that our systems might not catch certain kinds of private information."
+  accessed: 2026-11-19
+
+- id: F45
+  claim: "Repeated fixed-horizon peeking can inflate false positives."
+  tag: FACT
+  url: https://www.microsoft.com/en-us/research/articles/for-event-based-a-b-tests-why-they-are-special/
+  title: "For Event-based A/B tests: why they are special"
+  source: other
+  quote: "It can inflate the Type I error rate and cause experimenters to see more false positives."
+  accessed: 2026-11-19
+
+- id: F46
+  claim: "Continuous experiment monitoring needs a suitable sequential method."
+  tag: FACT
+  url: https://www.microsoft.com/en-us/research/articles/for-event-based-a-b-tests-why-they-are-special/
+  title: "For Event-based A/B tests: why they are special"
+  source: other
+  quote: "Using a traditional A/B test or “fixed-horizon” statistic no longer works, and sequential testing is better suited for continuous monitoring of the experiment."
+  accessed: 2026-11-19
+
+- id: F47
+  claim: "Claude Code analytics is daily and actor-level with dimensional breakdowns."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/claude-code-analytics-api
+  title: "Claude Code Analytics API"
+  source: anthropic-docs
+  quote: "An actor can have several records for the same day. Add up an actor’s records to get its daily totals."
+  accessed: 2026-11-19
+
+- id: F48
+  claim: "Claude Code analytics counts accepted and rejected edit proposals."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/claude-code-analytics-api
+  title: "Claude Code Analytics API"
+  source: anthropic-docs
+  quote: "edit_tool.accepted/rejected: Number of Edit tool proposals that the user accepted/rejected"
+  accessed: 2026-11-19
+
+- id: F49
+  claim: "Claude Code analytics requires appropriate Admin API credentials."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/claude-code-analytics-api
+  title: "Claude Code Analytics API"
+  source: anthropic-docs
+  quote: "You can access them using an Admin API key, an OAuth token with the org:admin scope, or a personal or service account key that isn’t scoped to a workspace; workspace API keys don’t work."
+  accessed: 2026-11-19
+
+- id: F50
+  claim: "Claude usage reports cached input separately."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "The input_tokens field represents only the tokens that come after the last cache breakpoint in your request, not all the input tokens you sent."
+  accessed: 2026-11-19
+
+- id: F51
+  claim: "Claude cannot cite image-only PDF content."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/citations
+  title: "Citations"
+  source: anthropic-docs
+  quote: "Claude can’t cite images, so it can’t cite a PDF that is a scan of a document and has no extractable text."
+  accessed: 2026-11-19
+
+- id: F52
+  claim: "Claude citation response contains text blocks with citations."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/citations
+  title: "Citations"
+  source: anthropic-docs
+  quote: "When citations are enabled, responses include multiple text blocks with citations:"
+  accessed: 2026-11-19
+
+- id: F53
+  claim: "Claude Code analytics availability may lag."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/claude-code-analytics-api
+  title: "Claude Code Analytics API"
+  source: anthropic-docs
+  quote: "Data freshness: Metrics are available with up to a 1-hour delay for consistency"
+  accessed: 2026-11-19
+
+- id: F54
+  claim: "Interference between units can bias randomized experiments."
+  tag: STD
+  url: https://research.google/pubs/cluster-randomized-designs-for-one-sided-bipartite-experiments-2/
+  title: "Cluster Randomized Designs for One-Sided Bipartite Experiments"
+  source: other
+  quote: "The conclusions of randomized controlled trials may be biased when the outcome of one unit depends on the treatment status of other units, a problem known as interference."
+  accessed: 2026-11-19
+
+- id: F55
+  claim: "Sample size planning specifies the minimum difference, power and Type I error."
+  tag: STD
+  url: https://www.nationalacademies.org/read/10732/chapter/13
+  title: "Appendix A: Sample Size Determination"
+  source: standard
+  quote: "In general, several factors must be known or estimated to calculate sample size: the effect size (usually the difference between two groups), the population standard deviation (for continuous data), the desired power of the experiment to detect the postulated effect, and the significance level."
+  accessed: 2026-11-19
+
+- id: F56
+  claim: "Total Claude input usage sums cache reads, cache writes and uncached input."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "total_input_tokens = cache_read_input_tokens + cache_creation_input_tokens + input_tokens"
+  accessed: 2026-11-19

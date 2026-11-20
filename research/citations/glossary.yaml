@@ -1,0 +1,286 @@
+- id: F1
+  claim: "An SLO has an indicator, goal, and evaluation period."
+  tag: FACT
+  url: https://docs.cloud.google.com/monitoring/api/ref_v3/rest/v3/services.serviceLevelObjectives
+  title: "REST Resource: services.serviceLevelObjectives"
+  source: other
+  quote: "A Service-Level Objective (SLO) describes a level of desired good service. It consists of a service-level indicator (SLI), a performance goal, and a period over which the objective is to be evaluated against that goal."
+  accessed: 2026-11-19
+- id: F2
+  claim: "A request-based SLI can be the ratio of good service to total service."
+  tag: STD
+  url: https://docs.cloud.google.com/monitoring/api/ref_v3/rest/v3/services.serviceLevelObjectives
+  title: "REST Resource: services.serviceLevelObjectives"
+  source: other
+  quote: "The means to compute a ratio of good_service to total_service."
+  accessed: 2026-11-19
+- id: F3
+  claim: "Burn rate measures how quickly service consumes its error budget relative to its SLO."
+  tag: FACT
+  url: https://sre.google/workbook/alerting-on-slos/
+  title: "Prometheus Alerting: Turn SLOs into Alerts"
+  source: standard
+  quote: "Burn rate is how fast, relative to the SLO, the service consumes the error budget."
+  accessed: 2026-11-19
+- id: F4
+  claim: "A burn rate of one consumes the error budget over the SLO window."
+  tag: FACT
+  url: https://sre.google/workbook/alerting-on-slos/
+  title: "Prometheus Alerting: Turn SLOs into Alerts"
+  source: standard
+  quote: "With an SLO of 99.9% over a time window of 30 days, a constant 0.1% error rate uses exactly all of the error budget: a burn rate of 1."
+  accessed: 2026-11-19
+- id: F5
+  claim: "The 50th percentile is the median."
+  tag: STD
+  url: https://www.itl.nist.gov/div898/handbook/prc/section2/prc262.htm
+  title: "7.2.6.2. Percentiles"
+  source: standard
+  quote: "The 50th percentile is called the median. Percentiles split a set of ordered data into hundredths."
+  accessed: 2026-11-19
+- id: F6
+  claim: "Percentile interpolation methods differ, so percentile dashboards should state the quantile method."
+  tag: FACT
+  url: https://www.itl.nist.gov/div898/handbook/prc/section2/prc262.htm
+  title: "7.2.6.2. Percentiles"
+  source: standard
+  quote: "There is not a standard univerally accepted way to perform this interpolation."
+  accessed: 2026-11-19
+- id: F7
+  claim: "Anthropic defines TTFT as elapsed time from prompt submission until the first generated token."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-latency
+  title: "Reducing latency"
+  source: anthropic-docs
+  quote: "Time to first token (TTFT): This metric measures the time it takes for the model to generate the first token of the response, from when the prompt was sent."
+  accessed: 2026-11-19
+- id: F8
+  claim: "Anthropic distinguishes output tokens per second from TTFT as separate speed measures."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/fast-mode
+  title: "Fast mode"
+  source: anthropic-docs
+  quote: "Speed benefits are focused on output tokens per second (OTPS), not time to first token (TTFT)"
+  accessed: 2026-11-19
+- id: F9
+  claim: "Claude streaming returns Messages API responses incrementally through server-sent events."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/streaming
+  title: "Streaming messages"
+  source: anthropic-docs
+  quote: "Stream Messages API responses incrementally with server-sent events, including text, tool use, and thinking deltas."
+  accessed: 2026-11-19
+- id: F10
+  claim: "Streaming message_delta usage values are cumulative."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/streaming
+  title: "Streaming messages"
+  source: anthropic-docs
+  quote: "The token counts shown in the usage field of the message_delta event are cumulative."
+  accessed: 2026-11-19
+- id: F11
+  claim: "Total Claude input tokens equal cache reads plus cache writes plus uncached input."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "total_input_tokens = cache_read_input_tokens + cache_creation_input_tokens + input_tokens"
+  accessed: 2026-11-19
+- id: F12
+  claim: "Claude input_tokens represents tokens after the last cache breakpoint, not all submitted input."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "The input_tokens field represents only the tokens that come after the last cache breakpoint in your request, not all the input tokens you sent."
+  accessed: 2026-11-19
+- id: F13
+  claim: "Claude usage fields distinguish tokens written to cache and retrieved from cache."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "cache_creation_input_tokens: Number of tokens written to the cache when creating a new entry"
+  accessed: 2026-11-19
+- id: F14
+  claim: "Cache read price is a model-specific fraction of base input price."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/pricing
+  title: "Pricing"
+  source: anthropic-docs
+  quote: "Cache read (hit) | 0.1x base input price on most models | Same duration as the preceding write"
+  accessed: 2026-11-19
+  version_note: "Claude Platform pricing page accessed 2026-11-19; cache multipliers vary by model and may change."
+- id: F15
+  claim: "The pricing page lists 1.25x base input for a five-minute cache write."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/pricing
+  title: "Pricing"
+  source: anthropic-docs
+  quote: "5-minute cache write | 1.25x base input price | Cache valid for 5 minutes"
+  accessed: 2026-11-19
+  version_note: "Pricing page accessed 2026-11-19; prices and multipliers may change."
+- id: F16
+  claim: "Cache reads are charged when later requests retrieve cached content."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/about-claude/pricing
+  title: "Pricing"
+  source: anthropic-docs
+  quote: "Cache read tokens are charged when a subsequent request retrieves the cached content."
+  accessed: 2026-11-19
+- id: F17
+  claim: "Each Messages API response has a stop_reason that guides whether to use, continue, retry, or fall back."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons
+  title: "Stop reasons and fallback"
+  source: anthropic-docs
+  quote: "Every Messages API response includes a stop_reason field that tells you why Claude stopped generating. Check this field to decide whether to use the response as-is, continue the conversation, retry, or fall back to another model."
+  accessed: 2026-11-19
+- id: F18
+  claim: "end_turn means Claude completed its response naturally."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons
+  title: "Stop reasons and fallback"
+  source: anthropic-docs
+  quote: "end_turn | Claude completed its response naturally. | Use the response."
+  accessed: 2026-11-19
+- id: F19
+  claim: "The Messages API is stateless and callers send the full conversation history each turn."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/working-with-messages
+  title: "Using the Messages API"
+  source: anthropic-docs
+  quote: "The Messages API is stateless, which means that you always send the full conversational history to the API."
+  accessed: 2026-11-19
+- id: F20
+  claim: "Prompt caching reuses previously processed prompt portions across API calls."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/pricing
+  title: "Pricing"
+  source: anthropic-docs
+  quote: "Prompt caching reduces costs and latency by reusing previously processed portions of your prompt across API calls."
+  accessed: 2026-11-19
+  version_note: "Pricing page description accessed 2026-11-19."
+- id: F21
+  claim: "A good request-based SLI can count successful requests or requests below a latency threshold."
+  tag: STD
+  url: https://docs.cloud.google.com/monitoring/api/ref_v3/rest/v3/services.serviceLevelObjectives
+  title: "REST Resource: services.serviceLevelObjectives"
+  source: other
+  quote: "This SLI can be evaluated on the basis of availability or latency."
+  accessed: 2026-11-19
+- id: F22
+  claim: "OpenTelemetry histograms are intended for statistically meaningful values such as percentiles."
+  tag: STD
+  url: https://opentelemetry.io/docs/specs/otel/metrics/api/
+  title: "Metrics API"
+  source: standard
+  quote: "It is intended for statistics such as histograms, summaries, and percentile."
+  accessed: 2026-11-19
+- id: F23
+  claim: "Precision is true positives over true plus false positives; recall is true positives over true plus false negatives."
+  tag: STD
+  url: https://scikit-learn.org/stable/auto_examples/model_selection/plot_precision_recall.html
+  title: "Precision-Recall"
+  source: standard
+  quote: "Precision (P) is defined as the number of true positives (T_p) over the number of true positives plus the number of false positives (F_p)."
+  accessed: 2026-11-19
+- id: F24
+  claim: "F1 is the harmonic mean of precision and recall with equal relative contribution."
+  tag: STD
+  url: https://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html
+  title: "f1_score"
+  source: standard
+  quote: "The F1 score can be interpreted as a harmonic mean of the precision and recall, where an F1 score reaches its best value at 1 and worst score at 0. The relative contribution of precision and recall to the F1 score are equal."
+  accessed: 2026-11-19
+- id: F25
+  claim: "Cohen's kappa adjusts observed categorical agreement by chance-expected agreement."
+  tag: STD
+  url: https://pmc.ncbi.nlm.nih.gov/articles/PMC5654219/
+  title: "Common pitfalls in statistical analysis: Measures of agreement"
+  source: standard
+  quote: "Cohen's kappa (κ) calculates inter-observer agreement taking into account the expected agreement by chance as follows: κ = (observed agreement [P_{o}] – expected agreement [P_{e}])/(1-expected agreement [P_{e}])."
+  accessed: 2026-11-19
+- id: F26
+  claim: "MDE is the minimum effect distinguishable from the null under stated design assumptions."
+  tag: STD
+  url: https://acf.gov/sites/default/files/documents/opre/Power%20Analysis%20Webinar-oct-2021.pdf
+  title: "Power Analysis Webinar"
+  source: other
+  quote: "Minimum detectable effect (MDE)—minimum effect you are able to distinguish from a null effect"
+  accessed: 2026-11-19
+- id: F27
+  claim: "A priori power analysis solves for sample size during planning."
+  tag: STD
+  url: https://acf.gov/sites/default/files/documents/opre/Power%20Analysis%20Webinar-oct-2021.pdf
+  title: "Power Analysis Webinar"
+  source: other
+  quote: "A priori power analysis is done during planning phase"
+  accessed: 2026-11-19
+- id: F28
+  claim: "Little's law relates mean in-system work to arrival rate times mean residence time under steady state."
+  tag: STD
+  url: https://mathworld.wolfram.com/LittlesLaw.html
+  title: "Little's Law"
+  source: standard
+  quote: "Little's law states that, under steady state conditions, the mean number of items in a queuing system equals the mean rate at which the items arrive multiplied by the mean time that an item spends in the system."
+  accessed: 2026-11-19
+- id: F29
+  claim: "Google SRE recommends exponential backoff with jitter to dampen retry error amplification."
+  tag: REC
+  url: https://sre.google/sre-book/service-best-practices/
+  title: "Production Services Best Practices"
+  source: standard
+  quote: "Every client that makes an RPC must implement exponential backoff (with jitter) for retries, to dampen error amplification."
+  accessed: 2026-11-19
+- id: F30
+  claim: "Claude's SDK retries transient failures twice by default with exponential backoff and honors retry-after when present."
+  tag: VER
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "The official SDK automatically retries transient failures (such as connection errors, rate limits, and 5xx server errors) with exponential backoff, twice by default, honoring the retry-after header when present."
+  accessed: 2026-11-19
+  version_note: "Claude API errors page accessed 2026-11-19; SDK defaults may change."
+- id: F31
+  claim: "Pass^k is the chance all k independent task trials succeed, averaged across tasks."
+  tag: STD
+  url: https://web.stanford.edu/class/cs329z/slides/lecture15.pdf
+  title: "LLM-as-Judge"
+  source: standard
+  quote: "For real-world agent tasks requiring reliability and consistency like customer service, we propose a new metric – pass^k (pass hat k), defined as the chance that all k i.i.d. task trials are successful, averaged across tasks."
+  accessed: 2026-11-19
+- id: F32
+  claim: "An observed pass^k estimate counts all-pass k-sized combinations among all k-sized combinations."
+  tag: STD
+  url: https://web.stanford.edu/class/cs329z/slides/lecture15.pdf
+  title: "LLM-as-Judge"
+  source: standard
+  quote: "Therefore, if a task is run for n trials and c of those trials end up successful (r = 1), unbiased estimates for pass^k and pass@k would be:"
+  accessed: 2026-11-19
+- id: F33
+  claim: "Pass@k measures probability that at least one of k generated samples passes unit tests."
+  tag: STD
+  url: https://arxiv.org/pdf/2107.03374
+  title: "Evaluating Large Language Models Trained on Code"
+  source: other
+  quote: "To solve a problem in our test set, we generate multiple samples from the models, and check if any of them pass the unit tests."
+  accessed: 2026-11-19
+- id: F34
+  claim: "OpenTelemetry metrics are measurements of a service captured at runtime."
+  tag: STD
+  url: https://opentelemetry.io/docs/concepts/signals/metrics/
+  title: "Metrics"
+  source: standard
+  quote: "A metric is a measurement of a service captured at runtime."
+  accessed: 2026-11-19
+- id: F35
+  claim: "Claude prompt-cache minimum lengths vary by model."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "Shorter prompts cannot be cached, even if marked with cache_control."
+  accessed: 2026-11-19
+  version_note: "Model-specific minimum cacheable token lengths as accessed 2026-11-19; recheck for later editions."
+

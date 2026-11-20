@@ -1,0 +1,152 @@
+- id: F1
+  claim: "Tool calls auto-approved by allow rules, acceptEdits, or bypassPermissions never reach the canUseTool callback, silently bypassing any checks placed only inside canUseTool."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/permissions#allow-and-deny-rules
+  title: "Configure permissions"
+  source: claude-code-docs
+  quote: "Auto-approved tools never reach canUseTool. A tool call approved at any earlier step, by acceptEdits or bypassPermissions, or by an allow rule, skips your canUseTool callback, so permission checks you put there are silently bypassed for that tool."
+  accessed: 2026-11-19
+
+- id: F2
+  claim: "PostToolUse updatedToolOutput replaces what Claude sees, not what already executed on disk/network or what OpenTelemetry spans and analytics events already captured."
+  tag: FACT
+  url: https://code.claude.com/docs/en/hooks#posttooluse-decision-control
+  title: "Hooks reference"
+  source: claude-code-docs
+  quote: "updatedToolOutput only changes what Claude sees. The tool has already run by the time the hook fires, so any files written, commands executed, or network requests sent have already taken effect. Telemetry such as OpenTelemetry tool spans and analytics events also captures the original output before the hook runs."
+  accessed: 2026-11-19
+
+- id: F3
+  claim: "Claude Code's built-in sandbox isolates Bash, PowerShell, and Monitor shell commands and their child processes, while built-in file tools, MCP servers, and hooks run outside it."
+  tag: FACT
+  url: https://code.claude.com/docs/en/sandboxing#what-runs-outside-the-sandbox
+  title: "Configure the sandboxed Bash tool"
+  source: claude-code-docs
+  quote: "The sandbox covers shell commands only. Claude's file tools, MCP servers, and hooks run outside it."
+  accessed: 2026-11-19
+
+- id: F4
+  claim: "By default Claude Code falls back to unsandboxed execution if sandbox dependencies or platform support are missing; setting sandbox.failIfUnavailable to true forces startup failure instead."
+  tag: FACT
+  url: https://code.claude.com/docs/en/sandboxing#get-started
+  title: "Configure the sandboxed Bash tool"
+  source: claude-code-docs
+  quote: "By default, when the platform doesn't support the sandbox or the dependency check at startup fails, Claude Code runs commands without sandboxing. To make Claude Code exit at startup instead, set sandbox.failIfUnavailable to true."
+  accessed: 2026-11-19
+
+- id: F5
+  claim: "Multi-level risk classification (e.g., 0–3) lets moderation guardrails tune false-positive/false-negative action thresholds by auto-blocking high-risk inputs while routing medium-risk inputs to human review."
+  tag: REC
+  url: https://platform.claude.com/docs/en/about-claude/use-case-guides/content-moderation#evaluate-your-prompt
+  title: "Content moderation"
+  source: anthropic-docs
+  quote: "Creating multiple risk levels allows you to adjust the aggressiveness of your moderation. For example, you might want to automatically block user queries that are deemed high risk, whereas users with many medium risk queries are flagged for human review."
+  accessed: 2026-11-19
+
+- id: F6
+  claim: "Client-side handlers for the memory tool must validate and canonicalize every path to prevent directory traversal outside /memories."
+  tag: REC
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool
+  title: "Memory tool"
+  source: anthropic-docs
+  quote: "A malicious path such as /memories/../../secrets.env can reach files outside the /memories directory. Your implementation must validate every path in every command to prevent directory traversal attacks."
+  accessed: 2026-11-19
+
+- id: F7
+  claim: "MCP servers must validate token audience and must never accept or pass through tokens not explicitly issued for the MCP server."
+  tag: STD
+  url: https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices
+  title: "Security Best Practices - Model Context Protocol"
+  source: mcp-spec
+  quote: "MCP servers MUST NOT accept any tokens that were not explicitly issued for the MCP server."
+  accessed: 2026-11-19
+
+- id: F8
+  claim: "Stateless MCP servers must verify authorization on every request and never treat possession of a state handle (or 2025-era session ID) as authentication."
+  tag: STD
+  url: https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices
+  title: "Security Best Practices - Model Context Protocol"
+  source: mcp-spec
+  quote: "MCP servers that implement authorization MUST verify all inbound requests. MCP servers MUST NOT treat possession of a state handle as authentication."
+  accessed: 2026-11-19
+
+- id: F9
+  claim: "Adversarial and cyber safety evaluations where safeguards are relaxed must run in an internet-isolated sandbox with real-time monitoring."
+  tag: REC
+  url: https://www.anthropic.com/research/building-strong-safety-evaluations
+  title: "Building strong safety evaluations"
+  source: anthropic-research
+  quote: "For this reason, evals should be run in a sandbox with no internet access, and monitored in real time so you can stop a run immediately if a model is acting in ways that could result in real-world harm."
+  accessed: 2026-11-19
+
+- id: F10
+  claim: "Automated red teaming pairs an attack-generating model against a defending model in a red-team/blue-team loop to scale adversarial coverage beyond manual testing."
+  tag: REC
+  url: https://www.anthropic.com/news/challenges-in-red-teaming-ai-systems
+  title: "Challenges in red teaming AI systems"
+  source: anthropic-research
+  quote: "To do this, we employ a red team / blue team dynamic, where we use a model to generate attacks that are likely to elicit the target behavior (red team) and then fine-tune a model on those red teamed outputs in order to make it more robust to similar types of attack (blue team)."
+  accessed: 2026-11-19
+
+- id: F11
+  claim: "Claude API Workload Identity Federation exchanges an upstream OIDC JWT for a short-lived Anthropic token bound to an organization service account."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/workload-identity-federation
+  title: "Workload Identity Federation"
+  source: anthropic-docs
+  quote: "Your workload presents a signed JWT from your identity provider. Anthropic validates it against trust rules you configure in the Claude Console and returns a short-lived Anthropic access token bound to a service account in your organization."
+  accessed: 2026-11-19
+
+- id: F12
+  claim: "Claude SDK credential precedence puts ANTHROPIC_API_KEY / ANTHROPIC_AUTH_TOKEN ahead of WIF environment credentials, so leftover static credentials silently override federation."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/workload-identity-federation
+  title: "Workload Identity Federation"
+  source: anthropic-docs
+  quote: "ANTHROPIC_API_KEY sits above the federation tiers, so a leftover key in the environment silently overrides federation."
+  accessed: 2026-11-19
+
+- id: F13
+  claim: "The WIF SDK refreshes its token ahead of expiry and rereads the identity token file on each exchange, allowing projected identity tokens to rotate."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/workload-identity-federation
+  title: "Workload Identity Federation"
+  source: anthropic-docs
+  quote: "Because the SDK rereads ANTHROPIC_IDENTITY_TOKEN_FILE on every exchange, it automatically picks up rotated projected tokens (Kubernetes service-account tokens, for example, rotate well before their exp)."
+  accessed: 2026-11-19
+
+- id: F14
+  claim: "Claude Code OTel has a claude_code.tool_decision event for accepted or rejected tool permission decisions, with tool_use_id for correlation."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Logged when a tool permission decision is made (accept/reject). Event Name: claude_code.tool_decision"
+  accessed: 2026-11-19
+
+- id: F15
+  claim: "Claude Code OTel correlates tool decisions/results to user prompts and sessions, but direct API key and cloud-provider sessions require customer-supplied end-user identity attributes."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "When Claude Code authenticates with a direct API key, or against Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry, there is no Claude account in the session and only user.id and session.id are populated."
+  accessed: 2026-11-19
+
+- id: F16
+  claim: "Compliance API does not include Claude Code usage authenticated with a Claude Console API key or run through any cloud provider."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/compliance-integration-patterns
+  title: "Design your compliance integration"
+  source: anthropic-docs
+  quote: "Claude Code usage authenticated with a Claude Console API key, run through any cloud platform, or run in a Claude Code cloud session."
+  accessed: 2026-11-19
+
+- id: F17
+  claim: "Anthropic recommends storing API keys in a secrets manager, rotating periodically, and disabling or deleting suspected leaked keys."
+  tag: REC
+  url: https://platform.claude.com/docs/en/manage-claude/authentication
+  title: "Authentication"
+  source: anthropic-docs
+  quote: "Store API keys in a secrets manager, rotate them periodically, and disable or delete any key you suspect has leaked."
+  accessed: 2026-11-19
