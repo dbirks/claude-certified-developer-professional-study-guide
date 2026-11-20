@@ -6,6 +6,12 @@ GPT-6.x via Codex), which edited the chapter and recorded every change. `scripts
 source and confirmed each citation's quote appears on the page (results in `quote-check/`). Reviewers are AI models, not
 human subject-matter experts.
 
+### Reference Api Reference
+
+Log: [fact-check/api-reference.md](fact-check/api-reference.md) · passes: 1 · reviewer(s): OpenAI GPT-6
+
+- The chapter contains 123 citation components and one Python code block. The focused review identified 8 claims or passages to fix, including 2 unsupported assertions removed; 4 citations were added. The code block was checked and parsed. The citation and quote checks passed. A complete sentence-by-sentence classification and reliable supported-claim count were not completed.
+
 ### 1.3 Architecture Selection at Scale
 
 Log: [fact-check/architecture-selection.md](fact-check/architecture-selection.md) · passes: 1 · reviewer(s): OpenAI GPT-6 Codex

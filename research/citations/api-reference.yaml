@@ -365,3 +365,40 @@
   quote: "Fast mode is in research preview on Claude Opus 5 and deprecated on Claude Opus 4.8, and needs the fast-mode-2026-02-01 beta header on both models."
   accessed: 2026-11-19
   version_note: "Opus 4.8 fast mode removal scheduled November 30, 2026."
+
+- id: F41
+  claim: "Resume a paused server-tool turn with the same tools and unchanged assistant content; inspect stop details on a refusal."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons
+  title: "Stop reasons and fallback"
+  source: anthropic-docs
+  quote: "Send the request with the same tools as before and no user message after the assistant message."
+  accessed: 2026-11-19
+
+- id: F42
+  claim: "Streams contain content block events, message deltas, and a final message stop."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/streaming
+  title: "Streaming messages"
+  source: anthropic-docs
+  quote: "One or more message_delta events, indicating top-level changes to the final Message object."
+  accessed: 2026-11-19
+
+- id: F43
+  claim: "The current model overview lists model IDs, context windows, and output limits."
+  tag: VER
+  url: https://platform.claude.com/docs/en/models/overview
+  title: "Models overview"
+  source: anthropic-docs
+  quote: "Claude Fable 5.2 | 1M tokens | 128K tokens"
+  accessed: 2026-11-19
+  version_note: "Model overview as of 2026-11-19; limits vary by model and API."
+
+- id: F44
+  claim: "The first-party Messages and Token Counting APIs have a 128 MB request size limit and return 413 when exceeded."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/overview
+  title: "API overview"
+  source: anthropic-docs
+  quote: "If you exceed these limits, you’ll receive a 413 request_too_large error."
+  accessed: 2026-11-19

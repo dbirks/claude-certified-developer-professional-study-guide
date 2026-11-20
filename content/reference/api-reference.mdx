@@ -1,0 +1,302 @@
+---
+title: "Messages API and tool-use quick reference"
+summary: "Look up Messages API request and response shapes, tool-use turn rules, streaming events, usage fields, model IDs, and beta headers."
+kind: reference
+order: 1
+slug: api-reference
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+This appendix is a lookup sheet for the Claude Messages API, `POST /v1/messages`, at `anthropic-version: 2026-10-21`: headers and transport limits, request and response shapes, content block types, the tool-use turn protocol, structured outputs, SSE streaming, usage accounting, stop reasons versus HTTP errors, model IDs, and beta headers. Use the linked documentation to check model and platform availability before deployment.
+
+## Endpoint, headers, and transport limits
+
+The Messages API is a single **stateless endpoint**: `POST https://api.anthropic.com/v1/messages` serves both single queries and multi-turn conversations, so the application resends the conversation history on every call.<Cite id="F1" />
+
+| Header | Value |
+|---|---|
+| `Authorization` | `Bearer <api_key_or_wif_token>`<Cite id="F2" /> |
+| `anthropic-version` | `2026-10-21`<Cite id="F2" /> |
+| `content-type` | `application/json`<Cite id="F2" /> |
+| `anthropic-workspace-id` | `wrkspc_...`<Cite id="F2" /> |
+| `anthropic-beta` | `flag1,flag2`<Cite id="F38" /> |
+
+The official SDKs send the authentication, version, and `content-type` headers automatically; you pass `anthropic-workspace-id` yourself when your key is org-wide rather than scoped to one workspace.<Cite id="F2" /> Put every beta flag in one comma-separated `anthropic-beta` header, because Claude Models on Google Cloud (Google managed) reads only one such header and ignores the rest; SDKs expose the same list as `betas` on the beta client.<Cite id="F38" />
+
+Request size caps differ per platform. The first-party API returns HTTP `413` `request_too_large` when its limit is exceeded.<Cite id="F3 F44" />
+
+| Platform | Request cap |
+|---|---|
+| First-party Messages and Token Counting | 128 MB |
+| Anthropic-operated cloud platforms | 32 MB |
+| Claude Models on Google Cloud (Google managed) | 30 MB |
+| Amazon Bedrock | 20 MB |
+
+Two SDK behaviors matter for long calls. The SDKs reject a non-streaming `messages.create()` when `max_tokens > 21333` as a client-side timeout guard, not an API limit; use `client.messages.stream()` with `stream.get_final_message()` in Python, or `stream.finalMessage()` in TypeScript.<Cite id="F6" /> The same SDKs retry connection errors, `429`, and `5xx` twice by default with exponential backoff, honoring `retry-after`; the count is set by `max_retries` (`maxRetries` in TypeScript).<Cite id="F35" />
+
+## Request body
+
+Sampling parameters are gone: `temperature`, `top_p`, and `top_k` are removed in `anthropic-version: 2026-10-21`, and sending any value returns `400` on every model.<Cite id="F4" />
+
+| Field | Type | Notes |
+|---|---|---|
+| `model` | string | Pinned snapshot ID, or a pre-4.6 alias<Cite id="F36" /> |
+| `max_tokens` | integer | Caps thinking plus output tokens<Cite id="F5" /> |
+| `messages` | array | Alternating `user`, `assistant` turns<Cite id="F7" /> |
+| `system` | string or blocks | Part of the cached prefix<Cite id="F39" /> |
+| `tools` | array | `name` plus JSON Schema `input_schema`<Cite id="F24" /> |
+| `tool_choice` | object | Defaults to `auto` when `tools` is set<Cite id="F10" /> |
+| `thinking` | object | `adaptive` or manual `enabled` mode<Cite id="F12" /> |
+| `output_config` | object | `effort` and `format`<Cite id="F13 F25" /> |
+| `metadata` | object | Opaque `user_id` only<Cite id="F9" /> |
+| `stream` | boolean | Off by default; `true` means SSE<Cite id="F29" /> |
+| `cache_control` | object | `ephemeral`, with `ttl` of `5m` or `1h`<Cite id="F39" /> |
+| `speed` | string | `standard` or `fast`<Cite id="F40" /> |
+
+`max_tokens` is a hard ceiling over thinking tokens and visible output together, and setting it to `0` populates the prompt cache without generating a response.<Cite id="F5" /> `messages` represents alternating `user` and `assistant` turns; consecutive same-role messages in your request are combined into one turn, and each `content` field is either a string or a block array.<Cite id="F7" /> Anthropic recommends a UUID, hash, or other opaque identifier for `metadata.user_id`, which has a maximum length of 512 characters and must not carry a name, email address, or phone number.<Cite id="F9" />
+
+Three request shapes return `400` under `2026-10-21`: a prefilled final assistant turn on Claude 4.6 or later and on Mythos Preview, with thinking on or off;<Cite id="F8" /> a `document` block placed in an `assistant` message;<Cite id="F4" /> and non-empty `citations` in a `user` message.<Cite id="F4" />
+
+The response **Message** is the generated assistant turn. It returns `id` (`msg_...`), `type: "message"`, `role: "assistant"`, `model`, the `content` block array, `stop_reason`, `stop_sequence`, and `usage`. In a non-streaming response `stop_reason` is always non-null.<Cite id="F34" />
+
+## Content block types
+
+A **content block** is one typed member of a message's `content` array. Blocks marked "echo" must be sent back inside the assistant message when you continue a tool-use turn.
+
+| `type` | Direction | Key fields |
+|---|---|---|
+| `text` | In, out | `text`, optional `cache_control`, `citations`<Cite id="F4" /> |
+| `image` | In: `user`, `tool_result` | `source`, optional `cache_control`<Cite id="F14" /> |
+| `document` | In: `user`, `tool_result` | `source`, optional `citations: {enabled}`<Cite id="F16" /> |
+| `search_result` | In: `user`, `tool_result` | `source`, `title`, `content`<Cite id="F17" /> |
+| `thinking` | Out, echo | `thinking` text, `signature`<Cite id="F12" /> |
+| `redacted_thinking` | Out, echo | `data`<Cite id="F18" /> |
+| `tool_use` | Out, echo | `id`, `name`, `input`<Cite id="F30" /> |
+| `tool_result` | In: `user` only | `tool_use_id`, `content`, `is_error`<Cite id="F19" /> |
+| `server_tool_use` | Out, echo | `id`, `name`, `input`<Cite id="F22" /> |
+| `web_search_tool_result` | Out, echo | `tool_use_id`, `content`<Cite id="F23" /> |
+
+Image blocks accept `image/jpeg`, `image/png`, `image/gif`, and `image/webp`, and animations are flattened to the first frame.<Cite id="F14" /> Once a request carries more than 20 images — history turns and images nested in `tool_result` content included — a stricter per-image dimension limit applies to every image in that request.<Cite id="F15" /> PDF `document` blocks allow up to 600 pages per request, or 100 pages when the request's context window is under 1M tokens.<Cite id="F16" /> A `search_result` block holds text only: images and other media are not supported inside its `content` array.<Cite id="F17" />
+
+`thinking` carries readable summary text (empty when `display` is `"omitted"`) plus the encrypted `signature`; `redacted_thinking` carries only encrypted `data` with no readable text. Both must be passed back to the API unchanged when you continue a multi-turn conversation with tools.<Cite id="F12 F18" /> `tool_use.input` is always an object in the finished message even though it streams as string fragments.<Cite id="F30" />
+
+Server tools produce two more block types. `server_tool_use` (ids starting `srvtoolu_`) records a call Claude ran itself, and `web_search_tool_result` carries either result blocks — `url`, `title`, `encrypted_content` — or an error block. A failed web search is not an HTTP failure: the API still returns `200`, so branch on the block type, and echo `encrypted_content` unchanged in later turns.<Cite id="F22 F23" />
+
+## Tool-use turn rules
+
+A **tool loop** sends tool calls to the application and returns their results to Claude. Message ordering is part of that contract.<Cite id="F19 F20" />
+
+1. The API returns an assistant message whose `stop_reason` is `"tool_use"`.
+2. Append that assistant `content` array to `messages` unchanged, keeping `thinking` and `redacted_thinking` blocks in place.<Cite id="F18" />
+3. Send one `role: "user"` message immediately after it; you cannot place any message between the assistant `tool_use` turn and the `tool_result` turn.<Cite id="F19" />
+4. Put every `tool_result` block before any `text` block in that user message.<Cite id="F20" />
+5. For parallel calls, return one `tool_result` for each `tool_use` block in that single user message, matched by `tool_use_id` — including an `is_error: true` result for a call you skipped after an earlier failure.<Cite id="F21" />
+6. If the assistant turn also contains a `server_tool_use` whose result block has not arrived yet, the user message must contain only `tool_result` blocks: text after the results ends the turn early, and for a server tool Claude called directly the request fails with a `400` naming the unresolved server tool.<Cite id="F22" />
+
+`tool_choice` has these shapes:
+
+| `tool_choice` | Effect |
+|---|---|
+| `{"type": "auto"}` | Default whenever `tools` is present<Cite id="F10" /> |
+| `{"type": "any"}` | Forces at least one tool call<Cite id="F11" /> |
+| `{"type": "tool", "name": "..."}` | Forces that one tool<Cite id="F11" /> |
+
+Add `"disable_parallel_tool_use": true` inside the `tool_choice` object to cap the turn at one call; it is not a top-level request parameter.<Cite id="F10" /> The two forced forms return `400` under manual extended thinking (`thinking.type: "enabled"`) and are rejected unconditionally on Opus 5.5, Sonnet 5.5, Fable 5.1/5.2, and Mythos 5.1/5.2.<Cite id="F11" /> Recommended practice in agent loops is therefore `tool_choice: {"type": "auto"}` paired with strict schemas and explicit prompting, not forced choice.
+
+<Callout type="mistake" title="Dropping blocks while filtering history">
+
+Code that rebuilds history by keeping "only `text` and `tool_use`" deletes `redacted_thinking`, strips `encrypted_content`, or reorders `tool_result` behind `text`. `redacted_thinking` must be returned unchanged,<Cite id="F18" /> `tool_result` must lead the content array,<Cite id="F20" /> and `encrypted_content` must be echoed verbatim.<Cite id="F23" />
+
+</Callout>
+
+<Figure caption="Single-turn tool loop over SSE: echo assistant blocks unchanged, group matching tool results first in one user message, and branch control flow on the stop reason from message delta.">
+  <Sequence actors={["Client App", "Messages API", "Client Tools"]} messages={[
+    { from: 0, to: 1, label: "POST /v1/messages (stream)" },
+    { from: 1, to: 0, label: "message_start, null stop", dashed: true },
+    { from: 1, to: 0, label: "tool_use deltas ×2", dashed: true },
+    { from: 1, to: 0, label: "message_delta, tool_use", dashed: true },
+    { from: 0, to: 2, label: "dispatch both calls" },
+    { from: 2, to: 0, label: "one ok, one error" },
+    { from: 0, to: 1, label: "tool_results first" },
+    { from: 1, to: 0, label: "end_turn, message_stop", dashed: true },
+  ]} />
+</Figure>
+
+### Worked example: streaming tool loop
+
+The following Python example uses the Anthropic SDK and simulated prices, not live market data. It streams, echoes assistant content, processes client tool calls sequentially, and groups results in one user message.<Cite id="F19 F20 F21 F42" /> Install a current SDK, configure credentials, and replace the lookup with your own implementation for production.
+
+```python
+import anthropic
+
+client = anthropic.Anthropic()  # sends anthropic-version automatically
+
+tools = [
+    {
+        "name": "get_stock",
+        "description": "Return a simulated price for a ticker symbol.",
+        "strict": True,
+        "input_schema": {
+            "type": "object",
+            "properties": {"ticker": {"type": "string"}},
+            "required": ["ticker"],
+            "additionalProperties": False,
+        },
+    }
+]
+
+messages = [{"role": "user", "content": "Compare AAPL and MSFT prices."}]
+
+while True:
+    # SDK requires .stream() when max_tokens > 21333; also exposes incremental deltas.
+    with client.messages.stream(
+        model="claude-sonnet-5-5",
+        max_tokens=32000,
+        tools=tools,
+        tool_choice={"type": "auto"},  # forced "any"/"tool" returns 400 on Sonnet 5.5
+        output_config={"effort": "medium"},
+        messages=messages,
+    ) as stream:
+        for event in stream:
+            if event.type == "content_block_delta" and event.delta.type == "text_delta":
+                print(event.delta.text, end="", flush=True)
+        resp = stream.get_final_message()
+
+    # Always echo full assistant content (including thinking / redacted_thinking blocks).
+    messages.append({"role": "assistant", "content": resp.content})
+
+    if resp.stop_reason == "tool_use":
+        tool_results = []
+        for block in resp.content:
+            if block.type == "tool_use":
+                try:
+                    price = {"AAPL": "228.50", "MSFT": "415.10"}[block.input["ticker"]]
+                    tool_results.append({
+                        "type": "tool_result",
+                        "tool_use_id": block.id,
+                        "content": price,
+                    })
+                except Exception as exc:
+                    tool_results.append({
+                        "type": "tool_result",
+                        "tool_use_id": block.id,
+                        "content": f"Lookup failed: {exc}",
+                        "is_error": True,
+                    })
+        # All parallel tool_results go in ONE user message, BEFORE any text.
+        messages.append({"role": "user", "content": tool_results})
+    elif resp.stop_reason == "pause_turn":
+        # Server tool loop paused; re-send the assistant turn with no user message.
+        continue
+    else:
+        print(f"\n[stop={resp.stop_reason} in={resp.usage.input_tokens} out={resp.usage.output_tokens}]")
+        break
+```
+
+## `input_schema`, strict tools, and structured outputs
+
+**Strict tool use** is a per-tool output guarantee set with `"strict": true` on an individual client tool. **Structured outputs** is the response-level guarantee, set with `output_config: {format: {type: "json_schema", schema: ...}}`, which is generally available and needs no beta header.<Cite id="F25" /> The deprecated top-level `output_format` parameter only works with `anthropic-beta: structured-outputs-2025-11-13`, and Python SDK v1.0 or later raises `TypeError` for a plain dict passed as `output_format` to `client.beta.messages.create()` or `count_tokens`.<Cite id="F25" />
+
+A strict schema must set `additionalProperties: false` on every object, and the compiler rejects recursive schemas, `oneOf`, `not`, numeric bounds such as `minimum`, string length bounds such as `minLength`, and any other `additionalProperties` value with a `400`.<Cite id="F27" /> Limits are counted across the sum of all strict tools plus the output schema in one request: at most 20 strict tools, 24 optional (non-`required`) parameters, and 16 union-type parameters, with an internal grammar size cap and a 180-second compilation timeout; compiled grammars are cached for 24 hours.<Cite id="F27" /> That is why a request whose strict tools each look simple can still fail to compile.
+
+Three output behaviors need defensive code. Required properties are always emitted before optional ones, whatever order the schema declares.<Cite id="F26" /> Capitalization of string `enum` and `const` values is not guaranteed, so compare case-insensitively.<Cite id="F28" /> A safety `refusal` or a `max_tokens` truncation still returns HTTP `200` and can produce output that violates the schema, so parse and validate only after checking `stop_reason`; structured output is also incompatible with `citations` (which returns `400`) and with message prefill.<Cite id="F28" />
+
+## Streaming SSE event sequence
+
+**Server-sent events (SSE)** deliver a response as a stream of events. With `stream: true` the sequence is:<Cite id="F29" />
+
+1. `message_start` — the `Message` skeleton, with `content: []`, `stop_reason: null`, and initial `usage`.<Cite id="F29 F34" />
+2. Per content block, indexed from 0: `content_block_start`, then zero or more `content_block_delta`, then `content_block_stop` for that index.<Cite id="F29" />
+3. One or more `message_delta` events carry top-level changes to the final message; usage counts are cumulative.<Cite id="F32 F42" />
+4. `message_stop` — the terminal event; there is no `data: [DONE]` sentinel.<Cite id="F29" />
+5. Anywhere in the stream: `ping` keepalives, and `error` for a failure that arrives after the HTTP 200 headers were sent, for example an `overloaded_error`.<Cite id="F29" />
+
+Delta types inside `content_block_delta` are `text_delta` (field `text`), `thinking_delta` (field `thinking`, empty when `display` is `"omitted"`), `signature_delta` (field `signature`, emitted just before the block stops), `input_json_delta` (field `partial_json`), and `citations_delta` (field `citation`).<Cite id="F12 F29 F30" /> Tool arguments stream as `partial_json` fragments that you accumulate and parse; the final `tool_use.input` is always an object.<Cite id="F30" /> Some blocks arrive whole with no deltas at all, including `redacted_thinking` and server tool results such as `web_search_tool_result`.<Cite id="F29" />
+
+Set `eager_input_streaming: true` on a tool to skip server-side JSON buffering; it replaces the `fine-grained-tool-streaming-2025-05-14` beta. The trade-off is that partial or invalid JSON can reach your client, and a `max_tokens` stop can cut a parameter mid-value, so guard `json.loads()` and wait for `content_block_stop` before executing a side-effecting tool.<Cite id="F31" />
+
+Read usage and control fields only from the end of the stream: token counts in `message_delta.usage` are cumulative, so take the last value rather than summing events,<Cite id="F32" /> and `stop_reason` is `null` in `message_start` and becomes non-null in later events.<Cite id="F34" />
+
+## Usage accounting
+
+`usage.input_tokens` counts non-cached input after the final cache breakpoint, and total input tokens for a request equal `input_tokens + cache_creation_input_tokens + cache_read_input_tokens`.<Cite id="F33" /> Prompt caching covers the full prefix in one fixed order — `tools`, then `system`, then `messages` — up to and including the block marked with `cache_control`.<Cite id="F39" /> Because that hashing is prefix-based, keep tool definitions and system instructions first with explicit breakpoints, keep thinking mode and `output_config.effort` constant across turns, and push volatile content such as timestamps and user state to the tail of `messages`.
+
+`usage.server_tool_use` reports `web_search_requests` and `web_fetch_requests` counters for the turn.<Cite id="F23" />
+
+## `stop_reason` versus HTTP errors
+
+`stop_reason` describes a successful HTTP `200` response; HTTP error statuses describe request-processing failures. Branch on them separately.
+
+| `stop_reason` | Meaning | Action |
+|---|---|---|
+| `"end_turn"` | Natural completion<Cite id="F41" /> | Use the content |
+| `"max_tokens"` | Hit the ceiling; JSON may be truncated<Cite id="F41" /> | Raise `max_tokens` or continue |
+| `"stop_sequence"` | Matched one of your `stop_sequences`<Cite id="F41" /> | Inspect `stop_sequence` and use the content |
+| `"tool_use"` | Client `tool_use` block(s) emitted<Cite id="F41" /> | Run tools, reply per ordering rules |
+| `"pause_turn"` | A server-tool loop hit its iteration cap<Cite id="F41" /> | Resume by echoing the assistant turn |
+| `"refusal"` | A classifier intervened; tokens are billed<Cite id="F41" /> | Route to your safety path |
+| `"model_context_window_exceeded"` | Context limit hit before `max_tokens`<Cite id="F41" /> | Compact history, retry |
+
+A `"tool_use"` stop can arrive alongside an unresolved `server_tool_use`, which changes the reply shape described above.<Cite id="F22" /> To resume a `"pause_turn"`, send the assistant `content` back unchanged (plus `container.id` if present) with the same tools and no trailing `user` message.<Cite id="F41" /> On `"refusal"`, inspect `stop_details` for the policy category.<Cite id="F41" />
+
+Error responses have the shape `{"type": "error", "error": {"type", "message"}, "request_id"}`.<Cite id="F35" />
+
+| Status | `error.type` | Typical cause |
+|---|---|---|
+| `400` | `invalid_request_error` | Bad schema, removed sampling parameters, unsupported thinking or `tool_choice`<Cite id="F35" /> |
+| `401` | `authentication_error` | Invalid or expired key<Cite id="F35" /> |
+| `402` | `billing_error` | Billing problem<Cite id="F35" /> |
+| `403` | `permission_error` | Key lacks permission<Cite id="F35" /> |
+| `404` | `not_found_error` | Unknown resource or model<Cite id="F35" /> |
+| `409` | `conflict_error` | Conflicting resource state<Cite id="F35" /> |
+| `413` | `request_too_large` | Exceeded the platform payload cap<Cite id="F3 F35" /> |
+| `429` | `rate_limit_error` | RPM, TPM, or ramp limit; a spend cap can arrive without `retry-after`<Cite id="F35" /> |
+| `500` | `api_error` | Server-side failure<Cite id="F35" /> |
+| `504` | `timeout_error` | Request timed out while processing<Cite id="F35" /> |
+| `529` | `overloaded_error` | Capacity; may also arrive mid-stream as an SSE `error`<Cite id="F29 F35" /> |
+
+For transient errors, prefer bounded retries with jittered backoff and honor `retry-after` when present. Inspect the error first: a spend-cap `429` can persist until access resumes, and a stream error may require recovery of partial output.<Cite id="F35 F42" /> Branch on `stop_reason` for completed responses; handle a refusal separately from a length stop.
+
+## Model IDs and context windows
+
+From the Claude 4.6 generation onward the dateless model ID is the canonical ID and maps to one fixed snapshot rather than a rolling alias; pre-4.6 models keep a dated snapshot plus a dateless alias.<Cite id="F36" /> The following IDs are listed in the model documentation; check availability for your platform.<Cite id="F43" />
+
+| Model | ID |
+|---|---|
+| Claude Fable 5.2 | `claude-fable-5-2`<Cite id="F43" /> |
+| Claude Mythos 5.2 (limited availability) | `claude-mythos-5-2` |
+| Claude Opus 5.5 | `claude-opus-5-5` |
+| Claude Sonnet 5.5 | `claude-sonnet-5-5` |
+| Claude Haiku 5.5 | `claude-haiku-5-5` |
+| Claude Opus 5 | `claude-opus-5` |
+| Claude Sonnet 5 | `claude-sonnet-5` |
+| Claude Opus 4.8 / 4.7 / 4.6 | `claude-opus-4-8`, `claude-opus-4-7`, `claude-opus-4-6` |
+| Claude Sonnet 4.6 | `claude-sonnet-4-6` |
+| Earlier 5.x releases | `claude-fable-5-1`, `claude-mythos-5-1`, `claude-fable-5`, `claude-mythos-5` |
+| Claude Opus 4.5 | `claude-opus-4-5-20251101` (alias `claude-opus-4-5`) |
+| Claude Sonnet 4.5 | `claude-sonnet-4-5-20250929` (alias `claude-sonnet-4-5`) |
+| Claude Haiku 4.5 | `claude-haiku-4-5-20251001` (alias `claude-haiku-4-5`) |
+
+The models listed in Anthropic’s current overview have 1M-token context windows and 128K maximum output tokens; on the Message Batches API, Opus 5.5, Opus 5, Sonnet 5.5, Sonnet 5, Haiku 5.5, Opus 4.8, Opus 4.7, Opus 4.6, and Sonnet 4.6 reach 300K output tokens with `anthropic-beta: output-300k-2026-03-24`.<Cite id="F37 F43" /> Effort defaults are not uniform: Opus 5.5 and Haiku 5.5 default to `medium` effort, while other effort-capable models default to `high`.<Cite id="F13" /> Models whose context window is under 1M tokens also carry the lower document ceilings noted above, such as 100 PDF pages per request.<Cite id="F16" />
+
+## Beta headers versus GA
+
+| Feature | Header | Status |
+|---|---|---|
+| Thinking progress updates (`display: "updates"`) | `thinking-display-updates-2026-08-18` | Beta; `400` without it<Cite id="F12" /> |
+| Preserved-thinking binding (`thinking.block_binding`) | `thinking-binding-controls-2026-08-01` | Beta; header required<Cite id="F38" /> |
+| Context editing (`clear_tool_uses_...`, `clear_thinking_20251015`) | `context-management-2025-06-27` | Beta; header required<Cite id="F38" /> |
+| Fast mode (`speed: "fast"`) | `fast-mode-2026-02-01` | Only on Opus 5 and Opus 4.8<Cite id="F40" /> |
+| 300K output on the Batches API | `output-300k-2026-03-24` | Required for the raised ceiling<Cite id="F37" /> |
+| Deprecated `output_format` | `structured-outputs-2025-11-13` | Only for that parameter<Cite id="F25" /> |
+| Fine-grained tool streaming | `fine-grained-tool-streaming-2025-05-14` | Legacy; use `eager_input_streaming`<Cite id="F31" /> |
+| `output_config.format` | None | Generally available<Cite id="F25" /> |
+
+Fast mode needs no header on Opus 5.5 and on Fable/Mythos 5.2, where it is generally available; `fast-mode-2026-02-01` is required only on Opus 5 and Opus 4.8.<Cite id="F40" />
+
+<ExamLens>
+
+Editorial decision patterns: distinguish a completed response’s stop reason from an HTTP or stream error. Preserve tool-use blocks and match results by ID. Choose streaming for long calls, and check model and platform support before selecting a beta feature.
+
+</ExamLens>

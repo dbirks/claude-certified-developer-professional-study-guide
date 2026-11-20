@@ -198,5 +198,25 @@
     "id": "F40",
     "status": "ok-loose",
     "url": "https://platform.claude.com/docs/en/build-with-claude/fast-mode"
+  },
+  {
+    "id": "F41",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons"
+  },
+  {
+    "id": "F42",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/streaming"
+  },
+  {
+    "id": "F43",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/models/overview"
+  },
+  {
+    "id": "F44",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/overview"
   }
 ]

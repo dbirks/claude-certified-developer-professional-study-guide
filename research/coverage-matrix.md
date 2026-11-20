@@ -22,7 +22,7 @@ Columns: research packet exists · citation entries · quotes verified verbatim 
 | 4.2 | Incident Response and Learning Loops | 10% | yes | 42 | 42/42 | [fact-checked](../content/04-debugging/02-incident-response.mdx) · 2499 words · 42 cited | done |
 | 5.1 | Evaluation System Design | 12% | yes | 42 | 42/42 | [fact-checked](../content/05-evaluation/01-evaluation-design.mdx) · 2414 words · 41 cited | done |
 | 5.2 | LLM-as-Judge Engineering | 12% | yes | 45 | 45/45 | [fact-checked](../content/05-evaluation/02-llm-as-judge.mdx) · 2591 words · 45 cited | done |
-| 5.3 | Online Quality Measurement | 12% | yes | 31 | 31/31 | [draft](../content/05-evaluation/03-online-quality.mdx) · 2743 words · 29 cited | — |
+| 5.3 | Online Quality Measurement | 12% | yes | — | 31/31 | [draft](../content/05-evaluation/03-online-quality.mdx) · 2748 words · 34 cited | — |
 | 6.1 | Cost Architecture at Scale | 8% | yes | 42 | 42/42 | [fact-checked](../content/06-cost-latency/01-cost-architecture.mdx) · 2192 words · 42 cited | done |
 | 6.2 | Latency Engineering | 8% | yes | 36 | 36/36 | [fact-checked](../content/06-cost-latency/02-latency-engineering.mdx) · 2275 words · 36 cited | done |
 | 7.1 | Runtime Guardrail Systems | 11% | yes | 53 | 53/53 | [fact-checked](../content/07-security/01-runtime-guardrails.mdx) · 1979 words · 53 cited | done |
@@ -31,6 +31,6 @@ Columns: research packet exists · citation entries · quotes verified verbatim 
 | 8.1 | Parallel Agent Orchestration for Engineering Work | 10% | yes | 30 | 30/30 | [draft](../content/08-agent-fleets/01-parallel-agents.mdx) · 2068 words · 30 cited | — |
 | 8.2 | Verification and AI Code Review Operations | 10% | yes | 39 | 39/39 | [fact-checked](../content/08-agent-fleets/02-verification-review.mdx) · 2594 words · 39 cited | done |
 | 8.3 | Unattended and Event-Driven Agent Operations | 10% | yes | 40 | 40/40 | [fact-checked](../content/08-agent-fleets/03-unattended-operations.mdx) · 2489 words · 40 cited | done |
-| 8.4 | Organization-Wide Coding Agent Configuration | 10% | yes | 33 | 33/33 | [draft](../content/08-agent-fleets/04-org-configuration.mdx) · 2550 words · 35 cited | — |
+| 8.4 | Organization-Wide Coding Agent Configuration | 10% | yes | 38 | 38/38 | [draft](../content/08-agent-fleets/04-org-configuration.mdx) · 2559 words · 38 cited | — |
 
-Unique source URLs: 254 · citation entries: 1082
+Unique source URLs: 250 · citation entries: 1056

@@ -546,6 +546,7 @@
     - org-configuration:F18
     - org-configuration:F19
     - org-configuration:F20
+    - org-configuration:F37
 - url: https://code.claude.com/docs/en/permissions
   title: Configure permissions
   source: claude-code-docs
@@ -570,6 +571,7 @@
     - evaluation-design:F24
     - evaluation-design:F25
     - org-configuration:F33
+    - org-configuration:F34
 - url: https://code.claude.com/docs/en/plugins/org
   title: Manage Claude Code plugins for your organization
   source: claude-code-docs
@@ -661,6 +663,7 @@
     - runtime-guardrails:F43
     - org-configuration:F1
     - org-configuration:F2
+    - org-configuration:F38
 - url: https://code.claude.com/docs/en/settings-reference
   title: All settings
   source: claude-code-docs
@@ -675,6 +678,7 @@
     - identity-secrets-audit:F17
     - verification-review:F31
     - org-configuration:F10
+    - org-configuration:F36
 - url: https://code.claude.com/docs/en/skills
   title: Extend Claude with skills
   source: claude-code-docs
@@ -1044,6 +1048,7 @@
   cited_by:
     - org-configuration:F31
     - org-configuration:F32
+    - org-configuration:F35
 - url: https://platform.claude.com/docs/en/agents-and-tools/mcp-connector
   title: MCP connector
   source: anthropic-docs
@@ -1364,10 +1369,6 @@
     - telemetry:F57
     - evaluation-design:F31
     - evaluation-design:F42
-    - online-quality:F19
-    - online-quality:F20
-    - online-quality:F21
-    - online-quality:F31
 - url: https://platform.claude.com/docs/en/build-with-claude/claude-in-amazon-bedrock
   title: Claude in Amazon Bedrock (bedrock-mantle)
   source: anthropic-docs
@@ -1524,8 +1525,6 @@
     - context-memory:F24
     - telemetry:F23
     - telemetry:F24
-    - online-quality:F18
-    - online-quality:F30
     - cost-architecture:F11
     - cost-architecture:F12
     - cost-architecture:F13
@@ -1680,12 +1679,6 @@
   accessed: 2026-11-19
   cited_by:
     - monitoring-alerting:F17
-    - online-quality:F15
-    - online-quality:F16
-    - online-quality:F17
-    - online-quality:F23
-    - online-quality:F24
-    - online-quality:F29
 - url: https://platform.claude.com/docs/en/manage-claude/compliance-activity-feed
   title: Query the Activity Feed
   source: anthropic-docs
@@ -1963,10 +1956,6 @@
     - llm-as-judge:F4
     - llm-as-judge:F5
     - llm-as-judge:F6
-    - online-quality:F7
-    - online-quality:F8
-    - online-quality:F22
-    - online-quality:F25
 - url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/handle-streaming-refusals
   title: Handle streaming refusals
   source: anthropic-docs
@@ -2022,12 +2011,6 @@
   accessed: 2026-11-19
   cited_by:
     - runtime-guardrails:F26
-- url: https://research.google/pubs/cluster-randomized-designs-for-one-sided-bipartite-experiments-2/
-  title: Cluster Randomized Designs for One-Sided Bipartite Experiments
-  source: other
-  accessed: 2026-11-19
-  cited_by:
-    - online-quality:F27
 - url: https://scikit-learn.org/stable/modules/model_evaluation.html
   title: "3.4. Metrics and scoring: quantifying the quality of predictions"
   source: standard
@@ -2221,10 +2204,6 @@
     - trace-analysis:F24
     - trace-analysis:F25
     - trace-analysis:F37
-    - online-quality:F9
-    - online-quality:F10
-    - online-quality:F11
-    - online-quality:F12
 - url: https://www.anthropic.com/research/contextual-retrieval
   title: Contextual retrieval in AI systems
   source: anthropic-research
@@ -2272,12 +2251,6 @@
     - evaluation-design:F15
     - evaluation-design:F16
     - evaluation-design:F17
-    - online-quality:F1
-    - online-quality:F2
-    - online-quality:F3
-    - online-quality:F4
-    - online-quality:F5
-    - online-quality:F6
 - url: https://www.anthropic.com/research/effective-context-engineering-for-ai-agents
   title: Effective context engineering for AI agents
   source: anthropic-engineering
@@ -2332,22 +2305,3 @@
     - threat-defense:F19
     - threat-defense:F20
     - threat-defense:F43
-- url: https://www.itl.nist.gov/div898/handbook/ppc/section3/ppc333.htm
-  title: Selecting Sample Sizes
-  source: standard
-  accessed: 2026-11-19
-  cited_by:
-    - online-quality:F26
-- url: https://www.microsoft.com/en-us/research/articles/for-event-based-a-b-tests-why-they-are-special/
-  title: "For Event-based A/B tests: why they are special"
-  source: other
-  accessed: 2026-11-19
-  cited_by:
-    - online-quality:F13
-    - online-quality:F14
-- url: https://www.nationalacademies.org/read/10732/chapter/13
-  title: "Appendix A: Sample Size Determination"
-  source: standard
-  accessed: 2026-11-19
-  cited_by:
-    - online-quality:F28
