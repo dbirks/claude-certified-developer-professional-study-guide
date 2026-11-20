@@ -8,6 +8,16 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
+<KeyPoints>
+
+- Start with the simplest pattern and add agents only when evidence justifies the cost, since autonomy trades latency and cost for performance.<Cite id="F1 F7 F13" />
+- Agents used about 4x the tokens of chat and multi-agent systems about 15x; the task's value must justify that cost.<Cite id="F7" />
+- Decompose by context boundary, not by SDLC role, and keep tightly coupled work in one agent per component.<Cite id="F13" />
+- Put mandatory permission checks in `PreToolUse` hooks: earlier approvals mean a call never reaches `canUseTool`.<Cite id="F23" />
+- State the verification bar in the prompt — full suite, edge cases, negative tests — or it declares success too early.<Cite id="F14" />
+
+</KeyPoints>
+
 **Multi-agent orchestration** is the design work around a lead agent: what it keeps, what it hands off, how the handoffs execute, and what happens when one fails. Anthropic distinguishes **workflows**, which orchestrate LLMs and tools through predefined code paths, from **agents**, which let an LLM direct its own process and tool use dynamically.<Cite id="F1" /> Agentic systems can trade latency and cost for task performance. Start with the simplest pattern that works, often a single augmented LLM, and add agents when evidence justifies the cost.<Cite id="F1 F7 F13" /> Inter-agent failures include dropped requirements, incomplete verification, and approval gates that never fire.
 
 A **supervisor/worker hierarchy** has a lead agent delegate tasks to workers and combine their results.<Cite id="F4" />

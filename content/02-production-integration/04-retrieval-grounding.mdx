@@ -8,6 +8,16 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
+<KeyPoints>
+
+- Small, stable corpora can go straight into the prompt; large corpora with repeat queries need indexed RAG; evidence found by navigation suits just-in-time tools.<Cite id="F24 F1 F8" />
+- Queries mixing paraphrase and exact identifiers need hybrid dense plus BM25 retrieval, merged with rank fusion.<Cite id="F5 F25" />
+- Being present in the corpus is only an ingestion fact: evidence must be authorized, indexed, matched, ranked, and assembled to support an answer.
+- A citation guarantees a valid pointer into the supplied documents, not that the cited text supports the claim.<Cite id="F15" />
+- Enabling citations together with structured outputs returns HTTP 400, so validate the structure in application code.<Cite id="F23" />
+
+</KeyPoints>
+
 Retrieval decides what Claude is able to know about your data on a given turn. In conventional **Retrieval-Augmented Generation (RAG)**, a vector database finds the chunks most semantically similar to the query and adds them to the model prompt.<Cite id="F1" /> Production grounding work is therefore not one decision but a chain: how evidence gets into the prompt, how chunks are indexed and matched, how candidates are ranked, how the answer is tied back to source text, and where the chain breaks when an answer is wrong. A wrong answer caused by missing evidence cannot be fixed by editing the generation prompt, so this chapter treats retrieval as a measurable pipeline rather than a single component.
 
 ## How evidence reaches the prompt

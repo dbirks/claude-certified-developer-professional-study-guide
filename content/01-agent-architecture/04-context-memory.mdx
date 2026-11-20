@@ -8,6 +8,16 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
+<KeyPoints>
+
+- If input alone exceeds the model's context window the API returns `400` `invalid_request_error`, so compact before the input itself overflows.<Cite id="F5" />
+- Cached tokens still occupy the context window, so prompt caching is a cost fix, not extra capacity.<Cite id="F4" />
+- A mid-conversation system instruction inside the summarized range stops applying, so reapply it after compaction.<Cite id="F17" />
+- The memory tool runs client-side: your application performs the writes and must serve and retrieve the store later.<Cite id="F20" />
+- Tool selection degrades beyond roughly 30–50 tools, so defer catalog definitions and load them on demand.<Cite id="F28 F43" />
+
+</KeyPoints>
+
 A **context policy** decides what an agent sends to the model on each request. A **context window** is the space available for the request and generated output. As token count grows, accuracy and recall can degrade; Anthropic calls this **context rot**.<Cite id="F1" /> A long-running agent must manage both window occupancy and cost while retaining the facts and instructions needed to finish its task.
 
 ## How context policy works

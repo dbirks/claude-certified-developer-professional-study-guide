@@ -8,6 +8,16 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
+<KeyPoints>
+
+- Each store covers different state: `resume` restores the transcript, not the filesystem or what a tool did externally.<Cite id="F2" />
+- Claude Code does not rerun an interrupted tool call, so side effects need a write-ahead step log and a deterministic idempotency key.<Cite id="F9" />
+- Checkpointing reverts files, never the conversation, and files changed only by Bash are not tracked.<Cite id="F13 F12" />
+- Keep running conversations on their last successful `system` and `tools`: a prefix edit can fail the check with a `400`.<Cite id="F26 F27" />
+- Hosted Managed Agents keeps history server-side, so it is ineligible for ZDR and HIPAA; only self-hosted Managed Agents is eligible for ZDR.<Cite id="F15 F41" />
+
+</KeyPoints>
+
 **Durable execution** is the property that a long-running agent can lose its process and still pick up where it stopped. In Claude's tooling it is split across stores with different boundaries: the Agent SDK writes a session transcript to disk automatically,<Cite id="F1" /> file checkpoints snapshot tracked files,<Cite id="F11 F12" /> Claude Managed Agents keeps its session log server-side,<Cite id="F15" /> and everything outside those stores is yours to persist. Those boundaries surface at the same moment, a crash: `resume` restores the conversation but not the filesystem,<Cite id="F2" /> checkpoints do not revert files changed only by Bash,<Cite id="F12" /> and Claude Code does not rerun a tool call that was still running when its process died.<Cite id="F9" /> Durability depends on knowing which store covers which state.
 
 ## What each state store covers

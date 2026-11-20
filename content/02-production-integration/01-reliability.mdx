@@ -8,6 +8,16 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
+<KeyPoints>
+
+- Branch on `stop_reason`, not HTTP status: a `200` can report a truncated, paused, or refused turn.<Cite id="F20 F21 F23 F26" />
+- A spend-cap `429` (`enforced_spend_limit_reached`) carries no `retry-after`, so retries keep failing until access resumes.<Cite id="F6" />
+- The SDKs already retry twice by default, so an outer loop can triple load; cap it with a process-wide retry budget.<Cite id="F16 F35" />
+- A refusal is a policy stop and the same model usually refuses again: discard partial output, then reset context or fall back.<Cite id="F26 F27" />
+- Fail over only after verifying feature parity; Azure-hosted Foundry rejects unsupported features with `400 Bad Request`.<Cite id="F33" />
+
+</KeyPoints>
+
 **Reliability engineering** for Claude services matches each recovery action to the exact signal a response carries. A production integration can encounter a failure at three layers: an HTTP status, an `event: error` frame inside a successful stream, or a `200 OK` whose `stop_reason` reports a truncated, paused, or refused turn.<Cite id="F20 F36 F37" /> Each signal requires a different response: a monthly spend cap keeps failing under retries,<Cite id="F6" /> the same model usually refuses a declined request again,<Cite id="F27" /> and an unverified failover can produce `400 Bad Request` responses on Azure-hosted Microsoft Foundry.<Cite id="F33" /> A **resilience pattern** maps each signal to one action: fail fast, retry within a budget, resume the turn, degrade the workload, or move to another pool.
 
 ## Read the signal before you react

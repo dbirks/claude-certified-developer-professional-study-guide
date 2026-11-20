@@ -8,6 +8,16 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
+<KeyPoints>
+
+- Release protocol revision, transport, endpoint, credentials, tool catalog, model, prompt, and route as one tested bundle, and roll back the whole bundle.
+- `2025-11-25` negotiated version and capabilities in `initialize`; under `2026-07-28` each request carries them in `_meta`.<Cite id="F2 F3 F4" />
+- A tool list that changes between requests counts as a prefix edit and can return `400` on Claude Fable 5.2.<Cite id="F25 F26" />
+- Under the 2025 authorization profile, invalid or expired tokens return `401`, and the server must not pass the client's token downstream.<Cite id="F35 F10" />
+- The Messages API connector needs a public HTTPS endpoint, cannot reach a local stdio server, supports tool calls only, and is not ZDR-eligible.<Cite id="F13 F38 F17" />
+
+</KeyPoints>
+
 **Model Context Protocol (MCP)** connects clients to tools and other context supplied by servers. Its `2026-07-28` revision uses a stateless request/response core.<Cite id="F40" /> Production change management tracks the dependencies a request uses: protocol revision, transport, endpoint, credentials, tool catalog, model, prompt, and route. These layers can change independently. For example, on Claude Fable 5.2, changing a tool list between requests counts as an edit to the conversation prefix and can cause a `400` when earlier thinking blocks are sent back.<Cite id="F25 F26" /> Name the changed layer, test the new combination before routing traffic to it, and keep a tested release bundle for rollback.
 
 ## The deployable contract

@@ -8,6 +8,16 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
+<KeyPoints>
+
+- Limits are enforced in RPM, ITPM, and OTPM per model class, so the tightest dimension binds admitted work.<Cite id="F4" />
+- ITPM counts `input_tokens` plus `cache_creation_input_tokens`; OTPM counts tokens actually generated, so `max_tokens` costs no quota.<Cite id="F5 F7" />
+- Classify every `429` from `error.details.error_code` and `retry-after`: rate and ramp limits recover with pacing, a tier spend cap does not.<Cite id="F14 F22" />
+- Workspace caps and workspace-scoped keys limit traffic but reserve no capacity — organization-wide limits always apply.<Cite id="F1 F19" />
+- Message Batches bill at 50 percent of standard prices, expire unfinished work after 24 hours, and must be joined by `custom_id`, not order.<Cite id="F29 F27 F33" />
+
+</KeyPoints>
+
 The Claude API caps throughput in three independent dimensions, and the tightest one limits admitted work. Messages limits measure **RPM** (requests per minute), **ITPM** (input tokens per minute), and **OTPM** (output tokens per minute) per model class, so tracking requests alone misses token bottlenecks.<Cite id="F4" /> Service-configured limits apply at the organization level on continuously replenished **token buckets**, so a comfortable per-minute average does not make a burst safe.<Cite id="F1 F2 F3" /> Workspaces, shared model-family buckets, and **Message Batches** (the asynchronous API for grouping Messages requests) add separate ceilings that remain subject to shared pools rather than reserving dedicated capacity.<Cite id="F11 F15 F19 F45 F53" /> Scaling means finding the binding constraint — rate limits, token throughput, or batch economics — then changing the plan and recalculating.
 
 ## How Claude meters throughput

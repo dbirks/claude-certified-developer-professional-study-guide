@@ -8,6 +8,16 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
+<KeyPoints>
+
+- Classify a design by who chooses each next step: predefined code paths make a workflow, model-chosen steps make an agent.<Cite id="F1 F2" />
+- Compare candidates on cost per successful task across all eligible attempts, and report absolute spend and p95 beside it.
+- The 4x and 15x token figures are relative to chat, not an agent-to-agent multiplier or a pricing rule.<Cite id="F8" />
+- Equal per-call tool failure rates do not prove equal reliability: count tasks hit by at least one failed call.
+- A self-hosted sandbox still sends tool results to the Managed Agents service; self-hosting the whole service is a separate option.<Cite id="F16 F17 F30" />
+
+</KeyPoints>
+
 A **workflow** orchestrates LLMs and tools through predefined code paths; an **agent** lets the model dynamically direct its own process and tool use.<Cite id="F1 F2" /> Use production data to decide whether changing control flow pays and which execution layer and shared patterns to adopt. Anthropic's starting point is the simplest solution that meets the need, which can mean no agentic system at all.<Cite id="F3" />
 
 ## Workflow, agent, and multi-agent are control-flow choices
