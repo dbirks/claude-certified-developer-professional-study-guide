@@ -18,6 +18,12 @@ Log: [fact-check/architecture-selection.md](fact-check/architecture-selection.md
 
 - Checked 62 final citation placements against their quotes and context; all 62 are supported as revised. Made 8 substantive claim or citation-scope fixes and removed 2 unsupported or repeated assertions; these counts overlap with the reviewed placements. Added 1 citation; checked 0 fenced code blocks. Inline SDK and CLI syntax was checked against official documentation. The objective covers measurement, migration in both directions, and selection of harnesses, frameworks, and reusable standards. Exam lens items are editorial decision patterns and do not contradict the three sample rationales.
 
+### Reference Building Blocks
+
+Log: [fact-check/building-blocks.md](fact-check/building-blocks.md) · passes: 1 · reviewer(s): GPT-6 (Codex)
+
+- 39 citation claim groups checked: 35 supported as written, 4 corrected or narrowed, 0 unsupported claims remain; 4 citations added; 1 uncited provider detail removed; 1 shell code block checked (no Python block to parse). Uncited factual and API-specific statements were reviewed and either cited, narrowed, or retained as explicit recommendations/editorial inference.
+
 ### 1.4 Context and Memory Architecture
 
 Log: [fact-check/context-memory.md](fact-check/context-memory.md) · passes: 1 · reviewer(s): GPT-6
@@ -50,6 +56,12 @@ Log: [fact-check/evaluation-design.md](fact-check/evaluation-design.md) · passe
 Log: [fact-check/failure-diagnosis.md](fact-check/failure-diagnosis.md) · passes: 1 · reviewer(s): GPT-6
 
 - 82 cited claim placements checked against 38 citation entries: 74 supported, 8 fixed or clarified; 1 unsupported absolute statement removed. Citations added: 8. Code blocks checked: 1 illustrative text pseudocode block (not executable code).
+
+### Reference Glossary
+
+Log: [fact-check/glossary.md](fact-check/glossary.md) · passes: 1 · reviewer(s): OpenAI Codex (GPT-6)
+
+- Checked 120 citation placements against 35 existing citation entries and their linked sources; added 4 citations. Supported, fixed, and removed claims were not separately tallied at sentence level. Code blocks checked: 0. The exam guide has no separate Glossary objective; the packet's scope is covered by the service-health, API, cost, evaluation, queueing, and formula sections.
 
 ### 7.3 Identity, Secrets, and Audit at Scale
 
@@ -99,6 +111,12 @@ Log: [fact-check/multi-agent-orchestration.md](fact-check/multi-agent-orchestrat
 Log: [fact-check/online-quality.md](fact-check/online-quality.md) · passes: 1 · reviewer(s): GPT-6
 
 - 31 original citation claims checked: 25 supported, 6 fixed, 0 removed; 6 citations added; 1 Python code block checked and parsed successfully.
+
+### 8.4 Organization-Wide Coding Agent Configuration
+
+Log: [fact-check/org-configuration.md](fact-check/org-configuration.md) · passes: 1 · reviewer(s): GPT-6 Codex
+
+- 33 original citation claims checked against current official docs; 17 supported as written and 16 fixed or narrowed. Removed 3 unsupported or overstated claims. Added 10 citation entries (F34–F43). Checked 2 code blocks; JSON parses and CLI commands/options match current documentation.
 
 ### Reference Practice Domain 1
 

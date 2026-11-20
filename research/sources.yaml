@@ -573,6 +573,7 @@
     - evaluation-design:F25
     - org-configuration:F33
     - org-configuration:F34
+    - org-configuration:F43
 - url: https://code.claude.com/docs/en/plugins/org
   title: Manage Claude Code plugins for your organization
   source: claude-code-docs

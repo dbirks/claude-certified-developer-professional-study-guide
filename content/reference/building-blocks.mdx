@@ -1,0 +1,159 @@
+---
+title: "Choosing the right building block"
+summary: "Decide who runs the agent loop, which integration and reusable instruction fits, where a control is enforced, and which provider route to use."
+kind: reference
+order: 2
+slug: building-blocks
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+This appendix is a lookup table for the building blocks you choose between when you build with Claude: the Messages API, the Claude Agent SDK, Claude Managed Agents, Claude Code and its extensions, MCP, skills, subagents, hooks, plugins, and the cloud routes to the same models. Find the need you have, read its row, then check the enforcement table and the provider table before you commit. The documentation snapshot is 2026-11-19; capabilities and identifiers move, so verify the exact model and endpoint before you adopt a design.
+
+## Choose the execution owner and interface
+
+The **execution owner** is the party that runs the agent loop, the tool calls, and the process around them; choose it before you choose any extension, because it fixes what you must build and operate yourself.
+
+| Need | Building block | What it provides, and when to choose it |
+| --- | --- | --- |
+| Direct model access and custom orchestration | **Messages API and client SDK** | The tool runner handles the agentic loop, error wrapping, and type safety. It is marked Beta; use the manual loop when you need human-in-the-loop approval, custom logging, or conditional execution.<Cite id="F3" /> |
+| Embed an agent in your own Python or TypeScript service | **Claude Agent SDK** | The same tools, agent loop, and context management that power Claude Code, programmable in Python and TypeScript.<Cite id="F1" /> |
+| Agent sessions without building the harness | **Claude Managed Agents** | A pre-built, configurable agent harness for long-running tasks and asynchronous work.<Cite id="F4 F39" /> It is marked Beta.<Cite id="F36" /> Sessions can run in an Anthropic-managed cloud sandbox or a self-hosted sandbox on your own infrastructure.<Cite id="F2" /> |
+| Developer in a terminal | **Claude Code interactive** | Iterative development on the same tools, agent loop, and context management that the Agent SDK exposes as a library.<Cite id="F1" /> |
+| Scripts and CI | **Claude Code headless** | Add the `-p` or `--print` flag to any `claude` command to run it non-interactively.<Cite id="F6" /> JSON output returns the result, session ID, and metadata.<Cite id="F7" /> |
+| GitHub workflow | Claude Code GitHub Actions | The action runs in interactive mode, so Claude responds whenever someone mentions `@claude` in an issue or PR comment.<Cite id="F9" /> Scope the workflow's token permissions and tool access to its task. |
+| External service or data source | **MCP server** | MCP servers give Claude Code access to your tools, databases, and APIs.<Cite id="F10" /> HTTP is the recommended transport for remote servers.<Cite id="F11" /> |
+| Reusable procedure | **Agent Skill** | Claude uses skills when relevant, or you invoke one directly with `/skill-name`.<Cite id="F13" /> A skill supplies instructions; it does not itself grant access to an external system.<Cite id="F10 F13" /> |
+| Specialized parallel or isolated-context work | **Subagent** | Each subagent runs in its own context window with a custom system prompt, specific tool access, and independent permissions.<Cite id="F15" /> |
+| Lifecycle action or deterministic decision | **Hook** | `PreToolUse` blocks the pending tool call; `PostToolUse` reports after the tool already ran.<Cite id="F20 F21" /> |
+| Distribute a capability bundle | **Plugin and marketplace** | A plugin is a directory of skills, agents, hooks, MCP servers, or other components installed and loaded as one unit.<Cite id="F16" /> A marketplace lists plugins and where to fetch each one.<Cite id="F17" /> |
+| Frequently invoked action | **Slash command** | Custom slash commands are merged into skills, and existing `.claude/commands/` files keep working.<Cite id="F14" /> |
+| Persistent project conventions | **`CLAUDE.md`** | Markdown files that give Claude persistent instructions for a project, your personal workflow, or your entire organization.<Cite id="F18" /> |
+| Organization-wide policy | **Managed settings** | No own settings file or `--settings` overrides a managed key, and `--model` picks only from models your organization allows.<Cite id="F22" /> |
+
+Three of these rows share one engine. The Agent SDK exposes the tools, agent loop, and context management that power Claude Code as a library in Python and TypeScript,<Cite id="F1" /> the interactive product drives that same loop for a person at a terminal,<Cite id="F1" /> and `claude -p` drives it once, non-interactively, for a script.<Cite id="F6" />
+
+Managed Agents splits its configuration into named objects. An agent definition sets the model, system prompt, tools, MCP servers, and skills; you create the agent once and reference it by ID across sessions.<Cite id="F5" /> The session then runs in an Anthropic-managed cloud sandbox or a self-hosted sandbox on your own infrastructure,<Cite id="F2" /> so "managed" does not mean every sandbox is Anthropic-hosted. The offering is aimed at long-running tasks and asynchronous work, where the Messages API is aimed at custom agent loops and fine-grained control.<Cite id="F4" />
+
+<Figure caption="Choose execution ownership first, integrations second, and enforce restrictions at the appropriate layer.">
+  <Flow steps={["Developer or application", { label: "Choose execution owner", note: "Messages loop · Agent SDK · Managed Agents · Claude Code" }, { label: "Connect tools", note: "built-in or MCP" }, { label: "MCP transport", note: "local stdio or remote HTTP" }, { label: "Policy", note: "permission rules or hooks" }, { label: "Execution environment", note: "OS-enforced sandbox" }]} />
+</Figure>
+
+## Select integrations and reusable instructions
+
+An **MCP server** is a protocol integration that exposes external tools, APIs, and data to the agent.<Cite id="F10" /> It complements the agent; it does not select the loop or the model. A local stdio server runs as a process on the host.<Cite id="F37" /> Its access depends on that process's operating-system permissions and configured credentials. A remote HTTP server uses a network endpoint. HTTP servers are the recommended option for connecting to remote MCP servers, because that transport is the most widely supported for cloud-based services.<Cite id="F11" /> In the configuration file, a JSON entry with a `url` but no `type` is a configuration error, because Claude Code reads an entry with no `type` as a stdio server.<Cite id="F12" />
+
+An **Agent Skill** is a reusable procedure: instructions that load when used.<Cite id="F13" /> Claude uses skills when relevant, or you invoke one directly with `/skill-name`.<Cite id="F13" /> Custom commands have been merged into skills, and existing `.claude/commands/` files keep working.<Cite id="F14" /> A skill carries guidance, not credentials: access to an external system still needs an integration and its own authorization.<Cite id="F10 F13" />
+
+A **subagent** is a worker with its own context window, custom system prompt, specific tool access, and independent permissions.<Cite id="F15" /> Reach for one when a side task would flood the parent's context or needs a narrower tool set. Give it an explicit task, the inputs it needs, and a return you can check; separate context alone is not an operating-system or credential boundary.
+
+A **plugin** packages skills, agents, hooks, MCP servers, or other components as one directory that Claude Code installs and loads as a unit.<Cite id="F16" /> A **marketplace** is a directory or repository with a `.claude-plugin/marketplace.json` file that lists plugins and where to fetch each one.<Cite id="F17" /> These are three different objects: a catalog, an installed bundle, and a live MCP connection. Installing a plugin and connecting an MCP server are separate operations.
+
+`CLAUDE.md` and a skill both hold instructions but answer different questions. `CLAUDE.md` files give Claude persistent instructions for a project, your personal workflow, or your entire organization,<Cite id="F18" /> while a skill is an on-demand procedure that loads when relevant or when you call it by name.<Cite id="F13" /> Put standing conventions in `CLAUDE.md`; put a repeatable procedure in a skill.
+
+## Where does this control get enforced?
+
+A **control** is a mechanism intended to shape or restrict behavior. Some controls provide guidance; others can block a tool call or restrict a process. The mechanisms below sit at different layers, and their limits differ accordingly.
+
+| Mechanism | Enforcement point | Practical limit |
+| --- | --- | --- |
+| Prompt, `CLAUDE.md`, skill | The model receives instructions in context and decides how to act.<Cite id="F13 F18" /> | Guidance is not an independent access boundary; do not rely on wording alone to enforce a prohibition. |
+| `PreToolUse` hook | Claude Code invokes the hook before the tool call, and exit status `2` blocks that pending call.<Cite id="F20" /> | `PostToolUse` happens after execution and shows stderr to Claude; the tool already ran.<Cite id="F21" /> The hook must also be loaded: in bare mode a hook in `~/.claude/settings.json` does not run.<Cite id="F8" /> |
+| Permission rule | Allow rules let Claude Code use a specified tool without manual approval; ask rules prompt for confirmation; deny rules prevent use of a specified tool.<Cite id="F19" /> | Scope rules to the tools and actions you mean to govern; a rule about one path or tool is not protection against every other access route. |
+| Managed setting | Claude Code resolves an organization-set key over lower-precedence settings, and `--model` selects only from allowed models.<Cite id="F22" /> | Precedence secures the configuration value; the protection still depends on what that value controls and how the setting is deployed. |
+| Sandbox | The operating system enforces the boundary on the running Bash process, regardless of what the model chose to run or what an allowed command does.<Cite id="F23" /> | Check the filesystem and network policy, the exceptions, and which processes are actually sandboxed; this is not a machine-wide boundary by default. |
+
+The two hook facts are worth memorizing exactly. `PreToolUse` blocks a tool call that has not run yet; `PostToolUse` cannot undo a call that has.<Cite id="F20 F21" /> And a hook that is never loaded enforces nothing: bare mode still reads settings files and their permission rules, but a hook in `~/.claude/settings.json` or an MCP server in the project's `.mcp.json` will not run.<Cite id="F8" />
+
+## Choose the provider route
+
+The provider question has three parts: who operates inference, which credentials you present, and which identifier you put in the request. A billing relationship answers none of those by itself.
+
+| Route | Operator, credentials, identifiers | Feature considerations |
+| --- | --- | --- |
+| First-party Claude API | Anthropic. Authenticate with API keys, Workload Identity Federation, or App Attest.<Cite id="F24" /> | Direct platform baseline. Check feature-specific availability and account eligibility per model. |
+| Claude Platform on AWS | Anthropic operates it, unlike Amazon Bedrock where AWS operates the inference stack.<Cite id="F25" /> AWS provides the authentication layer (SigV4 or API key), IAM-based access control, and billing through AWS Marketplace.<Cite id="F27" /> | Feature availability is typically same-day as the Claude API, subject to stated limitations.<Cite id="F26" /> |
+| Amazon Bedrock | AWS operates the inference stack.<Cite id="F25" /> | Follows the Amazon Bedrock release schedule.<Cite id="F26" /> Validate endpoint, region, model, beta, and tool support on that route. |
+| Google Cloud, Anthropic managed | The Claude API, run by Anthropic and reached through your Google Cloud project.<Cite id="F28" /> The SDK client gets its token from Application Default Credentials (ADC).<Cite id="F29" /> | Claude API-style integration. Check the offering's supported and unsupported lists before migrating. |
+| Google Cloud, Google managed | Google-operated; the client SDK supports it through `AnthropicVertex`.<Cite id="F30 F38" /> The endpoint URL names the model, and in a cURL request you leave `model` out of the body.<Cite id="F31" /> Some identifiers carry a date suffix, for example `claude-haiku-4-5@20251001`.<Cite id="F35" /> | Agent Skills, the MCP connector, and programmatic tool calling are listed as unsupported.<Cite id="F32" /> That names server-side platform features, not behavior an independently hosted client cannot implement. |
+| Microsoft Foundry | Supports API keys and Entra ID tokens.<Cite id="F33" /> Use the deployment name in requests, which is not necessarily the model ID.<Cite id="F34" /> | Check the deployment's hosting option, region, model, and feature support separately. |
+
+Provider migration is a contract migration. Map authentication method, endpoint shape, identifiers, and feature support, then test the actual path before you move production traffic. In particular, "Claude" in your cloud invoice does not tell you which company runs the inference: on Claude Platform on AWS Anthropic operates the inference stack, and on Amazon Bedrock AWS does.<Cite id="F25" />
+
+## Exact CLI and configuration details
+
+- Print mode: add `-p` (or `--print`) to any `claude` command to run it non-interactively.<Cite id="F6" /> Output formats are text, JSON, and streaming JSON; the JSON form carries the result, session ID, and metadata.<Cite id="F7" />
+- Bare mode changes discovery, not everything: Claude Code still reads settings files and their permission rules, but a hook in `~/.claude/settings.json` or an MCP server in the project's `.mcp.json` won't run.<Cite id="F8" /> If a safety check depends on that hook, bare mode silently drops it.
+- Remote MCP entries need an explicit transport: a JSON entry with a `url` but no `type` is a configuration error, because an entry with no `type` is read as a stdio server.<Cite id="F12" /> Prefer HTTP for remote servers.<Cite id="F11" />
+- Skills and commands: invoke a skill with `/skill-name`; custom commands are merged into skills, and existing `.claude/commands/` files keep working.<Cite id="F13 F14" />
+- Hooks: `PreToolUse` blocks the tool call; `PostToolUse` only shows stderr to Claude, because the tool already ran. Event semantics differ, so do not generalize exit behavior to every hook.<Cite id="F20 F21" />
+- Google-managed requests: the client is `AnthropicVertex`, the endpoint URL names the model, and a cURL body omits `model`.<Cite id="F30 F31" /> Dated identifiers such as `claude-haiku-4-5@20251001` can differ from first-party ones.<Cite id="F35" />
+- Foundry requests: pass the deployment name, not necessarily the model ID.<Cite id="F34" />
+
+The following shell invocation is runnable with a configured current Claude Code installation and authentication; no specific SDK version is assumed.
+
+```sh
+claude -p "Summarize this project" --output-format json
+```
+
+The command prints structured JSON containing the result and session metadata.<Cite id="F7" /> In CI, check the process exit status and validate the returned content before you use it downstream, and account for repository-loaded components and any chosen `--bare` mode.
+
+## Practitioner reasoning
+
+Start by choosing who operates the loop and the runtime. A reusable skill or an MCP server does not answer whether your application owns retries, approval, the execution environment, and session lifecycle.
+
+Choose manual tool orchestration when the business transaction needs explicit approval before side effects, or audit logging at each step; the tool runner exists to remove that loop code, and the manual loop is the documented choice for human-in-the-loop approval, custom logging, or conditional execution.<Cite id="F3" /> A runner reduces loop code but not responsibility for external service permissions, idempotency, or result validation.
+
+A remote MCP server centralizes integrations and adds a network and authentication boundary; a local stdio server keeps the process on the host but still inherits that process's credentials and filesystem access.<Cite id="F10 F11" /> Use least-privilege credentials and check the server's trustworthiness either way.
+
+Treat a subagent as a context and tool-scope device, not as isolation: it gets its own context window, custom system prompt, specific tool access, and independent permissions,<Cite id="F15" /> while an OS-enforced boundary is a different mechanism that applies to the running process.<Cite id="F23" />
+
+## Worked example
+
+A team needs automated PR review of a Python service plus a human-approved deployment. Use the GitHub Actions integration for the review trigger, since it responds to `@claude` mentions in issues and PR comments,<Cite id="F9" /> a project skill for the review criteria, since Claude loads a skill when relevant or on explicit invocation,<Cite id="F13" /> and a read-only MCP integration for the issue tracker, because MCP is what reaches external tools and APIs.<Cite id="F10" /> Constrain what the agent may run with permission rules, where deny rules prevent use of the specified tool,<Cite id="F19" /> and with a `PreToolUse` check that blocks the pending call.<Cite id="F20" /> Enforce filesystem and network boundaries in the execution environment, where the operating system applies the sandbox boundary to the running process.<Cite id="F23" /> Put deployment authorization in the deployment system and keep the deploy itself outside the review workflow; that arrangement is an architectural illustration, not a claim that a prompt enforces approval.
+
+## Common mistakes
+
+<Callout type="mistake" title="Believing a post-tool hook stopped the action">
+`PostToolUse` reports after the tool already ran, so exit status `2` there cannot prevent that call; only `PreToolUse` blocks the pending one.<Cite id="F20 F21" /> Assuming a pre-tool hook runs everywhere is the mirror error: in bare mode a hook in `~/.claude/settings.json` does not run.<Cite id="F8" />
+</Callout>
+
+<Callout type="mistake" title="Conflating a marketplace, a plugin, and a live MCP server">
+A marketplace is a catalog with a `.claude-plugin/marketplace.json` file,<Cite id="F17" /> a plugin is a bundle of components installed as one unit,<Cite id="F16" /> and an MCP server is a running integration that supplies tools, databases, and APIs.<Cite id="F10" /> Installing one is not starting another.
+</Callout>
+
+<Callout type="mistake" title="Reading a cloud name as an operator">
+Claude Platform on AWS is Anthropic-operated; Amazon Bedrock is AWS-operated.<Cite id="F25" /> The two Google Cloud offerings likewise differ in who operates them.<Cite id="F28 F30" />
+</Callout>
+
+<Callout type="mistake" title="Carrying identifiers across providers unchanged">
+Foundry requests take the deployment name, which is not necessarily the model ID,<Cite id="F34" /> and Google-managed listings use dated identifiers such as `claude-haiku-4-5@20251001`.<Cite id="F35" />
+</Callout>
+
+## Version caveats
+
+<Callout type="version" title="Checked 2026-11-19">
+Feature matrices, regional availability, current identifiers, and deprecation dates move, and provider identifiers already differ, for example the dated `claude-haiku-4-5@20251001`.<Cite id="F35" /> The Google-managed exclusions cited here, Agent Skills, the MCP connector, and programmatic tool calling,<Cite id="F32" /> are that offering's list; do not generalize it to every Google Cloud service. Verify the exact endpoint and deployment in the provider's own documentation before implementing, and inspect the actual environment for which sandbox settings and hooks are deployed rather than assuming them.
+</Callout>
+
+## Exam lens
+
+<ExamLens>
+
+A scenario that requires a fully customized approval sequence points toward a manual loop; one that requires an embedded agent with built-in tools points toward the Agent SDK.<Cite id="F1 F3" /> A long-running asynchronous task on managed infrastructure points toward Managed Agents, and its self-hosted sandbox option is not a requirement to build the loop yourself.<Cite id="F2 F4" /> Separate behavioral guidance from mechanisms that can block a tool call or enforce an OS boundary.<Cite id="F18 F20 F23" /> When a scenario migrates clouds, distinguish who operates inference, the credentials, the model or deployment identifiers, and the feature list.<Cite id="F25 F28 F30 F34" />
+
+</ExamLens>
+
+## Self-check
+
+<SelfCheck question="Where should a hook block an unsafe tool call?">
+Before execution, with `PreToolUse`, whose blocking stops the pending call; `PostToolUse` runs after the tool already ran.<Cite id="F20 F21" />
+</SelfCheck>
+
+<SelfCheck question="Does a skill automatically give Claude database access?">
+No. A skill supplies instructions; reaching a database requires an integration such as an MCP server plus its own authorization.<Cite id="F10 F13" />
+</SelfCheck>
+
+<SelfCheck question="Is an Anthropic-managed AWS platform the same inference operator as Bedrock?">
+No. Anthropic operates Claude Platform on AWS, while AWS operates the Bedrock inference stack.<Cite id="F25" />
+</SelfCheck>
