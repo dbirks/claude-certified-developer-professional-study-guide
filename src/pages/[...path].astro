@@ -47,7 +47,8 @@ const onPage = [...headings.filter((h) => h.depth <= 3), ...(citations.length ? 
 <BaseLayout title={title} description={entry?.data.summary ?? skill!.objective} currentId={currentId} onPage={onPage} prev={prev} next={next}>
   <header class="chapter-head">
     <div class="chapter-head__row">
-      <p class="chapter-head__eyebrow">{domain ? <>{skill!.id} · Domain {domain.n} · {domain.weight}%</> : 'Reference'}</p>
+      {/* Pagefind filter facet so results can be narrowed by blueprint domain later. */}
+      <p class="chapter-head__eyebrow" data-pagefind-filter={`domain: ${domain ? domain.title : 'Reference'}`}>{domain ? <>{skill!.id} · Domain {domain.n} · {domain.weight}%</> : 'Reference'}</p>
       {entry ? (
         <span class:list={['status', `status--${entry.data.status}`]} title={`Last reviewed ${entry.data.lastReviewed}`}>
           <Icon name={entry.data.status === 'fact-checked' ? 'badge-check' : 'pencil-line'} size={15} stroke={2.5} />
@@ -57,10 +58,10 @@ const onPage = [...headings.filter((h) => h.depth <= 3), ...(citations.length ? 
         <span class="status status--pending"><Icon name="clock" size={15} stroke={2.5} />In research</span>
       )}
     </div>
-    <h1 class="chapter-head__title">{skill ? skill.title : entry!.data.title}</h1>
-    {entry && <p class="chapter-head__lede">{entry.data.summary}</p>}
+    <h1 class="chapter-head__title" data-pagefind-weight="10">{skill ? skill.title : entry!.data.title}</h1>
+    {entry && <p class="chapter-head__lede" data-pagefind-weight="3">{entry.data.summary}</p>}
     {skill && (
-      <details class="objective">
+      <details class="objective" data-pagefind-weight="2">
         <summary><span>Official objective</span><Icon name="plus" size={16} stroke={2.5} class="objective__plus" /><Icon name="minus" size={16} stroke={2.5} class="objective__minus" /></summary>
         <p>{skill.objective}</p>
         <p class="objective__src">{GUIDE.name} Exam Guide v{GUIDE.version} ({GUIDE.effective}), §5.</p>
