@@ -15,7 +15,7 @@ Columns: research packet exists · citation entries · quotes verified verbatim 
 | 2.2 | Scale and Throughput Management | 20% | yes | 55 | 55/55 | [fact-checked](../content/02-production-integration/02-scale-throughput.mdx) · 2758 words · 55 cited | done |
 | 2.3 | Production MCP and Change Management | 20% | yes | 39 | 39/39 | [draft](../content/02-production-integration/03-mcp-change-management.mdx) · 1948 words · 39 cited | — |
 | 2.4 | Retrieval and Knowledge Grounding at Scale | 20% | yes | 42 | 42/42 | [fact-checked](../content/02-production-integration/04-retrieval-grounding.mdx) · 2721 words · 42 cited | done |
-| 3.1 | Telemetry and Instrumentation | 12% | yes | 35 | 35/35 | [draft](../content/03-observability/01-telemetry.mdx) · 2779 words · 35 cited | — |
+| 3.1 | Telemetry and Instrumentation | 12% | yes | 69 | 68/69 | [draft](../content/03-observability/01-telemetry.mdx) · 2783 words · 69 cited | — |
 | 3.2 | Production Monitoring and Alerting | 12% | yes | 33 | 33/33 | [draft](../content/03-observability/02-monitoring-alerting.mdx) · 2465 words · 33 cited | — |
 | 3.3 | Trace Analysis at Scale | 12% | yes | 29 | 29/29 | — | — |
 | 4.1 | Complex Failure Diagnosis | 10% | yes | 30 | 30/30 | — | — |
@@ -33,4 +33,4 @@ Columns: research packet exists · citation entries · quotes verified verbatim 
 | 8.3 | Unattended and Event-Driven Agent Operations | 10% | yes | 35 | 35/35 | — | — |
 | 8.4 | Organization-Wide Coding Agent Configuration | 10% | yes | 33 | 33/33 | — | — |
 
-Unique source URLs: 254 · citation entries: 898
+Unique source URLs: 254 · citation entries: 932

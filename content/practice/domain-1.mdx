@@ -1,0 +1,219 @@
+---
+title: "Practice: Domain 1 — Advanced Agent Architecture and Orchestration"
+summary: "12 original scenario questions for Domain 1, with cited rationales."
+kind: reference
+slug: practice-domain-1
+order: 11
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+These are original practice items written for this guide in the style of the official sample items. They are not official exam content. Try each before opening the answer.
+
+## Q1. Subagent permission inheritance and callback bypass (Skill 1.1)
+
+An internal release-engineering service built on the Claude Agent SDK runs the main session with `permission_mode="acceptEdits"` and dispatches a `schema-auditor` subagent configured with `AgentDefinition(description=..., prompt=..., permissionMode="default")`. Engineers placed a path check inside the parent `canUseTool` callback to block edits under `migrations/` while prompting via Slack for `Bash` commands. Production traces show `Bash` calls pause for Slack approval as expected, but `Edit` calls targeting `migrations/004_drop_col.sql` succeed without `canUseTool` ever running.
+
+**Which change best enforces the `migrations/` restriction for the subagent?**
+
+- **A.** Set `permissionMode="dontAsk"` on the `schema-auditor` `AgentDefinition` and add an explicit instruction in `prompt` never to modify `migrations/`.
+- **B.** Add `disallowed_tools=["Agent(fork)"]` and `allowed_tools=["Edit"]` on the parent options so non-forked subagent edits route through `canUseTool`.
+- **C.** Move the `migrations/` path check into a `PreToolUse` hook configured with `on_failure="block"` that returns `deny` for matching file paths.
+- **D.** Inspect `Edit` arguments inside a `PostToolUse` hook and instruct the parent agent in `CLAUDE.md` to revert unauthorized changes to `migrations/`.
+
+<SelfCheck question="Answer to Q1">
+
+**C.** Tool permissions execute in a fixed six-step order where `PreToolUse` hooks run first and auto-approved tools skip `canUseTool` altogether, so moving the check to a fail-closed `PreToolUse` hook (`on_failure="block"`) returning `deny` blocks the edit deterministically before execution.<Cite id="F6 F9 F71 F72" /> Option A fails because a subagent under an `acceptEdits` main session inherits `acceptEdits` (overriding its own `permissionMode`), and prompt instructions are not deterministic controls.<Cite id="F7" /> Option B fails because `Agent(fork)` only disables forked subagents while adding `Edit` to `allowed_tools` still auto-approves edits before `canUseTool`, and Option D runs `PostToolUse` only after the edit has succeeded.<Cite id="F6 F73 F74" />
+
+</SelfCheck>
+
+## Q2. Handoff degradation and premature verifier passes (Skill 1.1)
+
+A platform team orchestrates feature delivery across four sequential subagents (`planner`, `implementer`, `tester`, and `reviewer`), passing full Markdown plans, git diffs, and raw test logs back through the coordinator's conversation history. Cost traces show 68% of total tokens are spent re-summarizing context between handoffs, edge-case requirements from the initial spec vanish by the `tester` step, and the `reviewer` subagent repeatedly reports `PASS` after running only one or two smoke checks despite failing boundary cases.
+
+**Which orchestration redesign best addresses both the token bloat and the premature passes?**
+
+- **A.** Keep the four role-based subagents, enable `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` so teammates read a shared task list, and raise `maxTurns` on `reviewer`.
+- **B.** Consolidate coupled stages by context boundary, store large outputs externally returning lightweight references, and require full-suite plus negative tests in the verifier prompt.
+- **C.** Upgrade all four subagents to `opus` and instruct the coordinator to forward every prior subagent's full transcript verbatim into the next stage's prompt.
+- **D.** Keep the four role-based subagents, enforce `output_format` JSON schemas on every handoff, and double `maxTurns` on `reviewer` so it runs deeper checks.
+
+<SelfCheck question="Answer to Q2">
+
+**B.** Decomposing along context boundaries rather than tightly coupled SDLC roles reduces handoff loss and coordination spend, storing large structured outputs externally with lightweight references eliminates coordinator copying overhead, and explicitly requiring full suites, edge cases, and negative tests counters the verifier "early victory" failure mode.<Cite id="F1 F2 F3" /> Option A adds peer mailbox and shared task-list coordination without fixing role-handoff bloat, while higher `maxTurns` in Options A and D does not prevent early-victory passes.<Cite id="F3 F11" /> Option C increases token burn further without preventing handoff loss, and Option D's JSON schemas still pass bloated role-handoff state through the coordinator instead of splitting by context boundary.<Cite id="F1 F2" />
+
+</SelfCheck>
+
+## Q3. Serverless HITL blocking and runaway subagent fan-out (Skill 1.1)
+
+A webhook service runs an Agent SDK worker (wrapping `claude -p`) inside a 15-minute serverless function to investigate security alerts and draft fixes. Production telemetry surfaces two recurring failures: (1) workers block inside `canUseTool` for up to 45 minutes waiting on human Slack sign-off for destructive `Bash` commands, triggering function timeouts; and (2) complex alerts trigger recursive subagent spawning three levels deep up to 20 concurrent workers, causing HTTP 429 rate-limit cascades and spiking `ResultMessage.modelUsage` spend.
+
+**Which TWO changes best eliminate both the serverless timeout and the runaway fan-out? Select TWO.**
+
+- **A.** Increase the HTTP client `max_retries` setting to `10` so HTTP 429 responses from the 20 concurrent workers automatically recover without bounding concurrency.
+- **B.** Return `permissionDecision: "defer"` from a `PreToolUse` hook on gated commands so the `-p` turn exits with `stop_reason: "tool_deferred"` and resumes after Slack approval.
+- **C.** Replace `PreToolUse` hooks with `AskUserQuestion` inside each subagent so operators approve commands asynchronously without touching parent callbacks.
+- **D.** Raise the serverless function timeout to the platform maximum and set `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` to coordinate approvals across peer workers.
+- **E.** Cap recursion with `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1` alongside a bounded `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` and `max_budget_usd` ceiling.
+
+<SelfCheck question="Answer to Q3">
+
+**B, E.** Returning `permissionDecision: "defer"` from `PreToolUse` ends the `-p` turn cleanly with `stop_reason: "tool_deferred"` and preserves the pending call in the transcript for later resumption without holding a process open, while setting `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1`, a lower `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` cap, and `max_budget_usd` prevents deep recursion (default 3 layers, 20 workers) and halts overspending with `error_max_budget_usd`.<Cite id="F5 F10 F75 F83" /> Option A retries rate limits without reducing concurrency or recursion depth.<Cite id="F24 F75 F83" /> Option C still pauses execution via `canUseTool` (and `AskUserQuestion` is unavailable inside `Agent`-spawned subagents), and Option D leaves a blocking process waiting on approval while Agent Teams ignores teammate spawning in `-p` and Agent SDK runs.<Cite id="F8 F11 F76 F77" />
+
+</SelfCheck>
+
+## Q4. Crash mid-tool execution and state recovery boundaries (Skill 1.2)
+
+An Agent SDK billing agent running on ephemeral containers writes an audit row to Postgres via `Bash`, then invokes a non-idempotent `issue_credit` tool (`idempotentHint: false`) that POSTs to an external payments gateway. Immediately after the gateway returns `200 OK` and issues the credit, the container is terminated by `SIGKILL` before the `tool_result` is appended to the `SessionStore` transcript. A replacement container starts and prepares to call `resume` on the stored `session_id`.
+
+**What happens on `resume`, and which design prevents duplicate credits during crash recovery?**
+
+- **A.** `resume` re-executes the dangling `issue_credit` call automatically; call `rewind_files()` before `resume` to revert both the external credit API call and the `Bash` Postgres row.
+- **B.** `resume` skips the interrupted `issue_credit` call; back the tool with a durable step log and deterministic idempotency key to return cached results or reconcile in-flight state.
+- **C.** `resume` skips the interrupted `issue_credit` call; parse the raw `~/.claude/projects/<encoded-cwd>/*.jsonl` file on startup and re-run any trailing `tool_use` block lacking a `tool_result`.
+- **D.** `resume` re-executes the dangling `issue_credit` call only if `session_store_flush="eager"` is set; raise SDK `max_retries` to `5` so interrupted calls replay safely.
+
+<SelfCheck question="Answer to Q4">
+
+**B.** Resuming a session does not re-execute a tool call that was interrupted by a crash.<Cite id="F13" /> Because `issue_credit` is non-idempotent (`idempotentHint` false) and an external `200 OK` may commit before the transcript updates, the tool layer needs a durable write-ahead step log with a deterministic idempotency key to replay cached `SUCCEEDED` receipts or reconcile `IN_FLIGHT` uncertainty before calling the gateway again.<Cite id="F13 F25" /> Option A fails because `rewind_files()` restores only tracked tool-edited local files—leaving `Bash` side effects, external HTTP calls, and conversation history intact.<Cite id="F12 F15 F16" /> Option C relies on internal JSONL schemas that can break across releases and still risks double-charging, while Option D mistakes SDK HTTP retries and eager transcript flushing for external tool idempotency.<Cite id="F14 F24 F78" />
+
+</SelfCheck>
+
+## Q5. Mid-session model migration with preserved thinking (Skill 1.2)
+
+Ahead of the November 30, 2026 retirement of `claude-sonnet-4-5-20250929`, a platform team migrates active multi-turn sessions to `claude-sonnet-5-5` and rolls out a new top-level `system` prompt regulatory disclosure between turns. Resumed sessions fail with HTTP `400 invalid_request_error`, first rejecting `thinking.type` on migrated sessions and—after switching `thinking` and deploying the `system` update—failing on subsequent `claude-sonnet-5-5` turns with `Invalid signature in thinking block. The block is bound to a different conversation.`
+
+**Which remediation resolves both errors for active sessions without breaking preserved thinking on subsequent turns?**
+
+- **A.** Continue routing active sessions to `claude-sonnet-4-5-20250929` with `max_retries=5` until they finish, because Anthropic keeps retired models available for active sessions.
+- **B.** Keep `thinking: {"type": "enabled", "budget_tokens": 4096}` and strip every prior assistant thinking block from `messages` before forwarding requests to `claude-sonnet-5-5`.
+- **C.** Deploy a custom proxy to re-sign prior thinking blocks under the `claude-sonnet-5-5` schema while continuing to edit the top-level `system` prompt per turn.
+- **D.** Set `thinking: {"type": "adaptive"}`, keep active sessions on their last `system` and `tools` snapshot (or use `prefix_mismatch_behavior: "drop_block"`), and expect a cold cache.
+
+<SelfCheck question="Answer to Q5">
+
+**D.** Preserved-thinking models such as `claude-sonnet-5-5` reject `thinking: {"type": "enabled"}` with a `400` error and require `"adaptive"`, while keeping active conversations on the `system` and `tools` of their last successful request prevents prefix-check `400` failures (and `thinking.block_binding.prefix_mismatch_behavior: "drop_block"` with beta header `thinking-binding-controls-2026-08-01` recovers already-broken threads).<Cite id="F20 F21 F22" /> Switching models also starts with an uncached history read because prompt caches are model-scoped.<Cite id="F19" /> Option A ignores scheduled model retirement (after at least 60 days' notice), Option B still sends rejected `"enabled"` thinking, and Option C fails because thinking blocks remain tied to their exact prior `system`, `tools`, and message prefix.<Cite id="F18 F20 F79" />
+
+</SelfCheck>
+
+## Q6. Compliance boundaries and Managed Agents memory-store errors (Skill 1.2)
+
+A healthcare startup builds a long-running patient-triage coding agent that must meet strict Zero Data Retention (ZDR) and HIPAA Business Associate Agreement (BAA) requirements. Their prototype uses hosted Claude Managed Agents (`managed-agents-2026-04-01`) attached to a Memory Store (`agent-memory-2026-07-22`), and includes both beta headers on `POST /v1/memory_stores` requests, which fail immediately with HTTP `400`.
+
+**Which TWO findings and fixes address both the HTTP `400` error and the compliance gap? Select TWO.**
+
+- **A.** Omit `managed-agents-2026-04-01` on memory store calls, because sending it together with `agent-memory-2026-07-22` returns a `400` error.
+- **B.** Keep hosted Managed Agents and switch to a self-hosted sandbox worker so tool results never reach Anthropic's Managed Agents service.
+- **C.** Pass `persistSession: false` when creating the Managed Agents session so server-side storage is disabled and the session qualifies for HIPAA BAA coverage.
+- **D.** Switch to the Messages API with the client-side `memory_20250818` tool on compliant storage, because hosted Managed Agents is ineligible for ZDR and HIPAA.
+- **E.** Store patient-triage progress in local Markdown checklists inside `~/.claude/projects/` instead of JSON files so models corrupt state less often.
+
+<SelfCheck question="Answer to Q6">
+
+**A, D.** Sending `managed-agents-2026-04-01` alongside `agent-memory-2026-07-22` on a memory store call returns HTTP `400`.<Cite id="F28" /> Moreover, hosted Managed Agents stores conversation history, sandbox state, and outputs server-side and is ineligible for ZDR and HIPAA across all sub-features, whereas the client-side `memory_20250818` tool executes against developer-controlled storage and is eligible for ZDR and HIPAA readiness.<Cite id="F17 F26 F27 F61" /> Option B fails because self-hosted sandbox tool results still reach the Managed Agents service; Option C confuses a TypeScript-only Agent SDK option (`persistSession: false`) with Managed Agents; and Option E is false because models are less likely to corrupt structured JSON than Markdown.<Cite id="F23 F38 F85" />
+
+</SelfCheck>
+
+## Q7. Evaluating workflow-to-agent trial metrics at scale (Skill 1.3)
+
+A fintech team runs a randomized production A/B trial on 5,000 eligible compliance-exception cases per arm under identical tool permissions, evaluator rubrics, and a 60-second SLA. The deterministic workflow resolves 3,900 cases (78%) for $1,950 total ($0.50 per success, p95 = 22s) with 150 failed tool calls out of 10,000 (1.5%, affecting 2.9% of cases). The bounded single agent resolves 4,500 cases (90%) for $2,475 total ($0.55 per success, p95 = 48s) with 450 failed tool calls out of 30,000 (1.5%, affecting 8.2% of cases). Business criteria require at least 88% resolution, p95 at or under 55s, and value each incremental resolution at $1.50.
+
+**How should the team interpret these results when deciding whether to evolve the system?**
+
+- **A.** Reject the bounded agent because tripling absolute failed tool calls (450 versus 150) indicates the downstream tool API degraded under agent traffic.
+- **B.** Reject the bounded agent because its $0.55 cost per successful case exceeds the workflow's $0.50 baseline and pushes total spend up by $525.
+- **C.** Advance the bounded agent to canary (or route exception cohorts) after human validation, since incremental wins cost $0.875 within SLA, and track the 8.2% case exposure separately.
+- **D.** Replace both arms with a multi-agent orchestrator-workers setup, since multi-agent systems consume about 4x chat tokens while improving resolution across dependent workflows.
+
+<SelfCheck question="Answer to Q7">
+
+**C.** Evaluating systems requires multidimensional criteria rather than a single cost metric, as agents often trade higher cost and latency for better task completion.<Cite id="F31 F45" /> Here the agent meets the 88% and 55s thresholds at $0.875 per incremental success ($525 divided by 600 extra resolutions, well under the $1.50 value), and the unchanged 1.5% per-call error rate shows the dependency did not degrade—3x more tool calls per case simply exposed 8.2% of cases to at least one failed call. Option A misreads call-level versus task-level failure rates, Option B ignores incremental business value and SLA targets, and Option D misstates Anthropic's ~15x-versus-chat multi-agent data (4x is for single agents) while ignoring that dependent workflows are poorly suited to multi-agent systems.<Cite id="F30 F34 F84" />
+
+</SelfCheck>
+
+## Q8. Evolving a predictable agent back to a deterministic workflow (Skill 1.3)
+
+Six months after deploying an autonomous invoice-coding agent inside a third-party wrapper framework, trace audits show that 94% of production runs execute the exact same 3-step sequence (`fetch_vendor` then `classify_gl` then `validate_tax`) with negligible branching and a strict 4-second p95 latency target. However, the third-party wrapper obscures the underlying prompts and responses during debugging and prevents engineers from inserting deterministic human-approval and conditional-execution gates before calling `post_ledger`.
+
+**Which architectural change best improves latency, debuggability, and execution control?**
+
+- **A.** Migrate the stable 94% path to a deterministic workflow on a Messages API manual loop so application code controls the fixed sequence, inspects raw requests, and enforces gates before `post_ledger`.
+- **B.** Retain the autonomous agent and switch to the Messages SDK `tool_runner` (`@beta_tool`), which gives finer per-call human approval and conditional execution control than a manual loop.
+- **C.** Deploy the existing wrapper inside hosted Claude Managed Agents so per-session cloud containers manage the 3-step execution loop and isolate prompt debugging.
+- **D.** Split the 3-step sequence across three Agent Teams teammates so each teammate checks the previous step's result through peer mailboxes before `post_ledger`.
+
+<SelfCheck question="Answer to Q8">
+
+**A.** When a task follows well-defined, predictable paths, workflows orchestrated through predefined code paths provide better consistency and simpler execution than an autonomous agent, and Anthropic recommends a manual Messages API loop whenever human-in-the-loop approval, custom logging, or conditional execution is needed while removing framework abstractions that obscure prompts.<Cite id="F29 F30 F32 F33 F35" /> Option B reverses the SDK guidance because `tool_runner` handles default loops and leaves manual loops for approval and conditional gates.<Cite id="F35" /> Option C provisions a cloud container per session without removing wrapper opacity or adding deterministic pre-ledger gates, and Option D adds peer-team coordination overhead to a deterministic 3-step path.<Cite id="F11 F37" />
+
+</SelfCheck>
+
+## Q9. Platform harness selection and reusable governance standards (Skill 1.3)
+
+A platform engineering group is standardizing Claude adoption across 12 product squads with three requirements: (1) unattended CI/CD repository checks must emit machine-readable JSON containing the result, `session_id`, and cost metadata; (2) interactive engineering teams must share version-controlled project instructions and specialized subagents in git; and (3) OAuth credentials must never enter prompts, while irreversible actions cannot rely solely on local hooks for authorization.
+
+**Which TWO practices best satisfy these requirements? Select TWO.**
+
+- **A.** Embed shared OAuth client secrets inside `.claude/skills/auth/SKILL.md` so every squad's subagents authenticate consistently without duplicating service code.
+- **B.** Run CI/CD checks using headless Claude Code (`claude -p "..." --output-format json`) and commit shared Skills (`.claude/skills/`) and project subagents (`.claude/agents/`) to version control.
+- **C.** Run CI/CD checks through Managed Agents with a self-hosted sandbox worker so prompts, credentials, and tool outputs remain solely on customer infrastructure.
+- **D.** Keep OAuth credentials in reviewed tool libraries outside prompts, and pair `PreToolUse` hooks for repeatable checks with deterministic authorization in the trusted backend service for irreversible actions.
+- **E.** Rely on the Messages SDK `tool_runner` in-process message history as the durable cross-pipeline audit store for CI/CD runs without capturing JSON output.
+
+<SelfCheck question="Answer to Q9">
+
+**B, D.** Running `claude -p` with `--output-format json` executes non-interactively and returns structured JSON with the result, `session_id`, and cost breakdown (`total_cost_usd`), while committing project Skills and `.claude/agents/` subagents shares reusable conventions through git.<Cite id="F39 F40 F41 F42 F82" /> `PreToolUse` hooks run before tool execution to allow, deny, ask, or defer calls, and pairing them with credentials kept outside prompts and trusted-backend authorization for irreversible actions establishes defense in depth.<Cite id="F43 F44" /> Option A leaks secrets into prompt context, Option C is false because tool outputs from self-hosted sandbox workers still reach the Managed Agents service, and Option E mistakes `tool_runner`'s in-memory conversation state for durable external storage.<Cite id="F36 F38" />
+
+</SelfCheck>
+
+## Q10. Cache occupancy, Haiku 5.5 pricing cliff, and tool bloat (Skill 1.4)
+
+A customer-support triage agent running `claude-haiku-5-5` attaches 7 MCP servers totaling 72 tools (~52,000 schema tokens) and executes a multi-turn loop that pulls 30 large order-history payloads per ticket. Usage logs show `cache_read_input_tokens: 135,000` and `input_tokens: 8,000` on typical turns—a 94% cache-hit rate—yet per-ticket spend jumped 5x after crossing 100K tokens and answer accuracy drops on late turns. Engineers ask whether adding another `cache_control` breakpoint will push occupancy below 100K.
+
+**Which diagnosis and remediation best solves both the cost jump and the late-turn accuracy degradation?**
+
+- **A.** Cache reads still count unless split across breakpoints; add a fourth `cache_control` breakpoint after the 72nd tool so `cache_read_input_tokens` fall outside Haiku 5.5's 100K tier.
+- **B.** Cached tokens still occupy context and count toward Haiku 5.5's 100K tier; enable Tool Search (`defer_loading: true`) and programmatic tool calling to keep schemas and raw payloads out.
+- **C.** Stale tool outputs alone cause late-turn rot; keep all 72 schemas loaded and enable `clear_tool_uses_20250919` with `clear_at_least: 100` so small outputs clear after every turn.
+- **D.** The 143K prompt sits too close to Haiku's long-context threshold; keep the tools and payloads unchanged and move to an older 200K-window model that avoids compaction.
+
+<SelfCheck question="Answer to Q10">
+
+**B.** Prompt caching reduces billing per read but does not shrink context occupancy or prevent context rot, and Haiku 5.5's over-100K pricing counts all input tokens including `cache_read_input_tokens`.<Cite id="F46 F47 F48 F50" /> Because tool-selection accuracy degrades past 30–50 upfront tools, enabling Tool Search (`defer_loading: true`) keeps definitions out of the prefix while preserving cache hits via inline `tool_reference` expansion, and programmatic tool calling keeps intermediate payloads out of the context window.<Cite id="F66 F67 F68" /> Option A misstates cache-read billing rules; Option C leaves all 72 schemas in context and causes continuous prefix-cache invalidation by clearing tiny outputs without a meaningful `clear_at_least` threshold; and Option D leaves context rot unaddressed.<Cite id="F46 F50 F53" />
+
+</SelfCheck>
+
+## Q11. Cache-safe mid-conversation steering, compaction, and usage auditing (Skill 1.4)
+
+A financial-audit agent on `claude-opus-5-5` with a 180K-token cached prefix must dynamically enforce a new compliance rule ("exclude draft ledger entries") whenever an analyst toggles a flag mid-session. After modifying the top-level `system` prompt on flag toggles and enabling threshold compaction (`compact-2026-01-12`), three failures appear: (1) every toggle invalidates the entire 180K cache; (2) after compaction triggers, the compliance rule disappears and compaction occasionally returns `content: null`; and (3) cost dashboards reading `usage.input_tokens` under-report compaction spend.
+
+**Which TWO changes resolve the cache misses, rule loss, `content: null` summaries, and billing under-reporting? Select TWO.**
+
+- **A.** Keep top-level `system` immutable, append `{"role": "system", "content": "..."}` into `messages` after the user turn, and preserve durable rules via `memory_20250818` or restate them post-compaction.
+- **B.** Embed raw retrieved web snippets and customer support emails inside `{"role": "system"}` messages so formatting rules carry operator priority across compaction.
+- **C.** Switch to on-demand compaction (`compact-2026-09-04`) or forbid tool calls in threshold instructions to prevent `content: null`, and sum billing telemetry across `usage.iterations`.
+- **D.** Combine compaction (`compact-2026-09-04`) with `context_management` (`clear_tool_uses_20250919` followed by `clear_thinking_20251015`) on the same request to double-prune history.
+- **E.** Enable Python SDK v1.0 `compaction_control` and remove `cache_control` from `system` to avoid paying to re-cache system instructions on compaction.
+
+<SelfCheck question="Answer to Q11">
+
+**A, C.** Because prompt caches follow the `tools` then `system` then `messages` hierarchy, appending a `{"role": "system"}` message into `messages` updates instructions with system authority without invalidating the prefix cache, while pairing compaction with `memory_20250818` (or restating summarized `role: "system"` rules) prevents rule loss across compaction.<Cite id="F58 F61 F62 F63 F64" /> Anthropic recommends on-demand compaction (`compact-2026-09-04`) over threshold compaction (where tool-enabled summarization can yield `content: null`), and requires summing `usage.iterations` for accurate compaction billing.<Cite id="F56 F59 F60" /> Option B violates security boundaries by granting untrusted external text operator authority; Option D illegally combines `compact-2026-09-04` with `context_management` and orders `clear_thinking_20251015` after `clear_tool_uses_20250919`; and Option E relies on `compaction_control`, which was removed in Python SDK v1.0.<Cite id="F54 F55 F65 F80" />
+
+</SelfCheck>
+
+## Q12. Tokenizer shift and compaction survival in Claude Code (Skill 1.4)
+
+After upgrading an automated Claude Code pipeline to `claude-opus-4-7` (1M native window), engineers observe two regressions: (1) an offline token estimator calibrated on an earlier 4.5 model undercounts prompt length by roughly 25–30%, occasionally causing `400 invalid_request_error ("prompt is too long")`; and (2) whenever auto-compaction runs near ~967K tokens, mandatory security constraints in `.claude/rules/payments.md` (configured with `paths: ["services/payments/**"]`) and `services/payments/CLAUDE.md` stop being followed for the remainder of the session.
+
+**Which change best fixes both the token estimation drift and the post-compaction rule loss?**
+
+- **A.** Increase `max_tokens` by 30% on every request and set `DISABLE_AUTO_COMPACT=1` so path-scoped rules stay in message history throughout long sessions.
+- **B.** Keep estimating tokens with the 4.5 tokenizer and add `cache_control` blocks so cached segments no longer count toward the 1M input limit.
+- **C.** Move the security constraints out of `services/payments/CLAUDE.md` into an early mid-conversation `role: "system"` message so compaction preserves them verbatim.
+- **D.** Re-measure prompts via `/v1/messages/count_tokens` against `claude-opus-4-7`, and move cross-compaction rules into project-root `CLAUDE.md` without `paths:` frontmatter.
+
+<SelfCheck question="Answer to Q12">
+
+**D.** Claude 4.7 and later models use a newer tokenizer that generates roughly 30% more tokens for identical text, so teams should recount prompts against the target model ID using `/v1/messages/count_tokens` to avoid `400` `"prompt is too long"` overflows.<Cite id="F49 F51 F52 F81" /> In Claude Code, path-scoped rules and nested subdirectory `CLAUDE.md` files live in message history and are summarized away when auto-compaction fires near ~967K tokens, whereas moving critical rules to project-root `CLAUDE.md` (and dropping `paths:` frontmatter) reloads them from disk.<Cite id="F69 F70" /> Option A risks context overflow by disabling compaction without fixing input sizing, and Option B wrongly assumes cached tokens escape context limits.<Cite id="F48 F49" /> Option C fails because `role: "system"` messages inside a summarized range stop applying once compacted.<Cite id="F58" />
+
+</SelfCheck>

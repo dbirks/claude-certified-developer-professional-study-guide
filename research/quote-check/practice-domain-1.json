@@ -348,5 +348,80 @@
     "id": "F70",
     "status": "ok",
     "url": "https://code.claude.com/docs/en/model-config#default-auto-compact-thresholds"
+  },
+  {
+    "id": "F71",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/permissions"
+  },
+  {
+    "id": "F72",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/hooks"
+  },
+  {
+    "id": "F73",
+    "status": "ok-loose",
+    "url": "https://code.claude.com/docs/en/hooks"
+  },
+  {
+    "id": "F74",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/subagents"
+  },
+  {
+    "id": "F75",
+    "status": "ok-loose",
+    "url": "https://code.claude.com/docs/en/agent-sdk/subagents"
+  },
+  {
+    "id": "F76",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/user-input"
+  },
+  {
+    "id": "F77",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-teams"
+  },
+  {
+    "id": "F78",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/python"
+  },
+  {
+    "id": "F79",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/preserved-thinking"
+  },
+  {
+    "id": "F80",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/compaction-on-demand#request-a-summary"
+  },
+  {
+    "id": "F81",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/token-counting#supported-models"
+  },
+  {
+    "id": "F82",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/headless"
+  },
+  {
+    "id": "F83",
+    "status": "ok-loose",
+    "url": "https://code.claude.com/docs/en/agent-sdk/subagents"
+  },
+  {
+    "id": "F84",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/multi-agent-research-system"
+  },
+  {
+    "id": "F85",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/sessions"
   }
 ]

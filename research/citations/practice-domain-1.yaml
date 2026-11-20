@@ -642,3 +642,142 @@
   quote: "Models running with a native 1M window compact before the window fills, at about 967K tokens by default."
   accessed: 2026-11-19
   version_note: "Claude Code default for native 1M models (Fable, Sonnet 5+, Haiku 5.5, Opus 4.7+)."
+
+- id: F71
+  claim: "Tool requests pass sequentially through hooks, deny rules, ask rules, permission mode, allow rules, and canUseTool."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/permissions
+  title: "Configure permissions - Claude Code Docs"
+  source: claude-code-docs
+  quote: "a tool request passes through hooks, deny rules, ask rules, permission mode, allow rules, and canUseTool."
+  accessed: 2026-11-19
+
+- id: F72
+  claim: "Setting onFailure to 'block' (TypeScript) or on_failure='block' (Python) on a hook matcher blocks the tool action if the callback fails."
+  tag: VER
+  url: https://code.claude.com/docs/en/agent-sdk/hooks
+  title: "Intercept and control agent behavior with hooks - Claude Code Docs"
+  source: claude-code-docs
+  quote: "To block the action instead, set onFailure: \"block\" in TypeScript or on_failure=\"block\" in Python on the matcher."
+  accessed: 2026-11-19
+  version_note: "Requires TypeScript Agent SDK v0.3.317+ or Python Agent SDK v0.2.177+."
+
+- id: F73
+  claim: "PostToolUse hooks execute only after a tool call succeeds."
+  tag: FACT
+  url: https://code.claude.com/docs/en/hooks
+  title: "Hooks reference - Claude Code Docs"
+  source: claude-code-docs
+  quote: "PostToolUse | After a tool call succeeds"
+  accessed: 2026-11-19
+
+- id: F74
+  claim: "Adding an Agent(fork) deny rule prevents Claude from starting forked subagents while allowing other subagents to run."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/subagents
+  title: "Subagents in the SDK - Claude Code Docs"
+  source: claude-code-docs
+  quote: "To stop Claude from starting forks, add an Agent(fork) deny rule:"
+  accessed: 2026-11-19
+
+- id: F75
+  claim: "CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH defaults to 3 layers below the main agent and setting it to 1 stops subagents from spawning nested subagents."
+  tag: VER
+  url: https://code.claude.com/docs/en/agent-sdk/subagents
+  title: "Subagents in the SDK - Claude Code Docs"
+  source: claude-code-docs
+  quote: "CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH | 3 layers of subagents below your main agent. | 1 stops your subagents from spawning any of their own"
+  accessed: 2026-11-19
+  version_note: "Requires TypeScript Agent SDK v0.3.219+ or Python Agent SDK v0.2.127+ (Claude Code v2.1.219+)."
+
+- id: F76
+  claim: "AskUserQuestion is unavailable inside subagents spawned via the Agent tool."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/user-input
+  title: "Handle approvals and user input - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Subagents: AskUserQuestion is not currently available in subagents spawned via the Agent tool"
+  accessed: 2026-11-19
+
+- id: F77
+  claim: "In non-interactive -p mode and Agent SDK sessions, Agent Teams does not spawn teammates even when enabled."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-teams
+  title: "Orchestrate teams of Claude Code sessions - Claude Code Docs"
+  source: claude-code-docs
+  quote: "In non-interactive mode with the -p flag, including Agent SDK sessions, Claude doesn’t spawn teammates, and a subagent that Claude names runs as an ordinary subagent even with agent teams enabled."
+  accessed: 2026-11-19
+
+- id: F78
+  claim: "Python Agent SDK session_store_flush controls when mirrored transcript entries flush to session_store (batched per turn or eager per frame)."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/python
+  title: "Agent SDK reference - Python - Claude Code Docs"
+  source: claude-code-docs
+  quote: "When to flush mirrored transcript entries to session_store. \"batched\" flushes once per turn or when the buffer fills; \"eager\" triggers a background flush after every frame."
+  accessed: 2026-11-19
+
+- id: F79
+  claim: "If system, tools, or any earlier message changes after a preserved thinking block was produced, the prefix check fails and can return a 400 error."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/preserved-thinking
+  title: "Preserved thinking"
+  source: anthropic-docs
+  quote: "If any of them changes, the block fails the prefix check, and the request can get a 400 error."
+  accessed: 2026-11-19
+
+- id: F80
+  claim: "On-demand compaction cannot be combined with context_management on the same request."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/compaction-on-demand#request-a-summary
+  title: "Compaction on demand"
+  source: anthropic-docs
+  quote: "You can’t combine compaction with context_management on one request."
+  accessed: 2026-11-19
+  version_note: "Beta header compact-2026-09-04."
+
+- id: F81
+  claim: "Prompts should be recounted against the target model ID rather than reusing counts measured on earlier models."
+  tag: REC
+  url: https://platform.claude.com/docs/en/build-with-claude/token-counting#supported-models
+  title: "Token counting"
+  source: anthropic-docs
+  quote: "Recount prompts against the model you plan to use rather than reusing counts measured against earlier models."
+  accessed: 2026-11-19
+
+- id: F82
+  claim: "Headless claude -p with --output-format json includes total_cost_usd and a per-model cost breakdown."
+  tag: FACT
+  url: https://code.claude.com/docs/en/headless
+  title: "Run Claude Code programmatically"
+  source: claude-code-docs
+  quote: "With --output-format json, the response payload includes total_cost_usd and a per-model cost breakdown, so scripted callers can track spend without consulting the usage dashboard."
+  accessed: 2026-11-19
+
+- id: F83
+  claim: "CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS defaults to 20 concurrent subagents spawned via the Agent tool."
+  tag: VER
+  url: https://code.claude.com/docs/en/agent-sdk/subagents
+  title: "Subagents in the SDK - Claude Code Docs"
+  source: claude-code-docs
+  quote: "CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS | 20 subagents running at once, counting every subagent Claude spawns with the Agent tool"
+  accessed: 2026-11-19
+  version_note: "Requires TypeScript Agent SDK v0.3.219+ or Python Agent SDK v0.2.127+ (Claude Code v2.1.219+)."
+
+- id: F84
+  claim: "Domains requiring shared context across all agents or heavy inter-agent dependencies are poorly suited to multi-agent systems."
+  tag: REC
+  url: https://www.anthropic.com/research/multi-agent-research-system
+  title: "How we built our multi-agent research system"
+  source: anthropic-research
+  quote: "Further, some domains that require all agents to share the same context or involve many dependencies between agents are not a good fit for multi-agent systems today."
+  accessed: 2026-11-19
+
+- id: F85
+  claim: "persistSession: false is a TypeScript-only Agent SDK option that keeps the session in memory without writing transcripts to disk."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/sessions
+  title: "Work with sessions"
+  source: claude-code-docs
+  quote: "Set persistSession: false (TypeScript only). The session exists only in memory for the duration of the call."
+  accessed: 2026-11-19

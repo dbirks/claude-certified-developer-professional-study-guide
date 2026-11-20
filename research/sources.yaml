@@ -110,6 +110,7 @@
     - telemetry:F19
     - telemetry:F20
     - telemetry:F21
+    - telemetry:F53
 - url: https://code.claude.com/docs/en/agent-sdk/overview
   title: Agent SDK overview
   source: claude-code-docs
@@ -476,6 +477,15 @@
     - telemetry:F16
     - telemetry:F17
     - telemetry:F18
+    - telemetry:F45
+    - telemetry:F46
+    - telemetry:F54
+    - telemetry:F55
+    - telemetry:F56
+    - telemetry:F64
+    - telemetry:F66
+    - telemetry:F67
+    - telemetry:F68
     - monitoring-alerting:F18
     - monitoring-alerting:F19
     - monitoring-alerting:F20
@@ -775,12 +785,16 @@
   accessed: 2026-11-19
   cited_by:
     - telemetry:F3
+    - telemetry:F41
 - url: https://github.com/open-telemetry/semantic-conventions-genai/blob/main/docs/gen-ai/gen-ai-spans.md
   title: Semantic conventions for generative client AI spans
   source: standard
   accessed: 2026-11-19
   cited_by:
     - telemetry:F2
+    - telemetry:F37
+    - telemetry:F38
+    - telemetry:F40
 - url: https://modelcontextprotocol.io/docs/2025-11-25/tutorials/security/security_best_practices
   title: Security Best Practices - Model Context Protocol
   source: mcp-spec
@@ -1109,6 +1123,8 @@
     - reliability:F42
     - reliability:F43
     - telemetry:F27
+    - telemetry:F43
+    - telemetry:F44
     - failure-diagnosis:F22
     - failure-diagnosis:F28
     - failure-diagnosis:F29
@@ -1129,6 +1145,8 @@
   accessed: 2026-11-19
   cited_by:
     - telemetry:F12
+    - telemetry:F39
+    - telemetry:F42
     - monitoring-alerting:F21
     - trace-analysis:F18
     - trace-analysis:F20
@@ -1242,6 +1260,10 @@
   cited_by:
     - telemetry:F25
     - telemetry:F26
+    - telemetry:F50
+    - telemetry:F51
+    - telemetry:F52
+    - telemetry:F69
     - monitoring-alerting:F24
     - cost-architecture:F17
 - url: https://platform.claude.com/docs/en/build-with-claude/citations
@@ -1262,6 +1284,7 @@
     - retrieval-grounding:F42
     - retrieval-grounding:F43
     - telemetry:F31
+    - telemetry:F57
     - evaluation-design:F31
     - online-quality:F19
     - online-quality:F20
@@ -1476,6 +1499,9 @@
   cited_by:
     - telemetry:F32
     - telemetry:F33
+    - telemetry:F58
+    - telemetry:F59
+    - telemetry:F60
     - failure-diagnosis:F30
     - llm-as-judge:F24
 - url: https://platform.claude.com/docs/en/build-with-claude/thinking-troubleshooting
@@ -1525,6 +1551,8 @@
   accessed: 2026-11-19
   cited_by:
     - telemetry:F34
+    - telemetry:F36
+    - telemetry:F65
 - url: https://platform.claude.com/docs/en/manage-claude/authentication
   title: Authentication
   source: anthropic-docs
@@ -1599,6 +1627,9 @@
   accessed: 2026-11-19
   cited_by:
     - telemetry:F11
+    - telemetry:F61
+    - telemetry:F62
+    - telemetry:F63
 - url: https://platform.claude.com/docs/en/manage-claude/spend-limits-api
   title: Spend Limits API
   source: anthropic-docs
@@ -1612,6 +1643,9 @@
   cited_by:
     - telemetry:F28
     - telemetry:F29
+    - telemetry:F47
+    - telemetry:F48
+    - telemetry:F49
     - monitoring-alerting:F13
     - monitoring-alerting:F14
     - monitoring-alerting:F15
