@@ -120,8 +120,7 @@ export function initDrawer(): void {
   const onBreakpoint = () => {
     if (!mobile.matches) closeDrawer();
   };
-  if (typeof mobile.addEventListener === 'function') mobile.addEventListener('change', onBreakpoint);
-  else mobile.addListener(onBreakpoint);
+  mobile.addEventListener('change', onBreakpoint);
 
   /* ------------------------------------------------------------ left-edge swipe */
 
