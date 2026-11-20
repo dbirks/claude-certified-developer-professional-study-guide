@@ -55,6 +55,11 @@ function initProgress(): void {
   const bar = document.getElementById('progress-bar');
   const article = document.querySelector<HTMLElement>('article.prose');
   if (!bar || !article) return;
+  // Gelato topbar: a "% read" pill, shown on chapter pages only.
+  const pill = document.body.dataset.currentId ? document.getElementById('read-pill') : null;
+  pill?.removeAttribute('hidden');
+  const pillText = pill ? document.getElementById('read-pill-text') : null;
+  const pillFill = pill ? document.getElementById('read-pill-fill') : null;
 
   let queued = false;
   const update = (): void => {
@@ -70,6 +75,8 @@ function initProgress(): void {
     }
     pct = Math.min(100, Math.max(0, pct));
     bar.style.width = `${pct.toFixed(2)}%`;
+    if (pillText) pillText.textContent = `${Math.round(pct)}%`;
+    if (pillFill) pillFill.style.width = `${pct.toFixed(1)}%`;
   };
   const onScroll = (): void => {
     if (queued) return;

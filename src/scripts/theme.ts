@@ -28,24 +28,23 @@ function currentTheme(): Theme {
 }
 
 export function initTheme(): void {
-  const btn = document.getElementById('theme-toggle');
-  if (!btn) return;
+  const btn = document.getElementById('theme-toggle'); // topbar button (desktop)
+  const segments = document.querySelectorAll<HTMLButtonElement>('[data-theme-set]'); // drawer switch (mobile)
 
   const syncLabel = (): void => {
     // Label describes the *destination* theme.
-    btn.setAttribute(
-      'aria-label',
-      currentTheme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme',
-    );
+    btn?.setAttribute('aria-label', currentTheme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
+    segments.forEach((s) => s.setAttribute('aria-pressed', String(s.dataset.themeSet === currentTheme())));
   };
-  syncLabel();
-
-  btn.addEventListener('click', () => {
-    const next: Theme = currentTheme() === 'dark' ? 'light' : 'dark';
+  const apply = (next: Theme): void => {
     document.documentElement.dataset.theme = next;
     writeStoredTheme(next);
     syncLabel();
-  });
+  };
+  syncLabel();
+
+  btn?.addEventListener('click', () => apply(currentTheme() === 'dark' ? 'light' : 'dark'));
+  segments.forEach((s) => s.addEventListener('click', () => apply(s.dataset.themeSet === 'dark' ? 'dark' : 'light')));
 
   // Follow OS changes live only while the reader has never chosen manually.
   if (typeof window.matchMedia !== 'function') return;

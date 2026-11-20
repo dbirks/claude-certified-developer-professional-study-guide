@@ -32,7 +32,7 @@ function hostOf(url: string): string {
       </p>
       <ol class="sources__list">
         {citations.map((c) => (
-          <li class="source" id={`src-${c.id}`} value={c.n} data-tag={c.tag}>
+          <li class="source" id={`src-${c.id}`} value={c.n} data-tag={c.tag} data-match={c.match ?? ''}>
             <div class="source__head">
               <span class="source__n">{c.n}</span>
               <a class="source__title" href={c.url} target="_blank" rel="noopener">

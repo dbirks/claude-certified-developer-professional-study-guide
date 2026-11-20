@@ -10,7 +10,7 @@ const ROOT = new URL('..', import.meta.url).pathname;
 const syl = readFileSync(join(ROOT, 'src/data/syllabus.ts'), 'utf8');
 const domains = [...syl.matchAll(/n: (\d+),\s*slug: '([^']+)',\s*title: '([^']+)',\s*weight: (\d+),\s*skills: \[([\s\S]*?)\n    \],/g)].map((m) => ({
   n: +m[1], slug: m[2], title: m[3], weight: +m[4],
-  skills: [...m[5].matchAll(/id: '([\d.]+)', slug: '([^']+)', title: '([^']+)', priority: '(\w+)', objective: '((?:[^'\\]|\\.)*)'/g)].map((s) => ({ id: s[1], slug: s[2], title: s[3], priority: s[4], objective: s[5] })),
+  skills: [...m[5].matchAll(/id: '([\d.]+)',(?: short: '[^']*',)? slug: '([^']+)', title: '([^']+)', priority: '(\w+)', objective: '((?:[^'\\]|\\.)*)'/g)].map((s) => ({ id: s[1], slug: s[2], title: s[3], priority: s[4], objective: s[5] })),
 }));
 
 function walk(dir) {

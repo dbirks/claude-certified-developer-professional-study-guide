@@ -63,6 +63,23 @@ Heading ids come from Astro's github-slugger (`## Retry budgets` → `#retry-bud
 | `dialog#search-dialog` | | SearchDialog.astro |
 | `#cite-pop` | div | CitePopover.astro |
 
+## Gelato visual system (2026-11-19)
+
+The visual layer follows the "Gelato" handoff from the owner's Claude Design project (frames 2a, 2b, 3a, 3c, 3e–3g;
+reference images in `docs/design/`). Fonts: Young Serif (display, weight 400 only), Manrope (body/UI), DM Mono (code).
+Icons: Lucide via `src/components/Icon.astro`. Markup additions to the contract:
+
+- Topbar: `.topbar > .topbar__pill > #toc-toggle(.hamburger) + .topbar__title + #topbar-section + .topbar__actions`
+  with `#search-open.topbar__search` (`.topbar__search-text`, `kbd.topbar__search-key` shown ≥1024),
+  `#read-pill.read-pill` (`.read-pill__bar > #read-pill-fill`, `#read-pill-text`; driven by reading.ts),
+  `#theme-toggle.topbar__theme` (≥1024). The drawer head has `.theme-switch > button[data-theme-set="light"|"dark"][aria-pressed]` (<1024).
+- Chapter hero: `.chapter-head__row > .chapter-head__eyebrow + .status`, `.chapter-head__lede` (frontmatter summary),
+  `details.objective` with `.objective__plus/.objective__minus` icons.
+- Pager: `.pager__dir` holds an arrow icon + skill number; `.pager__label` is the skill's `short` title (syllabus.ts).
+- TOC rows: domain rows lead with `span.toc__badge` and end with the `.toc__twisty` chevron.
+- SelfCheck shows the answer by default; `reveal` (auto when the question starts with "Answer to") hides it.
+- Citation sheet: `li.source[data-match="ok"|"ok-loose"]` from research/quote-check drives the "Quote matches page" pill.
+
 ## TOC markup (Toc.astro, recursive)
 
 ```html

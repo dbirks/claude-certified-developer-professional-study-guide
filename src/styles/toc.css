@@ -1,24 +1,30 @@
 /* Table of contents: sticky sidebar ≥1024px, slide-out drawer below it. Contract: docs/ARCHITECTURE.md. */
-
-/* --------------------------------------------------------------- panel (desktop) */
+/* Visual design: frame 3a (drawer) / 3g (desktop sidebar). */
 
 .toc-panel {
+  --toc-pad-x: calc(14px + env(safe-area-inset-left));
   background: var(--bg);
   font-family: var(--font-sans);
 }
 
+/* --------------------------------------------------------------- panel (desktop sidebar) */
+
 @media (min-width: 1024px) {
   .toc-panel {
+    --toc-pad-x: 10px;
     position: sticky;
-    top: var(--topbar-h);
-    height: calc(100dvh - var(--topbar-h));
+    top: calc(var(--topbar-h) + 14px); /* below the floating topbar pill */
+    height: calc(100dvh - var(--topbar-h) - 14px);
     overflow-y: auto;
     overscroll-behavior: contain;
-    border-right: 1px solid var(--border);
-    padding: 12px 8px 32px 12px;
+    background: transparent; /* the page bg shows through (3g) */
+    padding: 0 var(--toc-pad-x) 32px;
   }
 
-  #toc-close {
+  /* The desktop topbar owns the theme button and the panel is never closed. */
+  .toc-panel .toc-panel__title,
+  .toc-panel #toc-close,
+  .toc-panel .theme-switch {
     display: none;
   }
 
@@ -40,8 +46,9 @@
     inset: 0 auto 0 0;
     width: min(86vw, 360px);
     z-index: 60;
-    background: var(--surface);
-    box-shadow: var(--shadow);
+    background: var(--bg);
+    box-shadow: 8px 0 28px rgba(43, 35, 48, 0.18);
+    border-radius: 0 var(--r-2xl) var(--r-2xl) 0;
     transform: translateX(-100%);
     /* visibility flips to visible instantly on open and is delayed on close, so the slide-out animates. */
     transition: transform 200ms ease, visibility 0s linear 200ms;
@@ -49,7 +56,11 @@
     overflow-y: auto;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
-    padding: 0 8px calc(32px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left));
+    padding: 0 var(--toc-pad-x) calc(28px + env(safe-area-inset-bottom));
+  }
+
+  :root[data-theme='dark'] .toc-panel {
+    box-shadow: 8px 0 28px rgba(20, 18, 24, 0.5);
   }
 
   .toc-panel[data-state='open'],
@@ -70,7 +81,7 @@
     position: fixed;
     inset: 0;
     z-index: 55;
-    background: var(--backdrop);
+    background: var(--backdrop); /* light rgba(43,35,48,.38) · dark rgba(20,18,24,.5) */
     opacity: 0;
     transition: opacity 180ms ease;
   }
@@ -89,47 +100,93 @@ body.scroll-locked {
 .toc-panel__head {
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
-  padding: 10px 4px 8px;
-  margin-bottom: 8px;
-  border-bottom: 1px solid var(--border);
-  background-color: inherit;
+  gap: 8px 10px;
+  /* full-bleed so rows scrolling past disappear under the title, not in the side gutters */
+  margin-inline: calc(-1 * var(--toc-pad-x));
+  padding: 12px var(--toc-pad-x) 10px;
+  background: var(--bg);
 }
 
 .toc-panel__title {
+  order: 1;
   flex: 1;
+  min-width: 0;
   font-family: var(--font-serif);
-  font-size: 17px;
-  font-weight: 600;
+  font-size: 24px;
+  font-weight: 400; /* Young Serif has only 400 */
+  line-height: 1.2;
   color: var(--ink);
 }
 
+/* Close: 44px white circle, right of the title. */
+.toc-panel__close {
+  order: 2;
+  flex: none;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+/* Controls row: pill chips, then the segmented theme switch at the end. */
 .toc-controls {
   order: 3;
   width: 100%;
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 6px;
 }
 
 .toc-controls__btn {
-  font: inherit;
+  font-family: var(--font-sans);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--ink-muted);
-  background: var(--bg-subtle);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 4px 10px;
-  min-height: 32px;
+  background: var(--surface);
+  border: 0;
+  border-radius: var(--r-pill);
+  padding: 0 12px;
+  height: 32px;
   cursor: pointer;
 }
 
-.toc-controls__btn:hover {
-  color: var(--ink);
+@media (hover: hover) {
+  .toc-controls__btn:hover {
+    color: var(--ink);
+  }
+}
+
+.theme-switch {
+  order: 4;
+  margin-left: auto;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  background: var(--surface);
+  border-radius: var(--r-pill);
+}
+
+.theme-switch [data-theme-set] {
+  width: 34px;
+  height: 34px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+
+.theme-switch [data-theme-set][aria-pressed='true'] {
+  background: var(--butter);
+  color: var(--butter-ink);
 }
 
 /* --------------------------------------------------------------- tree */
@@ -144,23 +201,81 @@ body.scroll-locked {
   padding: 0;
 }
 
-.toc__list .toc__list {
-  padding-left: 14px;
-  margin-left: 11px;
-  border-left: 1px solid var(--border);
+/* Section rail under a chapter (H2 list, and deeper levels nested in it). */
+.toc__list[data-depth='2'] {
+  margin-left: 44px;
+  border-left: 2px solid #f0e6dc;
+}
+
+.toc__list[data-depth='3'],
+.toc__list[data-depth='4'] {
+  margin-left: 14px;
+  border-left: 2px solid #f0e6dc;
+}
+
+:root[data-theme='dark'] .toc__list[data-depth='2'],
+:root[data-theme='dark'] .toc__list[data-depth='3'],
+:root[data-theme='dark'] .toc__list[data-depth='4'] {
+  border-left-color: rgba(255, 255, 255, 0.08);
+}
+
+.toc__item {
+  margin: 0;
 }
 
 .toc__row {
   display: flex;
-  align-items: flex-start;
-  gap: 2px;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Domain (depth 0): the row itself is the tappable card line. */
+.toc__item[data-depth='0'] > .toc__row {
+  padding: 8px;
+  border-radius: var(--r-sm);
+}
+
+/* The expanded current domain sits in a white card. */
+.toc__item[data-depth='0'].is-ancestor:has(> .toc__list:not([hidden])) {
+  background: var(--surface);
+  border-radius: var(--r-md);
+  padding: 4px 6px 8px;
+}
+
+@media (hover: hover) {
+  .toc__item[data-depth='0']:not(.is-ancestor) > .toc__row:hover {
+    background: var(--bg-subtle);
+  }
+}
+
+/* --------------------------------------------------------------- badge + twisty */
+
+.toc__badge {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.toc__item[data-depth='0'].is-ancestor > .toc__row > .toc__badge,
+.toc__item[data-depth='0'].is-current > .toc__row > .toc__badge {
+  background: var(--pistachio);
+  color: var(--pistachio-ink);
 }
 
 .toc__twisty,
 .toc__twisty-spacer {
   flex: none;
   width: 28px;
-  min-height: 34px;
+  min-height: 32px;
 }
 
 .toc__twisty {
@@ -171,8 +286,20 @@ body.scroll-locked {
   border: 0;
   background: transparent;
   color: var(--ink-muted);
-  border-radius: 6px;
+  border-radius: var(--r-xs);
   cursor: pointer;
+}
+
+.toc__item[data-depth='1'] > .toc__row > .toc__twisty,
+.toc__item[data-depth='2'] > .toc__row > .toc__twisty,
+.toc__item[data-depth='3'] > .toc__row > .toc__twisty,
+.toc__item[data-depth='4'] > .toc__row > .toc__twisty {
+  width: 24px;
+}
+
+/* Leaf rows need no trailing gap: the label/clock runs to the edge (3a). */
+.toc__twisty-spacer {
+  width: 0;
 }
 
 .toc__twisty svg {
@@ -180,73 +307,136 @@ body.scroll-locked {
 }
 
 .toc__twisty[aria-expanded='true'] svg {
-  transform: rotate(90deg);
+  transform: rotate(90deg); /* chevron-right → chevron-down */
 }
+
+/* --------------------------------------------------------------- links */
 
 .toc__link {
   flex: 1;
+  min-width: 0;
   display: flex;
+  align-items: center;
   gap: 6px;
-  align-items: baseline;
-  padding: 7px 8px;
-  border-radius: 6px;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
   color: var(--ink);
   text-decoration: none;
   font-size: 14.5px;
-  line-height: 1.35;
+  line-height: 1.3;
 }
 
-.toc__link:hover {
-  background: var(--bg-subtle);
+.toc__label {
+  flex: 1;
+  min-width: 0;
 }
 
-.toc__item[data-depth='0'] > .toc__row .toc__link {
-  font-weight: 650;
+/* Domain label */
+.toc__item[data-depth='0'] > .toc__row > .toc__link {
+  padding: 0;
+  border-radius: 0;
+  font-weight: 600;
   font-size: 14.5px;
+  line-height: 1.3;
+  color: var(--ink);
 }
 
-.toc__item[data-depth='1'] > .toc__row .toc__link {
+/* Chapter label */
+.toc__item[data-depth='1'] > .toc__row > .toc__link {
   font-weight: 500;
+  font-size: 14.5px;
+  color: var(--ink);
 }
 
-.toc__item[data-depth='2'] > .toc__row .toc__link,
-.toc__item[data-depth='3'] > .toc__row .toc__link,
-.toc__item[data-depth='4'] > .toc__row .toc__link {
-  font-size: 13.5px;
-  color: var(--ink-muted);
+@media (hover: hover) {
+  .toc__item[data-depth='1'] > .toc__row > .toc__link:hover,
+  .toc__item[data-depth='2'] > .toc__row > .toc__link:hover,
+  .toc__item[data-depth='3'] > .toc__row > .toc__link:hover,
+  .toc__item[data-depth='4'] > .toc__row > .toc__link:hover {
+    background: var(--bg-subtle);
+  }
+}
+
+/* Current chapter: pistachio pill */
+.toc__item[data-depth='1'] > .toc__row > .toc__link[aria-current='page'] {
+  background: var(--pistachio);
+  color: var(--pistachio-body);
+  font-weight: 700;
+}
+
+.toc__link[aria-current='page'] .toc__num {
+  color: var(--pistachio-ink);
+}
+
+.toc__link[aria-current='page'] .toc__label {
+  color: var(--pistachio-body);
 }
 
 .toc__num {
-  color: var(--ink-muted);
+  flex: none;
+  min-width: 28px;
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
   font-weight: 500;
-  min-width: 1.6em;
-}
-
-.toc__meta {
-  margin-left: auto;
   font-size: 12px;
   color: var(--ink-muted);
 }
 
-.toc__link--pending .toc__label {
+.toc__meta {
+  flex: none;
+  margin-left: auto;
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  font-weight: 600;
   color: var(--ink-muted);
 }
 
-.toc__link[aria-current='page'] {
-  background: var(--accent-soft);
-  color: var(--accent-ink);
-  font-weight: 600;
+/* Pending chapters: muted with a clock at the end of the row */
+.toc__link--pending .toc__label,
+.toc__link--pending .toc__num {
+  color: #9a919c;
 }
 
-.toc__link.is-active {
-  color: var(--accent-ink);
-  font-weight: 600;
-  box-shadow: inset 2px 0 0 var(--accent);
+:root[data-theme='dark'] .toc__link--pending .toc__label,
+:root[data-theme='dark'] .toc__link--pending .toc__num {
+  color: var(--ink-muted);
 }
 
-.toc__item.is-active-path > .toc__row > .toc__link:not([aria-current='page']) {
+.toc__pending-icon {
+  flex: none;
+  align-self: center;
+  margin-left: auto;
+  color: var(--ink-muted);
+}
+
+/* Section headings (H2+) inside a chapter */
+.toc__item[data-depth='2'] > .toc__row > .toc__link,
+.toc__item[data-depth='3'] > .toc__row > .toc__link,
+.toc__item[data-depth='4'] > .toc__row > .toc__link {
+  padding: 6px 12px;
+  border-radius: 0;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink-muted);
+  /* transparent rule of the same width as the active marker: no shift when it lights up */
+  border-left: 2px solid transparent;
+  margin-left: -2px;
+}
+
+.toc__item[data-depth='2'] > .toc__row > .toc__link.is-active,
+.toc__item[data-depth='3'] > .toc__row > .toc__link.is-active,
+.toc__item[data-depth='4'] > .toc__row > .toc__link.is-active {
   color: var(--ink);
+  font-weight: 700;
+  border-left-color: var(--pistachio-ink);
+  background: transparent;
+}
+
+/* A chapter link that is on the active path (e.g. the current chapter at scroll top). */
+.toc__item[data-depth='1'] > .toc__row > .toc__link.is-active:not([aria-current='page']) {
+  color: var(--ink);
+  font-weight: 700;
 }
 
 /* --------------------------------------------------------------- motion preferences */

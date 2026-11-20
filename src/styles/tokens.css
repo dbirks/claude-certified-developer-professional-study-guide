@@ -1,40 +1,81 @@
-/* Design tokens — colors, fonts, sizes (light + dark). Values fixed by docs/ARCHITECTURE.md. */
-@import '@fontsource-variable/inter';
-@import '@fontsource-variable/source-serif-4';
-@import '@fontsource-variable/jetbrains-mono';
+/* Design tokens — "Gelato": colors, fonts, sizes (light + dark). */
+@import '@fontsource/young-serif';
+@import '@fontsource-variable/manrope';
+@import '@fontsource/dm-mono/400.css';
+@import '@fontsource/dm-mono/500.css';
 
 :root,
 :root[data-theme='light'] {
   color-scheme: light;
 
-  --bg: #faf9f6;
-  --bg-subtle: #f3f1ec;
+  --bg: #fff8f1;
+  --surface-alt: #fff8f1;
+  --strawberry-title: var(--ink);
+  --status-bg: #ffffff;
+  --bg-subtle: #fbefe4;
   --surface: #ffffff;
-  --ink: #1f2328;
-  --ink-muted: #5b6169;
-  --border: #e3dfd6;
-  --border-strong: #cfc9bc;
-  --accent: #1f6f6b;
-  --accent-ink: #17524f;
-  --accent-soft: #e3f0ee;
-  --code-bg: #f4f2ee;
-  --warn: #8a5210;
-  --warn-soft: #fbf1e2;
-  --bad: #a33a2b;
-  --bad-soft: #fbeae7;
-  --focus: #2a7de1;
-  --backdrop: rgba(20, 22, 26, 0.38);
-  --shadow: 0 8px 28px rgba(20, 22, 26, 0.14);
+  --ink: #2b2330;
+  --ink-muted: #6e6470;
+  --border: #efe3d8;
+  --border-strong: #e2d3c6;
 
-  --font-serif: 'Source Serif 4 Variable', Georgia, serif;
-  --font-sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'DejaVu Sans Mono', monospace;
+  /* pastel fills: sky (hero), pistachio (ok/next), strawberry (mistakes), butter (code/warn) */
+  --sky: #dcebfa;
+  --sky-ink: #2a4a6e;
+  --sky-title: #1e2a3a;
+  --pistachio: #ddefd8;
+  --pistachio-ink: #2f5b33;
+  --pistachio-body: #1f3a22;
+  --pistachio-note: #3f6b43;
+  --strawberry: #fbdde3;
+  --strawberry-ink: #8c2f45;
+  --strawberry-body: #4a1f2a;
+  --butter: #fff0c2;
+  --butter-ink: #7a5a00;
+  --butter-body: #4a3800;
+
+  --code-ink: #5f4600;
+  --answer-bg: #fff8e0;
+  --answer-ink: #3a2e1e;
+  --code-block-bg: #2b2330;
+  --code-block-fg: #f6e9ee;
+  --contrast-bg: #2b2330;
+  --contrast-fg: #fff8f1;
+  --pager-next-label: #e7c9d3;
+
+  --focus: #2a7de1;
+  --backdrop: rgba(43, 35, 48, 0.38);
+  --shadow: 0 8px 28px rgba(80, 50, 40, 0.14);
+  --shadow-pill: 0 2px 10px rgba(80, 50, 40, 0.06);
+
+  /* backward-compatible aliases (older CSS files still reference these) */
+  --accent: var(--sky-ink);
+  --accent-ink: var(--sky-ink);
+  --accent-soft: var(--sky);
+  --code-bg: var(--butter);
+  --warn: var(--butter-ink);
+  --warn-soft: var(--butter);
+  --bad: var(--strawberry-ink);
+  --bad-soft: var(--strawberry);
+
+  /* Young Serif ships weight 400 ONLY — never set font-weight > 400 on serif text. */
+  --font-serif: 'Young Serif', Georgia, serif;
+  --font-sans: 'Manrope Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, 'DejaVu Sans Mono', monospace;
 
   --measure: 72ch;
   --topbar-h: 52px;
   --sidebar-w: 300px;
   --onpage-w: 220px;
-  --radius: 8px;
+
+  --r-xs: 8px;
+  --r-sm: 16px;
+  --r-md: 20px;
+  --r-lg: 22px;
+  --r-xl: 26px;
+  --r-2xl: 28px;
+  --r-pill: 999px;
+  --radius: var(--r-sm);
 
   --space-1: 4px;
   --space-2: 8px;
@@ -44,25 +85,56 @@
   --space-6: 32px;
 }
 
+/* Dark theme — designed (frames 3e/3f): warm plum-gray, never black; pastels become muted fills with pastel text. */
 :root[data-theme='dark'] {
   color-scheme: dark;
 
-  --bg: #15181c;
-  --bg-subtle: #1b1f24;
-  --surface: #1e2329;
-  --ink: #e6e3dc;
-  --ink-muted: #a3a9b1;
-  --border: #2e343b;
-  --border-strong: #3d444c;
-  --accent: #5fb8b0;
-  --accent-ink: #8fd3cc;
-  --accent-soft: #1d3533;
-  --code-bg: #1b1f24;
-  --warn: #e0a458;
-  --warn-soft: #2e2618;
-  --bad: #e58a7c;
-  --bad-soft: #33201d;
+  --bg: #34313a;
+  --bg-subtle: #3a3740;
+  --surface: #423e48;
+  --surface-alt: #3a3740;
+  --ink: #f3eef0;
+  --ink-muted: #bdb5bf;
+  --border: #4a4550;
+  --border-strong: #57515e;
+
+  --sky: #3c4a5a;
+  --sky-ink: #cfe2f7;
+  --sky-title: #eaf3fd;
+  --pistachio: #3c4e40;
+  --pistachio-ink: #cdebc6;
+  --pistachio-body: #e3f5de;
+  --pistachio-note: #cdebc6;
+  --strawberry: #5a3f47;
+  --strawberry-ink: #f8cbd5;
+  --strawberry-body: #f6dce2;
+  --strawberry-title: #fde7ec;
+  --butter: #554e32;
+  --butter-ink: #fbe7a6;
+  --butter-body: #f5edd2;
+
+  --code-ink: #fbe7a6;
+  --answer-bg: #4a4536;
+  --answer-ink: #f5edd2;
+  --code-block-bg: #2a2830;
+  --code-block-fg: #f6e9ee;
+  /* Dark pager "next" flips to butter so it stays the primary action. */
+  --contrast-bg: #fbe7a6;
+  --contrast-fg: #2b2330;
+  --pager-next-label: #7a5a00;
+  --status-bg: #34313a;
+
   --focus: #6aa8f0;
-  --backdrop: rgba(0, 0, 0, 0.55);
-  --shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+  --backdrop: rgba(20, 18, 24, 0.5);
+  --shadow: 0 8px 28px rgba(20, 18, 24, 0.45);
+  --shadow-pill: 0 2px 10px rgba(20, 18, 24, 0.3);
+
+  --accent: var(--sky-ink);
+  --accent-ink: var(--sky-ink);
+  --accent-soft: var(--sky);
+  --code-bg: var(--butter);
+  --warn: var(--butter-ink);
+  --warn-soft: var(--butter);
+  --bad: var(--strawberry-ink);
+  --bad-soft: var(--strawberry);
 }

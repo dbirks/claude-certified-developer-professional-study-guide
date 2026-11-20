@@ -1,21 +1,45 @@
 ---
-// Citation popover. Empty on purpose: src/scripts/cite.ts fills it from the matching #src-<id> row
-// in SourceList.astro. Bottom sheet < 640px, anchored card ≥ 640px (styles in cite.css).
+// Citation sheet (frame 3c). Empty on purpose: src/scripts/cite.ts fills it from the matching
+// #src-<id> row rendered by SourceList.astro. Bottom sheet + backdrop < 640px, anchored card
+// (no backdrop) >= 640px. Styles in cite.css.
+import Icon from './Icon.astro';
 ---
+
+<div id="cite-backdrop" class="cite-backdrop" aria-hidden="true" hidden></div>
 
 <div id="cite-pop" class="cite-pop" role="dialog" aria-modal="false" aria-labelledby="cite-pop-title" hidden>
   <div class="cite-pop__grab" aria-hidden="true"></div>
+
   <div class="cite-pop__head">
     <span class="cite-pop__n" id="cite-pop-n"></span>
     <a class="cite-pop__title" id="cite-pop-title" target="_blank" rel="noopener"></a>
     <button type="button" class="icon-btn cite-pop__close" aria-label="Close source">
-      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+      <Icon name="x" size={18} stroke={2.75} />
     </button>
   </div>
+
+  <div class="cite-pop__pills">
+    <span class="cite-pop__tag" id="cite-pop-tag" hidden></span>
+    <span class="cite-pop__match" id="cite-pop-match" hidden>
+      <Icon name="check" size={14} stroke={2.75} />
+      <span class="cite-pop__match-text" id="cite-pop-match-text"></span>
+    </span>
+  </div>
+
   <blockquote class="cite-pop__quote" id="cite-pop-quote"></blockquote>
+
+  <p class="cite-pop__supports" id="cite-pop-supports" hidden>
+    <span class="cite-pop__supports-label">Supports:</span>{" "}
+    <span id="cite-pop-supports-text"></span>
+  </p>
+
   <p class="cite-pop__meta" id="cite-pop-meta"></p>
+
   <div class="cite-pop__actions">
-    <a class="cite-pop__open" id="cite-pop-open" target="_blank" rel="noopener">Open source ↗</a>
-    <a class="cite-pop__jump" id="cite-pop-jump" href="#">All sources</a>
+    <a class="cite-pop__open" id="cite-pop-open" target="_blank" rel="noopener">
+      <span>Open source</span>
+      <Icon name="external-link" size={16} stroke={2.5} />
+    </a>
+    <button type="button" class="cite-pop__jump" id="cite-pop-jump">All sources</button>
   </div>
 </div>

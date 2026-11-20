@@ -44,7 +44,7 @@ test('subpath assets load cleanly and links stay under /ccdvp-test/', async ({ p
   expect(failed, 'same-origin requests that failed').toEqual([]);
 
   const fontFamily = await page.evaluate(() => getComputedStyle(document.body).fontFamily);
-  expect(fontFamily).toContain('Inter');
+  expect(fontFamily).toContain('Manrope');
 
   const rootLinks = await page.$$eval('a[href^="/"]', (links) =>
     links.map((a) => a.getAttribute('href') ?? ''),

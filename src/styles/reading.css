@@ -7,6 +7,9 @@
 }
 
 /* ------------------------------------------------------------------ progress */
+/* Gelato (3g): the topbar "%" pill (with a read bar on desktop) replaces the thin
+   strip at every width, so the strip is never painted. The element stays in the DOM
+   because reading.ts keeps writing its width. */
 .progress {
   position: fixed;
   top: 0;
@@ -15,34 +18,36 @@
   height: 3px;
   z-index: 50;
   pointer-events: none;
+  display: none;
 }
 
 .progress__bar {
   height: 100%;
   width: 0;
-  background: var(--accent);
+  background: var(--pistachio-ink);
   transition: width 80ms linear;
 }
 
 /* ------------------------------------------------------------ copy buttons */
+/* Sits on the dark code slab, so it is translucent light-on-dark. */
 .copy-btn {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 10px;
+  right: 10px;
   z-index: 2;
-  font: 600 12px/1.2 var(--font-sans);
+  font: 700 12px/1.2 var(--font-sans);
   padding: 4px 10px;
   min-height: 30px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--ink-muted);
+  border-radius: var(--r-pill);
+  border: 0;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--code-block-fg);
   opacity: 0.85;
   cursor: pointer;
 }
 
 .copy-btn:hover {
-  color: var(--ink);
+  color: var(--code-block-fg);
 }
 
 .copy-btn:focus-visible {
@@ -78,7 +83,7 @@
 }
 
 .heading-anchor:hover {
-  color: var(--accent);
+  color: var(--sky-ink);
   text-decoration: none;
 }
 
@@ -100,11 +105,11 @@
   bottom: calc(24px + env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
-  background: var(--ink);
-  color: var(--bg);
+  background: var(--contrast-bg);
+  color: var(--contrast-fg);
   font: 14px/1.4 var(--font-sans);
   padding: 8px 14px;
-  border-radius: 8px;
+  border-radius: var(--r-pill);
   z-index: 90;
   box-shadow: var(--shadow);
   pointer-events: none;
@@ -119,9 +124,9 @@
   height: 44px;
   display: grid;
   place-items: center;
-  border-radius: 999px;
+  border-radius: var(--r-pill);
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 0;
   box-shadow: var(--shadow);
   color: var(--ink);
   z-index: 30;
@@ -134,9 +139,9 @@
 
 /* ------------------------------------------------------------- resume (home) */
 .resume {
-  background: var(--accent-soft);
-  color: var(--ink);
-  border-radius: 8px;
+  background: var(--pistachio);
+  color: var(--pistachio-body);
+  border-radius: var(--r-sm);
   padding: 10px 14px;
   font-size: 15px;
 }
@@ -150,8 +155,8 @@
   width: min(680px, 100vw - 24px);
   max-height: min(80vh, 720px);
   margin: 10vh auto auto;
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  border: 0;
+  border-radius: var(--r-lg);
   background: var(--surface);
   color: var(--ink);
   padding: 0;
@@ -178,7 +183,7 @@
 
 .search-dialog__title {
   flex: 1;
-  font: 600 17px/1.3 var(--font-serif);
+  font: 400 17px/1.3 var(--font-serif);
 }
 
 .search-root {
@@ -189,23 +194,23 @@
   min-height: 0; /* let this row shrink so long result lists scroll instead of clipping */
   /* Pagefind UI theme hooks */
   --pagefind-ui-scale: 0.9;
-  --pagefind-ui-primary: var(--accent);
+  --pagefind-ui-primary: var(--sky-ink);
   --pagefind-ui-text: var(--ink);
   --pagefind-ui-background: var(--surface);
   --pagefind-ui-border: var(--border);
   --pagefind-ui-tag: var(--bg-subtle);
-  --pagefind-ui-border-radius: 8px;
+  --pagefind-ui-border-radius: 12px;
   --pagefind-ui-font: var(--font-sans);
 }
 
 /* Pagefind's <mark> defaults to raw #ff0, which screams in dark mode. */
 .search-root mark {
-  background: var(--accent-soft);
-  color: var(--ink);
-  font-weight: 600;
+  background: var(--butter);
+  color: var(--code-ink);
+  font-weight: 700;
   border-radius: 3px;
   padding: 0 2px;
-  box-shadow: inset 0 -2px 0 var(--accent);
+  box-shadow: inset 0 -2px 0 var(--butter-ink);
 }
 
 .search-empty {

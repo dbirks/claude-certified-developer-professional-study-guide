@@ -2,6 +2,7 @@
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SourceList from '../components/SourceList.astro';
+import Icon from '../components/Icon.astro';
 import { DOMAINS, GUIDE, type Domain, type Skill } from '../data/syllabus';
 import { referencePath, skillOrder, skillPath, url } from '../lib/site';
 import { getCitations } from '../lib/citations';
@@ -35,8 +36,8 @@ const order = skillOrder();
 const i = skill ? order.findIndex((o) => o.skill.id === skill.id) : -1;
 const prevO = i > 0 ? order[i - 1] : undefined;
 const nextO = i >= 0 && i < order.length - 1 ? order[i + 1] : undefined;
-const prev = prevO && { href: url(skillPath(prevO.domain, prevO.skill)), label: `${prevO.skill.id} ${prevO.skill.title}` };
-const next = nextO && { href: url(skillPath(nextO.domain, nextO.skill)), label: `${nextO.skill.id} ${nextO.skill.title}` };
+const prev = prevO && { href: url(skillPath(prevO.domain, prevO.skill)), label: prevO.skill.short, num: prevO.skill.id };
+const next = nextO && { href: url(skillPath(nextO.domain, nextO.skill)), label: nextO.skill.short, num: nextO.skill.id };
 
 const title = skill ? `${skill.id} ${skill.title}` : entry!.data.title;
 const currentId = `c-${skill ? skill.slug : entry!.data.slug}`;
@@ -45,20 +46,25 @@ const onPage = [...headings.filter((h) => h.depth <= 3), ...(citations.length ? 
 
 <BaseLayout title={title} description={entry?.data.summary ?? skill!.objective} currentId={currentId} onPage={onPage} prev={prev} next={next}>
   <header class="chapter-head">
-    {domain && <p class="chapter-head__eyebrow">Domain {domain.n} · {domain.title} · {domain.weight}%</p>}
-    <h1 class="chapter-head__title">{skill ? <><span class="chapter-head__num">{skill.id}</span> {skill.title}</> : entry!.data.title}</h1>
+    <div class="chapter-head__row">
+      <p class="chapter-head__eyebrow">{domain ? <>{skill!.id} · Domain {domain.n} · {domain.weight}%</> : 'Reference'}</p>
+      {entry ? (
+        <span class:list={['status', `status--${entry.data.status}`]} title={`Last reviewed ${entry.data.lastReviewed}`}>
+          <Icon name={entry.data.status === 'fact-checked' ? 'badge-check' : 'pencil-line'} size={15} stroke={2.5} />
+          {entry.data.status === 'fact-checked' ? 'Fact-checked' : 'Draft'}
+        </span>
+      ) : (
+        <span class="status status--pending"><Icon name="clock" size={15} stroke={2.5} />In research</span>
+      )}
+    </div>
+    <h1 class="chapter-head__title">{skill ? skill.title : entry!.data.title}</h1>
+    {entry && <p class="chapter-head__lede">{entry.data.summary}</p>}
     {skill && (
       <details class="objective">
-        <summary>Official objective</summary>
+        <summary><span>Official objective</span><Icon name="plus" size={16} stroke={2.5} class="objective__plus" /><Icon name="minus" size={16} stroke={2.5} class="objective__minus" /></summary>
         <p>{skill.objective}</p>
         <p class="objective__src">{GUIDE.name} Exam Guide v{GUIDE.version} ({GUIDE.effective}), §5.</p>
       </details>
-    )}
-    {entry && (
-      <p class="chapter-head__meta">
-        <span class:list={['status', `status--${entry.data.status}`]}>{entry.data.status === 'fact-checked' ? 'Fact-checked' : 'Draft'}</span>
-        <span>Last reviewed {entry.data.lastReviewed}</span>
-      </p>
     )}
   </header>
 

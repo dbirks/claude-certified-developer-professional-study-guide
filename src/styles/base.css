@@ -18,11 +18,22 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-sans);
-  font-size: 17px;
+  font-size: 16px;
+  font-weight: 400;
   line-height: 1.65;
-  font-feature-settings: 'cv11';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@media (min-width: 1024px) {
+  body {
+    font-size: 17px;
+  }
+}
+
+strong,
+b {
+  font-weight: 700;
 }
 
 h1,
@@ -62,7 +73,7 @@ textarea {
 }
 
 a {
-  color: var(--accent-ink);
+  color: var(--sky-ink);
   text-decoration-line: underline;
   text-underline-offset: 2px;
   text-decoration-thickness: 1px;
@@ -75,7 +86,17 @@ a:hover {
 :focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: var(--r-xs);
+}
+
+/* Pills and circles keep their own round shape under the focus ring. */
+.icon-btn:focus-visible,
+.topbar__title:focus-visible,
+.read-pill:focus-visible,
+.toc-controls__btn:focus-visible,
+.status:focus-visible,
+.skip-link:focus-visible {
+  border-radius: var(--r-pill);
 }
 
 [hidden] {
@@ -108,11 +129,12 @@ body.scroll-locked {
   z-index: 100;
   padding: 8px 14px;
   background: var(--surface);
-  color: var(--accent-ink);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
+  color: var(--sky-ink);
+  border: 0;
+  border-radius: var(--r-pill);
   box-shadow: var(--shadow);
   font-size: 15px;
+  font-weight: 600;
   text-decoration: none;
 }
 
@@ -133,15 +155,25 @@ body.scroll-locked {
   border: 0;
   background: transparent;
   color: var(--ink-muted);
-  border-radius: var(--radius);
+  border-radius: var(--r-pill);
   cursor: pointer;
   padding: 0;
   -webkit-tap-highlight-color: transparent;
 }
 
 .icon-btn:hover {
-  background: var(--bg-subtle);
   color: var(--ink);
+}
+
+/* ---------- hover feedback on pointer devices (Gelato: no borders, no shadows change) ---------- */
+
+@media (hover: hover) {
+  button:hover,
+  .pager__link:hover,
+  .domain-card:hover,
+  .toc-controls__btn:hover {
+    filter: brightness(0.96);
+  }
 }
 
 /* --- theme icons: show the theme you'd switch TO --- */

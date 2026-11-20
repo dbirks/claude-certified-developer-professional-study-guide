@@ -12,7 +12,7 @@ export default defineConfig({
   integrations: [mdx()],
   markdown: {
     shikiConfig: {
-      themes: { light: 'github-light', dark: 'github-dark' },
+      themes: { light: 'github-dark', dark: 'github-dark' }, // Gelato: code blocks are dark (--ink) in both site themes
       defaultColor: false,
       wrap: false,
     },

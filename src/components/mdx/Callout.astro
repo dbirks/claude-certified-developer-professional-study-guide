@@ -1,5 +1,7 @@
 ---
-// Callout: a small teaching aside. type: mistake | version | note. See docs/ARCHITECTURE.md §MDX components.
+// Callout: a pastel teaching aside. type: mistake | version | note. See docs/ARCHITECTURE.md §MDX components.
+// "Gelato" design: filled pastel card, no border. Mistakes/notes show a kind label + serif title,
+// version notes collapse both into one row ("Version check · 2026-11-19").
 type CalloutType = 'mistake' | 'version' | 'note';
 
 interface Props {
@@ -9,20 +11,30 @@ interface Props {
 
 const KIND_LABEL: Record<CalloutType, string> = {
   mistake: 'Common mistake',
-  version: 'Version note',
+  version: 'Version check',
   note: 'Note',
 };
 
+/** Version titles read "Checked 2026-11-19"; the date is what matters, drop the verb. */
+const versionValue = (title: string): string => title.replace(/^checked\s+/i, '').trim();
+
 const { type = 'note', title } = Astro.props;
 const kind = KIND_LABEL[type] ?? KIND_LABEL.note;
-const label = title ? `${kind}: ${title}` : kind;
+const version = type === 'version' && title ? `Version check · ${versionValue(title)}` : null;
+const label = version ?? (title ? `${kind}: ${title}` : kind);
 ---
 
 <aside class={`callout callout--${type}`} aria-label={label}>
-  <p class="callout__title">
-    <span class="callout__kind">{kind}</span>
-    {title && <span class="callout__name">{title}</span>}
-  </p>
+  {
+    version ? (
+      <p class="callout__version">{version}</p>
+    ) : (
+      <p class="callout__title">
+        <span class="callout__kind">{kind}</span>
+        {title && <span class="callout__name">{title}</span>}
+      </p>
+    )
+  }
   <div class="callout__body">
     <slot />
   </div>

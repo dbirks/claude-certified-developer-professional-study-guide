@@ -4,6 +4,7 @@ import '../styles/global.css';
 import Toc from '../components/Toc.astro';
 import SearchDialog from '../components/SearchDialog.astro';
 import CitePopover from '../components/CitePopover.astro';
+import Icon from '../components/Icon.astro';
 import { getToc, type TocNode } from '../lib/toc';
 import { url } from '../lib/site';
 
@@ -12,8 +13,8 @@ interface Props {
   description: string;
   currentId?: string; // TocNode id of the current chapter ("c-reliability"); undefined on home
   onPage?: { depth: number; slug: string; text: string }[]; // H2/H3 of this page for the right rail
-  prev?: { href: string; label: string };
-  next?: { href: string; label: string };
+  prev?: { href: string; label: string; num?: string };
+  next?: { href: string; label: string; num?: string };
 }
 const { title, description, currentId, onPage = [], prev, next } = Astro.props;
 const toc: TocNode[] = await getToc();
@@ -44,19 +45,27 @@ const fullTitle = currentId ? `${title} · CCDV-P Study Guide` : 'CCDV-P Study G
     <div class="progress" aria-hidden="true"><div class="progress__bar" id="progress-bar"></div></div>
 
     <header class="topbar">
-      <button id="toc-toggle" class="icon-btn topbar__menu" type="button" aria-controls="toc-panel" aria-expanded="false" aria-label="Open table of contents">
-        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"></path></svg>
-      </button>
-      <a class="topbar__title" href={url('')}>CCDV-P <span class="topbar__title-rest">Study Guide</span></a>
-      <span class="topbar__section" id="topbar-section">{currentId ? title : ''}</span>
-      <div class="topbar__actions">
-        <button id="search-open" class="icon-btn" type="button" aria-label="Search" aria-haspopup="dialog">
-          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" fill="none"></circle><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+      <div class="topbar__pill">
+        <button id="toc-toggle" class="icon-btn topbar__menu" type="button" aria-controls="toc-panel" aria-expanded="false" aria-label="Open table of contents">
+          <span class="hamburger" aria-hidden="true"><span></span><span></span><span></span></span>
         </button>
-        <button id="theme-toggle" class="icon-btn" type="button" aria-label="Switch color theme">
-          <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="2" fill="none"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
-          <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"></path></svg>
-        </button>
+        <a class="topbar__title" href={url('')}>CCDV-P <span class="topbar__title-rest">Study Guide</span></a>
+        <span class="topbar__section" id="topbar-section">{currentId ? title : ''}</span>
+        <div class="topbar__actions">
+          <button id="search-open" class="icon-btn topbar__search" type="button" aria-label="Search" aria-haspopup="dialog">
+            <Icon name="search" size={18} stroke={2.75} />
+            <span class="topbar__search-text" aria-hidden="true">Search the guide</span>
+            <kbd class="topbar__search-key" aria-hidden="true">/</kbd>
+          </button>
+          <span class="read-pill" id="read-pill" aria-hidden="true" hidden>
+            <span class="read-pill__bar"><span class="read-pill__fill" id="read-pill-fill"></span></span>
+            <span id="read-pill-text">0%</span>
+          </span>
+          <button id="theme-toggle" class="icon-btn topbar__theme" type="button" aria-label="Switch color theme">
+            <Icon name="moon" size={18} class="theme-icon theme-icon--moon" />
+            <Icon name="sun" size={18} class="theme-icon theme-icon--sun" />
+          </button>
+        </div>
       </div>
     </header>
 
@@ -68,6 +77,10 @@ const fullTitle = currentId ? `${title} · CCDV-P Study Guide` : 'CCDV-P Study G
             <button type="button" class="toc-controls__btn" data-toc-action="collapse-all">Collapse all</button>
             <button type="button" class="toc-controls__btn" data-toc-action="expand-current">Current</button>
             <button type="button" class="toc-controls__btn" data-toc-action="expand-all">Expand all</button>
+            <div class="theme-switch" role="group" aria-label="Color theme">
+              <button type="button" data-theme-set="light" aria-pressed="false" aria-label="Light theme"><Icon name="sun" size={15} /></button>
+              <button type="button" data-theme-set="dark" aria-pressed="false" aria-label="Dark theme"><Icon name="moon" size={15} /></button>
+            </div>
           </div>
           <button id="toc-close" class="icon-btn toc-panel__close" type="button" aria-label="Close table of contents">
             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
@@ -85,8 +98,18 @@ const fullTitle = currentId ? `${title} · CCDV-P Study Guide` : 'CCDV-P Study G
         </article>
         {(prev || next) && (
           <nav class="pager" aria-label="Chapter navigation">
-            {prev ? <a class="pager__link pager__link--prev" href={prev.href}><span class="pager__dir">Previous</span><span class="pager__label">{prev.label}</span></a> : <span></span>}
-            {next ? <a class="pager__link pager__link--next" href={next.href}><span class="pager__dir">Next</span><span class="pager__label">{next.label}</span></a> : <span></span>}
+            {prev ? (
+              <a class="pager__link pager__link--prev" href={prev.href} rel="prev">
+                <span class="pager__dir"><Icon name="arrow-left" size={14} stroke={2.75} /><span class="sr-only">Previous: </span>{prev.num ?? 'Previous'}</span>
+                <span class="pager__label">{prev.label}</span>
+              </a>
+            ) : <span></span>}
+            {next ? (
+              <a class="pager__link pager__link--next" href={next.href} rel="next">
+                <span class="pager__dir"><span class="sr-only">Next: </span>{next.num ?? 'Next'}<Icon name="arrow-right" size={14} stroke={2.75} /></span>
+                <span class="pager__label">{next.label}</span>
+              </a>
+            ) : <span></span>}
           </nav>
         )}
       </main>

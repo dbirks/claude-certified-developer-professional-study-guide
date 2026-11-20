@@ -1,4 +1,4 @@
-// Tap-to-open citation popovers. See docs/ARCHITECTURE.md §Components in MDX + §Citations data.
+// Tap-to-open citation sheet (frame 3c). See docs/ARCHITECTURE.md §Components in MDX + §Citations data.
 // All content comes from the chapter's own source list (`#src-F3` rendered by SourceList.astro),
 // so there is no second data path to keep in sync.
 const MOBILE_QUERY = '(max-width: 639.98px)';
@@ -15,34 +15,88 @@ const matches = (query: string): boolean => window.matchMedia(query).matches;
 const isMobile = (): boolean => matches(MOBILE_QUERY);
 const reducedMotion = (): boolean => matches(REDUCED_MOTION_QUERY);
 
-/** Copy one source row into the popover. */
+const MATCH_LABEL: Record<string, string> = {
+  ok: 'Quote matches page',
+  'ok-loose': 'Quote closely matches',
+};
+
+const byId = <T extends Element>(id: string): T | null => document.getElementById(id) as T | null;
+const textOf = (el: Element | null): string => (el?.textContent ?? '').replace(/\s+/g, ' ').trim();
+
+/** "Supports: " lives in an .sr-only span and a ::before; we render our own label in the sheet. */
+function supportsText(li: HTMLElement): string {
+  const claim = li.querySelector('.source__claim');
+  if (!claim) return '';
+  const clone = claim.cloneNode(true) as HTMLElement;
+  clone.querySelector('.sr-only')?.remove();
+  return textOf(clone).replace(/^Supports:\s*/i, '').trim();
+}
+
+/** Copy one source row into the sheet. */
 function fillPop(pop: HTMLElement, li: HTMLElement): void {
   const title = li.querySelector('.source__title');
   const quote = li.querySelector('.source__quote');
   const meta = li.querySelector('.source__meta');
+  const host = li.querySelector('.source__host');
   const tag = li.querySelector('.source__tag');
   const num = li.querySelector('.source__n');
   const href = title instanceof HTMLAnchorElement ? title.href : '';
+  const match = li.dataset.match ?? '';
 
   pop.dataset.tag = li.dataset.tag ?? '';
 
-  const titleEl = document.getElementById('cite-pop-title');
-  const openEl = document.getElementById('cite-pop-open');
-  const quoteEl = document.getElementById('cite-pop-quote');
-  const metaEl = document.getElementById('cite-pop-meta');
-  const numEl = document.getElementById('cite-pop-n');
+  const titleEl = byId<HTMLElement>('cite-pop-title');
+  const openEl = byId<HTMLElement>('cite-pop-open');
+  const quoteEl = byId<HTMLElement>('cite-pop-quote');
+  const metaEl = byId<HTMLElement>('cite-pop-meta');
+  const numEl = byId<HTMLElement>('cite-pop-n');
+  const tagEl = byId<HTMLElement>('cite-pop-tag');
+  const matchEl = byId<HTMLElement>('cite-pop-match');
+  const matchTextEl = byId<HTMLElement>('cite-pop-match-text');
+  const supportsEl = byId<HTMLElement>('cite-pop-supports');
+  const supportsTextEl = byId<HTMLElement>('cite-pop-supports-text');
+  const jumpEl = byId<HTMLElement>('cite-pop-jump');
 
   if (titleEl) {
-    titleEl.textContent = (title?.textContent ?? 'Source').trim();
+    titleEl.textContent = textOf(title) || 'Source';
     if (titleEl instanceof HTMLAnchorElement && href) titleEl.href = href;
   }
   if (openEl instanceof HTMLAnchorElement && href) openEl.href = href;
-  if (quoteEl) quoteEl.textContent = (quote?.textContent ?? '').trim();
-  if (numEl) numEl.textContent = (num?.textContent ?? '').trim();
+  if (quoteEl) quoteEl.textContent = textOf(quote);
+  if (numEl) numEl.textContent = textOf(num);
+
+  if (tagEl) {
+    const label = textOf(tag);
+    tagEl.textContent = label;
+    tagEl.dataset.tag = li.dataset.tag ?? '';
+    tagEl.hidden = !label;
+  }
+
+  if (matchEl && matchTextEl) {
+    const label = MATCH_LABEL[match] ?? '';
+    matchTextEl.textContent = label;
+    matchEl.hidden = !label;
+  }
+
+  if (supportsEl && supportsTextEl) {
+    const claim = supportsText(li);
+    supportsTextEl.textContent = claim;
+    supportsEl.hidden = !claim;
+  }
+
+  // Meta line: "{host} · accessed {date}[ · version note]" — the row already carries that copy.
   if (metaEl) {
-    metaEl.textContent = [tag?.textContent?.trim(), meta?.textContent?.trim()]
-      .filter((part): part is string => Boolean(part))
-      .join(' · ');
+    const hostName = textOf(host);
+    const row = textOf(meta);
+    const tail = (hostName && row.startsWith(hostName) ? row.slice(hostName.length) : row).trim();
+    const rest = tail.replace(/^·\s*/, '').replace(/\bAccessed\b/, 'accessed');
+    metaEl.textContent = [hostName, rest].filter(Boolean).join(' · ');
+  }
+
+  if (jumpEl) {
+    const count = document.querySelectorAll('li.source').length;
+    jumpEl.textContent = count ? `All ${count} sources` : 'All sources';
+    jumpEl.hidden = count === 0;
   }
 }
 
@@ -72,8 +126,9 @@ function layoutCard(pop: HTMLElement, link: HTMLAnchorElement): void {
 }
 
 export function initCitations(): void {
-  const pop = document.getElementById('cite-pop');
-  if (!(pop instanceof HTMLElement)) return;
+  const pop = byId<HTMLElement>('cite-pop');
+  if (!pop) return;
+  const backdrop = byId<HTMLElement>('cite-backdrop');
   const closeBtn = pop.querySelector<HTMLButtonElement>('.cite-pop__close');
   const jumpEl = pop.querySelector<HTMLElement>('.cite-pop__jump');
   if (!jumpEl) return;
@@ -98,6 +153,10 @@ export function initCitations(): void {
     const focusInside = pop.contains(document.activeElement);
     pop.hidden = true;
     pop.classList.remove('cite-pop--open');
+    if (backdrop) {
+      backdrop.hidden = true;
+      backdrop.classList.remove('cite-backdrop--show');
+    }
     clearActive();
     const refocus =
       reason === 'key' || reason === 'button' || reason === 'swipe' || (reason === 'outside' && (focusInside || link === document.activeElement));
@@ -107,6 +166,10 @@ export function initCitations(): void {
   const open = (link: HTMLAnchorElement, li: HTMLElement): void => {
     clearActive();
     fillPop(pop, li);
+    if (backdrop) {
+      backdrop.hidden = !isMobile();
+      backdrop.classList.add('cite-backdrop--show');
+    }
     pop.hidden = false;
     pop.classList.add('cite-pop--open');
     activeLink = link;
@@ -146,7 +209,7 @@ export function initCitations(): void {
     }
 
     if (pop.hidden || pop.contains(target)) return;
-    close('outside');
+    close('outside'); // includes taps on #cite-backdrop (a sibling of the sheet)
   });
 
   document.addEventListener('keydown', (ev) => {
@@ -166,10 +229,10 @@ export function initCitations(): void {
   });
 
   window.addEventListener('resize', () => {
-    if (!pop.hidden && activeLink) {
-      layoutCard(pop, activeLink);
-      openLinkTop = activeLink.getBoundingClientRect().top;
-    }
+    if (pop.hidden || !activeLink) return;
+    if (backdrop) backdrop.hidden = !isMobile();
+    layoutCard(pop, activeLink);
+    openLinkTop = activeLink.getBoundingClientRect().top;
   });
 
   // The card stays put on screen, so dismiss it once its citation has drifted far away.

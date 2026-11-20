@@ -1,40 +1,91 @@
-/* Topbar, shell grid, main, on-page rail, pager, chapter + home headers, status pills, pending. */
+/* Topbar pill, shell grid, main, on-page rail, pager, chapter + home headers, status pills, pending. */
 
-/* ---------- topbar ---------- */
+/* ---------- topbar (frame 2a: floating pill, no border, no blur) ---------- */
 
 .topbar {
   position: sticky;
   top: 0;
   z-index: 40;
+  display: block;
+  padding: calc(14px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) 0
+    calc(14px + env(safe-area-inset-left));
+  background: transparent;
+  border: 0;
+}
+
+.topbar__pill {
   height: var(--topbar-h);
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  padding: 0 var(--space-2);
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--border);
+  padding: 0 var(--space-1);
+  background: var(--surface);
+  border: 0;
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-pill);
+}
+
+/* hamburger button in a butter circle */
+#toc-toggle.topbar__menu {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  background: var(--butter);
+  color: var(--ink);
+  border-radius: var(--r-pill);
+}
+
+.hamburger {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3.5px;
+}
+
+.hamburger span {
+  display: block;
+  width: 16px;
+  height: 2.5px;
+  border-radius: 2px;
+  background: var(--ink);
 }
 
 .topbar__title {
+  flex: none;
   font-family: var(--font-serif);
+  font-weight: 400; /* Young Serif has only 400 */
   font-size: 19px;
-  font-weight: 650;
+  line-height: 1;
   color: var(--ink);
   text-decoration: none;
   white-space: nowrap;
-  padding: 0 4px;
+  padding-left: 6px;
 }
 
 .topbar__title:hover {
   text-decoration: none;
-  color: var(--accent-ink);
+  color: var(--ink);
 }
 
-.topbar__title-rest {
-  font-weight: 400;
-  color: var(--ink-muted);
+/* Mobile: pill shows only "CCDV-P" + the % pill + the search circle; the desktop-only
+   parts of the bar (3g) stay hidden below 1024px. */
+.topbar__title-rest,
+.topbar__section,
+#topbar-section,
+.topbar__search-text,
+.topbar__search-key,
+.read-pill__bar,
+.topbar__theme {
+  display: none;
+}
+
+/* Read bar inside the pill (only rendered from 1024px up). */
+.read-pill__fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 3px;
+  background: var(--pistachio-ink);
 }
 
 .topbar__actions {
@@ -45,40 +96,155 @@
   flex: none;
 }
 
-.topbar__section,
-#topbar-section {
-  font-size: 14px;
-  color: var(--ink-muted);
-  flex: 1;
-  min-width: 0;
-  margin-left: 12px;
-  padding-left: 12px;
-  border-left: 1px solid var(--border);
+.read-pill {
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  background: var(--pistachio);
+  color: var(--pistachio-ink);
+  border-radius: var(--r-pill);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.topbar__menu {
-  display: none;
+#search-open.topbar__search {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  background: var(--sky);
+  color: var(--sky-title);
+  border-radius: var(--r-pill);
 }
 
-@media (max-width: 399px) {
-  .topbar__title-rest {
-    display: none;
+/* ---------- desktop topbar (frame 3g: the pill stretches into a wide bar) ---------- */
+
+@media (min-width: 1024px) {
+  .topbar {
+    padding: calc(14px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) 0
+      calc(20px + env(safe-area-inset-left));
   }
-}
 
-@media (max-width: 639px) {
+  .topbar__pill {
+    height: 60px;
+    gap: var(--space-3);
+    padding: 0 var(--space-2) 0 var(--space-6);
+  }
+
+  .topbar__title {
+    padding-left: 0;
+    font-size: 22px;
+  }
+
+  .topbar__title-rest {
+    display: inline;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink-muted);
+  }
+
   .topbar__section,
   #topbar-section {
-    display: none;
+    display: block;
+    flex: 0 1 auto;
+    min-width: 0;
+    padding-left: var(--space-4);
+    margin-left: var(--space-1);
+    border-left: 1px solid var(--border);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-}
 
-@media (max-width: 1023px) {
-  .topbar__menu {
+  /* Search turns from a circle into a field with a "/" hint at the far right. */
+  #search-open.topbar__search {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    width: 320px;
+    height: 44px;
+    padding: 0 var(--space-2) 0 var(--space-4);
+    background: var(--bg);
+    color: var(--ink-muted);
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  #search-open.topbar__search:hover {
+    color: var(--ink-muted);
+  }
+
+  #search-open.topbar__search .icon {
+    flex: none;
+    width: 17px;
+    height: 17px;
+    color: var(--ink);
+  }
+
+  .topbar__search-text {
+    display: inline;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .topbar__search-key {
+    display: grid;
+    place-items: center;
+    flex: none;
+    margin-left: auto;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--ink-muted);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1;
+  }
+
+  /* Percent pill grows a read bar. */
+  .read-pill {
+    height: 44px;
+    gap: 10px;
+    padding: 0 14px;
+    font-size: 14px;
+  }
+
+  .read-pill__bar {
+    display: block;
+    flex: none;
+    width: 56px;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(47, 91, 51, 0.18);
+  }
+
+  :root[data-theme="dark"] .read-pill__bar {
+    background: rgba(0, 0, 0, 0.28);
+  }
+
+  .topbar__theme {
     display: inline-grid;
+    background: var(--butter);
+    color: var(--butter-ink);
+  }
+
+  /* The menu button is meaningless next to a permanent sidebar. */
+  #toc-toggle.topbar__menu {
+    display: none;
   }
 }
 
@@ -105,8 +271,8 @@
 
 .main {
   min-width: 0;
-  padding: var(--space-5) calc(var(--space-4) + env(safe-area-inset-right)) 64px
-    calc(var(--space-4) + env(safe-area-inset-left));
+  padding: 22px calc(18px + env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom))
+    calc(18px + env(safe-area-inset-left));
 }
 
 @media (min-width: 640px) {
@@ -117,7 +283,7 @@
 
 @media (min-width: 1024px) {
   .main {
-    padding: 40px 48px 96px;
+    padding: var(--space-5) 48px 80px;
   }
 }
 
@@ -125,6 +291,14 @@
   max-width: var(--measure);
   margin: 0 auto;
   min-width: 0;
+}
+
+/* Desktop (3g): the measure becomes a fixed 720px column, centered in the middle lane. */
+@media (min-width: 1024px) {
+  .prose,
+  .pager {
+    max-width: 720px;
+  }
 }
 
 /* ---------- on this page rail ---------- */
@@ -142,132 +316,203 @@
     max-height: calc(100vh - var(--topbar-h) - 48px);
     overflow: auto;
     padding: 0 var(--space-4);
-    font-size: 13px;
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+  }
+
+  .onpage__title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-muted);
+    margin: 0 0 var(--space-2);
+  }
+
+  .onpage__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .onpage__item a {
+    display: block;
+    padding: 7px 10px;
+    border-left: 0;
+    border-radius: 12px;
+    font-size: 13.5px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--ink-muted);
+    text-decoration: none;
+  }
+
+  .onpage__item a:hover {
+    color: var(--ink);
+  }
+
+  .onpage__item--h3 a {
+    padding-left: var(--space-5);
+  }
+
+  /* Active section sits in a pistachio pill. */
+  .onpage__item a.is-active {
+    background: var(--pistachio);
+    color: var(--pistachio-body);
+    font-weight: 700;
   }
 }
 
-.onpage__title {
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--ink-muted);
-  font-weight: 600;
-  margin: 0 0 var(--space-2);
-}
-
-.onpage__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.onpage__item a {
-  display: block;
-  color: var(--ink-muted);
-  text-decoration: none;
-  padding: var(--space-1) 0 var(--space-1) 10px;
-  border-left: 2px solid transparent;
-  line-height: 1.4;
-}
-
-.onpage__item a:hover {
-  color: var(--ink);
-}
-
-.onpage__item--h3 a {
-  padding-left: 22px;
-}
-
-.onpage__item a.is-active {
-  color: var(--accent-ink);
-  border-left-color: var(--accent);
-}
-
-/* ---------- pager ---------- */
+/* ---------- pager (frame 2b: two cards side by side, even on mobile) ---------- */
 
 .pager {
   max-width: var(--measure);
-  margin: 48px auto 0;
+  margin: 32px auto 0;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
+  gap: 10px;
 }
 
-@media (max-width: 639px) {
+/* Mobile: keep the page-end whitespace big enough that the floating back-to-top
+   button never lands on top of the next-chapter card. */
+@media (max-width: 639.98px) {
   .pager {
-    grid-template-columns: minmax(0, 1fr);
+    margin-bottom: 56px;
   }
 }
 
 .pager__link {
-  display: block;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: var(--space-3) var(--space-4);
-  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   min-width: 0;
   background: var(--surface);
+  border: 0;
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  color: var(--ink);
+  text-decoration: none;
 }
 
 .pager__link:hover {
-  border-color: var(--accent);
   text-decoration: none;
 }
 
+@media (hover: hover) {
+  .pager__link:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.pager__link--prev {
+  background: var(--surface);
+  color: var(--ink);
+}
+
 .pager__link--next {
+  align-items: flex-end;
+  background: var(--contrast-bg);
+  color: var(--contrast-fg);
   text-align: right;
 }
 
 .pager__dir {
-  display: block;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
   color: var(--ink-muted);
 }
 
-.pager__label {
-  display: block;
-  font-size: 15px;
-  color: var(--ink);
-  font-weight: 550;
+.pager__link--next .pager__dir {
+  color: var(--pager-next-label);
 }
 
-/* ---------- chapter header ---------- */
+.pager__dir .icon {
+  flex: none;
+}
+
+.pager__label {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-wrap: balance;
+  color: inherit;
+}
+
+/* ---------- chapter header (frame 2a: one big sky scoop) ---------- */
 
 .prose .chapter-head {
-  margin-bottom: 28px;
-  padding-bottom: var(--space-5);
-  border-bottom: 1px solid var(--border);
+  background: var(--sky);
+  border: 0;
+  border-radius: var(--r-2xl);
+  padding: 22px 20px 20px;
+  margin: 0 0 22px;
+}
+
+.prose .chapter-head__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: 12px;
 }
 
 .prose .chapter-head__eyebrow {
-  font-size: 13px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--accent-ink);
-  font-weight: 600;
+  color: var(--sky-ink);
   margin: 0;
 }
 
 .prose .chapter-head__title {
   font-family: var(--font-serif);
-  font-size: 32px;
-  line-height: 1.15;
-  font-weight: 600;
-  color: var(--ink);
-  margin: var(--space-2) 0 var(--space-3);
+  font-weight: 400; /* Young Serif has only 400 */
+  font-size: 31px;
+  line-height: 1.12;
+  color: var(--sky-title);
   text-wrap: balance;
+  margin: 0 0 10px;
 }
 
 @media (min-width: 1024px) {
+  .prose .chapter-head {
+    border-radius: 32px;
+    padding: 32px 34px 28px;
+    margin-bottom: 28px;
+  }
+
   .prose .chapter-head__title {
-    font-size: 40px;
+    font-size: 42px;
+    line-height: 1.1;
+  }
+
+  .prose .chapter-head__lede {
+    font-size: 17px;
+    line-height: 1.55;
   }
 }
 
+.prose .chapter-head__lede {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--sky-ink);
+  margin: 0 0 16px;
+}
+
 .prose .chapter-head__num {
-  color: var(--ink-muted);
+  color: var(--sky-ink);
   font-weight: 400;
 }
 
@@ -276,7 +521,7 @@
   align-items: center;
   gap: var(--space-3);
   font-size: 13px;
-  color: var(--ink-muted);
+  color: var(--sky-ink);
   margin: 0;
   flex-wrap: wrap;
 }
@@ -284,68 +529,109 @@
 /* ---------- status pills ---------- */
 
 .status {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px 6px 8px;
+  border-radius: var(--r-pill);
+  font-family: var(--font-sans);
   font-size: 12px;
-  font-weight: 600;
-  line-height: 1.5;
-  padding: 2px 8px;
-  border-radius: 999px;
+  font-weight: 700;
+  line-height: 1;
   white-space: nowrap;
 }
 
+.status .icon {
+  flex: none;
+}
+
 .status--fact-checked {
-  background: var(--accent-soft);
-  color: var(--accent-ink);
+  background: var(--status-bg);
+  color: var(--pistachio-ink);
 }
 
 .status--draft {
-  background: var(--warn-soft);
-  color: var(--warn);
+  background: var(--butter);
+  color: var(--butter-ink);
 }
 
 .status--pending {
-  background: var(--bg-subtle);
+  background: var(--surface);
   color: var(--ink-muted);
 }
 
-/* ---------- objective disclosure ---------- */
+/* ---------- objective disclosure (inside the sky scoop) ---------- */
 
 .prose details.objective {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
-  padding: 10px 14px;
-  font-size: 15px;
-  margin: 0 0 var(--space-4);
+  background: rgba(255, 255, 255, 0.7);
+  border: 0;
+  border-radius: var(--r-sm);
+  padding: 12px 14px;
+  font-size: 14px;
+  margin: 0;
+}
+
+html[data-theme='dark'] .prose details.objective {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .prose details.objective summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 600;
+  color: var(--sky-ink);
   cursor: pointer;
-  color: var(--ink-muted);
+  list-style: none;
+}
+
+.prose details.objective summary::-webkit-details-marker {
+  display: none;
+}
+
+.prose details.objective summary::marker {
+  content: '';
+}
+
+.prose .objective__minus {
+  display: none;
+}
+
+.prose details.objective[open] .objective__plus {
+  display: none;
+}
+
+.prose details.objective[open] .objective__minus {
+  display: block;
 }
 
 .prose details.objective p {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--sky-ink);
   margin: var(--space-2) 0 0;
 }
 
 .prose .objective__src {
   font-size: 12px;
-  color: var(--ink-muted);
+  color: var(--sky-ink);
+  opacity: 0.8;
   margin-top: 6px;
 }
 
 /* ---------- pending placeholder ---------- */
 
 .pending {
-  border: 1px dashed var(--border-strong);
-  border-radius: var(--radius);
+  border: 0;
+  border-radius: var(--r-md);
   padding: 20px;
   background: var(--bg-subtle);
 }
 
-/* ---------- home ---------- */
+/* ---------- home (not designed yet — just coherent with the tokens) ---------- */
 
 .prose .home-head {
   margin-bottom: 32px;
@@ -353,18 +639,18 @@
 
 .prose .home-head__eyebrow,
 .prose .home-head .chapter-head__eyebrow {
-  font-size: 13px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--accent-ink);
-  font-weight: 600;
+  color: var(--sky-ink);
   margin: 0;
 }
 
 .prose .home-head__title {
   font-family: var(--font-serif);
+  font-weight: 400; /* Young Serif has only 400 */
   font-size: 34px;
-  font-weight: 600;
   line-height: 1.1;
   text-wrap: balance;
   color: var(--ink);
@@ -378,7 +664,8 @@
 }
 
 .prose .home-head__lede {
-  font-size: 19px;
+  font-size: 17px;
+  line-height: 1.5;
   color: var(--ink-muted);
   max-width: 60ch;
   margin: 0;
@@ -397,17 +684,17 @@
 }
 
 .domain-card {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border: 0;
+  border-radius: var(--r-lg);
   background: var(--surface);
-  padding: var(--space-4);
+  padding: 18px;
   min-width: 0;
 }
 
 .prose .domain-card__title {
   font-family: var(--font-sans);
   font-size: 16px;
-  font-weight: 650;
+  font-weight: 700;
   display: flex;
   align-items: baseline;
   gap: var(--space-2);
@@ -417,13 +704,14 @@
 
 .domain-card__n {
   font-family: var(--font-serif);
-  color: var(--accent-ink);
+  font-weight: 400;
+  color: var(--sky-ink);
 }
 
 .domain-card__w {
   margin-left: auto;
   font-size: 13px;
-  font-weight: 400;
+  font-weight: 500;
   color: var(--ink-muted);
   white-space: nowrap;
 }
@@ -451,4 +739,11 @@
   font-size: 15px;
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+/* Mobile topbar order per Gelato 2a: % pill before the search circle (desktop keeps field → pill → theme). */
+@media (max-width: 1023.98px) {
+  .topbar__actions .read-pill {
+    order: -1;
+  }
 }

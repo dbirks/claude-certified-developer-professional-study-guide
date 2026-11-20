@@ -1,0 +1,31 @@
+---
+// Inline a Lucide icon (lucide-static, ISC) at build time. Decorative by default (aria-hidden).
+// <Icon name="badge-check" size={15} stroke={2.5} />
+interface Props {
+  name: string;
+  size?: number;
+  stroke?: number;
+  class?: string;
+}
+const { name, size = 16, stroke = 2.5, class: cls } = Astro.props;
+const files = import.meta.glob('/node_modules/lucide-static/icons/*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
+const raw = files[`/node_modules/lucide-static/icons/${name}.svg`];
+if (!raw) throw new Error(`Unknown Lucide icon: ${name}`);
+const inner = raw.replace(/<!--[\s\S]*?-->/g, '').replace(/^[\s\S]*?<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
+---
+
+<svg
+  class:list={['icon', `icon--${name}`, cls]}
+  xmlns="http://www.w3.org/2000/svg"
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width={stroke}
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+  set:html={inner}
+/>

@@ -3,8 +3,10 @@
  * Hierarchical site TOC (Domain → Chapter → H2 → H3 → H4), rendered recursively.
  * Markup is the binding contract in docs/ARCHITECTURE.md §TOC markup — toc.ts and
  * toc.css depend on these classes, data-* attributes and ids. Do not rename.
+ * Visual design: frame 3a (docs/design/gelato-3a-3c-drawer-review-citation.png).
  */
 import type { TocNode } from '../lib/toc';
+import Icon from './Icon.astro';
 
 interface Props {
   nodes: TocNode[];
@@ -31,6 +33,14 @@ function pathTo(nodes: TocNode[], id: string, trail: string[] = []): string[] | 
   return null;
 }
 
+/** Circle badge on a domain row: the domain number, "?" for practice, "R" for reference. */
+function badgeOf(node: TocNode): string {
+  if (node.meta?.number) return node.meta.number;
+  if (node.id === 'd-practice' || /^practice/i.test(node.label)) return '?';
+  if (node.id === 'd-ref' || /^reference/i.test(node.label)) return 'R';
+  return '';
+}
+
 const { nodes, currentId, depth = 0 } = Astro.props;
 const path = Astro.props.path ?? (currentId ? pathTo(nodes, currentId) ?? [] : []);
 ---
@@ -45,6 +55,8 @@ const path = Astro.props.path ?? (currentId ? pathTo(nodes, currentId) ?? [] : [
       const expanded = expandable && onPath;
       const weight = node.meta?.weight;
       const pending = node.kind === 'chapter' && node.meta?.status === 'pending';
+      const badge = node.depth === 0 ? badgeOf(node) : '';
+      const num = node.depth === 1 ? node.meta?.number : undefined;
       return (
         <li
           class:list={[
@@ -56,6 +68,18 @@ const path = Astro.props.path ?? (currentId ? pathTo(nodes, currentId) ?? [] : [
           data-kind={node.kind}
         >
           <div class="toc__row">
+            {badge ? <span class="toc__badge">{badge}</span> : null}
+            <a
+              class:list={['toc__link', { 'toc__link--pending': pending }]}
+              href={node.href}
+              data-toc-link={node.id}
+              aria-current={isCurrent ? 'page' : undefined}
+            >
+              {num ? <span class="toc__num">{num}</span> : null}
+              <span class="toc__label">{node.label}</span>
+              {typeof weight === 'number' ? <span class="toc__meta">{`${weight}%`}</span> : null}
+              {pending ? <Icon name="clock" size={14} class="toc__pending-icon" /> : null}
+            </a>
             {expandable ? (
               <button
                 class="toc__twisty"
@@ -64,23 +88,11 @@ const path = Astro.props.path ?? (currentId ? pathTo(nodes, currentId) ?? [] : [
                 aria-controls={`toc-sub-${node.id}`}
                 aria-label={`${expanded ? 'Collapse' : 'Expand'} ${node.label}`}
               >
-                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
-                  <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
-                </svg>
+                <Icon name="chevron-right" size={node.depth === 0 ? 16 : 14} stroke={2.5} />
               </button>
             ) : (
               <span class="toc__twisty-spacer" aria-hidden="true"></span>
             )}
-            <a
-              class:list={['toc__link', { 'toc__link--pending': pending }]}
-              href={node.href}
-              data-toc-link={node.id}
-              aria-current={isCurrent ? 'page' : undefined}
-            >
-              {node.meta?.number ? <span class="toc__num">{node.meta.number}</span> : null}
-              <span class="toc__label">{node.label}</span>
-              {typeof weight === 'number' ? <span class="toc__meta">{`${weight}%`}</span> : null}
-            </a>
           </div>
           {expandable && (
             <Astro.self
