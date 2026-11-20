@@ -93,6 +93,7 @@
     - durable-execution:F39
     - durable-execution:F40
     - durable-execution:F49
+    - durable-execution:F51
     - unattended-operations:F11
     - unattended-operations:F12
 - url: https://code.claude.com/docs/en/agent-sdk/hooks
@@ -1421,6 +1422,7 @@
   accessed: 2026-11-19
   cited_by:
     - durable-execution:F45
+    - durable-execution:F53
 - url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
   title: Prompt caching
   source: anthropic-docs
@@ -1505,10 +1507,11 @@
     - failure-diagnosis:F30
     - llm-as-judge:F24
 - url: https://platform.claude.com/docs/en/build-with-claude/thinking-troubleshooting
-  title: Thinking troubleshooting
+  title: Troubleshooting thinking
   source: anthropic-docs
   accessed: 2026-11-19
   cited_by:
+    - durable-execution:F50
     - failure-diagnosis:F6
 - url: https://platform.claude.com/docs/en/build-with-claude/token-counting
   title: Token counting
@@ -1710,6 +1713,7 @@
     - durable-execution:F30
     - durable-execution:F44
     - durable-execution:F47
+    - durable-execution:F52
 - url: https://platform.claude.com/docs/en/managed-agents/multiagent-orchestration
   title: Multiagent orchestration - Claude Platform Docs
   source: anthropic-docs

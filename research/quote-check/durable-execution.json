@@ -243,5 +243,25 @@
     "id": "F49",
     "status": "ok",
     "url": "https://code.claude.com/docs/en/agent-sdk/file-checkpointing"
+  },
+  {
+    "id": "F50",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/thinking-troubleshooting"
+  },
+  {
+    "id": "F51",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/file-checkpointing"
+  },
+  {
+    "id": "F52",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/managed-agents/memory"
+  },
+  {
+    "id": "F53",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/preserved-thinking/prefix-checks"
   }
 ]

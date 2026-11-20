@@ -8,7 +8,7 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
-**Durable execution** is the property that a long-running agent can lose its process and still pick up where it stopped. In Claude's tooling it is split across stores with different boundaries: the Agent SDK writes a session transcript to disk automatically,<Cite id="F1" /> file checkpoints snapshot tool-edited files,<Cite id="F11 F12" /> Claude Managed Agents keeps its session log server-side,<Cite id="F15" /> and everything outside those stores is yours to persist. Those boundaries surface at the same moment, a crash: `resume` restores the conversation but not the filesystem,<Cite id="F2" /> checkpoints do not revert files changed only by Bash,<Cite id="F12" /> and a tool call still running when the process died is not rerun.<Cite id="F9" /> Durability depends on knowing which store covers which state.
+**Durable execution** is the property that a long-running agent can lose its process and still pick up where it stopped. In Claude's tooling it is split across stores with different boundaries: the Agent SDK writes a session transcript to disk automatically,<Cite id="F1" /> file checkpoints snapshot tracked files,<Cite id="F11 F12" /> Claude Managed Agents keeps its session log server-side,<Cite id="F15" /> and everything outside those stores is yours to persist. Those boundaries surface at the same moment, a crash: `resume` restores the conversation but not the filesystem,<Cite id="F2" /> checkpoints do not revert files changed only by Bash,<Cite id="F12" /> and Claude Code does not rerun a tool call that was still running when its process died.<Cite id="F9" /> Durability depends on knowing which store covers which state.
 
 ## What each state store covers
 
@@ -18,12 +18,12 @@ lastReviewed: "2026-11-19"
 |---|---|---|
 | Conversation transcript | Local JSONL under the projects directory, or a server-side session log in Managed Agents<Cite id="F4 F15" /> | Restores messages only — file edits are not part of it<Cite id="F2" /> |
 | Tool-edited files | Claude Code file checkpoints, 100 most recent per session<Cite id="F11" /> | Reverts files, never the conversation;<Cite id="F13" /> files changed only by Bash are not tracked<Cite id="F12" /> |
-| External side effects | Your own step log or transactional database | Session transcripts record tool calls and results rather than an external transaction log, and a crashed tool call is not rerun on resume<Cite id="F9" /> |
+| External side effects | Your own step log or transactional database | Session transcripts record tool calls and results rather than an external transaction log, and Claude Code does not rerun an interrupted tool call on resume<Cite id="F9" /> |
 | Long-term memory | Memory tool files, Claude Code `MEMORY.md`, Managed Agents memory stores<Cite id="F28 F29 F30" /> | Retention is separate: `MEMORY.md` and topic files are excluded from the `cleanupPeriodDays` transcript sweep<Cite id="F29" /> |
 
 Transcripts land at `~/.claude/projects/<encoded-cwd>/<session-id>.jsonl`, or under `$CLAUDE_CONFIG_DIR/projects/` when that variable is set.<Cite id="F4" /> Keep session state and business state in different places. Session state is orchestration scaffolding owned by the harness; ledger entries, ticket statuses, and workflow checkpoints belong in a store you own, with explicit schemas. A transcript is a poor system of record: its entry format is internal to Claude Code and changes between versions, so scripts that parse those `.jsonl` files directly can break on any release.<Cite id="F10" /> Use the SDK session helpers or `/export` instead.<Cite id="F10" />
 
-Managed Agents draws the same line structurally. It decouples a stateless harness (the "brain"), the sandbox and tools (the "hands"), and an append-only session log, so nothing in the harness needs to survive a crash: a replacement harness is rebooted with `wake(sessionId)`, reads the event log with `getSession(id)`, and resumes from the last event.<Cite id="F19" /> That log is also the context object living outside the model's context window, which separates durable storage from lossy in-context summarization.<Cite id="F20" /> The cost is retention: hosted Managed Agents stores conversation history, sandbox state, and outputs server-side until deleted, so it is ineligible for HIPAA BAA coverage and ineligible for Zero Data Retention (ZDR) — only self-hosted Managed Agents is eligible for ZDR.<Cite id="F15 F41" />
+Managed Agents draws the same line structurally. It decouples a stateless harness (the "brain"), the sandbox and tools (the "hands"), and an append-only session log, so nothing in the harness needs to survive a crash: a replacement harness is rebooted with `wake(sessionId)`, reads the event log with `getSession(id)`, and resumes from the last event.<Cite id="F19" /> That log is also the context object living outside the model's context window, which separates durable storage from lossy in-context summarization.<Cite id="F20" /> The cost is retention: hosted Managed Agents stores conversation history, sandbox state, and outputs server-side; session transcripts persist until deleted, so it is ineligible for HIPAA BAA coverage and ineligible for Zero Data Retention (ZDR) — only self-hosted Managed Agents is eligible for ZDR.<Cite id="F15 F41" />
 
 ## Session persistence, resume, and fork
 
@@ -36,14 +36,14 @@ Session options decide which transcript a run continues. `continue` picks the la
 | `fork_session` (Python) / `forkSession` (TypeScript) | Branch into a new `session_id` when paired with `resume`; Python also exports synchronous `fork_session()` (with `directory`, `up_to_message_id`, and `title`), and TypeScript exports async `forkSession()`.<Cite id="F3 F48" /> |
 | `resume_session_at` / `resume_drops_turn` | `resume_session_at` loads the resumed transcript only up to and including a given message UUID (Python Agent SDK 0.2.137 or later);<Cite id="F8" /> `resume_drops_turn` pairs with it to name the discarded user-prompt UUID so the CLI refuses the resume if non-turn entries sit in the dropped range (Python Agent SDK 0.2.137 or later and Claude Code CLI v2.1.223 or later).<Cite id="F35" /> |
 | `persistSession: false` (TypeScript) or `CLAUDE_CODE_SKIP_PROMPT_HISTORY` in Python's `env` option | Keep the session in memory for one call and suppress transcript writes.<Cite id="F5" /> |
-| `session_store` (Python) / `sessionStore` (TypeScript), with `session_store_flush` set to `"batched"` (default) or `"eager"` | Mirror transcripts to your own backend.<Cite id="F6 F36" /> |
+| `session_store` (Python) / `sessionStore` (TypeScript); Python `session_store_flush` set to `"batched"` (default) or `"eager"` | Mirror transcripts to your own backend.<Cite id="F6 F36" /> |
 | `cleanupPeriodDays` in `settings.json` | Transcript and checkpoint retention, about 30 days by default.<Cite id="F29 F38" /> |
 
 A **`SessionStore`** is the adapter that makes a session resumable on another machine: implement `append` and `load` and the SDK mirrors JSONL transcripts to an object store, key-value store, or database, so a session created on one host resumes on another running from a matching working directory.<Cite id="F6 F37" /> Concurrent `append` calls can race on the session summary sidecar, so serialize the read-fold-write with a transaction, a compare-and-swap, or a per-session lock.<Cite id="F7" /> Ephemeral workers with no shared disk need one of these, or workflow state externalized into your own records; local `~/.claude/projects/` dies with the container.<Cite id="F4 F6" />
 
 ## File checkpointing and rewind
 
-Checkpointing snapshots files, not conversation. Claude Code captures a checkpoint before each turn-starting user prompt and keeps file snapshots for the 100 most recent checkpoints in a session.<Cite id="F11 F49" /> Enable it in the SDK with `enable_file_checkpointing=True` and `extra_args={"replay-user-messages": None}` (Python), or `enableFileCheckpointing: true` and `extraArgs: { "replay-user-messages": null }` (TypeScript), so turn-starting checkpoint UUIDs appear in the response stream.<Cite id="F13 F49" /> `await client.rewind_files(checkpoint_id)` in Python and `await response.rewindFiles(checkpointId)` in TypeScript restore tracked files on disk to that state and leave the conversation history intact; from the CLI, `CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING=true claude -p --resume <session-id> --rewind-files <checkpoint-uuid>` does the same for a headless run.<Cite id="F13 F40" />
+Checkpointing snapshots files, not conversation. Claude Code captures a checkpoint before each turn-starting user prompt and keeps file snapshots for the 100 most recent checkpoints in a session.<Cite id="F11 F49" /> Enable it in the SDK with `enable_file_checkpointing=True` and `extra_args={"replay-user-messages": None}` (Python), or `enableFileCheckpointing: true` and `extraArgs: { "replay-user-messages": null }` (TypeScript), so turn-starting checkpoint UUIDs appear in the response stream.<Cite id="F13 F49" /> `await client.rewind_files(checkpoint_id)` in Python and `await response.rewindFiles(checkpointId)` in TypeScript restore tracked files on disk to that state and leave the conversation history intact. After a stream completes, resume with checkpointing enabled and rewind inside the response loop.<Cite id="F51" /> From the CLI, `CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING=true claude -p --resume <session-id> --rewind-files <checkpoint-uuid>` does the same for a headless run.<Cite id="F13 F40" />
 
 Three limits bound checkpointing:
 
@@ -53,16 +53,17 @@ Three limits bound checkpointing:
 
 ## Crash recovery for side effects
 
-Transcript and checkpoint durability do not cover the outside world, so you need a **write-ahead step log**: a transactional record written before the side effect and updated after it completes. The need is concrete — a tool still running when the previous process ended does not get rerun on resume,<Cite id="F9" /> and a timeout cannot distinguish "never ran" from "ran before the connection dropped." Recommended practice for any side-effecting tool:
+Transcript and checkpoint durability do not cover the outside world. Use a **write-ahead step log**: a transactional record written before the side effect and updated after it completes. In Claude Code, a tool still running when the previous process ended does not get rerun on resume,<Cite id="F9" /> and a timeout cannot distinguish "never ran" from "ran before the connection dropped." Recommended practice for any side-effecting tool:
 
 1. Derive a deterministic **idempotency key**: a stable identifier built from the workflow run id, step name, tool name, and a hash of the canonicalized arguments, so a retry reproduces the same value. Never use a fresh `uuid4()` per attempt.
-2. Check the step log before calling the external API. On `SUCCEEDED`, return the cached result instead of calling again. On `IN_FLIGHT`, completion is uncertain: query a reconciliation endpoint by idempotency key, retry only if the tool advertises `idempotentHint: true` (and you have verified it is safe to repeat), or return an uncertain-completion error payload (such as `{"error": "uncertain_completion"}`) to Claude.
-3. Persist the external result to the step log *before* appending the `tool_result` block to the transcript.
+2. Check the step log before calling the external API. On `SUCCEEDED`, return the cached result instead of calling again. On `IN_FLIGHT`, completion is uncertain: query a reconciliation endpoint by idempotency key, retry only if you have verified that repeating the operation is safe, for example because the provider enforces the same idempotency key, or return an uncertain-completion error payload (such as `{"error": "uncertain_completion"}`) to Claude.
+3. Atomically claim the step before executing it, and prevent concurrent workers from issuing the same operation. A lease expiring alone does not prove that the previous call stopped.
+4. Persist the external result to the step log *before* appending the `tool_result` block to the transcript.
 
 | Step status | Meaning on recovery | Action |
 |---|---|---|
 | `SUCCEEDED` | The side effect completed and its result is durable | Replay the cached `tool_result`; do not call the API again |
-| `IN_FLIGHT` | Crashed mid-call; completion unknown | Reconcile by idempotency key; retry only when the tool is idempotent<Cite id="F33" /> |
+| `IN_FLIGHT` | Crashed mid-call; completion unknown | Reconcile by idempotency key; retry only when repetition is verified safe<Cite id="F33" /> |
 | `FAILED_TERMINAL` | Deterministic failure, recorded with its payload | Surface the failure; no retry |
 | `UNCERTAIN` | Timed out with no reconcilable answer | Report `uncertain_completion` to the model and to your caller |
 
@@ -83,74 +84,9 @@ The MCP specification defines `ToolAnnotations.idempotentHint`, default `false`,
   ]} />
 </Figure>
 
-The first worked example is a Python 3.11+ pattern using only the Python standard library (`sqlite3`, `hashlib`, `json`, `random`, `time`) as a wrapper for an `anthropic` Messages API loop or a Claude Agent SDK custom tool handler. Boilerplate imports, schema DDL (`tool_steps`), the `StepOutcome` dataclass, the `_mark` update helper, and the `TransientToolError` and `TerminalToolError` classes are omitted for brevity:
+For example, a payment worker records `IN_FLIGHT` before sending a charge with a provider-supported idempotency key. If the worker crashes after the charge, a replacement first reconciles with the provider. If it finds the receipt, it records `SUCCEEDED` and returns the receipt. If the provider cannot establish the outcome and does not guarantee safe retries, the worker reports uncertainty for human resolution. A unique step key and an atomic claim prevent concurrent workers from both starting the charge; a provider's idempotency guarantee still matters when a worker loses its lease during a call.
 
-```python
-class DurableToolExecutor:
-    """Write-ahead step log preventing duplicate side effects across crashes/retries."""
-
-    def __init__(self, db_path: str) -> None:
-        self.conn = sqlite3.connect(db_path, isolation_level=None)
-
-    @staticmethod
-    def make_key(workflow_id: str, step_id: str, tool_name: str, args: dict) -> tuple[str, str]:
-        canonical = json.dumps(args, sort_keys=True, separators=(",", ":"))
-        args_hash = hashlib.sha256(canonical.encode()).hexdigest()
-        raw = f"{workflow_id}:{step_id}:{tool_name}:{args_hash}"
-        return hashlib.sha256(raw.encode()).hexdigest(), args_hash
-
-    def execute(self, *, workflow_id, step_id, tool_name, args, fn,
-                reconcile_fn=None, is_idempotent=False, max_attempts=3):
-        key, args_hash = self.make_key(workflow_id, step_id, tool_name, args)
-        row = self.conn.execute(
-            "SELECT status, attempts, result_json FROM tool_steps WHERE idempotency_key = ?",
-            (key,)).fetchone()
-        if row is not None:
-            status, attempts, result_json = row
-            if status == "SUCCEEDED" and result_json is not None:
-                return StepOutcome("SUCCEEDED", result_json)   # deduplicated replay
-            if status == "FAILED_TERMINAL" and result_json is not None:
-                return StepOutcome("FAILED_TERMINAL", result_json)
-            if status == "IN_FLIGHT":
-                if reconcile_fn is not None:
-                    reconciled = reconcile_fn(key)
-                    if reconciled is not None:
-                        payload = json.dumps(reconciled)
-                        self._mark(key, "SUCCEEDED", attempts, payload)
-                        return StepOutcome("SUCCEEDED", payload)
-                if not is_idempotent:
-                    return StepOutcome("UNCERTAIN", json.dumps(
-                        {"error": "uncertain_completion", "idempotency_key": key}))
-        else:
-            self.conn.execute(
-                "INSERT INTO tool_steps (idempotency_key, tool_name, args_hash, status,"
-                " attempts, updated_at) VALUES (?, ?, ?, 'IN_FLIGHT', 0, ?)",
-                (key, tool_name, args_hash, time.time()))
-
-        for attempt in range(1, max_attempts + 1):
-            try:
-                payload = json.dumps(fn(args, key))   # pass key downstream
-                self._mark(key, "SUCCEEDED", attempt, payload)
-                return StepOutcome("SUCCEEDED", payload)
-            except TimeoutError:
-                if not is_idempotent or attempt == max_attempts:
-                    return StepOutcome("UNCERTAIN", json.dumps(
-                        {"error": "timeout_uncertain_completion", "idempotency_key": key}))
-            except TransientToolError:
-                if attempt == max_attempts:
-                    break
-            except TerminalToolError as exc:
-                payload = json.dumps({"error": str(exc)})
-                self._mark(key, "FAILED_TERMINAL", attempt, payload)
-                return StepOutcome("FAILED_TERMINAL", payload)
-            delay = (0.5 * (2 ** (attempt - 1))) + random.uniform(0, 0.25)
-            time.sleep(delay)
-        payload = json.dumps({"error": "retry_budget_exhausted", "idempotency_key": key})
-        self._mark(key, "FAILED_TERMINAL", max_attempts, payload)
-        return StepOutcome("FAILED_TERMINAL", payload)
-```
-
-Bound the retries themselves. The official SDKs already retry transient failures — connection errors, rate limits, and 5xx server errors — with exponential backoff, twice by default, honoring `retry-after` when present, under `max_retries` (Python) or `maxRetries` (TypeScript).<Cite id="F32" /> Those retries do not cover a mid-stream SSE error after an HTTP `200`.<Cite id="F46" /> Give your step loop its own `max_attempts` budget with randomized exponential backoff plus jitter, since unbounded retries amplify load exactly when a dependency is degraded.<Cite id="F34" />
+Bound the retries themselves. The official SDKs already retry transient failures — connection errors, rate limits, and 5xx server errors — with exponential backoff, twice by default, honoring `retry-after` when present, under `max_retries` (Python) or `maxRetries` (TypeScript).<Cite id="F32" /> A mid-stream SSE error after HTTP `200` does not follow the standard error-handling mechanisms.<Cite id="F46" /> Give your step loop its own `max_attempts` budget with randomized exponential backoff plus jitter, since unbounded retries amplify load exactly when a dependency is degraded.<Cite id="F34" />
 
 Checkpointing is not a rollback for external effects: `rewind_files()` reverts tracked local files,<Cite id="F13" /> not HTTP `POST`s, emails, or external database writes triggered via Bash.<Cite id="F12" /> Recommended practice: gate irreversible calls behind approvals, and pair each committed external step with a compensating action such as `refund_payment` or `void_invoice` recorded in the same log.
 
@@ -160,49 +96,24 @@ Memory patterns keep facts available across sessions and across context summariz
 
 | Pattern | Mechanism | Notes |
 |---|---|---|
-| Client-side memory tool | A `tools` entry of type `memory_20250818` named `memory`; your process stores and retrieves the files | Pair with compaction: compaction keeps active context small, memory preserves what must survive summarization.<Cite id="F28" /> Stays ZDR- and HIPAA-eligible because storage is yours.<Cite id="F43" /> |
+| Client-side memory tool | A `tools` entry of type `memory_20250818` named `memory`; your process stores and retrieves the files | Pair with compaction: compaction keeps active context small, memory preserves what must survive summarization.<Cite id="F28" /> The tool is eligible for ZDR and HIPAA readiness; assess the complete deployment and storage separately.<Cite id="F43" /> |
 | Claude Code auto memory | `MEMORY.md` index plus topic files in the memory directory | Excluded from the `cleanupPeriodDays` sweep that deletes old transcripts, so it outlives sessions.<Cite id="F29" /> |
-| Managed Agents memory stores | `POST /v1/memory_stores` (`memstore_...`), then `POST /v1/memory_stores/{id}/memories`, beta header `agent-memory-2026-07-22` | Every change creates an immutable memory version, giving an audit trail and point-in-time recovery.<Cite id="F30" /> Caps: `100 kB` per memory, `10,000` memories per store.<Cite id="F47" /> |
+| Managed Agents memory stores | `POST /v1/memory_stores` (`memstore_...`), then `POST /v1/memory_stores/{id}/memories`, beta header `agent-memory-2026-07-22` | Every change creates an immutable memory version, giving an audit trail and point-in-time recovery while versions are retained.<Cite id="F30" /> Past versions may be deleted after 30 days; export history needed longer.<Cite id="F52" /> Caps: `100 kB` per memory, `10,000` memories per store.<Cite id="F47" /> |
 | Structured progress files | A JSON file the harness reads on restart | Anthropic's long-running-agent harness research recommends JSON over Markdown because the model is less likely to inappropriately change or overwrite JSON files.<Cite id="F31" /> |
 
-Send only `agent-memory-2026-07-22` to memory store endpoints; combining it with `managed-agents-2026-04-01` on those calls returns a `400` error.<Cite id="F44" /> Do not put business state in memory files either. Store resumable state as versioned JSON records, for example `{"schema_version": 2, ...}`, and run pure forward-migration functions on load, since transcript schemas are internal and can change under you.<Cite id="F10 F31" />
+Use `agent-memory-2026-07-22` for memory store calls; combining it with `managed-agents-2026-04-01` returns a `400` error. Session endpoints still use `managed-agents-2026-04-01`.<Cite id="F44" /> Do not put business state in memory files either. Store resumable state as versioned JSON records, for example `{"schema_version": 2, ...}`, and run pure forward-migration functions on load, since transcript schemas are internal and can change under you.<Cite id="F10 F31" />
 
 ## Surviving a model version change
 
-A model swap breaks resumable work three ways: the model name stops existing, the prompt cache is invalidated, and preserved thinking blocks stop matching their prefix. Anthropic gives at least 60 days' notice before retiring a publicly released model on Anthropic-operated platforms, while Amazon Bedrock and Claude Models on Google Cloud (Google managed) set independent schedules;<Cite id="F21" /> a retired model fails requests, one of the documented reasons Claude Code does not keep a resumed session's saved model.<Cite id="F21 F22" /> Otherwise `claude --resume` and `claude --continue` keep the saved model, except in cases such as when it is excluded by `availableModels`, overridden by alias environment variables, or running on a provider with deployment IDs.<Cite id="F22" />
+A model change can affect model availability, prompt caching, and the handling of preserved thinking. A model swap alone does not change a thinking block’s prefix. Anthropic gives at least 60 days' notice before retiring a publicly released model on Anthropic-operated platforms, while Amazon Bedrock and Claude Models on Google Cloud (Google managed) set independent schedules;<Cite id="F21" /> a retired model fails requests, one of the documented reasons Claude Code does not keep a resumed session's saved model.<Cite id="F21 F22" /> Otherwise `claude --resume` and `claude --continue` keep the saved model, except in cases such as when it is excluded by `availableModels`, overridden by alias environment variables, or running on a provider with deployment IDs.<Cite id="F22" />
 
-Prompt caches are per model, so switching means the next request reads the entire conversation history with no cache hits even though the content is identical.<Cite id="F23" /> Budget for a cold read.
+Prompt caches are per model, so switching models in Claude Code means the next request reads the entire conversation history with no cache hits even though the content is identical.<Cite id="F23" /> Budget for a cold read.
 
-**Preserved thinking** lets Claude reuse reasoning blocks from earlier turns when your code sends them back.<Cite id="F24" /> Models with preserved thinking — as of November 2026, Fable 5.1/5.2, Mythos 5.1/5.2, Opus 5.5, Sonnet 5.5, and Haiku 5.5 — reject `thinking: {"type": "enabled"}` with a `400` error, so a client moving a conversation onto one of them sends `"adaptive"` instead.<Cite id="F25" /> Thinking blocks that the new model cannot use never cause an error: the API drops them for that request, does not bill them, and Claude answers without that reasoning, with compatibility restored if you switch back.<Cite id="F24" /> What fails is mutating the prefix. Preserved thinking blocks bind to `system`, `tools`, and prior messages, so altering anything before a block can trigger a `400` `invalid_request_error` reporting an invalid signature and a block bound to a different conversation (Fable 5.2, Mythos 5.2, and Mythos 5.1 return `400` when `prefix_mismatch_behavior` is unset, whereas Fable 5.1, Opus 5.5, Sonnet 5.5, and Haiku 5.5 may either return `400` or pass the mismatched blocks through).<Cite id="F26 F45" />
+**Preserved thinking** lets Claude reuse reasoning blocks from earlier turns when your code sends them back.<Cite id="F24" /> Models with preserved thinking — as of November 2026, Fable 5.1/5.2, Mythos 5.1/5.2, Opus 5.5, Sonnet 5.5, and Haiku 5.5 — reject `thinking: {"type": "enabled"}` with a `400` error, so a client moving a conversation onto one of them sends `"adaptive"` instead.<Cite id="F25" /> Thinking blocks that the new model cannot use never cause an error: the API drops them for that request, does not bill them, and Claude answers without that reasoning, with compatibility restored if you switch back.<Cite id="F24" /> What fails is mutating the prefix. Preserved thinking blocks bind to `system`, `tools`, and prior messages, so altering anything before a block can trigger a `400` `invalid_request_error` reporting an invalid signature and a block bound to a different conversation (on the Claude API and some cloud platforms, Fable 5.2, Mythos 5.2, and Mythos 5.1 return `400` when `prefix_mismatch_behavior` is unset, whereas Fable 5.1, Opus 5.5, Sonnet 5.5, and Haiku 5.5 may either return `400` or pass the mismatched blocks through; Message Batches items with the setting unset can drop failing blocks instead).<Cite id="F26 F45 F53" />
 
-To deploy updated prompts or tool schemas without invalidating running conversations, keep sending each one the `system` and `tools` of its last successful request — its newest thinking was produced after that version — and append changes as trailing messages.<Cite id="F27" /> If a prefix mismatch already happened, set `thinking.block_binding.prefix_mismatch_behavior` to `"drop_block"` and send `anthropic-beta: thinking-binding-controls-2026-08-01` on every later request in that conversation, because the API does not store the setting between requests.<Cite id="F26" /> In Managed Agents, `model`, `system`, and skills are fixed for the session lifetime and only `tools` and `mcp_servers` can change after creation,<Cite id="F17 F42" /> so a model migration there means a new session, optionally sharing a memory store.<Cite id="F30" />
+To deploy updated prompts or tool schemas without invalidating running conversations, keep sending each one the `system` and `tools` of its last successful request — its newest thinking was produced after that version — and append changes as trailing messages.<Cite id="F27" /> If a prefix mismatch already happened, set `thinking.block_binding.prefix_mismatch_behavior` to `"drop_block"` and send `anthropic-beta: thinking-binding-controls-2026-08-01` on every later request in that conversation, because the API does not store the setting between requests.<Cite id="F26" /> In Managed Agents, `model`, `system`, and skills are fixed for the session lifetime and only `tools` and `mcp_servers` can change after creation,<Cite id="F17 F42" /> so plan a model migration as a new session, optionally sharing a memory store when supported.<Cite id="F30" />
 
-The second worked example is pseudocode: an SDK pattern for a resumed conversation moving to a newer model, with recovery from the prefix-check failure.
-
-```python
-import anthropic
-
-client = anthropic.Anthropic(max_retries=2)
-
-def call_resumed_session(saved_state: dict, target_model: str = "claude-sonnet-5-5"):
-    thinking_cfg: dict = {"type": "adaptive"}      # replaces deprecated "enabled"
-    extra_betas: list[str] = []
-    if saved_state.get("prefix_mismatch_recovery"):
-        thinking_cfg["block_binding"] = {"prefix_mismatch_behavior": "drop_block"}
-        extra_betas.append("thinking-binding-controls-2026-08-01")
-    try:
-        return client.beta.messages.create(
-            model=target_model, max_tokens=16000,
-            system=saved_state["system"],   # frozen from the last successful turn
-            tools=saved_state["tools"],     # frozen from the last successful turn
-            messages=saved_state["messages"],
-            thinking=thinking_cfg, betas=extra_betas)
-    except anthropic.BadRequestError as err:
-        if not saved_state.get("prefix_mismatch_recovery") and "bound to a different conversation" in str(err):
-            saved_state["prefix_mismatch_recovery"] = True
-            return call_resumed_session(saved_state, target_model)
-        raise
-```
+For a migration, first test a copy of the saved conversation with the target model and the original instructions and tool schemas. Send the target model's supported thinking configuration. If a prefix error occurs, diagnose the changed history and choose a targeted recovery. Do not classify errors by matching their full text; the documentation says diagnostic wording can change.<Cite id="F50" /> Record any dropped reasoning and verify the resumed workflow before allowing further side effects.
 
 <Callout type="version" title="Checked 2026-11-19">
 
@@ -214,7 +125,7 @@ Beta headers (`managed-agents-2026-04-01`, `agent-memory-2026-07-22`, `thinking-
 
 Choose the store by what must survive.
 
-1. **Continue on the same machine.** Default persistence is enough: the SDK writes transcripts to disk automatically.<Cite id="F1 F4" />
+1. **Continue on the same machine.** Default persistence can restore the transcript if the disk survives; persist business state and external effects separately. The SDK writes transcripts to disk automatically.<Cite id="F1 F4" />
 2. **Continue on a different host.** Attach a `SessionStore` and serialize its sidecar writes, or externalize workflow state into your own versioned records.<Cite id="F6 F7 F31" />
 3. **Disposable experiment.** Disable persistence with `persistSession: false` (TypeScript) or `CLAUDE_CODE_SKIP_PROMPT_HISTORY` (Python) instead of accumulating transcripts you will never resume.<Cite id="F5" />
 4. **Undo file edits, keep the conversation.** Use checkpointing and `rewind_files()`; accept the 100-checkpoint window and the Bash/subagent gaps.<Cite id="F11 F12 F13 F14 F39" />
@@ -230,7 +141,7 @@ Most durability incidents are one store being trusted to cover another.
 
 <Callout type="mistake" title="Assuming resume replays a crashed tool call">
 
-Resuming skips the interrupted tool entirely, and blindly rerunning a non-idempotent call produces duplicate charges or writes.<Cite id="F9" /> Recover from the step log: replay the cached `SUCCEEDED` result, reconcile anything still `IN_FLIGHT`, and only retry when `idempotentHint` is true and you have verified the tool is genuinely idempotent.<Cite id="F33" />
+Claude Code does not rerun an interrupted tool call; blindly rerunning a non-idempotent call can produce duplicate charges or writes.<Cite id="F9" /> Recover from the step log: replay the cached `SUCCEEDED` result, reconcile anything still `IN_FLIGHT`, and only retry when you have verified that repetition is safe; an `idempotentHint` alone is not proof.<Cite id="F33" />
 
 </Callout>
 
@@ -246,7 +157,7 @@ Thinking blocks are bound to `system`, `tools`, and prior messages, so a prefix 
 
 </Callout>
 
-Five more traps. Leaving `thinking: {"type": "enabled"}` in a client after migrating to a preserved-thinking model yields that `400` before the conversation resumes.<Cite id="F25" /> Parsing `.jsonl` transcripts directly breaks on any release; use `list_sessions`, `get_session_messages`, `fork_session`, or `/export`.<Cite id="F10" /> Local transcripts inside ephemeral containers are lost on restart, because `~/.claude/projects/` disappears with the container.<Cite id="F4 F6" /> Managed Agents streams need their own recovery: open a new stream first, then list the full event history to seed seen IDs and deduplicate live events, or the reconnect gap loses events.<Cite id="F18" /> And a session that completes its work goes `idle`, not `terminated` — `terminated` means an unrecoverable error or an archive, while `rescheduling` is the platform auto-retrying a transient error.<Cite id="F16" />
+Five more traps. Leaving `thinking: {"type": "enabled"}` in a client after migrating to a preserved-thinking model yields that `400` before the conversation resumes.<Cite id="F25" /> Parsing `.jsonl` transcripts directly can break on any release; use `list_sessions`, `get_session_messages`, `fork_session`, or `/export`.<Cite id="F10" /> Local transcripts on a container filesystem are lost if that filesystem is discarded on replacement.<Cite id="F4 F6" /> Managed Agents streams need their own recovery: open a new stream first, then list the full event history to seed seen IDs and deduplicate live events, or the reconnect gap loses events.<Cite id="F18" /> And a session that completes its work goes `idle`, not `terminated` — `terminated` means an unrecoverable error or an archive, while `rescheduling` is the platform auto-retrying a transient error.<Cite id="F16" />
 
 ## Exam lens
 
@@ -255,7 +166,7 @@ Five more traps. Leaving `thinking: {"type": "enabled"}` in a client after migra
 - Separate transcript, file, and external durability: `resume` restores the transcript only, `rewind_files()` reverts tracked tool-edited files only, and external side effects need a step log with idempotency keys.<Cite id="F2 F9 F12 F13" />
 - Surviving a mid-session model change: keep running sessions on their last successful `system` and `tools`, switch `thinking.type` from `"enabled"` to `"adaptive"`, apply `"drop_block"` only for targeted `400` recovery, and expect a cold prompt cache.<Cite id="F23 F25 F26 F27" />
 - Respect hosting boundaries: hosted Managed Agents and its memory stores are ineligible for ZDR and HIPAA;<Cite id="F15 F41" /> use self-hosted Managed Agents for ZDR,<Cite id="F15" /> or the Messages API with client-side `memory_20250818` on compliant storage for ZDR and HIPAA.<Cite id="F28 F43" />
-- Multi-host or ephemeral workers need a `SessionStore` with serialized sidecar writes, or versioned JSON/DB state — never local `--continue`.<Cite id="F4 F6 F7 F31" />
+- For multi-host or ephemeral workers, choose a `SessionStore` with serialized sidecar writes, shared durable storage, or versioned application state.<Cite id="F4 F6 F7 F31" />
 
 </ExamLens>
 
@@ -263,7 +174,7 @@ Five more traps. Leaving `thinking: {"type": "enabled"}` in a client after migra
 
 <SelfCheck question="A workflow runs a non-idempotent transfer tool, persists the receipt to SQLite, and crashes before writing the tool_result to the transcript. What happens on resume?">
 
-Resume does not rerun the crashed tool call.<Cite id="F9" /> Because the step log holds `SUCCEEDED` with the receipt, the harness replays that cached result into the `tool_result` block without calling the transfer API again. An `IN_FLIGHT` row needs reconciliation by idempotency key before any retry.<Cite id="F33" />
+In Claude Code, resume does not rerun an interrupted tool call.<Cite id="F9" /> In this design, because the step log holds `SUCCEEDED` with the receipt, the harness replays that cached result into the `tool_result` block without calling the transfer API again. An `IN_FLIGHT` row needs reconciliation or a verified safe retry mechanism.<Cite id="F33" />
 
 </SelfCheck>
 
@@ -275,6 +186,6 @@ Preserved-thinking models reject `thinking: {"type": "enabled"}` with `400`, so 
 
 <SelfCheck question="Under a strict ZDR mandate, a team creates a Managed Agents memory store sending both managed-agents-2026-04-01 and agent-memory-2026-07-22. What fails?">
 
-Two things. Sending both headers to a memory store endpoint violates the header rule and returns `400` — use only `agent-memory-2026-07-22`<Cite id="F44" /> — and hosted Managed Agents is not eligible for Zero Data Retention, because it stores conversation history, sandbox state, and outputs server-side.<Cite id="F15" /> Use self-hosted Managed Agents or the Messages API with the client-side memory tool on compliant storage.<Cite id="F15 F28 F43" />
+Sending both headers to a memory store endpoint returns `400`; use `agent-memory-2026-07-22` instead.<Cite id="F44" /> Hosted Managed Agents is not eligible for Zero Data Retention because it stores conversation history, sandbox state, and outputs server-side.<Cite id="F15" /> Use self-hosted Managed Agents or the Messages API with the client-side memory tool on compliant storage.<Cite id="F15 F28 F43" />
 
 </SelfCheck>

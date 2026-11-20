@@ -21,3 +21,29 @@ Checked: 2026-11-19 · Reviewer: Gemini 4 Hydrogen
 ## Remaining concerns
 - Python worked example 1 (`DurableToolExecutor`) intentionally omits imports, SQLite `tool_steps` DDL, `StepOutcome`, `_mark`, and the custom exception classes for chapter brevity, so it parses cleanly (`ast.parse`) as a pattern sketch rather than executing standalone as printed; worked example 2 (`call_resumed_session`) is explicitly labeled pseudocode.
 - `pnpm astro build --outDir .ccdvp-review-durable-execution/dist` failed during site-wide frontmatter parsing on an unrelated chapter (`content/03-observability/01-telemetry.mdx` line 3, missing closing `"` on `summary:`), which could not be edited under the file-scope constraint. `node scripts/check-citations.mjs durable-execution` (`OK`) and `node scripts/verify-quotes.mjs durable-execution` (`49 citations · ok 39 · ok-loose 10 · not-found 0`) both passed after the final edits.
+
+
+## Second pass (GPT-6)
+
+Checked: 2026-11-19 · Reviewer: GPT-6
+
+### Summary
+
+Reviewed all 49 pre-existing citation entries and the chapter's cited and uncited claims against their quotes and, where needed, current official sources. Four citations added (F50–F53); two Python blocks reviewed and removed in favor of a concrete recovery example and migration guidance. Claim totals by supported/fixed/removed were not separately tallied. The objective's session persistence, checkpointing, resumability, memory, interruption, restart, and model-change elements are covered; the exam lens remains editorial decision guidance.
+
+### Changes
+
+- Side-effect executor — transient failures could retry a non-idempotent call, concurrent workers could race, and retry exhaustion could misclassify an uncertain effect as terminal → replaced the incomplete code with a payment recovery scenario, atomic claim and provider-backed idempotency guidance (F9, F33).
+- Migration example — matching diagnostic error text was brittle, and the pseudocode concealed the possible silent prefix mismatch → replaced it with targeted diagnostic and migration guidance (F45, F50).
+- Model migration — implied changing models itself invalidates the thinking prefix and generalized the cold cache and prefix-check behavior → distinguished a model swap from prefix edits, scoped the cache claim to Claude Code and added the Message Batches exception (F23, F45, F53).
+- Checkpoint recovery — omitted the resumed-session configuration and response-loop requirement → added both (F51).
+- Memory versions — implied unlimited point-in-time recovery → stated the 30-day historical retention limitation (F30, F52).
+- Recovery and deployment — narrowed interrupted-tool behavior to Claude Code, qualified ephemeral disk loss and memory-tool compliance eligibility, and clarified safe retries do not require an MCP hint (F9, F33, F43).
+- Memory beta headers — clarified session endpoint behavior and corrected a citation interrupted by punctuation (F44).
+- SSE errors — replaced the unsupported blanket SDK retry assertion with the documented limitation of standard error handling (F46).
+- Verification — citation check OK; quote verifier 53 entries, zero not-found or fetch failures; isolated Astro build completed. There are no remaining fenced Python blocks to parse.
+
+### Remaining concerns
+
+- Claim-level supported, fixed, and removed counts were not recorded during this pass; the counts above describe reviewed citation entries and code blocks rather than a claim classification audit.
+- Eligibility and beta behavior depend on deployment and current documentation; verify before production use.
