@@ -1,6 +1,11 @@
 ---
-// STUB — replaced by worker citations.
-interface Props { id: string }
+// Inline citation marker: <Cite id="F3" /> or <Cite id="F3 F7" /> → [3] / [3,7].
+// Brackets and comma separators come from cite.css so the text stays a bare number.
+// Script (cite.ts) turns the link into a tap-to-open popover fed by #src-<id> from SourceList.astro.
+interface Props {
+  id: string;
+}
 const ids = Astro.props.id.split(/[\s,]+/).filter(Boolean);
+const num = (id: string) => id.replace(/\D+/g, '');
 ---
-<sup class="cite-group">{ids.map((id) => <a class="cite" href={`#src-${id}`} data-cite={id}>[{id.replace(/\D+/g, '')}]</a>)}</sup>
+<sup class="cite-group">{ids.map((id) => <a class="cite" href={`#src-${id}`} data-cite={id} aria-label={`Source ${num(id)}`} role="button" aria-haspopup="dialog">{num(id)}</a>)}</sup>

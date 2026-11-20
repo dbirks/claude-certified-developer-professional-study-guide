@@ -157,8 +157,11 @@
   padding: 0;
   box-shadow: var(--shadow);
   overflow: hidden;
-  display: flex;
   flex-direction: column;
+}
+
+.search-dialog[open] {
+  display: flex;
 }
 
 .search-dialog::backdrop {

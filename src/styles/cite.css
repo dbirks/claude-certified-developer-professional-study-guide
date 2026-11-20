@@ -1,1 +1,271 @@
-/* owned by a worker; see docs/ARCHITECTURE.md */
+/* Inline citations (.cite), the chapter source list (.sources) and #cite-pop. See docs/ARCHITECTURE.md. */
+
+/* ---------- Inline citation marker: reads [3] or [3,7] ---------- */
+.cite-group {
+  font-size: 0.72em;
+  line-height: 0;
+  vertical-align: super;
+  margin-left: 1px;
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+.cite-group::before {
+  content: "[";
+}
+.cite-group::after {
+  content: "]";
+}
+
+.cite {
+  position: relative;
+  color: var(--accent-ink);
+  font-weight: 600;
+  text-decoration: none;
+  padding: 2px 1px;
+}
+/* Comma between neighbours; the touch-target box stays on ::after. */
+.cite + .cite::before {
+  content: ",";
+}
+/* Invisible tap target without changing the visual layout of the line. */
+.cite::after {
+  content: "";
+  position: absolute;
+  inset: -10px -6px;
+}
+.cite:hover,
+.cite:focus-visible {
+  text-decoration: underline;
+}
+.cite.is-open {
+  background: var(--accent-soft);
+  border-radius: 3px;
+}
+
+/* ---------- Chapter source list ---------- */
+.sources {
+  margin-top: 56px;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+.sources__note {
+  font-size: 14px;
+  color: var(--ink-muted);
+}
+/* The source list lives inside `article.prose`, so these selectors carry an extra class to
+   outrank prose.css (`.prose blockquote`, `.prose p`, `.prose ol`). */
+.sources .sources__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  counter-reset: none;
+}
+.sources .source {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  margin: 0;
+  transition: background 600ms;
+}
+.sources .source:target {
+  background: var(--accent-soft);
+  border-radius: 8px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+.source__head {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.source__n,
+.cite-pop__n {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-ink);
+  background: var(--accent-soft);
+  border-radius: 999px;
+  min-width: 22px;
+  text-align: center;
+  padding: 1px 6px;
+}
+.source__title {
+  font-weight: 600;
+  color: var(--ink);
+}
+.source__tag {
+  margin-left: auto;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 999px;
+}
+.source__tag--fact {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+.source__tag--rec {
+  background: var(--bg-subtle);
+  color: var(--ink-muted);
+}
+.source__tag--ver {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+.source__tag--std {
+  background: var(--bg-subtle);
+  color: var(--ink);
+}
+.sources .source__quote {
+  margin: 8px 0 6px;
+  border-left: 3px solid var(--border-strong);
+  padding: 2px 0 2px 12px;
+  font-size: 15px;
+  font-style: normal;
+  color: var(--ink);
+}
+.source__quote::before {
+  content: open-quote;
+}
+.source__quote::after {
+  content: close-quote;
+}
+.sources .source__meta {
+  font-size: 12.5px;
+  color: var(--ink-muted);
+  margin: 0;
+}
+.sources .source__claim {
+  font-size: 13px;
+  color: var(--ink-muted);
+  margin: 4px 0 0;
+}
+/* Visual "Supports: " prefix; the .sr-only span in SourceList.astro is for screen readers.
+   The empty alt text stops the pseudo-element from being announced a second time. */
+.source__claim::before {
+  content: "Supports: " / "";
+  font-weight: 600;
+}
+
+/* ---------- Popover: bottom sheet < 640px, anchored card >= 640px ---------- */
+.cite-pop {
+  position: fixed;
+  z-index: 80;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 12px 16px 16px;
+}
+.cite-pop[hidden] {
+  display: none;
+}
+.cite-pop__grab {
+  width: 36px;
+  height: 4px;
+  background: var(--border-strong);
+  border-radius: 2px;
+  margin: 0 auto 8px;
+  display: none;
+}
+.cite-pop__head {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.cite-pop__title {
+  flex: 1;
+  font-weight: 650;
+  font-size: 15px;
+  line-height: 1.35;
+  color: var(--ink);
+}
+.cite-pop__close {
+  margin: -8px -8px 0 0;
+}
+.cite-pop__quote {
+  margin: 10px 0 8px;
+  border-left: 3px solid var(--accent);
+  padding: 2px 0 2px 12px;
+  font-size: 15.5px;
+  line-height: 1.55;
+  font-style: normal;
+}
+.cite-pop__quote::before {
+  content: open-quote;
+}
+.cite-pop__quote::after {
+  content: close-quote;
+}
+.cite-pop__meta {
+  font-size: 12.5px;
+  color: var(--ink-muted);
+  margin: 0;
+}
+.cite-pop__actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.cite-pop__actions a {
+  color: var(--accent-ink);
+}
+
+@media (max-width: 639.98px) {
+  .cite-pop {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    max-height: 70dvh;
+    overflow: auto;
+    border-radius: 14px 14px 0 0;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+  .cite-pop__grab {
+    display: block;
+  }
+  .cite-pop--open {
+    animation: cite-pop-sheet 200ms ease-out;
+  }
+}
+@media (min-width: 640px) {
+  .cite-pop {
+    border-radius: 10px;
+  }
+  .cite-pop--open {
+    animation: cite-pop-card 160ms ease-out;
+  }
+}
+
+@keyframes cite-pop-sheet {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes cite-pop-card {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sources .source {
+    transition: none;
+  }
+  .cite-pop--open {
+    animation: none;
+  }
+}

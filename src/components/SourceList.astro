@@ -1,7 +1,59 @@
 ---
-// STUB — replaced by worker citations.
+// Chapter source list: one <li id="src-<id>"> per citation, rendered at the end of every chapter.
+// cite.ts reads these nodes to populate #cite-pop. Markup is the contract in docs/ARCHITECTURE.md.
 import type { Citation } from '../lib/citations';
-interface Props { citations: Citation[] }
+
+interface Props {
+  citations: Citation[];
+}
 const { citations } = Astro.props;
+
+const TAG_LABEL: Record<Citation['tag'], string> = {
+  FACT: 'Documented',
+  REC: 'Recommended practice',
+  VER: 'Version-sensitive',
+  STD: 'Standard',
+};
+
+function hostOf(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return url;
+  }
+}
 ---
-{citations.length > 0 && <section class="sources"><h2 id="sources">Sources</h2><ol>{citations.map((c) => <li id={`src-${c.id}`} value={c.n}><a href={c.url}>{c.title}</a><blockquote>{c.quote}</blockquote></li>)}</ol></section>}
+{
+  citations.length > 0 && (
+    <section class="sources" aria-labelledby="sources">
+      <h2 id="sources">Sources</h2>
+      <p class="sources__note">
+        Quotes are copied verbatim from each source on the access date shown. Tap a source title to open it.
+      </p>
+      <ol class="sources__list">
+        {citations.map((c) => (
+          <li class="source" id={`src-${c.id}`} value={c.n} data-tag={c.tag}>
+            <div class="source__head">
+              <span class="source__n">{c.n}</span>
+              <a class="source__title" href={c.url} target="_blank" rel="noopener">
+                {c.title}
+              </a>
+              <span class:list={['source__tag', `source__tag--${c.tag.toLowerCase()}`]}>{TAG_LABEL[c.tag]}</span>
+            </div>
+            <blockquote class="source__quote" cite={c.url}>
+              {c.quote}
+            </blockquote>
+            <p class="source__meta">
+              <span class="source__host">{hostOf(c.url)}</span> · Accessed {c.accessed}
+              {c.version_note ? ` · ${c.version_note}` : ''}
+            </p>
+            <p class="source__claim">
+              <span class="sr-only">Supports: </span>
+              {c.claim}
+            </p>
+          </li>
+        ))}
+      </ol>
+    </section>
+  )
+}
