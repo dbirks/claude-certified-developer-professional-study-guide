@@ -363,5 +363,20 @@
     "id": "F73",
     "status": "ok-loose",
     "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
+  },
+  {
+    "id": "F74",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons"
+  },
+  {
+    "id": "F75",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F76",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/batch-processing"
   }
 ]

@@ -802,6 +802,12 @@
   accessed: 2026-11-19
   cited_by:
     - threat-defense:F32
+- url: https://modelcontextprotocol.io/docs/2026-07-28/getting-started/intro
+  title: What is the Model Context Protocol (MCP)?
+  source: mcp-spec
+  accessed: 2026-11-19
+  cited_by:
+    - mcp-change-management:F40
 - url: https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices
   title: Security Best Practices - Model Context Protocol
   source: mcp-spec
@@ -993,7 +999,6 @@
     - mcp-change-management:F13
     - mcp-change-management:F14
     - mcp-change-management:F15
-    - mcp-change-management:F16
     - mcp-change-management:F17
     - mcp-change-management:F38
     - mcp-change-management:F39

@@ -670,3 +670,30 @@
   source: anthropic-docs
   quote: "title and context are optional fields that are passed to the model but not used toward cited content."
   accessed: 2026-11-19
+
+- id: F74
+  claim: "A successful Messages API response can stop because it reached the context window; this is distinct from a request error."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons
+  title: "Stop reasons and fallback"
+  source: anthropic-docs
+  quote: "The `stop_reason` field is part of every successful Messages API response. Unlike errors, which indicate failures in processing your request, `stop_reason` tells you why Claude completed its response generation."
+  accessed: 2026-11-19
+
+- id: F75
+  claim: "Changing a block at or before a prompt-cache breakpoint changes the prefix hash and can cause a cache miss."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "Cache hits require 100 percent identical prompt segments, including all text and images up to and including the block marked with cache control."
+  accessed: 2026-11-19
+
+- id: F76
+  claim: "The Message Batches API charges 50 percent of standard API prices."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/batch-processing
+  title: "Batch processing"
+  source: anthropic-docs
+  quote: "The Batches API offers significant cost savings. All usage is charged at 50 percent of the standard API prices."
+  accessed: 2026-11-19

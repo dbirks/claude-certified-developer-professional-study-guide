@@ -1,0 +1,221 @@
+---
+title: "Practice: Domain 2 — Production Integration, Reliability, and Knowledge Grounding"
+summary: "12 original scenario questions for Domain 2, with cited rationales."
+kind: reference
+slug: practice-domain-2
+order: 12
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+These are original practice items written for this guide in the style of the official sample items. They are not official exam content. Try each before opening the answer.
+
+## Q1. Mid-stream SSE recovery on Claude 4.6+ (Skill 2.1)
+
+A streaming support agent running `claude-opus-5-5` with the Python SDK (`max_retries=2`) receives HTTP `200`, streams two complete sentences in a `text` block, begins emitting a `tool_use` block with partial JSON arguments, and then receives `event: error` (`overloaded_error`).<Cite id="F1 F5" /> A recovery handler catches the exception and retries by placing the partial `text` and incomplete `tool_use` blocks into a final assistant message as a prefill. Every recovery attempt immediately fails with HTTP `400` (`invalid_request_error`).<Cite id="F3 F4" /> **Server-sent events (SSE)** carry events after the stream response starts.
+
+**Which recovery change should the engineering team implement?**
+
+- **A.** Increase the SDK client's `max_retries` to `5` and let the built-in HTTP backoff handler resume the interrupted stream automatically.
+- **B.** Drop the incomplete tool call, keep completed text, and continue in a new `user` message.
+- **C.** Keep the partial `text` block in an assistant prefill message, close the truncated `tool_use` JSON locally, and resubmit the request to the same endpoint.
+- **D.** Forward the identical prefilled assistant history to an Amazon Bedrock regional endpoint so the extra capacity avoids `overloaded_error`.
+
+<SelfCheck question="Answer to Q1">
+
+**B.** Mid-stream SSE errors arrive after HTTP `200`, so SDK HTTP retry does not resume the stream.<Cite id="F1 F5" /> Discard the incomplete `tool_use` block and continue from completed text in a new `user` message. Claude 4.6+ rejects assistant prefill, and tool or thinking blocks cannot be partially recovered.<Cite id="F2 F3 F4" /> A **circuit breaker** pauses calls after a bounded failure window; use one for repeated transient failures, then serve cached or reduced-function responses for noncritical work. Keep safety refusals on their own handling path. (Engineering recommendation.)
+
+</SelfCheck>
+
+## Q2. Cross-platform failover and feature parity (Skill 2.1)
+
+A production analysis pipeline on the first-party Claude API relies on `code_execution` and `fallbacks="default"` (`server-side-fallback-2026-07-01`). During a regional capacity event causing sustained `529` and `429` errors, an engineer first switches `inference_geo` from `"us"` to `"global"` on the first-party API, which leaves rate-limit headroom unchanged. Next, the engineer redirects failover traffic to an Azure-hosted Microsoft Foundry deployment, where requests immediately fail with `400 Bad Request`.<Cite id="F6 F7 F10" />
+
+**Which failover architecture provides an independent capacity pool while preserving `code_execution` and beta feature parity?**
+
+- **A.** Fail over to **Claude Platform on AWS**, using its separate capacity pool and support for `code_execution` and beta features.
+- **B.** Keep traffic on the first-party Claude API and alternate requests between `inference_geo: "us"` and `inference_geo: "global"` to double available rate-limit capacity.
+- **C.** Route failover traffic to an Amazon Bedrock regional CRIS endpoint without altering the request payload, because Bedrock regional endpoints carry a 10% premium for full server-tool parity.
+- **D.** Keep `code_execution` enabled on the Azure-hosted Microsoft Foundry deployment and add the SDK's `BetaRefusalFallbackMiddleware` to bypass the `400 Bad Request` responses.
+
+<SelfCheck question="Answer to Q2">
+
+**A.** **Claude Platform on AWS** runs on a separate capacity pool from both the first-party Claude API and Amazon Bedrock, while providing the full Anthropic platform experience including the Messages API, `code_execution`, and beta features.<Cite id="F8 F9" /> Option B fails because `inference_geo` values (`"us"` and `"global"`) share the same rate-limit pool.<Cite id="F6" /> Option C fails because Amazon Bedrock regional CRIS pricing reflects data-residency routing rather than server-side fallback or server-tool parity.<Cite id="F10 F12" /> Option D fails because Azure-hosted Microsoft Foundry rejects `code_execution` with `400 Bad Request` by design, and client-side refusal-fallback middleware only retries safety refusals rather than `400` parity errors.<Cite id="F7 F11" />
+
+</SelfCheck>
+
+## Q3. Distinguishing spend-cap `429`s, refusals, and retry storms (Skill 2.1)
+
+An orchestrator wraps the Python `anthropic` client (default `max_retries=2`) in an outer 3-attempt loop that retries every `429`, `529`, and `stop_reason == "refusal"`.<Cite id="F5" /> During an incident, telemetry shows three patterns: (1) several `429` responses carry `error.details.error_code: "enforced_spend_limit_reached"` with no `retry-after` header; (2) several HTTP `200` responses return `stop_reason: "refusal"` with `stop_details.category: "reasoning_extraction"`; and (3) `529` brownouts cause upstream request volume to spike dramatically.<Cite id="F13 F16" />
+
+**Which TWO changes address the evidenced failure modes? Select TWO.**
+
+- **A.** Fail fast on `enforced_spend_limit_reached` and route `reasoning_extraction` refusals to prompt review instead of retrying them.
+- **B.** Disable stacked retries (`max_retries=0` on the SDK client or remove the outer loop) and enforce a per-client retry ratio budget with jittered backoff for transient `429`/`529` responses.
+- **C.** Configure `BetaRefusalFallbackMiddleware` with a fallback model list so `"reasoning_extraction"` refusals automatically retry on a secondary Claude model.
+- **D.** Increase the SDK `timeout` above 10 minutes and set `inference_geo: "global"` so `"enforced_spend_limit_reached"` requests draw from an unused tier budget.
+- **E.** Re-send `"reasoning_extraction"` refusals to the same model with a higher `max_tokens` value so the classifier clears on the next attempt.
+
+<SelfCheck question="Answer to Q3">
+
+**A, B.** A tier spend-cap `429` (`enforced_spend_limit_reached`) has no `retry-after` header and keeps failing until access resumes, so stop retrying and alert billing or operations.<Cite id="F13" /> A `reasoning_extraction` refusal has no recommended fallback model; route it to prompt review rather than retrying it.<Cite id="F16" /> Disable one of the stacked retry loops and set a per-client retry budget; jittered backoff can limit added load during transient errors.<Cite id="F5 F14" /> **Backpressure** slows or rejects incoming work when downstream capacity is constrained. A bounded queue with admission control can apply it; when queue wait would exceed the interactive SLA, return a defined degraded response or reject the work. (Engineering recommendation.) Option C fails because the refusal category has no recommended fallback model.<Cite id="F16" /> Option D fails because `inference_geo` shares the same rate-limit pool and cannot bypass a tier spend cap.<Cite id="F6 F13" /> Option E fails because resending a refusal to the same model usually results in another refusal.<Cite id="F15" />
+
+Read response outcomes separately: an HTTP `200` with `stop_reason: "model_context_window_exceeded"` is a valid but truncated response. Reduce or compact context; do not classify it as a transient rate-limit error.<Cite id="F74" />
+
+</SelfCheck>
+
+## Q4. Cache-aware **ITPM** (input tokens per minute) vs. **OTPM** (output tokens per minute) (Skill 2.2)
+
+A production service on `claude-sonnet-5-5` (Start tier: 4,000 RPM, 2,000,000 ITPM, 400,000 OTPM) runs steadily at 500 requests/minute.<Cite id="F19" /> Each request sends a 10,000-token system prompt (cached), 1,500 uncached user tokens, `max_tokens: 4096`, and averages 350 generated output tokens. Immediately after a deploy inserts a per-request timestamp at the top of the system prompt, requests begin failing with HTTP `429` and `anthropic-ratelimit-input-tokens-remaining: 0`, while `anthropic-ratelimit-output-tokens-remaining` stays above `200000`.
+
+**What caused the `429` errors, and which change restores throughput headroom?**
+
+- **A.** Remove the variable timestamp so requests reuse the cached prefix and reduce ITPM charges.
+- **B.** Lower `max_tokens` from `4096` to `512` on every request so Claude reserves fewer tokens against the organization's OTPM rate limit.
+- **C.** Keep the timestamp in the system prompt and pace requests smoothly at ~8 requests/second so token-bucket bursts stop triggering `429` responses.
+- **D.** Distribute the 500 requests/minute across `claude-sonnet-4-6` and `claude-sonnet-4-5` in separate workspaces so each model and workspace receives an independent 2,000,000 ITPM budget.
+
+<SelfCheck question="Answer to Q4">
+
+**A.** Only `input_tokens + cache_creation_input_tokens` count toward default ITPM, whereas `cache_read_input_tokens` are excluded.<Cite id="F17" /> The timestamp changed the cached prefix, so each request missed the cache and paid for uncached input or a new cache write. That charged all 11,500 input tokens per request (`500 × 11,500 = 5,750,000` ITPM), exceeding the 2,000,000 Start-tier limit for `claude-sonnet-5-5`.<Cite id="F17 F19 F75" /> Option B fails because OTPM counts actual generated output tokens rather than `max_tokens`, and OTPM still has over 200,000 tokens remaining.<Cite id="F18" /> Option C fails because smoothing bursts cannot resolve a sustained 5.75M ITPM deficit against a 2M ceiling.<Cite id="F17 F19" /> Option D fails because Sonnet 4.6 and Sonnet 4.5 share one combined Sonnet 4.x rate-limit bucket and organization-wide limits still apply across workspaces.<Cite id="F20 F21" />
+
+</SelfCheck>
+
+## Q5. Ramp limits vs. batch windows and spend limits (Skill 2.2)
+
+After 12 hours of near-zero weekend traffic, an interactive Monday-morning dashboard surge immediately dispatches 2,500 requests/minute to `claude-sonnet-5-5` on a Scale-tier organization (well below its steady-state RPM, ITPM, and OTPM limits). Requests immediately fail with HTTP `429`, `error.type: "rate_limit_error"`, `error.details.error_code: "ramp_limit_exceeded"`, and `retry-after: 12`, while `anthropic-ratelimit-tokens-remaining` headers still show millions of tokens available. Users require synchronous sub-10-second responses.
+
+**Which change best prevents these Monday-morning `429` failures?**
+
+- **A.** Raise the workspace spend limit in the Claude Console and disable `retry-after` sleeps so failed requests retry immediately.
+- **B.** Move the interactive dashboard requests to `POST /v1/messages/batches`, because the Message Batches API is exempt from ramp limits.
+- **C.** Ramp traffic gradually from recent peaks, pace through admission control, and honor `retry-after`.
+- **D.** Split the 2,500 requests/minute evenly across five workspaces whose custom rate limits sum to the organization's Scale-tier ceiling.
+
+<SelfCheck question="Answer to Q5">
+
+**C.** A `ramp_limit_exceeded` `429` occurs when token usage grows faster than the model's recent per-minute peak plus a step, even when steady-state ITPM/OTPM headroom remains.<Cite id="F22 F23 F24" /> As an engineering practice, pacing traffic up gradually in steps while honoring `retry-after` lets successful usage lift the ramp ceiling without triggering `429` rejections.<Cite id="F23 F27" /> Option A fails because user-configured spend limits return HTTP `400 invalid_request_error` rather than `ramp_limit_exceeded`, and ignoring `retry-after` violates rate-limit guidance.<Cite id="F24 F25 F27" /> Option B fails because Message Batches are asynchronous with up to a 24-hour processing window and do not satisfy a synchronous sub-10-second SLA.<Cite id="F26" /> Option D fails because ramp limits cap the organization's growth on the model and organization-wide limits still apply across workspaces.<Cite id="F21 F22" />
+
+</SelfCheck>
+
+## Q6. High-volume batch design and multi-tenant isolation (Skill 2.2)
+
+A multi-tenant platform plans to move 150,000 nightly extraction jobs (total encoded size 310 MB, 12-hour SLA) from the synchronous Messages API to `POST /v1/messages/batches` to capture the 50% batch discount.<Cite id="F76" /> Existing requests use `stream: true` and `fallbacks="default"`. Finance requires strict per-tenant monthly spend enforcement before persisting billed outputs to the ledger.
+
+**Which TWO requirements must the engineering team implement for this migration? Select TWO.**
+
+- **A.** Shard within count and size caps, remove unsupported parameters, and join unordered results by unique `custom_id`.
+- **B.** Reconcile all result types and track tenant spend locally because workspace spend caps may be exceeded slightly.
+- **C.** Issue one API key per tenant inside a single shared workspace so each key receives an isolated throughput quota and hard spend cutoff.
+- **D.** Prewarm each tenant's prompt cache synchronously, then submit batches with matching prefixes to improve cache reuse.
+- **E.** Stream each batch item from the JSONL endpoint as soon as it completes, matching outputs to inputs by submission array index.
+
+<SelfCheck question="Answer to Q6">
+
+**A, B.** Each Message Batch is capped at `100,000` requests or `256 MB` (whichever is reached first), rejects `stream` and `fallbacks`, and may return results out of order, requiring unique `custom_id` matching.<Cite id="F28 F29 F30" /> Every item must be reconciled across the four `result.type` outcomes (`succeeded`, `errored`, `canceled`, `expired`), and local spend tracking is required because concurrent batch processing can slightly exceed a configured Console workspace spend limit.<Cite id="F31 F32" /> Option C fails because single-workspace keys scope access to that workspace rather than carving out independent per-key rate or spend quotas inside one workspace.<Cite id="F21 F34" /> Option D fails because prompt cache hits in asynchronous batches are best-effort only.<Cite id="F33" /> Option E fails because batch results are available when all messages finish or after 24 hours (not streamed per item) and may be returned out of order.<Cite id="F26 F30" />
+
+</SelfCheck>
+
+## Q7. Fable 5.2 prefix checks and Model Context Protocol (MCP) tool-list changes (Skill 2.3)
+
+A long-running multi-turn agent uses `claude-fable-5-2` with thinking enabled and connects to a remote HTTPS MCP server via the Messages API MCP connector. Mid-way through active customer sessions, the MCP server deploys a new tool, and ongoing turns immediately begin failing with HTTP `400`. An engineer assumes an MCP OAuth token expired and proposes refreshing OAuth tokens or rolling active sessions back to `claude-fable-5-1`.
+
+**What caused the `400` errors, and which change prevents mid-conversation breakage?**
+
+- **A.** Refresh the MCP bearer token and pass the client's MCP token straight through to the downstream API so tool discovery stays authenticated.
+- **B.** Pin the MCP tool list with the `mcp-client-2026-09-15` beta; on Fable 5.2, changing the list changes the thinking prefix.
+- **C.** Roll back active `claude-fable-5-2` conversations in place to `claude-fable-5-1` while replaying existing thinking blocks to preserve session state.
+- **D.** Point the Messages API MCP connector directly to a local `stdio` MCP server inside the application container so remote server deploys cannot mutate the tool list.
+
+<SelfCheck question="Answer to Q7">
+
+**B.** On `claude-fable-5-2`, a tool list that changes between requests counts as an edit to the thinking-block prefix and fails the prefix check with HTTP `400`.<Cite id="F35 F36" /> Using the `mcp-client-2026-09-15` beta lets the API record and pin the tool list (alongside engineering practice of a deny-by-default `mcp_toolset` allowlist) so mid-conversation deploys do not invalidate thinking prefixes.<Cite id="F37" /> Option A fails because invalid or expired MCP tokens return HTTP `401` (not `400`), and passing the client's MCP token through to downstream APIs violates the MCP authorization specification.<Cite id="F38 F39" /> Option C fails because `claude-fable-5-1` cannot read `claude-fable-5-2` thinking blocks.<Cite id="F40" /> Option D fails because the Messages API MCP connector requires publicly exposed HTTP and cannot connect directly to local `stdio` servers.<Cite id="F41" />
+
+</SelfCheck>
+
+## Q8. Remote MCP auth migration and ZDR boundaries (Skill 2.3)
+
+A compliance-bound fintech team plans to migrate an internal ledger MCP server from `https://mcp-old.internal/mcp` to `https://mcp.example.com/mcp` and connect it directly via the Messages API MCP connector while keeping their organization's Zero Data Retention (ZDR) guarantee for all ledger tool calls and outputs. During staging tests on the new URL, clients presenting tokens minted for the old URL receive HTTP `401`, and a developer suggests passing the client's MCP bearer token straight through to the downstream ledger API.
+
+**Which assessment and action should the architect take?**
+
+- **A.** Refresh resource metadata and audience-bound tokens, use separate downstream credentials, and keep ZDR-covered calls off the connector.
+- **B.** Pass the client's MCP bearer token through to the downstream ledger API to eliminate extra credential exchanges, and rely on the organization's Messages API ZDR flag to cover MCP connector tool results.
+- **C.** Switch the remote server from Streamable HTTP to legacy HTTP+SSE and disable RFC 8707 resource indicators so old tokens remain valid across hostnames.
+- **D.** Switch the connector beta header to `mcp-client-2025-04-04` and move `authorization_token` inside each `mcp_toolset` entry so tokens bind per tool instead of per server.
+
+<SelfCheck question="Answer to Q8">
+
+**A.** Under the MCP HTTP authorization profile, servers must publish RFC 9728 protected-resource metadata, clients must use RFC 8707 resource indicators to request tokens bound to the target resource, and servers must validate tokens for their own resource without passing the client token through.<Cite id="F38 F42 F43 F44" /> Crucially, the Messages API MCP connector is not covered by ZDR arrangements—exchanged tool definitions and results follow standard retention—so ZDR-protected ledger exchanges should not route through it.<Cite id="F45" /> Option B fails on both counts: token passthrough is prohibited and the connector is excluded from ZDR.<Cite id="F38 F45" /> Option C fails because legacy SSE transport is deprecated in Claude Code and disabling resource indicators violates audience binding.<Cite id="F43 F46" /> Option D fails because `mcp-client-2025-04-04` is deprecated in favor of `mcp-client-2025-11-20`+ and tool configuration moved into `tools` as `MCPToolset` objects rather than holding server auth.<Cite id="F47 F48" />
+
+</SelfCheck>
+
+## Q9. Model migration, gateway routing, and progressive rollout (Skill 2.3)
+
+A platform team is migrating an agentic coding workflow from `claude-opus-5` (currently sending `tool_choice: {"type": "any"}`) to `claude-fable-5-2` across the first-party Claude API, Amazon Bedrock, and Microsoft Foundry, alongside system prompt and MCP schema updates. One engineer proposes swapping the model ID in the LLM gateway (`ANTHROPIC_BASE_URL`) across all upstreams at once, splitting 50% of individual turns in active sessions, and pinning `claude-sonnet-4-5` as an immutable fallback.
+
+**Which TWO practices should the team follow for a safe migration? Select TWO.**
+
+- **A.** Update provider-specific model IDs and remove incompatible parameters before rollout; Bedrock and Foundry use platform-specific identifiers.
+- **B.** Version the model ID, prompt, and tool schema together in a release manifest, evaluate in a sandbox/shadow environment, and progressively roll out by **new conversations**—preparing rollback without sending `claude-fable-5-2` thinking blocks to `claude-fable-5-1`.
+- **C.** Rely on gateway routing to normalize model parameters and make feature support and retirement schedules uniform across first-party and partner endpoints.
+- **D.** Use the `claude-sonnet-4-5` alias for fallback routing because it pins an immutable snapshot with stable serving behavior.
+- **E.** Shift 50% of individual turns within active conversations first, and verify that Claude consumer-app system prompt updates match the API baseline.
+
+<SelfCheck question="Answer to Q9">
+
+**A, B.** Migration requires adapting to documented breaking and platform differences: `claude-fable-5-2` rejects `tool_choice` `any` and `tool` accepted by Opus 5, uses `global.anthropic.claude-fable-5-2` or `us.anthropic.claude-fable-5-2` on Bedrock `bedrock-runtime`, and uses deployment names on Microsoft Foundry (omitting `speed` on `claude-fable-5-2-fast`).<Cite id="F49 F50 F51 F52" /> As an engineering practice, bundling model, prompt, and schema versions in a release manifest and rolling out by new conversations prevents mid-conversation prefix violations and avoids incompatible rollbacks where `claude-fable-5-1` cannot read `claude-fable-5-2` thinking blocks.<Cite id="F36 F40" /> Option C fails because `ANTHROPIC_BASE_URL` merely points Claude Code at a gateway, and partner platforms set independent retirement schedules.<Cite id="F53 F54" /> Option D fails because pre-4.6 aliases like `claude-sonnet-4-5` resolve to the latest dated snapshot and infrastructure updates can still alter observable behavior.<Cite id="F55 F56" /> Option E fails because mixing models mid-conversation breaks thinking-block compatibility and consumer-app system prompt updates do not apply to the Claude API.<Cite id="F40 F57" />
+
+</SelfCheck>
+
+## Q10. Stage-by-stage RAG diagnosis and ACL ordering (Skill 2.4)
+
+An internal support assistant uses **retrieval-augmented generation (RAG)**—retrieving source passages and adding them to a model prompt—to query a 5-million-token engineering corpus. It runs dense-only vector search (`top_k=20`), then reranks to five results and passes them to Claude in `search_result` blocks. Users report that queries containing exact error codes like `ERR-4017` frequently return "I don't know," even though the `ERR-4017` runbook exists in the corpus. Stage logging reveals the `ERR-4017` chunk never enters the top-20 vector candidates, and a security audit finds that tenant **access-control list (ACL)** filtering runs *after* reranking.
+
+**Which architectural fix resolves both the missing `ERR-4017` answers and the authorization risk?**
+
+- **A.** Filter by tenant ACL before search; fuse contextual BM25 with dense results before reranking and measure retrieval `recall@20`.
+- **B.** Update the system prompt to forbid Claude from answering "I don't know" whenever the user message contains an error code pattern.
+- **C.** Increase the reranker's `top_k` from `5` to `20` while keeping dense-only retrieval and post-rerank ACL filtering so more candidates reach Claude.
+- **D.** Remove the retrieval pipeline and pass the entire 5-million-token engineering corpus directly in every Messages API prompt.
+
+<SelfCheck question="Answer to Q10">
+
+**A.** Since logs show that `ERR-4017` never enters the top 20, diagnose retrieval recall before reranking or generation. Anthropic defines `1 - recall@20` as evidence missing from those candidates.<Cite id="F62" /> **Hybrid retrieval** combines lexical and semantic search. Fuse contextual BM25 with dense retrieval before reranking, and apply tenant ACL filters before retrieval. BM25 helps find exact identifiers; the combined method reduced top-20 retrieval failures by 67% in Anthropic's test setup.<Cite id="F58 F59 F60 F61" /> Tune semantic chunk boundaries and embedding choices against labeled queries, measuring whether expected evidence enters retrieval candidates. (Engineering recommendation.) Option B asks the model to answer without evidence and removes permission to admit uncertainty.<Cite id="F63" /> Option C cannot recover evidence absent from initial candidates and leaves the ACL flaw. Option D ignores that this corpus is much larger than the roughly 200,000-token direct-context example in Anthropic's guidance.<Cite id="F64" />
+
+</SelfCheck>
+
+## Q11. Citations, structured outputs, and web fetch settings (Skill 2.4)
+
+A legal-research pipeline passes retrieved passages as `search_result` blocks alongside a reference glossary `document` block and sets `output_config.format` for strict JSON schema extraction. It enables citations on one `search_result` but not another, and leaves the glossary `document` without citations enabled. API requests fail with HTTP `400`. When `output_config.format` is temporarily removed, citations from an upstream `web_fetch_20260318` tool call are still missing.
+
+**Which set of configuration changes makes citation-backed extraction succeed without `400` errors?**
+
+- **A.** Remove strict schema formatting, make citation settings consistent within the document blocks and within the search-result blocks, and enable citations on `web_fetch_20260318`.
+- **B.** Keep `output_config.format` enabled and convert the `search_result` blocks into `source.type: "content"` document blocks so citations bypass the `400` restriction.
+- **C.** Keep strict schema formatting and disable citations on the glossary document, leaving citations on the search results and web fetch.
+- **D.** Rely on `web_fetch_20260318` inheriting automatic citations like `web_search`, and keep `citations` disabled on `search_result` blocks to avoid conflicts.
+
+<SelfCheck question="Answer to Q11">
+
+**A.** Citations on any `document` or `search_result` block conflict with `output_config.format` and return HTTP `400`; validate the extracted structure in application code instead.<Cite id="F65" /> Keep citation settings consistent among document blocks, and separately keep them consistent among search-result blocks. The current mixed search-result settings are invalid. Web-fetch citations are optional and off by default, so enable them explicitly.<Cite id="F66 F67 F68" /> Option B keeps the incompatible strict schema setting. Option C also keeps it, so disabling document citations does not resolve the conflict with cited search results.<Cite id="F65" /> Option D assumes web fetch inherits web-search citations, but web fetch needs its own setting.<Cite id="F67 F68" />
+
+</SelfCheck>
+
+## Q12. Retrieval architecture selection and grounding verification (Skill 2.4)
+
+An internal developer platform operates two distinct assistants: (1) a codebase assistant exploring rapidly changing multi-repository trees where developers ask how symbols interact across directories, and (2) a compliance Q&A assistant over a 3-million-token policy corpus where every factual claim must be auditable and unverified claims must not be presented with false certainty.
+
+**Which TWO design choices align with Anthropic's guidance and grounding best practices? Select TWO.**
+
+- **A.** Pair brief upfront guides with just-in-time file search for fast-changing codebases.
+- **B.** Require quote-backed citations and abstention; calibrate confidence from evidence coverage, freshness, and validation.
+- **C.** Treat a valid citation pointer as sufficient validation, without checking the stored source revision or whether the passage supports the claim.
+- **D.** For the codebase assistant, favor a prebuilt vector index for predictable lookup and refresh it nightly; keep file exploration off the request path.
+- **E.** In the compliance assistant's contextual RAG pipeline, inject the 50–100 token contextual summary into the `document` `title` and `context` fields and require Claude to cite those metadata fields as primary evidence.
+
+<SelfCheck question="Answer to Q12">
+
+**A, B.** Anthropic highlights Claude Code's hybrid model—loading `CLAUDE.md` up front while exploring files just-in-time with `glob` and `grep`—to bypass stale indexing and complex syntax trees in changing codebases, and recommends combining up-front speed with autonomous exploration.<Cite id="F69 F70" /> For hallucination resistance, Anthropic recommends allowing Claude to admit uncertainty and verifying claims against direct quotes and citations—retracting any claim without a supporting quote—while treating evidence coverage, freshness, and validation as the engineering confidence signal.<Cite id="F63 F71" /> Option C fails because API citations guarantee valid pointers to the supplied documents, not logical entailment or freshness/authorization.<Cite id="F72" /> Option D fails because static vector-only indexing suffers from stale indexes on fast-changing codebases and loses exact symbol matching.<Cite id="F58 F69" /> Option E fails because `title` and `context` fields on a `document` block are passed to the model but are not cited from.<Cite id="F73" />
+
+</SelfCheck>
