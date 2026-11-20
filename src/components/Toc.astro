@@ -1,7 +1,99 @@
 ---
-// STUB — replaced by worker toc-drawer. See docs/ARCHITECTURE.md §TOC markup.
+/**
+ * Hierarchical site TOC (Domain → Chapter → H2 → H3 → H4), rendered recursively.
+ * Markup is the binding contract in docs/ARCHITECTURE.md §TOC markup — toc.ts and
+ * toc.css depend on these classes, data-* attributes and ids. Do not rename.
+ */
 import type { TocNode } from '../lib/toc';
-interface Props { nodes: TocNode[]; currentId?: string }
-const { nodes } = Astro.props;
+
+interface Props {
+  nodes: TocNode[];
+  currentId?: string;
+  /** Nesting level of this <ul> (0 = domains). */
+  depth?: number;
+  /** Ids on the path to currentId (ancestors + the chapter itself); computed once at the root. */
+  path?: string[];
+  /** ul id for nested lists: toc-sub-<parentId>. */
+  id?: string;
+  /** Hidden on the server because the parent item is collapsed (never true at the root). */
+  collapsed?: boolean;
+}
+
+/** Id trail from the roots down to `id` (inclusive), or null when absent. */
+function pathTo(nodes: TocNode[], id: string, trail: string[] = []): string[] | null {
+  for (const node of nodes) {
+    if (node.id === id) return [...trail, node.id];
+    if (node.children.length) {
+      const found = pathTo(node.children, id, [...trail, node.id]);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+const { nodes, currentId, depth = 0 } = Astro.props;
+const path = Astro.props.path ?? (currentId ? pathTo(nodes, currentId) ?? [] : []);
 ---
-<ul>{nodes.map((n) => <li><a href={n.href}>{n.label}</a></li>)}</ul>
+
+<ul class="toc__list" id={Astro.props.id} data-depth={depth} hidden={Astro.props.collapsed ? true : undefined}>
+  {
+    nodes.map((node) => {
+      const children = node.children;
+      const onPath = path.includes(node.id);
+      const isCurrent = node.id === currentId;
+      const expandable = children.length > 0;
+      const expanded = expandable && onPath;
+      const weight = node.meta?.weight;
+      const pending = node.kind === 'chapter' && node.meta?.status === 'pending';
+      return (
+        <li
+          class:list={[
+            'toc__item',
+            { 'is-current': isCurrent, 'is-ancestor': onPath && !isCurrent },
+          ]}
+          data-toc-id={node.id}
+          data-depth={node.depth}
+          data-kind={node.kind}
+        >
+          <div class="toc__row">
+            {expandable ? (
+              <button
+                class="toc__twisty"
+                type="button"
+                aria-expanded={expanded}
+                aria-controls={`toc-sub-${node.id}`}
+                aria-label={`${expanded ? 'Collapse' : 'Expand'} ${node.label}`}
+              >
+                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+                  <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </button>
+            ) : (
+              <span class="toc__twisty-spacer" aria-hidden="true"></span>
+            )}
+            <a
+              class:list={['toc__link', { 'toc__link--pending': pending }]}
+              href={node.href}
+              data-toc-link={node.id}
+              aria-current={isCurrent ? 'page' : undefined}
+            >
+              {node.meta?.number ? <span class="toc__num">{node.meta.number}</span> : null}
+              <span class="toc__label">{node.label}</span>
+              {typeof weight === 'number' ? <span class="toc__meta">{`${weight}%`}</span> : null}
+            </a>
+          </div>
+          {expandable && (
+            <Astro.self
+              nodes={children}
+              currentId={currentId}
+              path={path}
+              depth={Math.min(depth + 1, 4)}
+              id={`toc-sub-${node.id}`}
+              collapsed={!expanded}
+            />
+          )}
+        </li>
+      );
+    })
+  }
+</ul>

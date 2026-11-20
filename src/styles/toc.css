@@ -1,1 +1,261 @@
-/* owned by a worker; see docs/ARCHITECTURE.md */
+/* Table of contents: sticky sidebar ≥1024px, slide-out drawer below it. Contract: docs/ARCHITECTURE.md. */
+
+/* --------------------------------------------------------------- panel (desktop) */
+
+.toc-panel {
+  background: var(--bg);
+  font-family: var(--font-sans);
+}
+
+@media (min-width: 1024px) {
+  .toc-panel {
+    position: sticky;
+    top: var(--topbar-h);
+    height: calc(100dvh - var(--topbar-h));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-right: 1px solid var(--border);
+    padding: 12px 8px 32px 12px;
+  }
+
+  #toc-close {
+    display: none;
+  }
+
+  .toc-backdrop {
+    display: none;
+  }
+
+  /* Desktop has a permanent sidebar: the menu button is meaningless. */
+  .topbar__menu {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------------------- panel (drawer) */
+
+@media (max-width: 1023.98px) {
+  .toc-panel {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(86vw, 360px);
+    z-index: 60;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    transform: translateX(-100%);
+    /* visibility flips to visible instantly on open and is delayed on close, so the slide-out animates. */
+    transition: transform 200ms ease, visibility 0s linear 200ms;
+    visibility: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 8px calc(32px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left));
+  }
+
+  .toc-panel[data-state='open'],
+  .toc-panel.is-dragging {
+    visibility: visible;
+    transition: transform 200ms ease, visibility 0s;
+  }
+
+  .toc-panel[data-state='open'] {
+    transform: none;
+  }
+
+  .toc-panel.is-dragging {
+    transition: none;
+  }
+
+  .toc-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 55;
+    background: var(--backdrop);
+    opacity: 0;
+    transition: opacity 180ms ease;
+  }
+
+  .toc-backdrop.is-visible {
+    opacity: 1;
+  }
+}
+
+body.scroll-locked {
+  overflow: hidden;
+}
+
+/* --------------------------------------------------------------- panel header */
+
+.toc-panel__head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 4px 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  background-color: inherit;
+}
+
+.toc-panel__title {
+  flex: 1;
+  font-family: var(--font-serif);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.toc-controls {
+  order: 3;
+  width: 100%;
+  display: flex;
+  gap: 6px;
+}
+
+.toc-controls__btn {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  min-height: 32px;
+  cursor: pointer;
+}
+
+.toc-controls__btn:hover {
+  color: var(--ink);
+}
+
+/* --------------------------------------------------------------- tree */
+
+.toc {
+  font-family: var(--font-sans);
+}
+
+.toc__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.toc__list .toc__list {
+  padding-left: 14px;
+  margin-left: 11px;
+  border-left: 1px solid var(--border);
+}
+
+.toc__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.toc__twisty,
+.toc__twisty-spacer {
+  flex: none;
+  width: 28px;
+  min-height: 34px;
+}
+
+.toc__twisty {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink-muted);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.toc__twisty svg {
+  transition: transform 150ms ease;
+}
+
+.toc__twisty[aria-expanded='true'] svg {
+  transform: rotate(90deg);
+}
+
+.toc__link {
+  flex: 1;
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  padding: 7px 8px;
+  border-radius: 6px;
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 14.5px;
+  line-height: 1.35;
+}
+
+.toc__link:hover {
+  background: var(--bg-subtle);
+}
+
+.toc__item[data-depth='0'] > .toc__row .toc__link {
+  font-weight: 650;
+  font-size: 14.5px;
+}
+
+.toc__item[data-depth='1'] > .toc__row .toc__link {
+  font-weight: 500;
+}
+
+.toc__item[data-depth='2'] > .toc__row .toc__link,
+.toc__item[data-depth='3'] > .toc__row .toc__link,
+.toc__item[data-depth='4'] > .toc__row .toc__link {
+  font-size: 13.5px;
+  color: var(--ink-muted);
+}
+
+.toc__num {
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  min-width: 1.6em;
+}
+
+.toc__meta {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+.toc__link--pending .toc__label {
+  color: var(--ink-muted);
+}
+
+.toc__link[aria-current='page'] {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+.toc__link.is-active {
+  color: var(--accent-ink);
+  font-weight: 600;
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.toc__item.is-active-path > .toc__row > .toc__link:not([aria-current='page']) {
+  color: var(--ink);
+}
+
+/* --------------------------------------------------------------- motion preferences */
+
+@media (prefers-reduced-motion: reduce) {
+  .toc-panel,
+  .toc-panel.is-dragging,
+  .toc-backdrop,
+  .toc__twisty svg {
+    transition: none;
+  }
+}
