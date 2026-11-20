@@ -173,5 +173,25 @@
     "id": "F35",
     "status": "ok-loose",
     "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F36",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons"
+  },
+  {
+    "id": "F37",
+    "status": "ok",
+    "url": "https://scikit-learn.org/stable/auto_examples/model_selection/plot_precision_recall.html"
+  },
+  {
+    "id": "F38",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F39",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/streaming"
   }
 ]

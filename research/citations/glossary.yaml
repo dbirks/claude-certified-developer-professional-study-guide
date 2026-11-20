@@ -284,3 +284,36 @@
   accessed: 2026-11-19
   version_note: "Model-specific minimum cacheable token lengths as accessed 2026-11-19; recheck for later editions."
 
+- id: F36
+  claim: "The stop-reasons guide lists response outcomes and continuation procedures."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons
+  title: "Stop reasons and fallback"
+  source: anthropic-docs
+  quote: "A server-tool loop reached its iteration limit."
+  accessed: 2026-11-19
+  version_note: "Claude API stop-reasons guide accessed 2026-11-19."
+- id: F37
+  claim: "Recall is true positives divided by true positives plus false negatives."
+  tag: STD
+  url: https://scikit-learn.org/stable/auto_examples/model_selection/plot_precision_recall.html
+  title: "Precision-Recall"
+  source: standard
+  quote: 'Recall (\(R\)) is defined as the number of true positives (\(T_p\)) over the number of true positives plus the number of false negatives (\(F_n\)).'
+  accessed: 2026-11-19
+- id: F38
+  claim: "Cache read input tokens count tokens retrieved for the request."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "cache_read_input_tokens: Number of tokens retrieved from the cache for this request"
+  accessed: 2026-11-19
+- id: F39
+  claim: "A stream starts with a Message object with empty content."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/streaming
+  title: "Streaming messages"
+  source: anthropic-docs
+  quote: "message_start: contains a Message object with empty content."
+  accessed: 2026-11-19

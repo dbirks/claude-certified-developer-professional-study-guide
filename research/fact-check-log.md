@@ -116,7 +116,7 @@ Log: [fact-check/online-quality.md](fact-check/online-quality.md) · passes: 1 �
 
 Log: [fact-check/org-configuration.md](fact-check/org-configuration.md) · passes: 1 · reviewer(s): GPT-6 Codex
 
-- 33 original citation claims checked against current official docs; 17 supported as written and 16 fixed or narrowed. Removed 3 unsupported or overstated claims. Added 10 citation entries (F34–F43). Checked 2 code blocks; JSON parses and CLI commands/options match current documentation.
+- 33 original citation claims checked against current official docs; 17 supported as written and 16 fixed or narrowed. Removed 3 unsupported or overstated claims. Added 11 citation entries (F34–F44). Checked 2 code blocks; JSON parses and CLI commands/options match current documentation.
 
 ### Reference Practice Domain 1
 

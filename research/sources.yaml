@@ -1054,6 +1054,7 @@
     - org-configuration:F40
     - org-configuration:F41
     - org-configuration:F42
+    - org-configuration:F44
 - url: https://platform.claude.com/docs/en/agents-and-tools/mcp-connector
   title: MCP connector
   source: anthropic-docs

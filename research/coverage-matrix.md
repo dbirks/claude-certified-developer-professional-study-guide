@@ -31,6 +31,6 @@ Columns: research packet exists · citation entries · quotes verified verbatim 
 | 8.1 | Parallel Agent Orchestration for Engineering Work | 10% | yes | 30 | 30/30 | [draft](../content/08-agent-fleets/01-parallel-agents.mdx) · 2068 words · 30 cited | — |
 | 8.2 | Verification and AI Code Review Operations | 10% | yes | 39 | 39/39 | [fact-checked](../content/08-agent-fleets/02-verification-review.mdx) · 2594 words · 39 cited | done |
 | 8.3 | Unattended and Event-Driven Agent Operations | 10% | yes | 40 | 40/40 | [fact-checked](../content/08-agent-fleets/03-unattended-operations.mdx) · 2489 words · 40 cited | done |
-| 8.4 | Organization-Wide Coding Agent Configuration | 10% | yes | 43 | 43/43 | [draft](../content/08-agent-fleets/04-org-configuration.mdx) · 2557 words · 43 cited | done |
+| 8.4 | Organization-Wide Coding Agent Configuration | 10% | yes | 44 | 44/44 | [draft](../content/08-agent-fleets/04-org-configuration.mdx) · 2556 words · 44 cited | done |
 
-Unique source URLs: 255 · citation entries: 1098
+Unique source URLs: 255 · citation entries: 1099
