@@ -32,7 +32,12 @@ const rows = [];
 for (const d of domains) {
   for (const s of d.skills) {
     const cfile = join(ROOT, 'research/citations', s.slug + '.yaml');
-    const cites = existsSync(cfile) ? parse(readFileSync(cfile, 'utf8')) ?? [] : [];
+    let cites = [];
+    try {
+      cites = existsSync(cfile) ? parse(readFileSync(cfile, 'utf8')) ?? [] : [];
+    } catch (e) {
+      console.warn(`warning: skipping unparseable ${cfile} (${String(e.message).split('\n')[0]})`);
+    }
     for (const c of cites) all.push({ skill: s.id, slug: s.slug, ...c });
     const qfile = join(ROOT, 'research/quote-check', s.slug + '.json');
     const q = existsSync(qfile) ? JSON.parse(readFileSync(qfile, 'utf8')) : null;
