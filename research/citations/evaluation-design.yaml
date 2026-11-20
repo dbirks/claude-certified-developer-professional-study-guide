@@ -284,7 +284,7 @@
   url: https://www.anthropic.com/research/eval-awareness-browsecomp
   title: "Eval awareness in Claude Opus 4.6’s BrowseComp performance"
   source: anthropic-research
-  quote: "Instead of inadvertently coming across a leaked answer, Claude Opus 4.6 independently hypothesized that it was being evaluated, identified which benchmark it was running in, then located and decrypted the answer key."
+  quote: "However, we also witnessed two cases of a novel contamination pattern. Instead of inadvertently coming across a leaked answer, Claude Opus 4.6 independently hypothesized that it was being evaluated, identified which benchmark it was running in, then located and decrypted the answer key."
   accessed: 2026-11-19
 
 - id: F33
@@ -313,4 +313,69 @@
   title: "Prompting best practices"
   source: anthropic-docs
   quote: "Where a technique names a specific model, treat it as measured on that model and re-check it against your own evals before applying it to another."
+  accessed: 2026-11-19
+
+- id: F36
+  claim: "The Claude Cookbook RAG evaluation tracks precision, recall, F1, mean reciprocal rank, and end-to-end accuracy."
+  tag: FACT
+  url: https://platform.claude.com/cookbook/capabilities-retrieval-augmented-generation-guide
+  title: "Retrieval augmented generation"
+  source: anthropic-docs
+  quote: "We'll evaluate our system based on 5 key metrics: Precision, Recall, F1 Score, Mean Reciprocal Rank (MRR), and End-to-End Accuracy."
+  accessed: 2026-11-19
+
+- id: F37
+  claim: "Assistant-message prefilling is not supported on Claude 4.6 and later models or Claude Mythos Preview."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/working-with-messages
+  title: "Using the Messages API"
+  source: anthropic-docs
+  quote: "Prefilling is not supported on Claude 4.6 and later models and Claude Mythos Preview."
+  accessed: 2026-11-19
+  version_note: "Applies to Claude 4.6 and later models and Claude Mythos Preview, as stated in current Messages API docs."
+
+- id: F38
+  claim: "The thinking-binding-controls beta adds the prefix mismatch behavior setting and exposes input transformations; prefix checks apply to selected models including Fable 5.2 and Mythos 5.2."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/preserved-thinking/prefix-checks
+  title: "Prefix checks on thinking blocks"
+  source: anthropic-docs
+  quote: "The beta header thinking-binding-controls-2026-08-01 adds the setting thinking.block_binding.prefix_mismatch_behavior and the response’s input_transformations array."
+  accessed: 2026-11-19
+  version_note: "Model-specific prefix-check behavior changes; consult the current model table before testing a migration."
+
+- id: F39
+  claim: "Anthropic reported a 3.7 times higher rate of unintended solutions in multi-agent BrowseComp evaluation runs than in single-agent runs."
+  tag: FACT
+  url: https://www.anthropic.com/research/eval-awareness-browsecomp
+  title: "Eval awareness in Claude Opus 4.6’s BrowseComp performance"
+  source: anthropic-research
+  quote: "The rate of unintended solutions was 0.24% in the single-agent configuration compared to 0.87% for multi-agent, a 3.7x difference."
+  accessed: 2026-11-19
+
+- id: F40
+  claim: "Anthropic recommends detailed, clear, empirical rubrics and enabling thinking for LLM graders."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/develop-tests
+  title: "Define success criteria and build evaluations"
+  source: anthropic-docs
+  quote: "Have detailed, clear rubrics:"
+  accessed: 2026-11-19
+
+- id: F41
+  claim: "Anthropic recommends specific output formats such as binary labels or a 1–5 score for LLM grading."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/develop-tests
+  title: "Define success criteria and build evaluations"
+  source: anthropic-docs
+  quote: "For example, instruct the LLM to output only ‘correct’ or ‘incorrect’, or to judge from a scale of 1–5."
+  accessed: 2026-11-19
+
+- id: F42
+  claim: "The cited_text field in a Messages API response does not count toward output tokens."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/citations
+  title: "Citations"
+  source: anthropic-docs
+  quote: "The cited_text field is provided for convenience and does not count toward output tokens."
   accessed: 2026-11-19

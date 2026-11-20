@@ -22,6 +22,8 @@
     - llm-as-judge:F30
     - llm-as-judge:F31
     - llm-as-judge:F32
+    - llm-as-judge:F40
+    - llm-as-judge:F45
 - url: https://blog.modelcontextprotocol.io/posts/2026-07-28/
   title: The 2026-07-28 Specification
   source: mcp-spec
@@ -79,6 +81,7 @@
   accessed: 2026-11-19
   cited_by:
     - multi-agent-orchestration:F20
+    - multi-agent-orchestration:F52
 - url: https://code.claude.com/docs/en/agent-sdk/cost-tracking
   title: Track cost and usage
   source: claude-code-docs
@@ -126,6 +129,7 @@
   cited_by:
     - multi-agent-orchestration:F23
     - multi-agent-orchestration:F24
+    - multi-agent-orchestration:F58
     - runtime-guardrails:F8
     - runtime-guardrails:F9
     - threat-defense:F27
@@ -137,7 +141,7 @@
   cited_by:
     - multi-agent-orchestration:F19
     - multi-agent-orchestration:F39
-    - multi-agent-orchestration:F46
+    - multi-agent-orchestration:F55
     - durable-execution:F8
     - durable-execution:F14
     - durable-execution:F35
@@ -191,6 +195,8 @@
     - multi-agent-orchestration:F18
     - multi-agent-orchestration:F37
     - multi-agent-orchestration:F49
+    - multi-agent-orchestration:F54
+    - multi-agent-orchestration:F59
 - url: https://code.claude.com/docs/en/agent-sdk/user-input
   title: Handle approvals and user input - Claude Code Docs
   source: claude-code-docs
@@ -390,6 +396,7 @@
   accessed: 2026-11-19
   cited_by:
     - multi-agent-orchestration:F27
+    - multi-agent-orchestration:F51
     - architecture-selection:F22
     - architecture-selection:F23
     - incident-response:F30
@@ -661,7 +668,7 @@
     - multi-agent-orchestration:F28
     - multi-agent-orchestration:F29
     - multi-agent-orchestration:F38
-    - multi-agent-orchestration:F47
+    - multi-agent-orchestration:F57
     - architecture-selection:F21
     - architecture-selection:F29
 - url: https://code.claude.com/docs/en/third-party-integrations
@@ -726,6 +733,7 @@
   accessed: 2026-11-19
   cited_by:
     - llm-as-judge:F33
+    - llm-as-judge:F43
 - url: https://en.wikipedia.org/wiki/Krippendorff%27s_alpha
   title: Krippendorff's alpha
   source: standard
@@ -902,6 +910,7 @@
     - failure-diagnosis:F14
     - evaluation-design:F27
     - evaluation-design:F28
+    - evaluation-design:F36
 - url: https://platform.claude.com/cookbook/claude-agent-sdk-04-migrating-from-openai-agents-sdk
   title: Migrating from the OpenAI Agents SDK
   source: anthropic-docs
@@ -1154,6 +1163,7 @@
     - scale-throughput:F33
     - scale-throughput:F45
     - scale-throughput:F53
+    - llm-as-judge:F41
 - url: https://platform.claude.com/docs/en/api/opentelemetry/spans
   title: OpenTelemetry span reference
   source: anthropic-docs
@@ -1303,6 +1313,7 @@
     - telemetry:F31
     - telemetry:F57
     - evaluation-design:F31
+    - evaluation-design:F42
     - online-quality:F19
     - online-quality:F20
     - online-quality:F21
@@ -1444,6 +1455,7 @@
   cited_by:
     - durable-execution:F45
     - durable-execution:F53
+    - evaluation-design:F38
 - url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
   title: Prompt caching
   source: anthropic-docs
@@ -1486,6 +1498,7 @@
     - incident-response:F16
     - llm-as-judge:F22
     - llm-as-judge:F23
+    - llm-as-judge:F39
     - runtime-guardrails:F28
     - runtime-guardrails:F29
     - runtime-guardrails:F30
@@ -1515,6 +1528,7 @@
   cited_by:
     - llm-as-judge:F20
     - llm-as-judge:F21
+    - llm-as-judge:F38
 - url: https://platform.claude.com/docs/en/build-with-claude/thinking
   title: Thinking
   source: anthropic-docs
@@ -1527,6 +1541,7 @@
     - telemetry:F60
     - failure-diagnosis:F30
     - llm-as-judge:F24
+    - llm-as-judge:F42
 - url: https://platform.claude.com/docs/en/build-with-claude/thinking-troubleshooting
   title: Troubleshooting thinking
   source: anthropic-docs
@@ -1548,6 +1563,7 @@
   accessed: 2026-11-19
   cited_by:
     - failure-diagnosis:F7
+    - evaluation-design:F37
 - url: https://platform.claude.com/docs/en/cli-sdks-libraries/sdks/python
   title: Python SDK
   source: anthropic-docs
@@ -1809,6 +1825,7 @@
     - multi-agent-orchestration:F43
     - multi-agent-orchestration:F44
     - multi-agent-orchestration:F50
+    - multi-agent-orchestration:F56
 - url: https://platform.claude.com/docs/en/models/fable-5-2/migration-guide
   title: Claude Fable 5.2 and Claude Mythos 5.2 migration guide
   source: anthropic-docs
@@ -1821,6 +1838,12 @@
     - mcp-change-management:F31
     - mcp-change-management:F32
     - evaluation-design:F34
+- url: https://platform.claude.com/docs/en/models/opus-5-5/overview
+  title: Claude Opus 5.5
+  source: anthropic-docs
+  accessed: 2026-11-19
+  cited_by:
+    - llm-as-judge:F44
 - url: https://platform.claude.com/docs/en/models/overview
   title: Models overview
   source: anthropic-docs
@@ -1852,6 +1875,8 @@
     - evaluation-design:F18
     - evaluation-design:F19
     - evaluation-design:F20
+    - evaluation-design:F40
+    - evaluation-design:F41
     - llm-as-judge:F1
     - llm-as-judge:F2
     - llm-as-judge:F3
@@ -2186,6 +2211,7 @@
   accessed: 2026-11-19
   cited_by:
     - evaluation-design:F32
+    - evaluation-design:F39
 - url: https://www.anthropic.com/research/managed-agents
   title: Scaling Managed Agents with stable interfaces
   source: anthropic-research

@@ -1,0 +1,256 @@
+---
+title: "Evaluation System Design"
+summary: "Decide how to build offline eval suites, grade agent behavior, set CI/CD gate thresholds, and release prompt, model, and agent changes."
+kind: skill
+skill: "5.1"
+slug: evaluation-design
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+An **offline evaluation** is a repeatable set of test tasks, a runner, and scoring logic used to assess a change before production.<Cite id="F1 F3" /> An agent evaluation measures the **agent harness** — the scaffold that processes inputs, orchestrates tool calls, and returns results — together with its model; a model-only test measures a different system.<Cite id="F3" /> Design the tasks, graders, trial counts, and thresholds, then maintain the suite as the application changes.
+
+## How an offline evaluation works
+
+An evaluation decomposes into five parts, and the shared vocabulary is what makes results comparable across runs, people, and model versions.
+
+| Element | Definition | What it fixes |
+|---|---|---|
+| **Task** | A single test with defined inputs and success criteria.<Cite id="F1" /> | What "done" means |
+| **Trial** | One attempt at a task; repeat trials because model outputs vary.<Cite id="F1" /> | How much variance you can see |
+| **Grader** | Logic that scores some aspect of performance. A task can have multiple graders, each with multiple assertions.<Cite id="F1" /> | How a run is judged |
+| **Transcript** (trace, trajectory) | The complete record of a trial: outputs, tool calls, reasoning, and intermediate results. For the API, it is the full `messages` array at the end of the run.<Cite id="F2" /> | What the agent actually did |
+| **Outcome** | The final state in the environment at the end of the trial.<Cite id="F2" /> | Whether the job really happened |
+
+The **evaluation harness** is the infrastructure that runs evals end to end: it supplies instructions and tools, runs tasks concurrently, records steps, grades outputs, and aggregates results.<Cite id="F3" /> Start each trial from a clean environment to reduce state leakage and correlated failures. Anthropic observed Claude gaining an unfair advantage on some internal tasks by reading git history left by earlier trials.<Cite id="F12" />
+
+Three grader families carry the scoring.
+
+| Grader family | Strength | Weakness |
+|---|---|---|
+| Code-based (deterministic) | Fast, reliable, scalable | Lacks nuance for complex judgments.<Cite id="F40" /> |
+| Model-based (LLM judge) | Useful for open-ended output | Needs clear rubrics and specific output criteria.<Cite id="F40" /> |
+| Human (SME review) | Flexible, high quality | Slow and expensive.<Cite id="F40" /> |
+
+Choose and document how graders combine into a task score. For an LLM judge, use a clear rubric and a specific output, such as a binary label or a 1–5 scale.<Cite id="F40 F41" /> Enable `thinking` for tasks that need complex judgment.<Cite id="F20" />
+
+Before an LLM judge blocks a release, compare its verdicts with SME labels on a representative sample and check for position effects. Keep it advisory until the agreement is good enough for the task. Set `max_tokens` high enough for both the thinking budget and the verdict.
+
+Suites split by purpose. A **capability eval** targets tasks the agent struggles with, starts at a low pass rate, and measures headroom; a **regression eval** asks whether the agent still handles everything it used to and should sit near a 100% pass rate, because any drop signals something broken.<Cite id="F5" /> Once a capability suite passes consistently it graduates into the continuous regression suite, and its questions change from "can we do this at all" to "can we still do this reliably."<Cite id="F6" /> Building capability evals before the capability exists is eval-driven development: when a new model drops, running the suite immediately shows which bets paid off.<Cite id="F16" />
+
+## Golden sets and suite content
+
+A **golden set** is a versioned collection of representative cases and expected outcomes that you use to compare changes over time.
+
+Start with 20–50 simple tasks drawn from real failures. This is a useful starting point, not a universal sample-size guarantee.<Cite id="F9" /> Mirror the real task distribution, include edge cases, and automate grading where possible; Anthropic recommends more questions with slightly lower-signal automated grading over fewer human hand-graded questions.<Cite id="F19" /> Write success criteria that are specific, measurable, achievable, and relevant. Use quantitative metrics or qualitative scales applied consistently, and consider task fidelity, consistency, latency, cost, and safety alongside accuracy.<Cite id="F18" />
+
+Two structural rules prevent most bogus results:
+
+1. **Test positive and negative cases.** Include cases where the behavior should occur and cases where it should not. A search eval that only tests when to search can overtrain the agent to search too often.<Cite id="F11" />
+2. **Keep a reference solution for each task.** A known working output that passes all graders checks task solvability and grader setup. With frontier models, 0% `pass@100` is often a reason to inspect the task and graders before concluding that the agent lacks the capability.<Cite id="F10" />
+
+## Behavioral checks without brittle paths
+
+Grade the result rather than an exact tool-call path when multiple approaches are valid. Strict sequence checks can reject valid approaches that the eval designer did not anticipate.<Cite id="F13" /> Prefer outcome and invariant checks, such as persisted database state, emitted files, schema validity, side-effect bounds, and forbidden tools not being called. Use step-order checks when order itself is a safety requirement.
+
+`claude plugin eval` provides six grader types and no custom-code graders. Its deterministic `regex`, `tool_used`, `tool_order`, and `file_exists` graders inspect the transcript or files; its `llm` and `baseline` graders use a judge model and add cost.<Cite id="F24" /> The `skill-creator` plugin stores cases in `evals/evals.json`, runs isolated subagents, compares with-skill and without-skill results, supports blind A/B comparison, and tunes skill descriptions with should-trigger and should-not-trigger prompts.<Cite id="F26" />
+
+Refusals and abstentions belong in the suite as first-class expected outcomes. Grounding safeguards — permitting "I don't know," requiring a verbatim supporting quote for each claim, and retracting claims that cannot be quoted — only hold if the suite contains unanswerable queries that require them.<Cite id="F30" />
+
+## Multi-trial variance: `pass@k` and `pass^k`
+
+One run of a non-deterministic agent tells you little, so scores are computed across repeated trials: a run's score is the fraction of its graders that passed (weighted if you set weights), a case's score is the mean across its runs, and a case passes when that score meets `--threshold`, which defaults to `1.0`.<Cite id="F22" /> Two aggregations summarize the trial set and they diverge hard as `k` grows. **`pass@k`** is the probability of at least one success in `k` trials and rises toward 100%; **`pass^k`** is the probability that all `k` trials succeed and falls toward 0%.<Cite id="F7" /> At `k=1` they are identical; by `k=10` they tell opposite stories, so the choice is a product requirement: `pass@k` for tools where one valid solution suffices, `pass^k` for agents where consistency is essential.<Cite id="F8" /> A 75% per-trial agent run three times passes all three only about 42% of the time — `(0.75)^3`.<Cite id="F7" />
+
+The runnable standard-library script below illustrates binomial sampling uncertainty under an independence assumption. Repeated trials on the same tasks may be correlated, so treat these intervals as a rough illustration rather than a release guarantee.
+
+```python
+import math
+
+def summarize_trials(n_tasks: int, per_trial_p: float, k: int) -> dict[str, float]:
+    pass_at_k = 1.0 - (1.0 - per_trial_p) ** k
+    pass_pow_k = per_trial_p ** k
+    total_trials = n_tasks * k
+    se_mean = math.sqrt(per_trial_p * (1.0 - per_trial_p) / total_trials)
+    return {
+        "per_trial_p": per_trial_p,
+        f"pass@{k}": round(pass_at_k, 4),
+        f"pass^{k}": round(pass_pow_k, 4),
+        "mean_score_se": round(se_mean, 4),
+        "95pct_half_width": round(1.96 * se_mean, 4),
+    }
+
+print("50 tasks, k=1:", summarize_trials(50, 0.90, 1))
+# mean_score_se = 0.0424 -> 95% CI +/- 8.3 points
+print("50 tasks, k=3:", summarize_trials(50, 0.90, 3))
+# pass@3 = 0.999, pass^3 = 0.729, 95% CI +/- 4.8 points
+print("50 tasks, p=0.75, k=3:", summarize_trials(50, 0.75, 3))
+# pass@3 = 0.9844, pass^3 = 0.4219
+
+```
+
+Reading the output: under the script’s simplifying assumptions, a 50-task suite at `p=0.90` has a 95% half-width of about 8.3 percentage points for one trial per task and 4.8 points for three. These values do not account for task-to-task variation or correlated trials. Choose trial counts and thresholds from observed variance and release risk; `pass@3` of 98.4% can coexist with a `pass^3` rate of 42.2% when per-trial success is 75%.
+
+## CI/CD evaluation gates
+
+Gates run the same suites on different budgets. A **PR fast gate** uses deterministic graders and mocked tools at low trial count with a cost ceiling; a **nightly or release gate** runs the full multi-trial suite, judge-backed graders, and baseline ablation with pinned models. Recommended practice keeps capability dashboards off the PR path, so harder tasks measure progress without blocking every change.
+
+`claude plugin eval` runs each case three times by default in fresh, isolated, non-interactive sessions. By default it repeats cases without the plugin and reports the difference as `Δ`.<Cite id="F22" /> In CI, use documented options such as `--trust-plugin`, `--json`, `--max-cost-usd`, and pinned `--model` and `--judge-model`; fail the job on a nonzero exit code.<Cite id="F25" /> Plugin-only indicators, such as whether the skill was invoked, do not count toward the scores in a two-arm comparison.<Cite id="F23" /> Exit code `0` means the suite passed; `1` covers below-threshold cases and other run errors; `2` marks a partial run, including when a cost ceiling is reached. The `Δ` value does not change the exit code. Exclude partial results from trendlines and merge approvals.<Cite id="F25" />
+
+<Callout type="version" title="Checked 2026-11-19">
+
+The legacy Console Workbench and its saved prompts, variables, and built-in evals were sunset on August 17, 2026.<Cite id="F21" /> Keep offline evals in version-controlled code, such as a custom Messages API harness or `claude plugin eval`. CLI flags and model availability can change; verify them before adopting this example.
+
+</Callout>
+
+The sketch below is not runnable as-is; it assumes an `ANTHROPIC_API_KEY` secret and existing suites, and shows how the two tiers fit together.
+
+```yaml
+name: Claude Eval Gates
+on:
+  pull_request:
+    paths: ["prompts/**", "skills/**", "mcp/**", "rag/**"]
+  workflow_dispatch:
+
+jobs:
+  pr-deterministic-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fast deterministic checks, no judge calls
+        run: |
+          claude plugin eval . \
+            --trust-plugin --ablation none --runs 1 \
+            --model claude-sonnet-5 --max-cost-usd 5 --no-publish \
+            --json eval-pr.json
+      - name: Reject partial or cost-capped runs
+        run: python3 scripts/assert_not_partial.py eval-pr.json
+
+  release-regression-and-rag-gate:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pinned multi-trial gate with judge and baseline ablation
+        run: |
+          claude plugin eval . \
+            --trust-plugin --runs 3 --threshold 0.90 \
+            --model claude-opus-5-5 --judge-model claude-sonnet-5 \
+            --max-cost-usd 25 --no-publish --json eval-release.json
+      - name: Retrieval and groundedness gate
+        run: python3 scripts/run_rag_eval.py --min-recall-at-20 0.95 --min-mrr 0.80 --min-groundedness 0.96
+
+```
+
+## Retrieval metrics and groundedness
+
+Measure retrieval separately from end-to-end generation accuracy so the metrics help localize failures.<Cite id="F27" /> Track retrieval **precision**, **recall**, **F1**, and **mean reciprocal rank (MRR@k)**; high recall is often useful when the generator can filter less-relevant context.<Cite id="F28 F36" /> Anthropic evaluated Contextual Retrieval with `1 - recall@20`, the share of relevant documents missing from the top 20 chunks.<Cite id="F29" />
+
+Groundedness is three separate checks: **claim support** (assertions are backed by retrieved sources), **coverage** (the key facts a good answer must include are present), and **source quality** (the consulted sources are authoritative, not merely first retrieved).<Cite id="F15" /> Add abstention accuracy — the model admitting it does not know on unanswerable queries.<Cite id="F30" /> The Messages API `citations` feature can support the audit: its citations point to documents supplied in the request, but that does not prove each claim is fully supported.<Cite id="F31" /> The API extracts `cited_text`, which does not count toward output tokens.<Cite id="F42" />
+
+Diagnose from the metric pattern, not from a single accuracy number.
+
+| Symptom | Likely stage at fault | First action |
+|---|---|---|
+| End-to-end accuracy falls, Recall@k falls too.<Cite id="F27" /> | Retriever: indexing, chunking, embeddings | Check chunking and index refresh |
+| Accuracy falls, Recall@k fine, MRR low | Ranking: right document, buried position | Rerank, tighten top-k.<Cite id="F28" /> |
+| Recall@k and MRR fine, accuracy falls | Generator: prompt, context assembly, reasoning | Audit transcripts, check groundedness.<Cite id="F15" /> |
+| Answers fluent but unsupported | Claim support / citation enforcement.<Cite id="F15 F31" /> | Require verbatim supporting quotes, allow "I don't know".<Cite id="F30" /> |
+| Answers on missing documents | Abstention accuracy.<Cite id="F30" /> | Add unanswerable negative cases |
+
+## Release criteria for prompt, model, and agent changes
+
+Release criteria are the layer-specific evidence a change needs before it routes production traffic. Keep them in one manifest pairing the prompt version, model ID or snapshot, `effort` setting, tool and MCP schema pins, and the eval dataset version; without the dataset version, two "identical" scores are not comparable. Recommended practice is layered defense — the Swiss Cheese Model — where automated CI/CD evals are the first line of defense, production monitoring detects drift and unanticipated real-world failures after launch, and A/B testing validates significant changes once traffic suffices.<Cite id="F17" />
+
+<Figure caption="Evaluation lifecycle: pre-merge gates, multi-trial release criteria, shadow validation, and the incident-to-eval feedback loop.">
+
+  <Flow steps={["Versioned golden and capability suites", "Tier 1: unit and contract tests", { label: "Tier 2: PR gate", note: "k=1..3, code graders, mocked tools, cost cap" }, { label: "Tier 3: release gate", note: "k>=3, pass^k, retrieval metrics, calibrated judge" }, { label: "Shadow replay", note: "side-effect isolated" }, "Progressive rollout / A/B test", "Online monitoring and transcript review"]} />
+
+</Figure>
+
+| Change type | Minimum gate |
+|---|---|
+| Prompt edit | Balanced trigger and non-trigger accuracy, structured-output conformance, zero regression on the deterministic suite.<Cite id="F11 F33" /> |
+| Model upgrade | Everything above plus a fresh effort sweep, re-baselined cost and latency, and tests for model-specific API behavior before shifting traffic.<Cite id="F34 F38" /> |
+| Agent or harness change | Multi-trial `pass^k` stability, `Δ` against the no-plugin baseline arm, turn and token budgets, isolated side-effect checks.<Cite id="F8 F22" /> |
+
+Model migrations can change API contracts as well as scores. Structured Outputs constrains responses to a schema; assistant prefilling is unsupported on Claude 4.6 and later models and Claude Mythos Preview.<Cite id="F33 F37" /> Prefix-check behavior depends on the model. Test for mismatches against the model and integration you use; the documented beta setting can drop invalid thinking blocks and report them in `input_transformations`.<Cite id="F38" /> Default `effort` and refusal handling are also model-specific: re-run effort sweeps and refusal checks across the golden suite, and re-check any prompting technique measured on another model against your own evals before rollout.<Cite id="F34 F35" />
+
+Shadow replay — mirrored live traffic against the candidate with side effects sandboxed or disabled — is recommended practice between the release gate and rollout: it exposes distribution drift and long-tail inputs without user impact.
+
+## Keeping the suite valid
+
+Static suites decay for three reasons, and each has its own detector.
+
+**Contamination and eval awareness.** Leaked answers and agents that recognize an evaluation can inflate scores. In BrowseComp tests with Claude Opus 4.6, Anthropic documented two cases where the model inferred it was being evaluated, identified the benchmark, and decrypted its answer key.<Cite id="F32" /> Anthropic also observed a 3.7× rate of unintended solutions in multi-agent runs compared with single-agent runs.<Cite id="F39" /> Keep private golden suites out of public repositories and training-eligible logs, use canary strings when tasks must be public, and isolate trial workspaces and git history.<Cite id="F12" /> Consider blocking benchmark-name searches in web-enabled harnesses.
+
+**Saturation.** A suite at 100% tracks regressions but gives no signal for improvement; saturation means the agent passes every solvable task and real capability deltas on harder workflows become invisible.<Cite id="F14" /> Track per-task headroom, graduate clustered tasks into the regression suite, and write longer-horizon tasks (multi-document synthesis, adversarial inputs, multi-turn error recovery) so improvement stays measurable.
+
+**Coverage gaps.** Class-imbalanced sets that test triggering without non-triggering, and suites that omit the edge cases your traffic actually contains, optimize the agent toward the eval rather than the product.<Cite id="F11" /> Close them with an incident-to-eval loop: sample production traces weekly, convert every production bug, user complaint, and newly seen failure cohort into a reproducible task with its balanced negative counterpart, and let domain experts and PMs contribute cases by pull request.<Cite id="F9 F17" />
+
+## Decision criteria
+
+Choose by what the decision costs you, not by what the metric flatters.
+
+| Decision | Choose | Because |
+|---|---|---|
+| Metric for a developer tool where one working attempt is fine | `pass@k`.<Cite id="F8" /> | First success is the product |
+| Metric for a customer-facing agent | `pass^k`.<Cite id="F7 F8" /> | Users get one attempt per session |
+| Grader for schema, file existence, forbidden tools | Deterministic code grader.<Cite id="F24 F40" /> | Free, fast, reproducible |
+| Grader for open-ended synthesis | LLM judge with a rubric and `thinking`.<Cite id="F20 F40" /> | Deterministic checks cannot read nuance |
+| Suite for a PR gate | Regression + deterministic graders, low `k`, cost cap.<Cite id="F5 F25" /> | Must be fast and rarely flaky |
+| Suite for a release gate | Multi-trial `pass^k`, judges, retrieval metrics, effort sweep.<Cite id="F7 F8 F15 F27 F34" /> | Release risk is higher than merge friction |
+| Diagnosing 0% on a new task | Reference solution first.<Cite id="F10" /> | A broken grader looks exactly like a failed model |
+| Diagnosing an RAG drop | Retrieval metrics before generation metrics.<Cite id="F27 F28" /> | Localizes retriever vs. generator |
+
+## Failure modes and recovery
+
+<Callout type="mistake" title="Gating user-facing reliability on pass@k">
+
+`pass@k` approaches 100% as `k` grows while `pass^k` collapses toward `p^k`, so an at-least-once gate hides the inconsistent failures that break real users on a single attempt.<Cite id="F7 F8" /> Recover by re-reporting the same trials as `pass^k` and reducing per-trial variance before shipping.
+
+</Callout>
+
+<Callout type="mistake" title="Asserting an exact tool-call path">
+
+Order-locked graders fail valid alternative strategies, so the suite starts reporting regressions that are not regressions.<Cite id="F13" /> Recover by grading outcomes and invariants, and moving step-order checks to cases where order is a real safety requirement.
+
+</Callout>
+
+<Callout type="mistake" title="Charting baseline or partial runs that should not count">
+
+Counting plugin-only graders in the baseline arm inflates `Δ`, and runs truncated by a cost ceiling or an API error look like passes if they enter the trendline.<Cite id="F23 F25" /> Recover by marking indicator-only checks `scored: false`, excluding `partial: true` runs, and failing closed on auth and rate-limit errors.
+
+</Callout>
+
+Other frequent recoveries: correlated failures across trials in a shared workspace point at infrastructure, so isolate each trial before changing the prompt.<Cite id="F12" /> A suite stuck at ceiling needs harder tasks, not more trials.<Cite id="F14" /> A judge that disagrees with SMEs needs its rubric and label scale fixed and its verdicts recalibrated; lowering its temperature alone does not establish agreement.<Cite id="F20" /> Move evals off the retired Console Workbench and into version-controlled code.<Cite id="F21" />
+
+## Exam lens
+
+<ExamLens>
+
+- **`pass@k` versus `pass^k`:** when a scenario gives per-trial `p` and `k` trials for a customer-facing agent, compute both and gate on the consistent one; a coding assistant scenario tolerates `pass@k`.
+- **Isolating a RAG drop:** evaluate `Recall@k`, `Precision`, and `MRR` separately from groundedness before touching prompts or swapping models.
+- **Diagnosing a suspicious suite:** 0% across trials, a jump to near-ceiling on a web-enabled eval with wildly inflated tokens, or failures only in shared CI workspaces — read transcripts, verify solvability with a reference solution, isolate state and block benchmark leaks, and graduate saturated tasks.
+- **Model upgrade:** treat it as a contract migration — re-run effort sweeps, re-baseline latency and cost, replace unsupported features such as prefill on 4.6+, and test model-specific prefix-check behavior before routing production traffic.
+
+</ExamLens>
+
+## Self-check
+
+<SelfCheck question="A 40-task customer-support eval has per-trial success p = 0.80 over k = 3 trials. What are pass@3 and pass^3, and which gates the release?">
+
+`pass@3 = 1 - (0.20)^3 = 99.2%`; `pass^3 = (0.80)^3 = 51.2%`. Gate on `pass^3`: users expect reliable single-attempt execution, not one success in three tries.<Cite id="F7 F8" />
+
+</SelfCheck>
+
+<SelfCheck question="Recall@20 is 0.96, MRR is 0.85, and end-to-end accuracy is 0.62. Where do you look next?">
+
+Retrieval is surfacing the right documents near the top, so the bottleneck is synthesis and grounding: prompting, context assembly, citations, or reasoning. Audit transcripts and check groundedness rather than tuning embeddings.<Cite id="F15 F27 F31" />
+
+</SelfCheck>
+
+<SelfCheck question="What happened to the legacy Console Workbench evals, and what can run CI gating now?">
+
+The legacy Console Workbench and its saved prompts, variables, and evals were sunset on August 17, 2026.<Cite id="F21" /> Teams can gate CI with a version-controlled harness or `claude plugin eval`, using documented options such as `--trust-plugin`, pinned models, `--threshold`, `--json`, and `--max-cost-usd`.<Cite id="F25" />
+
+</SelfCheck>

@@ -173,5 +173,40 @@
     "id": "F35",
     "status": "ok",
     "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices"
+  },
+  {
+    "id": "F36",
+    "status": "ok",
+    "url": "https://platform.claude.com/cookbook/capabilities-retrieval-augmented-generation-guide"
+  },
+  {
+    "id": "F37",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/working-with-messages"
+  },
+  {
+    "id": "F38",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/preserved-thinking/prefix-checks"
+  },
+  {
+    "id": "F39",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/eval-awareness-browsecomp"
+  },
+  {
+    "id": "F40",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/develop-tests"
+  },
+  {
+    "id": "F41",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/develop-tests"
+  },
+  {
+    "id": "F42",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
   }
 ]
