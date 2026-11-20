@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
 import { DOMAINS, GUIDE } from '../data/syllabus';
 import { skillPath, url } from '../lib/site';
 import { mdxComponents } from '../lib/mdx-components';
@@ -9,13 +10,29 @@ const entries = await getCollection('chapters');
 const intro = entries.find((e) => e.data.kind === 'intro');
 const Intro = intro ? (await render(intro)).Content : undefined;
 const done = new Map(entries.filter((e) => e.data.kind === 'skill').map((e) => [e.data.skill, e.data.status]));
+
+const skillCount = DOMAINS.reduce((sum, d) => sum + d.skills.length, 0);
+const MAX_WEIGHT = Math.max(...DOMAINS.map((d) => d.weight));
+
+/** Status icon + screen-reader label per chapter status (unknown → pending). */
+const STATUS_ICON: Record<string, { name: string; label: string }> = {
+  'fact-checked': { name: 'badge-check', label: 'Fact-checked' },
+  draft: { name: 'pencil-line', label: 'Draft' },
+  pending: { name: 'clock', label: 'In research' },
+};
+const statusOf = (id: string) => STATUS_ICON[done.get(id) ?? 'pending'] ?? STATUS_ICON.pending!;
 ---
 
 <BaseLayout title="Home" description="A deeply researched, source-cited study guide for the Claude Certified Developer – Professional (CCDV-P) exam.">
   <header class="home-head">
-    <p class="chapter-head__eyebrow">{GUIDE.code} · Exam Guide v{GUIDE.version} · {GUIDE.effective}</p>
-    <h1 class="home-head__title">Claude Certified Developer – Professional</h1>
-    <p class="home-head__lede">A source-cited handbook for the 8 domains and 25 skills in the official blueprint. Tap any bracketed number to see the exact upstream wording behind a claim.</p>
+    <p class="home-head__eyebrow">{GUIDE.code} · Exam Guide v{GUIDE.version} · {GUIDE.effective}</p>
+    <h1 class="home-head__title">{GUIDE.name}</h1>
+    <p class="home-head__lede">A source-cited handbook for the {DOMAINS.length} domains and {skillCount} skills in the official blueprint. Tap any bracketed number to see the exact upstream wording behind a claim.</p>
+    <ul class="home-head__stats" role="list">
+      <li class="home-head__stat">{DOMAINS.length} domains</li>
+      <li class="home-head__stat">{skillCount} skills</li>
+      <li class="home-head__stat">70 items · 120 min</li>
+    </ul>
     <p class="resume" id="resume-link" hidden></p>
   </header>
 
@@ -25,14 +42,30 @@ const done = new Map(entries.filter((e) => e.data.kind === 'skill').map((e) => [
   <div class="domain-map">
     {DOMAINS.map((d) => (
       <section class="domain-card" aria-labelledby={`dm-${d.n}`}>
-        <h3 id={`dm-${d.n}`} class="domain-card__title"><span class="domain-card__n">{d.n}</span> {d.title} <span class="domain-card__w">{d.weight}%</span></h3>
-        <ul class="domain-card__skills">
-          {d.skills.map((s) => (
-            <li>
-              <a href={url(skillPath(d, s))}>{s.id} {s.title}</a>
-              <span class:list={['status', `status--${done.get(s.id) ?? 'pending'}`]}>{done.has(s.id) ? (done.get(s.id) === 'fact-checked' ? 'Fact-checked' : 'Draft') : 'In research'}</span>
-            </li>
-          ))}
+        <div class="domain-card__head">
+          <span class:list={['domain-card__n', d.weight >= 15 && 'is-heavy']} aria-hidden="true">{d.n}</span>
+          <h3 id={`dm-${d.n}`} class="domain-card__title">{d.title}</h3>
+          <span class="domain-card__w">{d.weight}%</span>
+        </div>
+        <div class="domain-card__bar" aria-hidden="true">
+          <span class="domain-card__bar-fill" style={`width: ${Math.round((d.weight / MAX_WEIGHT) * 100)}%`}></span>
+        </div>
+        <ul class="domain-card__skills" role="list">
+          {d.skills.map((s) => {
+            const st = statusOf(s.id);
+            return (
+              <li class="domain-card__row">
+                <a href={url(skillPath(d, s))}>
+                  <span class="domain-card__num">{s.id}</span>
+                  <span class="domain-card__skill">{s.short}</span>
+                  <span class:list={['domain-card__status', `domain-card__status--${done.get(s.id) ?? 'pending'}`]}>
+                    <Icon name={st.name} size={15} stroke={2.4} />
+                    <span class="sr-only">{st.label}</span>
+                  </span>
+                </a>
+              </li>
+            );
+          })}
         </ul>
       </section>
     ))}
