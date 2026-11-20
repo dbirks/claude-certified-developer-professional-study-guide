@@ -20,8 +20,8 @@ Columns: research packet exists · citation entries · quotes verified verbatim 
 | 3.3 | Trace Analysis at Scale | 12% | yes | 29 | 29/29 | — | — |
 | 4.1 | Complex Failure Diagnosis | 10% | yes | 30 | 30/30 | — | — |
 | 4.2 | Incident Response and Learning Loops | 10% | yes | 38 | 38/38 | — | — |
-| 5.1 | Evaluation System Design | 12% | yes | 35 | 35/35 | [draft](../content/05-evaluation/01-evaluation-design.mdx) · 2724 words · 35 cited | — |
-| 5.2 | LLM-as-Judge Engineering | 12% | yes | 37 | 37/37 | [draft](../content/05-evaluation/02-llm-as-judge.mdx) · 3026 words · 37 cited | — |
+| 5.1 | Evaluation System Design | 12% | yes | 35 | 35/35 | [draft](../content/05-evaluation/01-evaluation-design.mdx) · 2700 words · 35 cited | — |
+| 5.2 | LLM-as-Judge Engineering | 12% | yes | 37 | 37/37 | [draft](../content/05-evaluation/02-llm-as-judge.mdx) · 2829 words · 37 cited | — |
 | 5.3 | Online Quality Measurement | 12% | yes | 31 | 31/31 | — | — |
 | 6.1 | Cost Architecture at Scale | 8% | yes | 37 | 37/37 | — | — |
 | 6.2 | Latency Engineering | 8% | yes | 27 | 27/27 | — | — |
