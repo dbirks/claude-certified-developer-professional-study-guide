@@ -633,3 +633,11 @@
   outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
+
+/* Horizontal flows wrap instead of squeezing pills (many-step flows at tablet widths). */
+@media (min-width: 640px) {
+  .flow--horizontal > .flow__item {
+    flex: 0 0 auto;
+    max-width: min(100%, 18rem);
+  }
+}
