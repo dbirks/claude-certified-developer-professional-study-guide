@@ -43,49 +43,73 @@
   margin: 0;
 }
 
-/* stat pills */
+/* stat pills: one fixed 32px pill scale. `align-items: center` + a hard `height` + `flex: none`
+   means a long label can never stretch or offset its siblings, and the row wraps cleanly. */
 .prose .home-head__stats {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   list-style: none;
   margin: var(--space-4) 0 0;
   padding: 0;
 }
 
-.home-head__stat {
-  background: var(--surface);
-  color: var(--ink);
-  border-radius: var(--r-pill);
-  padding: 7.5px 10px 6.5px;
-  font-size: 12.5px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums lining-nums;
-  letter-spacing: 0.01em;
-  white-space: nowrap;
-  /* Centred glyph ink (12.5px Manrope ink sits ~0.75px high in a line-height:1 box); prose.css
-     list spacing must not stretch or offset the pills. */
+/* `.prose li + li { margin-top }` (specificity 0-1-2) outranked the old single-class rule, so the
+   2nd and 3rd pills sat 4px below the 1st (and gained that 4px again on every wrapped row) — that
+   offset is what read as "different sizes". Beat it on specificity and zero the margin. */
+.prose .home-head__stats > .home-head__stat {
+  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  height: 32px;
+  background: var(--surface);
+  color: var(--ink);
+  border: 0;
+  border-radius: var(--r-pill);
+  padding: 0 14px;
   margin: 0;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: 0.01em;
   line-height: 1;
+  white-space: nowrap;
 }
 
-/* resume pill (content filled by reading.ts; the arrow icon is drawn in CSS).
-   Scoped under .home-head so the older .resume rule in reading.css can never win. */
+/* resume pill (content filled by reading.ts: "Continue where you left off: <a>title</a>"; the arrow
+   icon is drawn in CSS). Scoped under .home-head so the older .resume rule in reading.css can never
+   win. reading.ts links only the title, so the pill uses the stretched-link pattern: the anchor's
+   ::after covers the whole pill, making the entire pill the click target. */
 .home-head .resume {
-  display: inline-block;
+  --resume-hover-bg: var(--sky-ink);
+  --resume-hover-ink: var(--surface);
+  --resume-arrow: var(--ink-muted);
+  position: relative; /* containing block for the stretched link */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 6px;
+  width: fit-content; /* hug the label, like the old inline-block pill */
   max-width: 100%;
   background: var(--surface);
   color: var(--ink);
   border-radius: var(--r-pill);
   padding: 10px 14px;
   margin: var(--space-4) 0 0;
+  font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 600;
-  line-height: 1.45;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+:root[data-theme='dark'] .home-head .resume {
+  --resume-hover-bg: var(--sky-title);
+  --resume-hover-ink: var(--bg);
 }
 
 .home-head .resume[hidden] {
@@ -97,19 +121,57 @@
   text-decoration: none;
 }
 
+/* The whole pill is the link; the anchor's own ring is replaced by the pill's (below). */
+.home-head .resume a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.home-head .resume a:focus-visible {
+  outline: none;
+}
+
+@media (hover: hover) {
+  .home-head .resume:has(a:hover) {
+    background: var(--resume-hover-bg);
+    color: var(--resume-hover-ink);
+    --resume-arrow: var(--resume-hover-ink);
+  }
+}
+
+.home-head .resume:has(a:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  background: var(--resume-hover-bg);
+  color: var(--resume-hover-ink);
+  --resume-arrow: var(--resume-hover-ink);
+}
+
+/* Arrow icon: a flex item, so it sits on the same centred line as the label. */
 .home-head .resume::after {
   content: "";
-  display: inline-block;
-  vertical-align: -2px;
+  display: block;
+  flex: none;
   width: 15px;
   height: 15px;
-  margin-left: 6px;
-  background: var(--ink-muted);
+  background: var(--resume-arrow);
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14'/%3E%3Cpath d='m12 5 7 7-7 7'/%3E%3C/svg%3E") center / contain no-repeat;
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14'/%3E%3Cpath d='m12 5 7 7-7 7'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
-@media (min-width: 1024px) {
+/* Tablet band (640–1023): the hero gets roomier gutters, matching the .chapter-head tablet sizing in
+   layout.css. Kept before the 820px rule so the desktop scale wins from 820px up. */
+@media (min-width: 640px) and (max-width: 1023.98px) {
+  .home-head {
+    padding: 28px 28px 24px;
+  }
+}
+
+/* Tablet and up: the desktop hero scale starts at 820px (layout.css uses the same breakpoint for
+   the tablet shell), so 640–819px no longer renders phone-sized hero type. */
+@media (min-width: 820px) {
   .home-head {
     padding: 36px 40px;
   }
@@ -127,7 +189,7 @@
   margin: var(--space-4) 0 var(--space-6);
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 760px) {
   .domain-map {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-5);
@@ -317,7 +379,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .domain-card__row a {
+  .domain-card__row a,
+  .home-head .resume {
     transition: none;
   }
 }

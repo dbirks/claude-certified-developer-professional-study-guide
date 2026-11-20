@@ -39,7 +39,7 @@ const statusOf = (id: string) => STATUS_ICON[done.get(id) ?? 'pending'] ?? STATU
   {Intro && <Intro components={mdxComponents} />}
 
   <h2 id="blueprint">Blueprint</h2>
-  <div class="domain-map">
+  <div class="domain-map" data-pagefind-ignore>
     {DOMAINS.map((d) => (
       <section class="domain-card" aria-labelledby={`dm-${d.n}`}>
         <div class="domain-card__head">
