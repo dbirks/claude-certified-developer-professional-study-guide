@@ -6,7 +6,11 @@ import { glob } from 'astro/loaders';
 const chapters = defineCollection({
   // CCDVP_ONLY=<slug> builds only that chapter (plus intro), so parallel drafting workers don't break each other's builds.
   loader: glob({
-    pattern: process.env.CCDVP_ONLY ? [`**/*${process.env.CCDVP_ONLY}.mdx`, '00-introduction.mdx'] : '**/*.mdx',
+    // reference/component-demo.mdx is a test fixture: built only when CCDVP_DEMO=1 (Playwright, worker previews).
+    pattern: [
+      ...(process.env.CCDVP_ONLY ? [`**/*${process.env.CCDVP_ONLY}.mdx`, '00-introduction.mdx'] : ['**/*.mdx']),
+      ...(process.env.CCDVP_DEMO === '1' || process.env.CCDVP_ONLY === 'component-demo' ? [] : ['!reference/component-demo.mdx']),
+    ],
     base: './content',
   }),
   schema: z.object({

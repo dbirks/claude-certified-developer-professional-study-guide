@@ -13,7 +13,7 @@ export default defineConfig({
   },
   webServer: {
     command:
-      'BASE_PATH=/ccdvp-test/ pnpm astro build --outDir .ccdvp-e2e/dist && pnpm exec pagefind --site .ccdvp-e2e/dist && node tests/serve.mjs .ccdvp-e2e/dist 4391 /ccdvp-test/',
+      'CCDVP_DEMO=1 BASE_PATH=/ccdvp-test/ pnpm astro build --outDir .ccdvp-e2e/dist && pnpm exec pagefind --site .ccdvp-e2e/dist && node tests/serve.mjs .ccdvp-e2e/dist 4391 /ccdvp-test/',
     url: 'http://localhost:4391/ccdvp-test/',
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
