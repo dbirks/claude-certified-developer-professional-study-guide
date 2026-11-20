@@ -1,1 +1,16 @@
-<dialog id="search-dialog" class="search-dialog" aria-label="Search"></dialog>
+---
+// Search dialog shell. Empty on purpose: search.ts lazy-loads Pagefind's UI into
+// #search-root on first open (index only exists in the built site).
+// ids/classes are the contract in docs/ARCHITECTURE.md — do not rename.
+---
+
+<dialog id="search-dialog" class="search-dialog" aria-label="Search the guide">
+  <div class="search-dialog__head">
+    <span class="search-dialog__title">Search</span>
+    <button type="button" class="icon-btn" id="search-close" aria-label="Close search">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+    </button>
+  </div>
+  <div id="search-root" class="search-root"></div>
+  <p class="search-dialog__hint">Results link to the matching section.</p>
+</dialog>
