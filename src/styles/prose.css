@@ -116,3 +116,12 @@
   max-width: 100%;
   height: auto;
 }
+
+/* Explanation columns (usually last) must not collapse into very tall cells on narrow screens;
+   the table scrolls horizontally instead. */
+.prose td:last-child {
+  min-width: 15rem;
+}
+.prose td:not(:first-child):not(:last-child) {
+  min-width: 7rem;
+}
