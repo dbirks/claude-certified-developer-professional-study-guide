@@ -8,17 +8,17 @@ test('TOC click closes the drawer, updates the hash, and scrolls the heading int
   await page.goto('reference/component-demo/');
 
   await openDrawer(page);
-  await page.locator('[data-toc-id="c-component-demo--self-check"] .toc__link').click();
+  await page.locator('[data-toc-id="c-component-demo--callouts-and-exam-lens"] .toc__link').click();
 
   await expect(page.locator('#toc-panel')).toHaveAttribute('data-state', 'closed');
-  await expect.poll(() => page.evaluate(() => location.hash)).toBe('#self-check');
+  await expect.poll(() => page.evaluate(() => location.hash)).toBe('#callouts-and-exam-lens');
 
   const headingTop = () =>
-    page.locator('#self-check').evaluate((el) => el.getBoundingClientRect().top);
+    page.locator('#callouts-and-exam-lens').evaluate((el) => el.getBoundingClientRect().top);
   await expect
     .poll(async () => {
       const y = await headingTop();
       return y >= 40 && y <= 200;
-    }, { timeout: 8000, message: '#self-check never settled between 40px and 200px' })
+    }, { timeout: 8000, message: '#callouts-and-exam-lens never settled between 40px and 200px' })
     .toBe(true);
 });

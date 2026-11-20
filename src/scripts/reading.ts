@@ -62,7 +62,11 @@ function initProgress(): void {
   const pillFill = pill ? document.getElementById('read-pill-fill') : null;
   // The lesson ends where its source list begins (the list is reference material you can keep
   // scrolling forever); without one, the end of the article is the end of the lesson.
-  const lessonEnd = document.querySelector<HTMLElement>('article.prose section.sources') ?? article;
+  // The "Mark as studied" button sits between the lesson and its sources, so it ends the lesson too.
+  const lessonEnd =
+    document.querySelector<HTMLElement>('article.prose .study-toggle') ??
+    document.querySelector<HTMLElement>('article.prose section.sources') ??
+    article;
 
   let queued = false;
   const update = (): void => {
@@ -80,7 +84,8 @@ function initProgress(): void {
     }
     pct = Math.min(100, Math.max(0, pct));
     bar.style.width = `${pct.toFixed(2)}%`;
-    if (pillText) pillText.textContent = `${Math.round(pct)}%`;
+    // Floor so 100% only shows once the lesson's end is actually on screen (never "100%" early or "99%" at the end).
+    if (pillText) pillText.textContent = `${pct >= 99.5 ? 100 : Math.floor(pct)}%`;
     if (pillFill) pillFill.style.width = `${pct.toFixed(1)}%`;
   };
   const onScroll = (): void => {
