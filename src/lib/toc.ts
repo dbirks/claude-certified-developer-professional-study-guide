@@ -79,11 +79,16 @@ async function buildToc(): Promise<TocNode[]> {
     nodes.push(dNode);
   }
 
-  const refs = entries.filter((e) => e.data.kind === 'reference').sort((a, b) => a.data.order - b.data.order);
-  if (refs.length) {
+  const allRefs = entries.filter((e) => e.data.kind === 'reference').sort((a, b) => a.data.order - b.data.order);
+  const groups: [string, string, typeof allRefs][] = [
+    ['d-practice', 'Practice questions', allRefs.filter((e) => e.data.slug.startsWith('practice-'))],
+    ['d-ref', 'Reference', allRefs.filter((e) => !e.data.slug.startsWith('practice-'))],
+  ];
+  for (const [gid, glabel, refs] of groups) {
+    if (!refs.length) continue;
     const rNode: TocNode = {
-      id: 'd-ref',
-      label: 'Reference',
+      id: gid,
+      label: glabel,
       href: url(referencePath(refs[0].data.slug)),
       depth: 0,
       kind: 'domain',
@@ -94,7 +99,7 @@ async function buildToc(): Promise<TocNode[]> {
       const id = `c-${entry.data.slug}`;
       rNode.children.push({
         id,
-        label: entry.data.title,
+        label: entry.data.title.replace(/^Practice: /, ''),
         href,
         depth: 1,
         kind: 'chapter',
