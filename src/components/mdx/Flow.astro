@@ -1,6 +1,11 @@
 ---
-// Flow: an ordered list of stages. Steps are plain strings or { label, note, tone }.
-// Arrows between steps are CSS content, so the list itself stays the accessible structure.
+// Flow: an ordered list of stages rendered as filled Gelato pills.
+// Steps are plain strings or { label, note, tone }. Each step after the first carries a Lucide
+// arrow (right in a row, down when stacked); the icon pair is toggled in CSS so the phone
+// breakpoint can stack a horizontal flow. Arrows are aria-hidden — the ol/li stays the
+// accessible structure, so the list itself is the text alternative.
+import Icon from '../Icon.astro';
+
 type FlowTone = 'bad' | 'good';
 type FlowStepInput = string | { label: string; note?: string; tone?: FlowTone };
 
@@ -17,10 +22,24 @@ const items = (Array.isArray(steps) ? steps : []).map((step) =>
 
 <ol class={`flow flow--${direction}`} aria-label={`Flow with ${items.length} steps`}>
   {
-    items.map((step) => (
-      <li class={`flow__step${step.tone ? ` flow__step--${step.tone}` : ''}`}>
-        <span class="flow__label">{step.label}</span>
-        {step.note ? <span class="flow__note">{step.note}</span> : null}
+    items.map((step, i) => (
+      <li class="flow__item">
+        {i > 0 ? (
+          <span class="flow__arrow">
+            {direction === 'vertical' ? (
+              <Icon name="arrow-down" size={16} stroke={2} />
+            ) : (
+              <>
+                <Icon name="arrow-right" size={16} stroke={2} class="flow__arrow-icon--right" />
+                <Icon name="arrow-down" size={16} stroke={2} class="flow__arrow-icon--down" />
+              </>
+            )}
+          </span>
+        ) : null}
+        <div class={`flow__step${step.tone ? ` flow__step--${step.tone}` : ''}`}>
+          <span class="flow__label">{step.label}</span>
+          {step.note ? <span class="flow__note">{step.note}</span> : null}
+        </div>
       </li>
     ))
   }

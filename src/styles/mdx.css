@@ -321,18 +321,19 @@
   display: inline;
 }
 
-/* ---------- Figure ---------- */
+/* ---------- Figure — filled --surface card, caption outside below ---------- */
 
 .figure {
   margin: 24px 0;
 }
 
 .figure__body {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--surface);
-  padding: 16px;
+  border: 0;
+  border-radius: var(--r-lg, 22px);
+  background: var(--surface, #ffffff);
+  padding: 18px;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .figure__body > *:last-child {
@@ -341,98 +342,146 @@
 
 .figure__caption {
   margin-top: 8px;
+  font-family: var(--font-sans);
   font-size: 14px;
-  color: var(--ink-muted);
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--ink-muted, #6e6470);
   text-align: left;
 }
 
-/* ---------- Flow ---------- */
+/* ---------- Flow — filled sky pills with Lucide arrows between them ---------- */
 
 .flow {
   display: flex;
   list-style: none;
-  /* Left padding keeps the wrapped-row arrow (li + li::before at left: -26px) inside the
-     figure body's overflow box. */
-  padding: 0 0 0 14px;
+  padding: 0;
   margin: 0;
+  gap: 10px 14px;
 }
 
-.flow--horizontal {
-  flex-wrap: wrap;
-  gap: 28px 32px;
-  align-items: stretch;
+.flow__item {
+  display: flex;
+  min-width: 0;
+}
+
+.flow__arrow {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-muted, #6e6470);
 }
 
 .flow__step {
-  position: relative;
   min-width: 0;
-  max-width: 200px;
-  border: 1px solid var(--border-strong);
-  border-radius: 8px;
-  background: var(--bg);
-  padding: 8px 12px;
+  max-width: 224px;
+  border-radius: var(--r-sm, 16px);
+  background: var(--sky, #dcebfa);
+  padding: 10px 14px;
+  font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 600;
+  line-height: 1.3;
+  color: var(--sky-title, #1e2a3a);
 }
 
 .flow__note {
   display: block;
+  margin-top: 2px;
   font-size: 12px;
-  font-weight: 400;
-  color: var(--ink-muted);
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--sky-ink, #2a4a6e);
 }
 
-.flow__step + .flow__step::before {
-  content: '→';
-  position: absolute;
-  left: -26px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 18px;
-  font-weight: 400;
-  color: var(--ink-muted);
-}
-
+/* Tones: strawberry only ever means "this is the wrong / failing path".
+   Label takes the strongest tint colour, the note the muted ink (same pairing as
+   --sky-title / --sky-ink on the default pill). */
 .flow__step--bad {
-  border-color: var(--bad);
-  background: var(--bad-soft);
+  background: var(--strawberry, #fbdde3);
+  color: var(--strawberry-body, #4a1f2a);
+}
+
+.flow__step--bad .flow__note {
+  color: var(--strawberry-ink, #8c2f45);
 }
 
 .flow__step--good {
-  border-color: var(--accent);
-  background: var(--accent-soft);
+  background: var(--pistachio, #ddefd8);
+  color: var(--pistachio-body, #1f3a22);
 }
 
-/* Vertical flow, and horizontal flow on phones, stacks with downward arrows. */
+.flow__step--good .flow__note {
+  color: var(--pistachio-ink, #2f5b33);
+}
+
+/* Horizontal flow: pills in a wrapping row, right arrows between them. */
+.flow--horizontal {
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+
+.flow--horizontal .flow__item {
+  align-items: center;
+  gap: 14px;
+}
+
+.flow--horizontal .flow__arrow-icon--down {
+  display: none;
+}
+
+/* Vertical flow: stacked pills with a down arrow above each step. */
 .flow--vertical {
   flex-direction: column;
   align-items: flex-start;
-  gap: 22px;
+  gap: 8px;
 }
 
-.flow--vertical .flow__step + .flow__step::before {
-  content: '↓';
-  left: 16px;
-  top: -22px;
-  transform: none;
+.flow--vertical .flow__item {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
 }
 
+.flow--vertical .flow__arrow {
+  margin-left: 14px;
+}
+
+/* A horizontal flow stacks into the vertical layout on phones. */
 @media (max-width: 639px) {
   .flow--horizontal {
     flex-direction: column;
+    flex-wrap: nowrap;
     align-items: flex-start;
-    gap: 22px;
+    gap: 8px;
   }
 
-  .flow--horizontal .flow__step + .flow__step::before {
-    content: '↓';
-    left: 16px;
-    top: -22px;
-    transform: none;
+  .flow--horizontal .flow__item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .flow--horizontal .flow__arrow {
+    margin-left: 14px;
+  }
+
+  .flow--horizontal .flow__arrow-icon--right {
+    display: none;
+  }
+
+  .flow--horizontal .flow__arrow-icon--down {
+    display: flex;
+  }
+
+  .flow__step {
+    max-width: none;
   }
 }
 
-/* ---------- Sequence ---------- */
+/* ---------- Sequence — filled actor caps, dashed lifelines, pill notes ----------
+   Every colour comes from a CSS class so the same SVG reads correctly in both themes. */
 
 .seq__svg {
   display: block;
@@ -440,27 +489,26 @@
 }
 
 .seq__box {
-  fill: var(--surface);
-  stroke: var(--border-strong);
-  stroke-width: 1;
+  fill: var(--sky, #dcebfa);
+  stroke: none;
 }
 
 .seq__actor {
-  fill: var(--ink);
-  font-family: var(--font-sans);
+  fill: var(--sky-title, #1e2a3a);
+  font-family: var(--font-serif);
+  font-weight: 400; /* Young Serif ships 400 only */
   font-size: 13px;
-  font-weight: 600;
 }
 
 .seq__life {
   fill: none;
-  stroke: var(--border-strong);
+  stroke: var(--border-strong, #e2d3c6);
   stroke-dasharray: 4 4;
 }
 
 .seq__msg {
   fill: none;
-  stroke: var(--ink-muted);
+  stroke: var(--ink-muted, #6e6470);
   stroke-width: 1.5;
 }
 
@@ -469,42 +517,54 @@
 }
 
 .seq__arrow {
-  fill: var(--ink-muted);
+  fill: var(--ink-muted, #6e6470);
+  stroke: none;
 }
 
+/* Message labels sit on a --surface halo so they stay readable over lifelines. */
 .seq__label {
-  fill: var(--ink);
+  fill: var(--ink, #2b2330);
   font-family: var(--font-sans);
   font-size: 12.5px;
+  font-weight: 600;
   paint-order: stroke;
-  stroke: var(--surface);
+  stroke: var(--surface, #ffffff);
   stroke-width: 4px;
   stroke-linejoin: round;
 }
 
 .seq__note {
-  stroke-width: 1;
+  stroke: none;
 }
 
 .seq__note--neutral {
-  fill: var(--bg-subtle);
-  stroke: var(--border-strong);
+  fill: var(--butter, #fff0c2);
 }
 
 .seq__note--bad {
-  fill: var(--bad-soft);
-  stroke: var(--bad);
+  fill: var(--strawberry, #fbdde3);
 }
 
 .seq__note--good {
-  fill: var(--accent-soft);
-  stroke: var(--accent);
+  fill: var(--pistachio, #ddefd8);
 }
 
 .seq__note-text {
-  fill: var(--ink);
   font-family: var(--font-sans);
   font-size: 12.5px;
+  font-weight: 600;
+}
+
+.seq__note-text--neutral {
+  fill: var(--butter-ink, #7a5a00);
+}
+
+.seq__note-text--bad {
+  fill: var(--strawberry-ink, #8c2f45);
+}
+
+.seq__note-text--good {
+  fill: var(--pistachio-ink, #2f5b33);
 }
 
 .seq__alt {

@@ -76,30 +76,46 @@
   margin-bottom: 0;
 }
 
-/* Tables: no wrapper element is available, so the table itself scrolls horizontally. */
+/* Tables: Gelato card — filled --surface body, no borders, 16px radius, --surface-alt
+   header and row dividers. No wrapper element is available, so the table itself scrolls
+   horizontally; the radius clips the scrolling box. */
 .prose table {
   display: block;
   overflow-x: auto;
   max-width: 100%;
   border-collapse: collapse;
-  border-radius: var(--r-sm);
+  border-radius: var(--r-sm, 16px);
   background: var(--surface);
-  font-size: 15px;
+  font-family: var(--font-sans);
+  font-size: 14.5px;
+  line-height: 1.5;
   margin: 0 0 20px;
   -webkit-overflow-scrolling: touch;
 }
 
+.prose caption {
+  caption-side: bottom;
+  padding-top: 8px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-muted);
+  text-align: left;
+}
+
 .prose th {
   text-align: left;
+  font-size: 13px;
   font-weight: 700;
-  background: var(--bg-subtle);
-  border-bottom: 1px solid var(--border);
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  background: var(--surface-alt);
 }
 
 .prose th,
 .prose td {
-  padding: var(--space-2) var(--space-3);
-  border-bottom: 1px solid var(--border);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--surface-alt);
   vertical-align: top;
 }
 
@@ -108,7 +124,9 @@
   border-bottom: 0;
 }
 
-.prose td code {
+/* Inline code in a cell keeps its chip style; it just must not stretch the column. */
+.prose td code,
+.prose th code {
   white-space: nowrap;
 }
 
