@@ -603,3 +603,32 @@
     transition: none;
   }
 }
+
+/* QA fix: the filter panel must never cover results. Keep it in normal flow (not sticky) and, on
+   phones, a single horizontally scrolling row of chips instead of a tall centered stack. */
+#search-root .pagefind-ui__filter-panel {
+  position: static;
+}
+#search-root .pagefind-ui__drawer {
+  display: block;
+}
+@media (max-width: 639.98px) {
+  #search-root .pagefind-ui__filter-group {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: none;
+    gap: 6px;
+    padding-bottom: 2px;
+  }
+  #search-root .pagefind-ui__filter-group::-webkit-scrollbar {
+    display: none;
+  }
+  #search-root .pagefind-ui__filter-value {
+    flex: none;
+  }
+}
+/* Pagefind's scoped (svelte) styles set the group to a column; chips belong in a row. */
+#search-root fieldset.pagefind-ui__filter-group {
+  flex-direction: row !important;
+}
