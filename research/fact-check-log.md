@@ -96,7 +96,7 @@ Log: [fact-check/mcp-change-management.md](fact-check/mcp-change-management.md) 
 
 ### 3.2 Production Monitoring and Alerting
 
-Log: [fact-check/monitoring-alerting.md](fact-check/monitoring-alerting.md) · passes: 1 · reviewer(s): OpenAI GPT-6
+Log: [fact-check/monitoring-alerting.md](fact-check/monitoring-alerting.md) · passes: 2 · reviewer(s): OpenAI GPT-6; OpenAI GPT-6
 
 - Checked 33 original citation entries as claim groups: 24 supported, 9 required scope or wording fixes. Removed one unverified SDK example; added 2 citations. Checked 2 original Python blocks; retained and parsed 1. Counts group repeated uses of the same source claim rather than counting each citation occurrence.
 
@@ -108,7 +108,7 @@ Log: [fact-check/multi-agent-orchestration.md](fact-check/multi-agent-orchestrat
 
 ### 5.3 Online Quality Measurement
 
-Log: [fact-check/online-quality.md](fact-check/online-quality.md) · passes: 1 · reviewer(s): GPT-6
+Log: [fact-check/online-quality.md](fact-check/online-quality.md) · passes: 2 · reviewer(s): GPT-6; GPT-6
 
 - 31 original citation claims checked: 25 supported, 6 fixed, 0 removed; 6 citations added; 1 Python code block checked and parsed successfully.
 

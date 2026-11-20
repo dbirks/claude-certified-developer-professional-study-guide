@@ -316,3 +316,30 @@
   source: anthropic-docs
   quote: "Include the diagnostics object on every turn. The object is the opt-in: the API stores a fingerprint only for requests that include it."
   accessed: 2026-11-19
+
+- id: F36
+  claim: "Streaming starts with a null stop reason and supplies it in message_delta."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons
+  title: "Stop reasons and fallback"
+  source: anthropic-docs
+  quote: "Provided in the message_delta event"
+  accessed: 2026-11-19
+
+- id: F37
+  claim: "Claude Code tool result events omit rejected calls."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Not emitted if the tool call was rejected; see the Tool decision event for rejections."
+  accessed: 2026-11-19
+
+- id: F38
+  claim: "Successful synthetic requests can hide failures affecting real users."
+  tag: STD
+  url: https://sre.google/workbook/alerting-on-slos/
+  title: "Alerting on SLOs"
+  source: standard
+  quote: "Additionally, if an issue affects real users but doesn’t affect artificial traffic, the successful artificial requests hide the real user signal, so you aren’t notified that users see errors."
+  accessed: 2026-11-19

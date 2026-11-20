@@ -173,5 +173,20 @@
     "id": "F35",
     "status": "ok-loose",
     "url": "https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics"
+  },
+  {
+    "id": "F36",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons"
+  },
+  {
+    "id": "F37",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F38",
+    "status": "ok",
+    "url": "https://sre.google/workbook/alerting-on-slos/"
   }
 ]

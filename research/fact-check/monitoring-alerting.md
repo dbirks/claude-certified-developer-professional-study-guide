@@ -21,3 +21,30 @@ Checked 33 original citation entries as claim groups: 24 supported, 9 required s
 ## Remaining concerns
 - Beta API fields, model availability, pricing and limits can change after this review; recheck before implementation.
 - The Python alert example assumes error ratios are already computed; production implementations must define request eligibility, missing data, and alert evaluation behavior.
+
+## Second pass (OpenAI GPT-6)
+
+Checked: 2026-11-19 · Reviewer: OpenAI GPT-6
+
+### Summary
+
+Reviewed 35 existing citation entries as claim groups and their uses throughout the chapter: 25 supported and 10 needed scope, attribution, or decision-context fixes; 0 claim groups removed. Added 3 citations. Checked 1 Python block and parsed it successfully. Counts describe citation claim groups, not individual sentences; multiple uses can share a group.
+
+### Changes
+
+- Burn-rate guidance — starting thresholds read as universal and the worked example omitted the possibility of an earlier 6x page → qualify the recommendations and isolate the illustrated rule (F4, F5).
+- Low-volume monitoring — “breaks every ratio” overstated the issue and synthetic traffic could mask real-user failures → describe noisy ratios and keep probe and user results separate (F6, F38).
+- TTFT — “primary” overstated the source and the table assigned request TTFT to the interaction span → use a qualified responsiveness measure and name the correct span (F7, F20).
+- Streaming stop reasons — initial and final stream events were not distinguished → add the `message_delta` collection point (F11, F36).
+- Tool failures — the denominator implicitly included rejected calls, which do not emit tool-result events → use completed executions and track decisions separately (F19, F37).
+- Claude Code spans — version requirements for `first_content_ms` and `error_class` were not stated → state the v2.1.268 minimum (F20).
+- `pass^k` — trial consistency was equated with what all production traffic sees → qualify the production inference (F25).
+- Tier spend cap — explanation omitted the possibility of raising the limit → include that recovery path (F30).
+- Model lifecycle and pinned models — retirement ordering and infrastructure effects were presented too deterministically → describe lifecycle stages and possible behavioral effects (F28, F29).
+- Quality drift and exam lens — monitoring listed signals without enough investigative decisions, and the lens did not explicitly identify its editorial status → add cohort comparisons, human judge calibration, canary comparison and rollback, and an inference label (F26).
+- Verification — reviewed the original citation quotes and opened official sources for details beyond quoted spans; checked the objective and the three sample-item rationales. Citation checker passed. Quote verification used an isolated copy because the script otherwise writes outside the three permitted files; all 38 quotes matched. The scoped Astro build completed.
+
+### Remaining concerns
+
+- Telemetry fields, beta APIs, model availability and spend policies can change. The Analytics watermark limits the cutoff but does not prevent later reconciliation.
+- The alert example assumes precomputed ratios and steady request volume; production rules need explicit handling for missing data and eligible requests.

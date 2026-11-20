@@ -548,6 +548,7 @@
     - monitoring-alerting:F18
     - monitoring-alerting:F19
     - monitoring-alerting:F20
+    - monitoring-alerting:F37
     - trace-analysis:F12
     - trace-analysis:F13
     - trace-analysis:F14
@@ -929,8 +930,6 @@
     - identity-secrets-audit:F18
     - identity-secrets-audit:F19
     - identity-secrets-audit:F20
-    - identity-secrets-audit:F39
-    - identity-secrets-audit:F47
 - url: https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization
   title: Authorization
   source: mcp-spec
@@ -970,6 +969,13 @@
   cited_by:
     - mcp-change-management:F11
     - mcp-change-management:F42
+- url: https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization
+  title: Authorization
+  source: mcp-spec
+  accessed: 2026-11-19
+  cited_by:
+    - identity-secrets-audit:F39
+    - identity-secrets-audit:F47
 - url: https://modelcontextprotocol.io/specification/2026-07-28/basic/index
   title: Model Context Protocol - Basic Protocol
   source: mcp-spec
@@ -1447,6 +1453,8 @@
     - online-quality:F20
     - online-quality:F21
     - online-quality:F31
+    - online-quality:F40
+    - online-quality:F41
 - url: https://platform.claude.com/docs/en/build-with-claude/claude-in-amazon-bedrock
   title: Claude in Amazon Bedrock (bedrock-mantle)
   source: anthropic-docs
@@ -1549,6 +1557,7 @@
     - reliability:F22
     - reliability:F23
     - monitoring-alerting:F11
+    - monitoring-alerting:F36
     - failure-diagnosis:F4
     - failure-diagnosis:F5
     - failure-diagnosis:F8
@@ -1768,6 +1777,8 @@
     - online-quality:F29
     - online-quality:F35
     - online-quality:F36
+    - online-quality:F38
+    - online-quality:F39
 - url: https://platform.claude.com/docs/en/manage-claude/compliance-activity-feed
   title: Query the Activity Feed
   source: anthropic-docs
@@ -2008,6 +2019,12 @@
     - mcp-change-management:F46
     - mcp-change-management:F47
     - evaluation-design:F34
+- url: https://platform.claude.com/docs/en/models/opus-5-5/overview
+  title: Claude Opus 5.5
+  source: anthropic-docs
+  accessed: 2026-11-19
+  cited_by:
+    - identity-secrets-audit:F55
 - url: https://platform.claude.com/docs/en/models/overview
   title: Models overview
   source: anthropic-docs
@@ -2174,6 +2191,7 @@
     - monitoring-alerting:F4
     - monitoring-alerting:F5
     - monitoring-alerting:F6
+    - monitoring-alerting:F38
 - url: https://sre.google/workbook/incident-response/
   title: Incident Response — Google SRE Workbook
   source: standard

@@ -7,30 +7,30 @@ Columns: research packet exists · citation entries · quotes verified verbatim 
 
 | ID | Skill | Domain weight | Packet | Citations | Quotes verified | Chapter | Fact-check |
 |---|---|---|---|---|---|---|---|
-| 1.1 | Multi-Agent Orchestration | 17% | yes | 59 | 59/59 | [fact-checked](../content/01-agent-architecture/01-multi-agent-orchestration.mdx) · 2162 words · 59 cited | done |
-| 1.2 | Durable Execution and State Management | 17% | yes | 53 | 53/53 | [fact-checked](../content/01-agent-architecture/02-durable-execution.mdx) · 2957 words · 53 cited | done |
-| 1.3 | Architecture Selection at Scale | 17% | yes | 32 | 32/32 | [fact-checked](../content/01-agent-architecture/03-architecture-selection.mdx) · 1956 words · 32 cited | done |
-| 1.4 | Context and Memory Architecture | 17% | yes | 45 | 45/45 | [fact-checked](../content/01-agent-architecture/04-context-memory.mdx) · 1668 words · 40 cited | done |
-| 2.1 | Reliability Engineering for Claude Services | 20% | yes | 46 | 46/46 | [fact-checked](../content/02-production-integration/01-reliability.mdx) · 2873 words · 46 cited | done |
-| 2.2 | Scale and Throughput Management | 20% | yes | 59 | 59/59 | [fact-checked](../content/02-production-integration/02-scale-throughput.mdx) · 2786 words · 59 cited | done |
-| 2.3 | Production MCP and Change Management | 20% | yes | 46 | 46/46 | [fact-checked](../content/02-production-integration/03-mcp-change-management.mdx) · 2014 words · 46 cited | done |
-| 2.4 | Retrieval and Knowledge Grounding at Scale | 20% | yes | 43 | 43/43 | [fact-checked](../content/02-production-integration/04-retrieval-grounding.mdx) · 2733 words · 43 cited | done |
-| 3.1 | Telemetry and Instrumentation | 12% | yes | 76 | 76/76 | [fact-checked](../content/03-observability/01-telemetry.mdx) · 2820 words · 75 cited | done |
-| 3.2 | Production Monitoring and Alerting | 12% | yes | 35 | 35/35 | [fact-checked](../content/03-observability/02-monitoring-alerting.mdx) · 2543 words · 35 cited | done |
-| 3.3 | Trace Analysis at Scale | 12% | yes | 41 | 41/41 | [fact-checked](../content/03-observability/03-trace-analysis.mdx) · 2586 words · 41 cited | done |
-| 4.1 | Complex Failure Diagnosis | 10% | yes | 38 | 38/38 | [fact-checked](../content/04-debugging/01-failure-diagnosis.mdx) · 2441 words · 37 cited | done |
-| 4.2 | Incident Response and Learning Loops | 10% | yes | 42 | 42/42 | [fact-checked](../content/04-debugging/02-incident-response.mdx) · 2499 words · 42 cited | done |
-| 5.1 | Evaluation System Design | 12% | yes | 42 | 42/42 | [fact-checked](../content/05-evaluation/01-evaluation-design.mdx) · 2414 words · 41 cited | done |
-| 5.2 | LLM-as-Judge Engineering | 12% | yes | 45 | 45/45 | [fact-checked](../content/05-evaluation/02-llm-as-judge.mdx) · 2591 words · 45 cited | done |
-| 5.3 | Online Quality Measurement | 12% | yes | 37 | 37/37 | [fact-checked](../content/05-evaluation/03-online-quality.mdx) · 2762 words · 35 cited | done |
-| 6.1 | Cost Architecture at Scale | 8% | yes | 42 | 42/42 | [fact-checked](../content/06-cost-latency/01-cost-architecture.mdx) · 2192 words · 42 cited | done |
-| 6.2 | Latency Engineering | 8% | yes | 36 | 36/36 | [fact-checked](../content/06-cost-latency/02-latency-engineering.mdx) · 2275 words · 36 cited | done |
-| 7.1 | Runtime Guardrail Systems | 11% | yes | 53 | 53/53 | [fact-checked](../content/07-security/01-runtime-guardrails.mdx) · 1979 words · 53 cited | done |
-| 7.2 | Threat Defense and Adversarial Testing for Agentic Systems | 11% | yes | 43 | 43/43 | [fact-checked](../content/07-security/02-threat-defense.mdx) · 1980 words · 43 cited | done |
-| 7.3 | Identity, Secrets, and Audit at Scale | 11% | yes | 52 | 52/52 | [fact-checked](../content/07-security/03-identity-secrets-audit.mdx) · 2204 words · 52 cited | done |
-| 8.1 | Parallel Agent Orchestration for Engineering Work | 10% | yes | 78 | 78/78 | [fact-checked](../content/08-agent-fleets/01-parallel-agents.mdx) · 1895 words · 78 cited | done |
-| 8.2 | Verification and AI Code Review Operations | 10% | yes | 39 | 39/39 | [fact-checked](../content/08-agent-fleets/02-verification-review.mdx) · 2594 words · 39 cited | done |
-| 8.3 | Unattended and Event-Driven Agent Operations | 10% | yes | 40 | 40/40 | [fact-checked](../content/08-agent-fleets/03-unattended-operations.mdx) · 2489 words · 40 cited | done |
-| 8.4 | Organization-Wide Coding Agent Configuration | 10% | yes | 44 | 44/44 | [fact-checked](../content/08-agent-fleets/04-org-configuration.mdx) · 2556 words · 44 cited | done |
+| 1.1 | Multi-Agent Orchestration | 17% | yes | 59 | 59/59 | [fact-checked](../content/01-agent-architecture/01-multi-agent-orchestration.mdx) · 2275 words · 59 cited | done |
+| 1.2 | Durable Execution and State Management | 17% | yes | 53 | 53/53 | [fact-checked](../content/01-agent-architecture/02-durable-execution.mdx) · 3072 words · 53 cited | done |
+| 1.3 | Architecture Selection at Scale | 17% | yes | 32 | 32/32 | [fact-checked](../content/01-agent-architecture/03-architecture-selection.mdx) · 2062 words · 32 cited | done |
+| 1.4 | Context and Memory Architecture | 17% | yes | 45 | 45/45 | [fact-checked](../content/01-agent-architecture/04-context-memory.mdx) · 1770 words · 40 cited | done |
+| 2.1 | Reliability Engineering for Claude Services | 20% | yes | 46 | 46/46 | [fact-checked](../content/02-production-integration/01-reliability.mdx) · 2982 words · 46 cited | done |
+| 2.2 | Scale and Throughput Management | 20% | yes | 59 | 59/59 | [fact-checked](../content/02-production-integration/02-scale-throughput.mdx) · 2898 words · 59 cited | done |
+| 2.3 | Production MCP and Change Management | 20% | yes | 46 | 46/46 | [fact-checked](../content/02-production-integration/03-mcp-change-management.mdx) · 2134 words · 46 cited | done |
+| 2.4 | Retrieval and Knowledge Grounding at Scale | 20% | yes | 43 | 43/43 | [fact-checked](../content/02-production-integration/04-retrieval-grounding.mdx) · 2846 words · 43 cited | done |
+| 3.1 | Telemetry and Instrumentation | 12% | yes | 76 | 76/76 | [fact-checked](../content/03-observability/01-telemetry.mdx) · 2948 words · 75 cited | done |
+| 3.2 | Production Monitoring and Alerting | 12% | yes | 38 | 38/38 | [fact-checked](../content/03-observability/02-monitoring-alerting.mdx) · 2833 words · 38 cited | done |
+| 3.3 | Trace Analysis at Scale | 12% | yes | 41 | 41/41 | [fact-checked](../content/03-observability/03-trace-analysis.mdx) · 2712 words · 41 cited | done |
+| 4.1 | Complex Failure Diagnosis | 10% | yes | 38 | 38/38 | [fact-checked](../content/04-debugging/01-failure-diagnosis.mdx) · 2575 words · 37 cited | done |
+| 4.2 | Incident Response and Learning Loops | 10% | yes | 42 | 42/42 | [fact-checked](../content/04-debugging/02-incident-response.mdx) · 2627 words · 42 cited | done |
+| 5.1 | Evaluation System Design | 12% | yes | 42 | 42/42 | [fact-checked](../content/05-evaluation/01-evaluation-design.mdx) · 2522 words · 41 cited | done |
+| 5.2 | LLM-as-Judge Engineering | 12% | yes | 45 | 45/45 | [fact-checked](../content/05-evaluation/02-llm-as-judge.mdx) · 2705 words · 45 cited | done |
+| 5.3 | Online Quality Measurement | 12% | yes | 41 | 37/37 | [fact-checked](../content/05-evaluation/03-online-quality.mdx) · 2945 words · 38 cited | done |
+| 6.1 | Cost Architecture at Scale | 8% | yes | 42 | 42/42 | [fact-checked](../content/06-cost-latency/01-cost-architecture.mdx) · 2311 words · 42 cited | done |
+| 6.2 | Latency Engineering | 8% | yes | 36 | 36/36 | [fact-checked](../content/06-cost-latency/02-latency-engineering.mdx) · 2381 words · 36 cited | done |
+| 7.1 | Runtime Guardrail Systems | 11% | yes | 53 | 53/53 | [fact-checked](../content/07-security/01-runtime-guardrails.mdx) · 2091 words · 53 cited | done |
+| 7.2 | Threat Defense and Adversarial Testing for Agentic Systems | 11% | yes | 43 | 43/43 | [fact-checked](../content/07-security/02-threat-defense.mdx) · 2091 words · 43 cited | done |
+| 7.3 | Identity, Secrets, and Audit at Scale | 11% | yes | 53 | 52/52 | [fact-checked](../content/07-security/03-identity-secrets-audit.mdx) · 2314 words · 52 cited | done |
+| 8.1 | Parallel Agent Orchestration for Engineering Work | 10% | yes | 78 | 78/78 | [fact-checked](../content/08-agent-fleets/01-parallel-agents.mdx) · 1996 words · 78 cited | done |
+| 8.2 | Verification and AI Code Review Operations | 10% | yes | 39 | 39/39 | [fact-checked](../content/08-agent-fleets/02-verification-review.mdx) · 2714 words · 39 cited | done |
+| 8.3 | Unattended and Event-Driven Agent Operations | 10% | yes | 40 | 40/40 | [fact-checked](../content/08-agent-fleets/03-unattended-operations.mdx) · 2603 words · 40 cited | done |
+| 8.4 | Organization-Wide Coding Agent Configuration | 10% | yes | 44 | 44/44 | [fact-checked](../content/08-agent-fleets/04-org-configuration.mdx) · 2666 words · 44 cited | done |
 
-Unique source URLs: 258 · citation entries: 1166
+Unique source URLs: 260 · citation entries: 1174
