@@ -8,6 +8,16 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
+<KeyPoints>
+
+- An agent evaluation measures the harness together with its model; a model-only test measures a different system.<Cite id="F3" />
+- Gate customer-facing agents on `pass^k` (all trials succeed); `pass@k` (at least one) fits tools where one valid solution suffices.<Cite id="F7 F8" />
+- Keep a reference solution for each task: 0% `pass@100` is often a reason to inspect the task and graders first.<Cite id="F10" />
+- Balance positive and negative cases, and grade outcomes and invariants rather than an exact tool-call path.<Cite id="F11 F13" />
+- A regression suite should sit near a 100% pass rate; capability suites start low and graduate into it.<Cite id="F5 F6" />
+
+</KeyPoints>
+
 An **offline evaluation** is a repeatable set of test tasks, a runner, and scoring logic used to assess a change before production.<Cite id="F1 F3" /> An agent evaluation measures the **agent harness** — the scaffold that processes inputs, orchestrates tool calls, and returns results — together with its model; a model-only test measures a different system.<Cite id="F3" /> Design the tasks, graders, trial counts, and thresholds, then maintain the suite as the application changes.
 
 ## How an offline evaluation works

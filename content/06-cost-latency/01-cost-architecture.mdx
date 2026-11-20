@@ -8,6 +8,16 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
+<KeyPoints>
+
+- Judge every choice on cost per successful task, not the per-token rate, because a failed attempt still bills its tokens.<Cite id="F23 F24" />
+- `input_tokens` reports only the uncached tokens after the last breakpoint, so total input adds cache reads and cache writes.<Cite id="F16" />
+- A varying block such as a timestamp inside the cached prefix replaces cache reads with 1.25x writes on every turn.<Cite id="F5 F12 F13" />
+- Sweep `output_config.effort` on the current model before adding a second model; `max_tokens` is not a cost cap.<Cite id="F26 F27 F29" />
+- A tier spend cap returns HTTP 429 and a user-set org or workspace limit returns HTTP 400 `invalid_request_error`; do not retry either.<Cite id="F35 F41" />
+
+</KeyPoints>
+
 **Cost architecture at scale** is the way an organization shapes, routes, and meters Claude requests to control cost while meeting quality and latency targets. Repeatedly sending a growing conversation can make input-token use rise faster than the number of turns; prompt caching can reduce that repeated input cost. In Anthropic's production data, agent loops read a median 84% of input tokens from cache, and the top 10% read at least 94%.<Cite id="F21" /> Model routing, effort tuning, batch processing, and per-tenant budgets are other cost levers. Output tokens cost five times base input tokens for the listed models.<Cite id="F1" />
 
 ## How the cost model works

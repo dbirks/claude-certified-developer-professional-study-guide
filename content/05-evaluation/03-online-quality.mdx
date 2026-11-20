@@ -8,6 +8,16 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
+<KeyPoints>
+
+- Combine automated evals for fast iteration, production monitoring for ground truth, and periodic human review for calibration.<Cite id="F2" />
+- Estimate fleet-level rates from a known-probability random sample; a failure-enriched stream finds problems but cannot size them.
+- Assign with a stable hash at the user or tenant unit and analyze there, because interference biases trial conclusions.<Cite id="F27" />
+- Repeated fixed-horizon peeks inflate the Type I error rate; pre-specify a sequential method for early decisions.<Cite id="F13 F14" />
+- Show feedback as votes per eligible exposure, since self-selection and changing response rates can reverse the reading.
+
+</KeyPoints>
+
 **Online quality measurement** evaluates a Claude application on live production traffic. **Online evaluation** uses live inputs, outcomes, or feedback to estimate quality under actual use; offline evals measure behavior on a curated suite. Anthropic says evals provide signals for improvement when combined with production monitoring, A/B tests, and user research.<Cite id="F1" /> Anthropic recommends combining automated evals for fast iteration, production monitoring for ground truth, and periodic human review for calibration.<Cite id="F2" /> This chapter helps choose an online method, sample, and metric for a question about a live application.
 
 ## How online evaluation fits together

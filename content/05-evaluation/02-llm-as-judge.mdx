@@ -8,6 +8,16 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
+<KeyPoints>
+
+- Calibrate the judge against human labels on a held-out slice before it earns authority to block a release.<Cite id="F9" />
+- Call the judge twice with the answers swapped: declare a win only when an answer is preferred in both orders, score flips as ties.<Cite id="F29" />
+- Two complete raters: Cohen's kappa. Three or more raters, missing overlap, or ordinal scales: Krippendorff's alpha.<Cite id="F33 F35" />
+- A pre-4.6 dateless ID such as `claude-sonnet-4-5` is a moving alias; pin the snapshot and re-score a frozen anchor set.<Cite id="F17 F18" />
+- Asking the judge to print its reasoning can trigger a `reasoning_extraction` refusal, which has no recommended fallback model.<Cite id="F22 F39" />
+
+</KeyPoints>
+
 An **LLM-as-judge** is a model that grades another model's output against a rubric, standing in for human review at evaluation scale. Anthropic recommends careful iteration and close calibration against human experts until human and model scores show little divergence.<Cite id="F9" /> Once a grading system is robust, Anthropic says occasional human review is sufficient.<Cite id="F11" /> The decision this chapter supports is narrow: does this judge deserve authority to block a release?
 
 ## Choosing the grading method

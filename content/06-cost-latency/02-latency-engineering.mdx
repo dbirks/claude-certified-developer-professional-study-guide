@@ -8,6 +8,16 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
+<KeyPoints>
+
+- TTFT, TTLT, and OTPS are distinct measurements, so publish a first-response target and a completion target separately.<Cite id="F1" />
+- Streaming changes when output becomes visible, not how fast it is generated; caching targets TTFT and has no effect on output generation.<Cite id="F3 F6" />
+- Put the cache checkpoint after the last identical block; a changing timestamp or query prevents an exact prefix match.<Cite id="F12 F30" />
+- Run independent `tool_use` blocks concurrently, then return every `tool_result` in one user message before any text.<Cite id="F10" />
+- Fine-grained tool streaming skips server-side buffering and validation, so accumulate fragments and validate before dispatch.<Cite id="F9" />
+
+</KeyPoints>
+
 **Latency engineering** means measuring a task's elapsed time and choosing changes that meet a latency target. **Time to first token (TTFT)** measures the wait for the model's first response; **time to last token (TTLT)** measures the wait for its complete response; **output tokens per second (OTPS)** measures the generation rate between them.<Cite id="F1" /> Set separate **service-level objectives (SLOs)**, or measurable service targets, for the first user-visible response and task completion.
 
 ## How latency decomposes
