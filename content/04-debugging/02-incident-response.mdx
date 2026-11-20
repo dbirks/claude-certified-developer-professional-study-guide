@@ -132,7 +132,7 @@ Fix the retry hazard first. Commands that agents or workflows execute should be 
 
 Monitoring coverage comes from traces. The Claude API and SDKs can trace Messages API requests, tool uses, and Managed Agents sessions with OpenTelemetry into the observability platform you already run, for debugging failed or slow requests and building evals from real traffic.<Cite id="F38" /> Recommended practice: alert on repeated identical mutating tool calls within one session ; calibrate the threshold to the workflow, and make mutating tools idempotent or fail-safe.<Cite id="F34 F38" />
 
-The packet's illustrative eval spec (pseudocode; grader names are placeholders, not an Anthropic schema):
+An illustrative eval spec (pseudocode; grader names are placeholders, not an Anthropic schema):
 
 ```yaml
 suite: billing-agent-regression   # target: near-100% pass rate on CI
