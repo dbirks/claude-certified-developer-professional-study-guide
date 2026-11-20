@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 
 export type TouchPoint = { x: number; y: number };
 
@@ -76,6 +76,38 @@ export async function expectTopBetween(page: Page, selector: string, min: number
 /** Skips the running test unless it belongs to the named project. Call at the top of the test body. */
 export function skipUnlessProject(name: 'mobile' | 'desktop'): void {
   if (test.info().project.name !== name) test.skip(true, `runs in the ${name} project only`);
+}
+
+/** Collapse whitespace the way src/scripts/cite.ts does when it copies source text into the sheet. */
+export function normalizeSpace(value: string | null | undefined): string {
+  return (value ?? '').replace(/\s+/g, ' ').trim();
+}
+
+/** Normalized textContent of a locator ('' when it has no text). */
+export async function normText(locator: Locator): Promise<string> {
+  return normalizeSpace(await locator.textContent());
+}
+
+/** Instant scroll to the very bottom; reading.ts repaints the pill on the next animation frame. */
+export async function scrollToBottom(page: Page): Promise<void> {
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+}
+
+/** Wait until window.scrollY stops moving (smooth scroll finished), so position asserts are stable. */
+export async function expectScrollSettled(page: Page): Promise<void> {
+  let last = -1;
+  let stable = 0;
+  await expect
+    .poll(
+      async () => {
+        const y = await page.evaluate(() => Math.round(window.scrollY));
+        stable = y === last ? stable + 1 : 0;
+        last = y;
+        return stable >= 3; // ~300ms without movement (poll interval is 100ms)
+      },
+      { timeout: 12_000, message: 'page scroll never settled' },
+    )
+    .toBe(true);
 }
 
 /** Focus `#toc-toggle` by tabbing from the top of the document (never .focus() it directly). */
