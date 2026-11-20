@@ -202,7 +202,7 @@ Log: [fact-check/scale-throughput.md](fact-check/scale-throughput.md) · passes:
 
 ### 3.1 Telemetry and Instrumentation
 
-Log: [fact-check/telemetry.md](fact-check/telemetry.md) · passes: 1 · reviewer(s): Gemini 4 Hydrogen
+Log: [fact-check/telemetry.md](fact-check/telemetry.md) · passes: 2 · reviewer(s): Gemini 4 Hydrogen
 
 - Claims checked: 45 cited claims + 18 uncited factual/API/numeric claims
 - Supported: 31

@@ -226,12 +226,6 @@
     - parallel-agents:F13
     - parallel-agents:F14
     - parallel-agents:F15
-- url: https://code.claude.com/docs/en/agent-view
-  title: Manage multiple agents with agent view - Claude Code Docs
-  source: claude-code-docs
-  accessed: 2026-11-19
-  cited_by:
-    - parallel-agents:F10
 - url: https://code.claude.com/docs/en/agents
   title: Run agents in parallel - Claude Code Docs
   source: claude-code-docs
@@ -254,6 +248,7 @@
     - parallel-agents:F30
     - parallel-agents:F32
     - parallel-agents:F34
+    - parallel-agents:F42
 - url: https://code.claude.com/docs/en/auto-mode-config
   title: Configure auto mode
   source: claude-code-docs
@@ -525,6 +520,8 @@
     - telemetry:F66
     - telemetry:F67
     - telemetry:F68
+    - telemetry:F74
+    - telemetry:F75
     - monitoring-alerting:F18
     - monitoring-alerting:F19
     - monitoring-alerting:F20
@@ -554,7 +551,7 @@
     - parallel-agents:F38
     - parallel-agents:F39
     - parallel-agents:F40
-    - parallel-agents:F41
+    - parallel-agents:F43
     - org-configuration:F18
     - org-configuration:F19
     - org-configuration:F20
@@ -749,6 +746,7 @@
     - parallel-agents:F7
     - parallel-agents:F8
     - parallel-agents:F9
+    - parallel-agents:F10
 - url: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows
   title: Events that trigger workflows
   source: other
@@ -943,6 +941,12 @@
   cited_by:
     - trace-analysis:F10
     - trace-analysis:F11
+- url: https://opentelemetry.io/docs/concepts/context-propagation/
+  title: Context propagation
+  source: standard
+  accessed: 2026-11-19
+  cited_by:
+    - telemetry:F70
 - url: https://opentelemetry.io/docs/concepts/sampling/
   title: Sampling
   source: standard
@@ -1368,6 +1372,9 @@
     - telemetry:F51
     - telemetry:F52
     - telemetry:F69
+    - telemetry:F72
+    - telemetry:F73
+    - telemetry:F76
     - monitoring-alerting:F24
     - monitoring-alerting:F35
     - cost-architecture:F17
@@ -2391,3 +2398,9 @@
   accessed: 2026-11-19
   cited_by:
     - online-quality:F37
+- url: https://www.w3.org/TR/trace-context/
+  title: Trace Context
+  source: standard
+  accessed: 2026-11-19
+  cited_by:
+    - telemetry:F71

@@ -343,5 +343,40 @@
     "id": "F69",
     "status": "ok",
     "url": "https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics"
+  },
+  {
+    "id": "F70",
+    "status": "ok",
+    "url": "https://opentelemetry.io/docs/concepts/context-propagation/"
+  },
+  {
+    "id": "F71",
+    "status": "ok",
+    "url": "https://www.w3.org/TR/trace-context/"
+  },
+  {
+    "id": "F72",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics"
+  },
+  {
+    "id": "F73",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics"
+  },
+  {
+    "id": "F74",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F75",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F76",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics"
   }
 ]

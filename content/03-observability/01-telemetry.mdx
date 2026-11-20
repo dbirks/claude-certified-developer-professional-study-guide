@@ -8,13 +8,13 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
-**Telemetry and instrumentation** for Claude systems means emitting structured evidence from every model call, tool call, and agent loop, while keeping protected content out of storage your privacy regime does not permit. Production debugging and privacy pull in opposite directions: an engineer tracing a bad tool result wants the prompt and tool output, while under Zero Data Retention (ZDR), Anthropic does not store customer prompts or responses at rest after returning the API response.<Cite id="F36" /> Every mechanism on this page resolves that tension the same way: ship identifiers, counts, timings, statuses, and divergence reasons always, and treat prompt, response, tool-argument, and reasoning content as an explicit per-environment opt-in.
+**Telemetry and instrumentation** for Claude systems means emitting structured evidence from every model call, tool call, and agent loop, while keeping protected content out of storage your privacy regime does not permit. Production debugging and privacy pull in opposite directions: an engineer tracing a bad tool result wants the prompt and tool output, while under Zero Data Retention (ZDR), Anthropic does not store customer prompts or responses at rest after returning the API response.<Cite id="F36" /> Choose which identifiers and operational fields to collect under your privacy policy. Treat prompts, responses, tool arguments, and reasoning content as explicit per-environment opt-ins.
 
 ## How it works
 
-OpenTelemetry organizes observability into traces, metrics, and logs, and when you activate an SDK or autoinstrumentation it automatically correlates your existing logs with the active trace and span by wrapping the log body with their IDs.<Cite id="F1" /> A **trace** is the request path across nested spans, a **metric** is a runtime measurement with metadata, and a **log record** is a timestamped event that can carry the trace correlation.
+OpenTelemetry supports traces, metrics, and logs. Instrumentation can inject trace and span IDs into log records for correlation.<Cite id="F70" /> Configure and verify this for your logging stack. A **trace** is the request path across nested spans, a **metric** is a runtime measurement with metadata, and a **log record** is a timestamped event that can carry the trace correlation.
 
-Spans for AI work follow the OpenTelemetry GenAI semantic conventions, which are at **Development** stability rather than Stable.<Cite id="F37" /> A GenAI span models the logical operation as the caller observes it: it covers the operation duration including automatic retries and ends when the response is fully received or terminated by error or cancellation.<Cite id="F2 F38" /> Anthropic's spans adopt those conventions with `gen_ai.*` attributes where conventions exist alongside `anthropic.*` attributes.<Cite id="F39" />
+Spans for AI work follow the OpenTelemetry GenAI semantic conventions, which are at **Development** stability rather than Stable.<Cite id="F37" /> A GenAI span represents the logical operation as the caller observes it. The conventions recommend covering its duration, including automatic retries, until the response is received or the operation terminates.<Cite id="F2 F38" /> Anthropic's spans adopt those conventions with `gen_ai.*` attributes where conventions exist alongside `anthropic.*` attributes.<Cite id="F39" />
 
 | Attribute | Meaning |
 |---|---|
@@ -23,7 +23,7 @@ Spans for AI work follow the OpenTelemetry GenAI semantic conventions, which are
 | `gen_ai.usage.output_tokens` | Output tokens reported by the provider.<Cite id="F41" /> |
 | `gen_ai.usage.cache_read.input_tokens`, `gen_ai.usage.cache_write.input_tokens` | Cache token detail; report them, do not add them onto `gen_ai.usage.input_tokens`.<Cite id="F7 F42" /> |
 
-Anthropic emits spans from two different places for one Messages API call: the SDK produces a `CLIENT` span and the Claude API produces a `SERVER` span, and both are named `anthropic.messages.create`.<Cite id="F6" /> The counts differ by plane, not by accident: API spans carry the tokens your organization is billed for even when the request fails or the application cancels it, while the SDK span carries the counts the response reports, which can be lower or absent in those cases.<Cite id="F12" /> That single fact resolves most token-accounting bugs.
+When both SDK and API tracing are enabled, a Messages API call can produce a `CLIENT` SDK span and a `SERVER` API span, both named `anthropic.messages.create`.<Cite id="F6" /> The counts differ by plane, not by accident: API spans carry the tokens your organization is billed for even when the request fails or the application cancels it, while the SDK span carries the counts the response reports, which can be lower or absent in those cases.<Cite id="F12" />
 
 The request identifier ties everything back together. Every Claude API response includes a `request-id` header (such as `req_018EeWyXxfu5pfWkrYcMdjWG`), error bodies repeat it as `request_id`, and the Python and TypeScript SDKs expose it as `_request_id`.<Cite id="F27 F43" /> On Claude Platform on AWS, responses also carry `x-amzn-requestid` for CloudTrail lookups alongside `request-id` for Anthropic support.<Cite id="F44" />
 
@@ -35,28 +35,27 @@ OpenTelemetry export for the Claude API and SDK is in beta, distributed tracing 
 
 ## Distributed traces for agent loops and tool calls
 
-A **distributed trace** stitches spans from separate processes into one tree using W3C Trace Context headers, `traceparent` and `tracestate`. Each hop must either forward the header or accept an inbound one; anything else silently truncates the trace.
+A **distributed trace** links spans across processes using propagated context. W3C Trace Context uses the `traceparent` and `tracestate` headers for HTTP propagation.<Cite id="F71" /> Check injection and extraction at each boundary; a missing link can split the trace.
 
-The Claude API reads the request's trace context from `traceparent`, and if the `sampled` flag in that header is off, the API emits neither the request's span nor the spans under it.<Cite id="F9" /> A missing API-side `SERVER` span is therefore usually a sampling decision, not a lost span.
+The Claude API reads the request's trace context from `traceparent`, and if the `sampled` flag in that header is off, the API emits neither the request's span nor the spans under it.<Cite id="F9" /> A missing API-side `SERVER` span can also indicate an export or configuration failure. Check sampling and delivery before choosing a cause.
 
-Claude Code behaves differently per run mode: in Agent SDK sessions and non-interactive `-p` runs it reads `TRACEPARENT` and `TRACESTATE` from its own environment when starting each interaction span, while interactive sessions ignore inbound `TRACEPARENT` to avoid inheriting ambient values from CI or container environments.<Cite id="F15 F16" /> Your application must therefore inject trace context through the environment of a non-interactive run; the interactive CLI will never join it.
+Claude Code behaves differently per run mode: in Agent SDK sessions and non-interactive `-p` runs it reads `TRACEPARENT` and `TRACESTATE` from its own environment when starting each interaction span, while interactive sessions ignore inbound `TRACEPARENT` to avoid inheriting ambient values from CI or container environments.<Cite id="F15 F16" /> For this inbound propagation path, inject trace context into the environment of a non-interactive run.
 
-Environment handling is a portability trap. In the Agent SDK, Python `env` merges on top of the inherited environment, but TypeScript `env` replaces the inherited environment entirely, so you must include `...process.env` in the object you pass.<Cite id="F19" /> Omitting it drops both `TRACEPARENT` and credentials from the child process.
+Environment handling is a portability trap. In the Agent SDK, Python `env` merges on top of the inherited environment, but TypeScript `env` replaces the inherited environment entirely, so you must include `...process.env` in the object you pass.<Cite id="F19" /> If those values were inherited, omitting them drops them from the child process.
 
-Crossing into tools uses the MCP envelope rather than an HTTP header. In MCP `2026-07-28`, the keys `traceparent`, `tracestate`, and `baggage` are reserved unprefixed in `_meta` and their values must follow W3C Trace Context and W3C Baggage.<Cite id="F35" /> When the Messages API's MCP connector or the Managed Agents MCP connector calls a remote MCP tool, the API sends a W3C `traceparent` in `params._meta` of the `tools/call` request referencing the `anthropic.mcp_tool_use` span for that tool use.<Cite id="F10" /> A local `stdio` MCP server has no HTTP headers to read, so it must extract `params._meta.traceparent` to continue the trace.
+MCP can carry trace context in its message envelope. In MCP `2026-07-28`, the keys `traceparent`, `tracestate`, and `baggage` are reserved unprefixed in `_meta` and their values must follow W3C Trace Context and W3C Baggage.<Cite id="F35" /> When the Messages API's MCP connector or the Managed Agents MCP connector calls a remote MCP tool, the API sends a W3C `traceparent` in `params._meta` of the `tools/call` request referencing the `anthropic.mcp_tool_use` span for that tool use.<Cite id="F10" /> For a local `stdio` MCP server, arrange for the client to inject context into `_meta` and for the server to extract it; the remote connector behavior does not establish that every client does so.
 
-In multi-process stacks (HTTP server, then Agent SDK subprocess, then a shell or remote MCP hop), inspect three common break points in order: a TypeScript `options.env` that replaced `process.env`, an outbound `traceparent` dropped behind a custom `ANTHROPIC_BASE_URL` proxy (set `CLAUDE_CODE_PROPAGATE_TRACEPARENT=1` to propagate it), and an MCP server that never read `params._meta`.<Cite id="F19 F45" />
+In multi-process stacks (HTTP server, then Agent SDK subprocess, then a shell or remote MCP hop), inspect three common break points in order: a TypeScript `options.env` that replaced `process.env`, an outbound `traceparent` dropped behind a custom `ANTHROPIC_BASE_URL` proxy (set `CLAUDE_CODE_PROPAGATE_TRACEPARENT=1` to propagate it), and an MCP server that did not extract context from `params._meta` when its client supplied it.<Cite id="F19 F45" />
 
-<Figure caption="One support-agent turn as a distributed trace: an application HTTP request parents an Agent SDK interaction span, which parents a Claude API SERVER model span and a nested MCP tools/call server span via W3C traceparent and params._meta.">
+<Figure caption="One support-agent turn as a distributed trace: an application HTTP request parents an Agent SDK interaction span and a Claude API SERVER span; the API connector passes trace context to a remote MCP server via params._meta.">
   <Sequence actors={["App HTTP", "Agent SDK", "Claude API", "MCP server"]} messages={[
     { from: 0, to: 1, label: "POST /support/chat + traceparent" },
     { at: 1, note: "reads TRACEPARENT (SDK / -p only)" },
     { from: 1, to: 2, label: "traceparent, sampled flag" },
     { from: 2, to: 1, label: "SERVER span + billed tokens", dashed: true },
     { at: 2, note: "sampled flag off: no API spans", tone: "bad" },
-    { from: 1, to: 3, label: "tools/call _meta.traceparent" },
-    { from: 3, to: 1, label: "tools/call SERVER span", dashed: true },
-    { at: 1, note: "subagent loop joins same trace_id" },
+    { from: 2, to: 3, label: "connector tools/call _meta.traceparent" },
+    { from: 3, to: 2, label: "tool result", dashed: true },
     { from: 1, to: 0, label: "200 + request-id", dashed: true }
   ]} />
 </Figure>
@@ -71,7 +70,7 @@ Apply the same discipline across the remaining sources of truth:
 |---|---|---|
 | Per-request debugging, latency and cache correlation | Messages `usage`, plus API `SERVER` spans from `anthropic.messages.create`<Cite id="F6 F23" /> | Summing SDK `CLIENT` and API `SERVER` spans of the same call, which doubles token totals.<Cite id="F6" /> |
 | Failed or canceled spend | API-side spans, which report billed counts even on failure or cancellation<Cite id="F12" /> | Trusting SDK response counts, which can be lower or absent there.<Cite id="F12" /> |
-| Agent SDK loop totals across subagents | `ResultMessage.model_usage` (`modelUsage`), since `usage` undercounts as soon as nesting occurs<Cite id="F22" /> | Reporting only the main loop's tokens. |
+| Agent SDK loop totals across subagents | `ResultMessage.model_usage` (`modelUsage`), since `usage` undercounts when nesting occurs<Cite id="F22" /> | Reporting only the main loop's tokens. |
 | Billing reconciliation for the organization | Usage and Cost Analytics API: `GET /v1/organizations/analytics/usage` and `/cost` with `anthropic-beta: analytics-usage-cost-2026-08-24`<Cite id="F28" /> | Treating OTel dashboards as invoices: span delivery is best-effort and samplable. |
 | Claude Code fleet cost and token trends | `claude_code.cost.usage` (USD) and `claude_code.token.usage` (tokens) metrics<Cite id="F46" /> | Mixing coding-agent metrics with application span counts. |
 
@@ -83,7 +82,7 @@ Prefer picking one source per question rather than reconciling across planes in 
 
 **Cache-performance diagnostics** explain why `cache_read_input_tokens` fell. Compute the per-turn hit ratio as `cache_read_input_tokens / (cache_read_input_tokens + cache_creation_input_tokens + input_tokens)` — the denominator is the exact Messages API total above.<Cite id="F23" />
 
-Send `diagnostics: {"previous_message_id": ...}` on `/v1/messages` to opt in. For each request that includes the `diagnostics` object, the API stores a lightweight fingerprint keyed by the response id and stores nothing for requests that omit it, retaining no raw prompt text.<Cite id="F25" /> The response reports the earliest prefix divergence in `diagnostics.cache_miss_reason.type` (`model_changed`, `system_changed`, `tools_changed`, `messages_changed`) across the model, system prompt, tools, or message history.<Cite id="F69" /> Combining `diagnostics` with `usage.cache_read_input_tokens` separates a prefix mutation from TTL expiry or an under-length prompt: `diagnostics` tells you whether the request changed, and `usage` tells you whether the cache hit.<Cite id="F26" />
+Send `diagnostics: {"previous_message_id": ...}` on `/v1/messages` to opt in.<Cite id="F25" /> For each request that includes the `diagnostics` object, the API stores a lightweight fingerprint keyed by the response id and stores nothing for requests that omit it, retaining no raw prompt text.<Cite id="F25 F72" /> When a comparison identifies a change, the response reports the earliest prefix divergence in `diagnostics.cache_miss_reason.type` (`model_changed`, `system_changed`, `tools_changed`, `messages_changed`) across the model, system prompt, tools, or message history.<Cite id="F69" /> Combine `diagnostics` with `usage.cache_read_input_tokens` to distinguish a reported prefix change from possible expiry or an under-length prompt. Comparisons can also be pending or unavailable.<Cite id="F26" />
 
 | Observation | Reading | Fix |
 |---|---|---|
@@ -91,11 +90,12 @@ Send `diagnostics: {"previous_message_id": ...}` on `/v1/messages` to opt in. Fo
 | `messages_changed` | History before the breakpoint changed.<Cite id="F69" /> | Append only; never rewrite older turns. |
 | `diagnostics: null` with `cache_read_input_tokens: 0` (after passing a prior id) | Requests matched, so the cache entry expired (beyond the 5m or 1h TTL) or the prefix is under the minimum cacheable length.<Cite id="F50" /> | Re-warm the prefix or lengthen it; nothing to dedupe. |
 | `{"cache_miss_reason": null}` | The comparison is still pending.<Cite id="F52" /> | Re-check on the next turn rather than concluding a hit. |
+| `unavailable` | No comparison was produced; a changed prompt-affecting parameter or a long conversation can be a cause.<Cite id="F73" /> | Keep parameters stable and inspect the request manually. |
 | `previous_message_not_found` | No stored fingerprint exists for `previous_message_id` (prior turn omitted `diagnostics`, came from another workspace, or too much time passed); verify `anthropic-workspace-id` for shared workspaces.<Cite id="F27 F51" /> | Pass `diagnostics` on every turn and keep turns in the same workspace. |
 
-Consider a two-turn regression: Turn 1 writes `cache_creation=18400` with `input_tokens=120` (total input `18,520`, hit ratio `0%`, cold write). Turn 2 sends Turn 1's `id` as `previous_message_id` with `input_tokens=145`, but reports `cache_read=0`, `cache_creation=18400`, and `cache_miss_reason={"type": "tools_changed", "cache_missed_input_tokens": 18500}` instead of the expected `~99.2%` hit ratio (`18400 / 18545`). Non-deterministic dictionary iteration had reordered the `tools` JSON between turns.
+Consider a two-turn regression: Turn 1 writes `cache_creation=18400` with `input_tokens=120` (total input `18,520`, hit ratio `0%`, cold write). Turn 2 sends Turn 1's `id` as `previous_message_id` with `input_tokens=145`, but reports `cache_read=0`, `cache_creation=18400`, and `cache_miss_reason={"type": "tools_changed", "cache_missed_input_tokens": 18400}` instead of the expected `~99.2%` hit ratio (`18400 / 18545`). In this example, the tool list was reordered between turns.
 
-The following is illustrative code based on the documented `anthropic` beta `messages` and `opentelemetry-sdk` APIs; it requires a live API key and an OTLP collector.
+The following example uses the Anthropic SDK and OpenTelemetry SDK. It requires a live API key and an OTLP collector. Register the provider before the first call, and keep the returned message ID for the next turn.<Cite id="F11 F25" />
 
 ```python
 import logging
@@ -113,7 +113,7 @@ trace.set_tracer_provider(provider)
 tracer = trace.get_tracer("support-agent")
 logger = logging.getLogger("support-agent")
 
-# metadata_only preserves the ZDR boundary; passing open_telemetry overrides the env vars
+# The option overrides the ANTHROPIC_OPEN_TELEMETRY environment variables.
 client = Anthropic(
     open_telemetry={"tracer_provider": provider, "traces": {"content_mode": "metadata_only"}}
 )
@@ -132,7 +132,9 @@ def run_turn(messages: list[dict], prev_msg_id: str | None) -> tuple[object, dic
         total_in = u.input_tokens + (u.cache_read_input_tokens or 0) + (u.cache_creation_input_tokens or 0)
         hit_ratio = (u.cache_read_input_tokens or 0) / total_in if total_in else 0.0
 
-        miss_type = resp.diagnostics.cache_miss_reason.type if (resp.diagnostics and resp.diagnostics.cache_miss_reason) else "none"
+        miss_type = ("no_divergence_or_first_turn" if resp.diagnostics is None else
+                     resp.diagnostics.cache_miss_reason.type if resp.diagnostics.cache_miss_reason else
+                     "comparison_pending")
         span.set_attribute("anthropic.request_id", resp._request_id)
         span.set_attribute("cache.hit_ratio", round(hit_ratio, 4))
         span.set_attribute("cache.miss_reason", miss_type)
@@ -149,7 +151,7 @@ A **structured log event** is a named event with typed fields rather than a sent
 
 | Event | Fires on |
 |---|---|
-| `claude_code.user_prompt`, `claude_code.assistant_response` | Prompt and response content events (text gated by flags).<Cite id="F14 F66" /> |
+| `claude_code.user_prompt`, `claude_code.assistant_response` | Prompt submission and response events; content is gated by settings.<Cite id="F14 F66 F75" /> |
 | `claude_code.tool_result`, `claude_code.tool_decision` | Tool execution and permission decisions.<Cite id="F14 F66" /> |
 | `claude_code.api_request`, `claude_code.api_error` | API call attempts and HTTP-level failures.<Cite id="F66" /> |
 | `claude_code.api_refusal` | `stop_reason: "refusal"`, because refusals arrive on a successful response stream rather than as an HTTP error, so `api_error` does not fire for them.<Cite id="F18" /> |
@@ -159,9 +161,9 @@ Monitor health is a function of the log pipeline, not the model. The CLI fails s
 
 ## Grounding and reasoning traceability
 
-Traceability means the answer can be tied back to evidence and to the reasoning that produced it, in the stored record. **Citations** provide the grounding half: setting `citations: {"enabled": true}` on each `document` block returns source pointers such as `char_location`, `page_location`, or `content_block_location`.<Cite id="F57" /> Citations cannot be combined with structured output: if you enable citations on any user-provided `document` or `search_result` block and also pass `output_config.format`, the API returns a `400` error.<Cite id="F31" />
+**Traceability** links an answer to evidence and available execution records. These records do not necessarily reveal the model’s complete reasoning. **Citations** provide the grounding half: setting `citations: {"enabled": true}` on each `document` block returns source pointers such as `char_location`, `page_location`, or `content_block_location`.<Cite id="F57" /> Citations cannot be combined with structured output: if you enable citations on any user-provided `document` or `search_result` block and also pass `output_config.format`, the API returns a `400` error.<Cite id="F31" />
 
-**Thinking** provides the reasoning half. Each `thinking` block carries an encrypted `signature` that the API verifies when you pass it back, and the `thinking` field is empty when `display` is `"omitted"`.<Cite id="F32 F58" /> When portions of reasoning are safety-redacted, the API returns `redacted_thinking` blocks holding encrypted content in a `data` field with no readable text.<Cite id="F33" /> In tool-use turns, pass `thinking` and `redacted_thinking` blocks back complete and unmodified; rearranging, editing, or partially dropping them is rejected with a `400` error.<Cite id="F59 F60" /> Instrument them by recording their presence and byte length as structural fields — not by copying their contents into logs, since Claude Code always redacts Claude's extended-thinking content from exported bodies regardless of other settings.<Cite id="F17" />
+**Thinking** blocks can provide a summary of reasoning or an opaque record; they do not guarantee a complete readable reasoning trace. Each `thinking` block carries an encrypted `signature` that the API verifies when you pass it back, and the `thinking` field is empty when `display` is `"omitted"`.<Cite id="F32 F58" /> When portions of reasoning are safety-redacted, the API returns `redacted_thinking` blocks holding encrypted content in a `data` field with no readable text.<Cite id="F33" /> In tool-use turns, preserve the consecutive `thinking` and `redacted_thinking` blocks in the latest assistant message without editing, rearranging, or partially dropping them; modified blocks are rejected with a `400` error.<Cite id="F59 F60" /> Instrument them by recording their presence and byte length as structural fields — not by copying their contents into logs, since Claude Code always redacts Claude's extended-thinking content from exported bodies regardless of other settings.<Cite id="F17" />
 
 ## Content capture under privacy constraints
 
@@ -174,9 +176,9 @@ Content capture is a configuration decision, not a debug convenience. Anthropic'
 | `ANTHROPIC_OPEN_TELEMETRY_TRACES_MAX_CONTENT_BYTES` | Per-span content cap (default 0.75 MB).<Cite id="F5 F63" /> |
 | `open_telemetry={...}` client option | Overrides the `ANTHROPIC_OPEN_TELEMETRY*` environment variables as a whole, including nested keys: any nested key you leave out uses its default from the table even if its environment variable is set.<Cite id="F11" /> |
 | `OTEL_LOG_USER_PROMPTS=1`, `OTEL_LOG_TOOL_DETAILS=1`, `OTEL_LOG_TOOL_CONTENT=1` | Claude Code spans redact user prompt text, tool input details, and tool content by default; these flags include them.<Cite id="F14" /> |
-| `OTEL_LOG_RAW_API_BODIES=1` | Full request and response JSON as `api_request_body` / `api_response_body` events, with extended-thinking content still always redacted.<Cite id="F17 F64" /> |
+| `OTEL_LOG_RAW_API_BODIES=1` | Request and response JSON as `api_request_body` / `api_response_body` events, truncated at the content limit; extended-thinking content remains redacted.<Cite id="F17 F64 F74" /> |
 
-ZDR changes what Anthropic stores, not what you store. Under ZDR, the API does not block stateful features that are not ZDR-eligible — Files, Batch, code execution, the MCP connector, and Managed Agents (except self-hosted) — and using one steps outside your ZDR arrangement for that specific data, where the feature's own documented retention policy applies.<Cite id="F34 F65" /> ZDR-compatible signals still work: for Messages API requests under ZDR you can use Full content export, because the API holds exported content only in memory until delivery.<Cite id="F8" /> Cache diagnostics is also fingerprint-only without storing raw prompts.<Cite id="F25" /> As engineering practice, treat structural telemetry (`metadata_only`, latency, `stop_reason`, `request-id`, `trace_id`, token counts, `cache_miss_reason.type`) as always-on, and gate every content flag behind workspace policy and collector-side scrubbing, because exporting Full content replicates raw prompts into your vendor's storage under its retention terms.
+ZDR changes what Anthropic stores, not what you store. Under ZDR, the API does not block stateful features that are not ZDR-eligible — Files, Batch, code execution, the MCP connector, and Managed Agents (except self-hosted) — and using one steps outside your ZDR arrangement for that specific data, where the feature's own documented retention policy applies.<Cite id="F34 F65" /> ZDR-compatible signals still work: for Messages API requests under ZDR you can use Full content export, because the API holds exported content only in memory until delivery.<Cite id="F8" /> Cache diagnostics stores fingerprints without raw prompts; its ZDR eligibility is qualified and excludes covered models.<Cite id="F72 F76" /> As engineering practice, select structural fields such as latency, `stop_reason`, request ID, token counts, and cache-miss type under the applicable policy. Gate content capture behind workspace policy and collector-side scrubbing. Even names, identifiers, and counts may be sensitive, and a destination can retain exported prompts.
 
 ## Decision criteria
 
@@ -192,7 +194,7 @@ Evidence to inspect before deciding: `stop_reason`, `error.type` on spans, bille
 
 ## Failure modes and recovery
 
-Aggregation errors, silent export failures, and ZDR misunderstandings cause most telemetry incidents.
+Check aggregation, export health, and retention policy when telemetry appears misleading.
 
 <Callout type="mistake" title="Applying the Messages API sum to OTel spans">
 
@@ -212,16 +214,18 @@ ZDR governs what Anthropic retains; it does not govern your backend. Full conten
 
 </Callout>
 
-Two more recoveries to code explicitly: a `refusal` needs an `api_refusal` counter rather than error-rate logic because it arrives on a 200 stream and never raises an HTTP error,<Cite id="F18" /> and modifying, reordering, or partially dropping `thinking` or `redacted_thinking` blocks in a multi-turn loop fails with a `400` error, so persist blocks verbatim rather than trimming them for size.<Cite id="F59 F60" />
+Two more recoveries to code explicitly: a `refusal` needs an `api_refusal` counter rather than error-rate logic because it can arrive on a successful response stream without an HTTP error,<Cite id="F18" /> and modifying, reordering, or partially dropping `thinking` or `redacted_thinking` blocks in a multi-turn loop can invalidate the latest assistant message, so preserve its consecutive thinking blocks verbatim in tool-use turns.<Cite id="F59 F60" />
 
 ## Exam lens
 
 <ExamLens>
 
+These decision patterns are editorial inferences from the objective and documentation.
+
 - Pick **structural over content** telemetry for a ZDR-regulated workload: `metadata_only`, `request-id`, `stop_reason`, `cache_miss_reason`, and Claude Code content flags left unset — and know that calling Batch, Files, the MCP connector, or cloud-hosted Managed Agents exits ZDR without an error.<Cite id="F4 F8 F14 F34 F65" />
 - Explain a 2x token total as double counting: SDK `CLIENT` plus API `SERVER` spans, or cache attributes added onto `gen_ai.usage.input_tokens`.<Cite id="F6 F7" />
 - Explain a low Agent SDK total as `ResultMessage.usage` undercounting nested subagents; read `model_usage`.<Cite id="F22" />
-- Isolate a cache drop with `diagnostics` plus `usage`: `*_changed` means prefix drift, `diagnostics: null` with zero reads (after passing a prior id) means TTL expiry or an under-length prefix, and `previous_message_not_found` means no fingerprint exists for that prior id (omitted `diagnostics`, wrong workspace, or expired).<Cite id="F26 F50 F51" />
+- Isolate a cache drop with `diagnostics` plus `usage`: `*_changed` means prefix drift, `diagnostics: null` with zero reads after a valid comparison points to expiry or an under-length prefix, and `previous_message_not_found` means no fingerprint exists for that prior id (omitted `diagnostics`, wrong workspace, or expired).<Cite id="F26 F50 F51" />
 - Diagnose a broken trace by checking the sampled flag, `TRACEPARENT` in a non-interactive run, TypeScript `options.env`, and MCP `params._meta.traceparent` extraction.<Cite id="F9 F10 F15 F19 F35" />
 
 </ExamLens>
@@ -236,12 +240,12 @@ Summing both the `CLIENT` and `SERVER` `anthropic.messages.create` spans for the
 
 <SelfCheck question="A ZDR team sets OTEL_TRACES_EXPORTER=otlp in a TypeScript Agent SDK worker via options.env, and calls start failing with auth errors while no telemetry errors appear in application logs. Why?">
 
-TypeScript `env` replaces the inherited environment entirely, so omitting `...process.env` strips credentials (and `TRACEPARENT`) from the child.<Cite id="F19" /> The missing telemetry errors are expected too: the CLI fails silently on export errors by default, and only `CLAUDE_CODE_OTEL_DIAG_STDERR=1` surfaces them.<Cite id="F21 F53" />
+TypeScript `env` replaces the inherited environment entirely, so omitting `...process.env` strips credentials (and `TRACEPARENT`) from the child.<Cite id="F19" /> The missing telemetry errors are expected too: the CLI fails silently on export errors by default, and set `CLAUDE_CODE_OTEL_DIAG_STDERR=1` and read the SDK stderr callback or option to surface them.<Cite id="F21 F53" />
 
 </SelfCheck>
 
 <SelfCheck question="Turn 5 of a cached conversation reports cache_read_input_tokens: 0 and diagnostics: null after a valid previous_message_id. Did the prompt prefix change?">
 
-No. Diagnostics reports `null` because there was no structural divergence before the breakpoint, so combined with zero cache reads the entry expired beyond its TTL or the prefix is below the minimum cacheable length — `diagnostics` tells you whether the request changed, and `usage.cache_read_input_tokens` tells you whether the cache hit.<Cite id="F26 F50" />
+For a completed comparison against a real prior ID, `null` indicates no divergence before the last breakpoint. Zero cache reads points to an expired entry or a prefix below the minimum cacheable length. Check the comparison conditions before drawing that conclusion.<Cite id="F26 F50" />
 
 </SelfCheck>

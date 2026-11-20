@@ -621,3 +621,60 @@
   source: anthropic-docs
   quote: "It tells you where they diverged (the model, the system prompt, the tools, or the message history), so you can fix the root cause instead of guessing."
   accessed: 2026-11-19
+- id: F70
+  claim: "OpenTelemetry SDKs can inject trace and span IDs into log records."
+  tag: STD
+  url: https://opentelemetry.io/docs/concepts/context-propagation/
+  title: "Context propagation"
+  source: standard
+  quote: "OpenTelemetry SDKs are able to automatically correlate logs with traces. This means they can inject context (Trace ID, Span ID) into a log record."
+  accessed: 2026-11-19
+- id: F71
+  claim: "W3C Trace Context defines HTTP traceparent and tracestate headers."
+  tag: STD
+  url: https://www.w3.org/TR/trace-context/
+  title: "Trace Context"
+  source: standard
+  quote: "This section describes the binding of the distributed trace context to traceparent and tracestate HTTP headers."
+  accessed: 2026-11-19
+- id: F72
+  claim: "Cache diagnostics fingerprints contain hashes and token-count estimates, not raw prompts."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics
+  title: "Cache diagnostics"
+  source: anthropic-docs
+  quote: "Fingerprints contain only hashes and token-count estimates (never raw prompt content), are retained for a limited time, are scoped to your organization and workspace, and are not used for any other purpose."
+  accessed: 2026-11-19
+- id: F73
+  claim: "Cache comparison may be unavailable for changed parameters or long conversations."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics
+  title: "Cache diagnostics"
+  source: anthropic-docs
+  quote: "Diagnostic information was not available for this request. This includes the case where model, system, and tools match but another prompt-affecting request parameter (tool_choice, thinking, context_management, output_config, output_format, or the set of active anthropic-beta headers) differs, and very long conversations where the divergence is beyond the comparison horizon."
+  accessed: 2026-11-19
+- id: F74
+  claim: "The value 1 enables inline raw API bodies truncated at the content limit."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "1 for inline bodies truncated at the content limit (60 KB by default), or file:<dir> for untruncated bodies on disk with a body_ref pointer in the event"
+  accessed: 2026-11-19
+- id: F75
+  claim: "Claude Code logs user prompt events when a prompt is submitted."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Logged when a prompt is submitted, including on turns Claude Code starts on its own. Event Name: claude_code.user_prompt"
+  accessed: 2026-11-19
+- id: F76
+  claim: "Cache diagnostics has qualified ZDR eligibility that excludes covered models."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics
+  title: "Cache diagnostics"
+  source: anthropic-docs
+  quote: "Excludes Covered Models"
+  accessed: 2026-11-19
+  version_note: "The cache diagnostics data-handling table lists qualified ZDR eligibility."

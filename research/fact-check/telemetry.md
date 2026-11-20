@@ -28,3 +28,26 @@ Checked: 2026-11-19 · Reviewer: Gemini 4 Hydrogen
 
 ## Remaining concerns
 - None; all 69 citations verify against current primary docs and the build passes cleanly.
+
+## Second pass (GPT-6)
+
+### Summary
+- Reviewed 98 citation placements and uncited factual statements in the revised chapter. Supported, fixed, and removed claim totals were not tracked separately. Added 7 citations (`F70`–`F76`). Checked 1 Python block against documentation and parsed it.
+- Checked all seven parts of skill 3.1 and compared the exam lens with the three sample-item rationales. The lens is labeled as editorial inference.
+- Citation check: OK. Quote check: 76 citations, no not-found or fetch-failed results using cached and web-fetched source text. Isolated Astro build: complete. Python AST parse: passed.
+
+### Changes
+- OTel log correlation — universal automatic wrapping overstated SDK behavior → described correlation as a capability to configure and verify using the official OTel source (`F70`).
+- Trace lifecycle and missing spans — recommendations and sampling presented as certainties → distinguished recommendations and added export and configuration as possible causes (`F2`, `F9`, `F38`).
+- Trace propagation — implied all tool hops use the same transport and that connector behavior describes local stdio → distinguished HTTP and MCP context and corrected the connector path in the diagram (`F10`, `F35`, `F71`).
+- Cache diagnostics — comparison outcomes overstated and unavailable omitted → distinguished changes, pending and unavailable results; corrected the example's token estimate (`F52`, `F69`, `F73`).
+- Python example — collapsed pending comparison and no divergence and implied metadata-only ensures ZDR → distinguished the states and removed the guarantee (`F11`, `F52`).
+- Reasoning traceability — implied complete readable reasoning and extended the latest-message rule to historical blocks → qualified the evidence and narrowed the preservation rule (`F58`, `F59`, `F60`).
+- Content capture — omitted default truncation for raw bodies and treated structural data as universally safe → documented the cap and made field selection subject to policy (`F17`, `F64`, `F74`).
+- Cache fingerprints — raw-text exclusion and qualified ZDR eligibility lacked direct support → cited the fingerprint description and covered-model exclusion (`F72`, `F76`).
+- Claude Code prompt event — cited excerpt did not establish prompt submission → added a direct primary-source citation (`F75`).
+- Refusal and stderr recovery — implied every refusal is an HTTP 200 and a variable alone exposes diagnostics → followed documented successful-stream behavior and required the SDK stderr handler (`F18`, `F53`).
+
+### Remaining concerns
+- The example was parsed and checked against documentation; it was not run against a live Claude API or OTLP collector.
+- The quote verifier cannot fetch directly in this restricted environment. Existing cached pages and two standards pages fetched through the web tool were used. The build and verifier ran in an isolated copy because both write generated files outside the three authorized files.
