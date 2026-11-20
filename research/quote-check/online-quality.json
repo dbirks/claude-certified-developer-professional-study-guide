@@ -127,7 +127,7 @@
   {
     "id": "F26",
     "status": "ok",
-    "url": "https://www.itl.nist.gov/div898/handbook/ppc/section3/ppc333.htm"
+    "url": "https://www.itl.nist.gov/div898/handbook/prc/section2/prc242.htm"
   },
   {
     "id": "F27",
@@ -153,5 +153,35 @@
     "id": "F31",
     "status": "ok",
     "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
+  },
+  {
+    "id": "F32",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/clio"
+  },
+  {
+    "id": "F33",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/building-strong-safety-evaluations"
+  },
+  {
+    "id": "F34",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/building-strong-safety-evaluations"
+  },
+  {
+    "id": "F35",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/claude-code-analytics-api"
+  },
+  {
+    "id": "F36",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/claude-code-analytics-api"
+  },
+  {
+    "id": "F37",
+    "status": "ok",
+    "url": "https://www.nist.gov/publications/de-identification-personal-information"
   }
 ]

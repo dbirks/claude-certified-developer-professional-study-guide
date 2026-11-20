@@ -1,0 +1,167 @@
+---
+title: "Online Quality Measurement"
+summary: "Choose sampling, experiment, feedback, and metric designs that measure quality on live Claude application traffic."
+kind: skill
+skill: "5.3"
+slug: online-quality
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+**Online quality measurement** evaluates a Claude application on live production traffic. **Online evaluation** uses live inputs, outcomes, or feedback to estimate quality under actual use; offline evals measure behavior on a curated suite. Anthropic says evals provide signals for improvement when combined with production monitoring, A/B tests, and user research.<Cite id="F1" /> Anthropic recommends combining automated evals for fast iteration, production monitoring for ground truth, and periodic human review for calibration.<Cite id="F2" /> This chapter helps choose an online method, sample, and metric for a question about a live application.
+
+## How online evaluation fits together
+
+An online program has four parts: a **probability sample** of production traffic, where each eligible unit has a known chance of selection, a grading layer, an experiment harness, and a feedback loop into offline regression tests. The grading layer mixes grader types: agent evaluations typically combine code-based, model-based, and human graders.<Cite id="F5" /> Once evals exist, latency, token usage, cost per task, and error rates can be tracked on a static bank of tasks.<Cite id="F6" /> Convert user-reported failures into test cases to keep the offline suite aligned with actual usage, and prioritize by user impact.<Cite id="F3" />
+
+<Figure caption="Combine prospective experiments and privacy-safe feedback with offline regression gates. A shadow branch mirrors permitted input through isolated candidate tools and feeds paired review.">
+  <Flow direction="vertical" steps={[
+    "Eligible production traffic",
+    { label: "Sticky random assignment", note: "A or B, persisted for the interaction" },
+    { label: "User outcome and metrics", note: "shadow branch mirrors input, isolated tools" },
+    { label: "Privacy-filtered probability sample", note: "recorded inclusion probability" },
+    { label: "Human or calibrated judge", note: "paired review for shadow outputs" },
+    { label: "Experiment analysis", note: "fixed-horizon or prespecified sequential" },
+    "Rollout gate or rollback",
+  ]} />
+</Figure>
+
+The offline half of the loop is the release gate:
+
+<Flow steps={["Sampled failures", { label: "Labeled regression suite", note: "representative, holdout retained" }, "Offline release gate"]} />
+
+## Live-traffic sampling and privacy
+
+Define the population and the sampling unit before you collect any content: all eligible production tasks, one sample per task or per sticky session, recorded with a stable pseudonymous id, the assignment, timestamps, model, prompt, tool, and retrieval versions, and the outcome. Draw a known-probability baseline sample separately from enriched samples of errors, rare languages, or thumbs-down, record each inclusion probability, and use inverse-probability weighting for population estimates. Report raw counts with uncertainty. Use a failure-enriched stream to find problems, but do not use it alone to estimate the fleet failure rate. Keep a separate, untouched random sample for measuring releases.
+
+Anthropic’s Clio research system is now called Anthropic Insights.<Cite id="F32" /> It describes a privacy-filtered pipeline that groups similar conversations by topic,<Cite id="F9" /> applies a minimum threshold on unique users or conversations to reduce exposure of low-frequency topics,<Cite id="F10" /> and uses Claude to check cluster summaries for overly specific or identifying information before display.<Cite id="F11" /> Anthropic says the system might still miss some kinds of private information.<Cite id="F12" /> Treat that layered design as inspiration, not a customer-facing API or a promise of equivalent protection.
+
+For your own pipeline, capture numeric outcomes and redacted metadata by default, and collect the minimum necessary text only under an authorized retention, access, and deletion policy. Strip credentials, OAuth tokens, personal identifiers, and sensitive tool results before storage or transfer to a grader, then restrict and audit reviewer access, encrypt, and set short retention. Redaction can change evaluation meaning, so validate on permitted human-reviewed data and count suppressed or ungradable cases. De-identification reduces privacy risk, but some de-identified data can still be re-identified. Use minimum cohort sizes and suppress revealing intersections in segment outputs.<Cite id="F37" />
+
+## A/B testing and rollout
+
+Fix the estimand, eligibility, randomization unit, primary outcome, denominator, baseline, **minimum detectable effect (MDE)**, power, significance threshold, duration, and guardrails before you assign anyone. Assign with a stable keyed hash of an eligible user or tenant plus an experiment salt, and persist the assignment for the entire interaction, so a user does not see inconsistent model behavior. Use tenant-level randomization when shared state or collaboration creates interference: randomized trial conclusions may be biased when the outcome of one unit depends on the treatment status of other units, a problem known as interference.<Cite id="F27" /> Power and analyze at that unit, or with cluster-robust inference, because equal request counts are not independent user counts. Analyze all eligible randomized units on an intention-to-treat basis; conditioning on a downstream event the variant influences biases results.
+
+A **shadow deployment** mirrors permitted input and runs a candidate privately alongside the serving model, so only the control's answer reaches the user. Record matched inputs, versioned retrieved context, output, latency, failures, and cost; isolate credentials and block, simulate, or replay write-capable MCP tools so neither branch duplicates an external action. Shadow quality can be judged on paired outputs, but it carries no direct evidence of user behavior, and replayed tool results can diverge from the candidate's actual sequence. Compare it with offline and live signals rather than trusting one source, the same three-way mix of evals, monitoring, and human review.<Cite id="F2" />
+
+Then expose a small stable randomized cohort and increase traffic only after prespecified quality, safety, latency, error, and cost guardrails pass, keeping a routing rollback to the prior model and configuration. Immediate mitigation of harm can interrupt an experiment; do not present an emergency stop as an ordinary fixed-horizon significance result.
+
+Fixed-horizon significance assumes the planned analysis time and sample size, and peeking repeatedly can inflate the Type I error rate and cause experimenters to see more false positives.<Cite id="F13" /> For efficacy decisions during continuous monitoring, use a sequential-testing design; Microsoft Research notes that traditional fixed-horizon statistics are not suited to that setting.<Cite id="F14" /> If you need early efficacy decisions, pre-specify a valid group-sequential, alpha-spending, or anytime-valid method and its assumptions; frequent operational monitoring for safety remains appropriate. A non-significant difference is not evidence of equivalence: to prove a cheaper model is not materially worse, predefine a noninferiority margin and the matching test. Multiple primary metrics and subgroup searches need multiplicity control or exploratory labeling.
+
+## Worked example: sizing and reading an A/B test
+
+A support-agent team compares hypothetical Claude configurations A and B. One eligible independent user starts exactly one task in a 50/50 fixed-horizon experiment, and all assigned tasks, including failures and timeouts, stay in the primary denominator. Completion is verified by a separately calibrated review process. Before launch the team fixes a baseline of 80%, an MDE of +3 percentage points (83%), two-sided alpha 0.05, power 80%, and no repeated efficacy peeking, assuming independent Bernoulli outcomes, stable rates, equal allocation, no interference, no missing labels, and no multiplicity correction. Sample-size planning needs the effect size, the population variation, the desired power, and the significance level;<Cite id="F28" /> the code uses a normal approximation for a two-sample proportions test.<Cite id="F26" />
+
+This is runnable Python 3 using only the standard library; no SDK or version is required:
+
+```python
+from math import ceil, sqrt
+p_a, p_b = .80, .83
+z_alpha, z_power = 1.95996398454, .84162123357
+p_bar = (p_a + p_b) / 2
+n = ((z_alpha * sqrt(2 * p_bar * (1 - p_bar))
+      + z_power * sqrt(p_a * (1 - p_a) + p_b * (1 - p_b)))
+     / (p_b - p_a)) ** 2
+print(ceil(n))  # 2629 per arm, approximate
+```
+
+That is **2,629 users per arm**, an approximation: use simulation or a validated power tool for the actual test, and expect clustered users or attrition to raise the requirement. The 3-point MDE is a planning target, not a guaranteed observed effect. Suppose 2,629 users per arm produce the following fictional results, where cost covers model, tool, retry, and grading, and time is user-perceived end-to-end time:
+
+| Metric | A | B |
+|---|---:|---:|
+| Verified completion | 2,103/2,629 = 80.0% | 2,182/2,629 = 83.0% |
+| p95 latency | 6.0 s | 7.2 s |
+| Mean cost / assigned task | $0.040 | $0.055 |
+| Total cost / verified completion | $105.16/2,103 = $0.050 | $144.60/2,182 = $0.066 |
+
+The observed difference is about 3.0 percentage points; the approximate unpooled 95% confidence interval is +0.91 to +5.10 percentage points, not a guarantee of the true effect. The extra 79 successful tasks cost $39.44, about $0.50 per additional success. If a pre-registered guardrail requires p95 latency of at most 7 seconds, B fails it despite the quality gain: retain A, or optimize B and rerun. If the gate allows 8 seconds and the organization values the extra completions above their incremental cost, B can be considered for controlled expansion, with quality, segment outcomes, and safety still checked. This is a superiority illustration, not a noninferiority analysis.
+
+## Metric selection by task type
+
+Select observable outcomes before you choose a judge, and track denominators and label quality. Most use cases need multidimensional evaluation along several success criteria,<Cite id="F7" /> and those criteria must align with the application's purpose and user needs.<Cite id="F22" /> Combine deterministic checks with calibrated human or judge review, and test LLM-based grading for reliability first, then scale it.<Cite id="F8" />
+
+| Task type | Primary measure | Also report | Main trap |
+|---|---|---|---|
+| Extraction | Field exact match = correct fields / eligible fields | Per-field and record-level all-fields-correct separately; stratify high-impact fields | Treating schema validity as semantic correctness |
+| Generation | Score a versioned, behaviorally specific rubric for correctness, completeness, instruction adherence, tone | Blinded human labels, randomized and flipped pairwise answer order, spot checks by segment, refusal and ungradable rates, judge/human disagreement, cost per graded item | Exact text match penalizes valid alternatives |
+| Agentic | Task completion = verified successful tasks / eligible tasks, with timeout, cancellation, and unsafe actions classified | Steps, tool calls, tool-error rate (failed calls / attempted calls), retries, elapsed time, total cost, human intervention | Accepting a model's self-reported success instead of final external state |
+| Retrieval-grounded | Groundedness = supported factual claims / assessable factual claims; citation precision = citation links that support their attached claim / citation links assessed | Citation coverage = factual claims with a supporting citation / factual claims requiring citations; answerability; retrieval hit and recall against human evidence labels | Reading a valid citation location as proof the passage entails the claim |
+
+For extraction, define normalization, optional, null, and missing fields, duplicates, micro versus macro aggregation, and zero denominators in advance; for multi-valued entities use `precision = TP/(TP+FP)`, `recall = TP/(TP+FN)`, and `F1 = 2TP/(2TP+FP+FN)`. For generation, version the rubric like the prompt, because vague grader rubrics produce inconsistent judgments.<Cite id="F4" /> Validate a judge against blinded human labels.<Cite id="F34" /> Flip answer order in pairwise comparisons, and recheck top-line results before using judge scores to gate a change.<Cite id="F33" /> For agentic work, a shorter trajectory is useful only conditional on acceptable outcomes and safety, and duplicate side effects count separately. For grounded answers, define claim splitting, shared citations, partial support, contradictory evidence, and zero-citation outputs, and score retrieval and synthesis separately.
+
+## Production data sources and API details
+
+Claude Code analytics is organization-level, daily, and actor-level, not a per-request trace. Read `GET /v1/organizations/usage_report/claude_code` with a required `starting_at` UTC date in `YYYY-MM-DD` format, which returns metrics for that single day only.<Cite id="F29" /> `limit` is optional (default 20, max 1000)<Cite id="F35" /> and `page` is the opaque `next_page` cursor.<Cite id="F36" /> An actor can have several records for the same day, so add up an actor's records to get its daily totals.<Cite id="F15" /> Aggregate the dimension-split rows before computing a daily rate, not an unweighted average of row rates. `edit_tool.accepted` and `edit_tool.rejected` are the counts of Edit tool proposals the user accepted and rejected.<Cite id="F16" /> Metrics are available with up to a 1-hour delay for consistency,<Cite id="F24" /> and access requires an Admin API key, an OAuth token with the `org:admin` scope, or a personal or service account key that is not scoped to a workspace; workspace API keys do not work.<Cite id="F17" />
+
+Cost and volume metrics need the cache categories. `usage.input_tokens` represents only the tokens that come after the last cache breakpoint, not all the input tokens sent,<Cite id="F18" /> and total input is `cache_read_input_tokens + cache_creation_input_tokens + input_tokens`.<Cite id="F30" /> Record those three plus `output_tokens` separately, then apply actual platform or model prices and tool charges; otherwise a change in cache mix looks like a model improvement.
+
+Claude can enable document citations with `citations: {"enabled": true}` on a document block.<Cite id="F31" /> When citations are enabled, responses include multiple text blocks with citations,<Cite id="F21" /> and custom content documents give you control over citation granularity, so location type and granularity depend on source type.<Cite id="F19" /> Claude cannot cite images, so it cannot cite a scanned PDF with no extractable text.<Cite id="F20" /> Neither a citation's existence nor its `cited_text` alone proves entailment.
+
+<Callout type="version" title="Checked 2026-11-19">
+
+The Claude Code Analytics parameters, the up-to-1-hour delay, the `citations: {"enabled": true}` flag, and the `usage` cache token fields were checked against Anthropic documentation on 2026-11-19. The experiment assignment, sampling policy, and metric definitions here are application designs, not built-in Claude API parameters. Choose sampling rates and rollout sizes for the application; no universal rate or platform-independent tariff is claimed.
+
+</Callout>
+
+## Feedback loops and drift
+
+Treat thumbs-up and thumbs-down, support reports, retries, edited answers, abandonment, and accepted tool edits as noisy behavioral signals, not gold labels. Show the explicit feedback rate (votes / eligible exposures) with the vote mix (negative / votes), because low or changing response rates and self-selection can reverse the reading: retries may reflect exploration, and edits can improve text that was already useful. Compute Claude Code's Edit acceptance rate as accepted / (accepted + rejected) from the `edit_tool` counters, which excludes unobserved proposals,<Cite id="F16" /> and pair it with task correctness and later review rather than claiming accepted lines prove productivity.
+
+A repair loop turns one bad signal into permanent coverage: triage sampled negative signals, inspect permitted evidence, annotate the failure origin (model, harness, tool, retrieval, or user goal), prioritize by impact, fix, add representative cases to the regression suite, and validate online again, retaining holdouts to reduce overfitting. That is Anthropic's recommendation to convert user-reported failures into test cases and prioritize by user impact,<Cite id="F3" /> re-checked against the latency, token usage, cost per task, and error-rate baselines a static suite gives you.<Cite id="F6" />
+
+For drift diagnosis, check four possible causes — model, traffic, evaluator, and instrumentation — and monitor more than the score. Track weekly task mix, language, customer segment, input length, retrieval coverage, and tool versions against a baseline, and compare quality within stable strata as well as overall, because an aggregate change may come from mix shift rather than a within-segment regression. Monitor the judge's version and its agreement with a stable human-labeled set, its calibration, latency, sampling probability, and label delay. Segment estimates need counts, confidence intervals, and privacy suppression; rare groups often lack power, and vague rubrics make disagreement look like signal.<Cite id="F4" />
+
+## Decision criteria
+
+- **Need a fleet-level rate?** Use a known-probability random sample with inverse-probability weighting; a failure-enriched stream cannot produce it.
+- **Comparing two configurations on user outcomes?** Run a randomized experiment with a stable keyed assignment at the user or tenant unit, and cluster the analysis when units share state.<Cite id="F27" />
+- **Need a decision before the planned sample arrives?** Use a prespecified group-sequential or anytime-valid method, not repeated fixed-horizon peeks.<Cite id="F13 F14" />
+- **Must show a cheaper model is not materially worse?** Use a noninferiority design with a predefined margin; a non-significant difference proves nothing.
+- **Candidate risks harm or side effects?** Shadow it first with isolated or replayed tools, then graduate to a small stable randomized cohort behind guardrails.
+- **Choosing the metric?** Match it to the task type in the table above.
+- **Before expanding traffic?** Demand verified outcomes with denominators, segment slices with counts and intervals, guardrail results, cost per verified completion, and exposure-normalized feedback.
+
+## Failure modes and recovery
+
+<Callout type="mistake" title="Reading an enriched sample as representative traffic">
+A dashboard built from errors and thumbs-down shows a rising failure rate that is really a rising report rate. Keep a known-probability baseline sample, record inclusion probabilities, weight by them for population estimates, and never hide ungraded observations in a denominator.
+</Callout>
+
+<Callout type="mistake" title="Stopping at the first p &lt; 0.05">
+Repeated efficacy peeks inflate the Type I error rate and produce false positives.<Cite id="F13" /> Fix the analysis time and sample size, or pre-specify a sequential method for continuous monitoring.<Cite id="F14" /> Treat an emergency stop for harm as a guardrail event, not a significance result.
+</Callout>
+
+<Callout type="mistake" title="Double-writing in shadow mode">
+A shadow candidate with live credentials repeats real mutations: duplicate charges, duplicate tickets. Block, simulate, or replay write-capable MCP tools on the shadow branch, isolate its credentials, and never attribute live user effects of A to the hidden B.
+</Callout>
+
+Lesser failures and their recovery:
+
+- **Unweighted averages of per-segment or per-actor rates.** Aggregate counts first, then divide; Claude Code analytics splits one actor's day into several dimension rows.<Cite id="F15" />
+- **Clustered requests treated as independent users.** Randomize and analyze at the user or tenant unit.<Cite id="F27" />
+- **An underpowered subgroup declared safe.** Report counts and confidence intervals, or label the analysis exploratory.
+- **Cost or latency comparisons that ignore cache categories, tool charges, retries, grader expense, or tail latency.** Sum and price the three input token categories, and compare p95 time to verified completion.<Cite id="F30" />
+- **Equating a citation, an accepted edit, or a completed API call with completed user work.** Check entailment, task correctness, and final external state.
+
+## Exam lens
+
+<ExamLens>
+- **A model wins offline but live completion falls.** Examine production traffic mix, missing slices, and tool or retrieval context before declaring the offline suite conclusive; compare within stable strata.
+- **Repeated users share agent state.** Prefer stable user or tenant assignment and correctly clustered analysis over request-level randomization.<Cite id="F27" />
+- **Sampled thumbs-up rises while fewer users vote.** The exposure denominator and independent labels decide: compare votes per eligible exposure, not votes per voter.
+- **Metric choice is asked.** Field correctness for extraction, calibrated rubrics for generation, outcome plus tool health for agents, claim support plus citation precision for grounded answers.<Cite id="F19 F21" />
+</ExamLens>
+
+## Self-check
+
+<SelfCheck question="A candidate has a higher sampled thumbs-up rate but fewer users vote. What do you check next?">
+Compare exposure-normalized feedback (votes / eligible exposures) alongside the vote mix, because self-selection and changing response rates can reverse the reading. Confirm with a known-probability random sample and verified task outcomes rather than voter sentiment alone.
+</SelfCheck>
+
+<SelfCheck question="Why can shadow testing miss a regression in user retention?">
+Users never interact with the shadow answer, so it yields paired output quality but no behavioral evidence. Only live randomized exposure measures downstream behavior such as retention.
+</SelfCheck>
+
+<SelfCheck question="Why is one task success per API call a poor assumption for a multi-step agent?">
+Many correlated calls belong to a single user outcome, so request-level counting inflates your independent-unit count and biases the estimate. Aggregate and analyze at the randomized unit while measuring tool errors, retries, and side effects separately.
+</SelfCheck>

@@ -94,6 +94,12 @@ Log: [fact-check/multi-agent-orchestration.md](fact-check/multi-agent-orchestrat
 
 - Checked all 34 original citation records (21 supported as drafted; 13 partial or overstated and corrected); reviewed uncited factual and numeric statements. All 59 final cited claims are supported. Removed or narrowed 8 stale or unsupported assertions. Added 25 citations. Checked and Python-parsed 1 code block. Quote verification: 49 exact matches, 10 normalized matches, 0 not found.
 
+### 5.3 Online Quality Measurement
+
+Log: [fact-check/online-quality.md](fact-check/online-quality.md) · passes: 1 · reviewer(s): GPT-6
+
+- 31 original citation claims checked: 25 supported, 6 fixed, 0 removed; 6 citations added; 1 Python code block checked and parsed successfully.
+
 ### Reference Practice Domain 1
 
 Log: [fact-check/practice-domain-1.md](fact-check/practice-domain-1.md) · passes: 1 · reviewer(s): Gemini 4 Hydrogen (High)
