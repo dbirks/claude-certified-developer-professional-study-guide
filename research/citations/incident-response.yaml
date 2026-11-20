@@ -1,0 +1,348 @@
+- id: F1
+  claim: "Effective incident management follows four core principles: maintain a clear line of command, designate clearly defined roles, keep a working record of debugging and mitigation, and declare incidents early and often."
+  tag: STD
+  url: https://sre.google/workbook/incident-response/
+  title: "Incident Response — Google SRE Workbook"
+  source: standard
+  quote: "The basic principles of incident response include the following: Maintain a clear line of command. Designate clearly defined roles. Keep a working record of debugging and mitigation as you go. Declare incidents early and often."
+  accessed: 2026-11-19
+
+- id: F2
+  claim: "Resolving an incident focuses on mitigating impact and restoring service, whereas managing an incident focuses on coordinating responders and communication."
+  tag: STD
+  url: https://sre.google/workbook/incident-response/
+  title: "Incident Response — Google SRE Workbook"
+  source: standard
+  quote: "Resolving an incident means mitigating the impact and/or restoring the service to its previous condition. Managing an incident means coordinating the efforts of responding teams in an efficient manner and ensuring that communication flows both between the responders and to those interested in the incident’s progress."
+  accessed: 2026-11-19
+
+- id: F3
+  claim: "During an active incident, only the designated operations team should make changes to the production system so uncoordinated freelancing does not worsen the outage."
+  tag: STD
+  url: https://sre.google/sre-book/managing-incidents/
+  title: "Managing Incidents — Google SRE Book"
+  source: standard
+  quote: "The operations team should be the only group modifying the system during an incident."
+  accessed: 2026-11-19
+
+- id: F4
+  claim: "The Communications Lead acts as the public face of the incident response, issuing periodic updates to responders and stakeholders and keeping the living incident document up to date."
+  tag: STD
+  url: https://sre.google/sre-book/managing-incidents/
+  title: "Managing Incidents — Google SRE Book"
+  source: standard
+  quote: "This person is the public face of the incident response task force. Their duties most definitely include issuing periodic updates to the incident response team and stakeholders (usually via email), and may extend to tasks such as keeping the incident document accurate and up to date."
+  accessed: 2026-11-19
+
+- id: F5
+  claim: "Anthropic's status page at status.claude.com tracks individual services (including claude.ai, Claude Console, Claude API, and Claude Code) and sends notifications when incidents are created, updated, or resolved."
+  tag: FACT
+  url: https://status.claude.com/
+  title: "Claude Status"
+  source: anthropic-docs
+  quote: "Get email notifications whenever Claude creates, updates or resolves an incident."
+  accessed: 2026-11-19
+
+- id: F6
+  claim: "status.claude.com reports status per surface—such as Claude Console (platform.claude.com), Claude API (api.anthropic.com), and Claude Code—allowing responders to see which surface is affected."
+  tag: FACT
+  url: https://status.claude.com/
+  title: "Claude Status"
+  source: anthropic-docs
+  quote: "Claude Console (platform.claude.com) Operational Claude API (api.anthropic.com) Operational Claude Code"
+  accessed: 2026-11-19
+
+- id: F7
+  claim: "Platform-wide Anthropic incidents can affect first-party and third-party cloud platforms differently; for example, Anthropic's August–September 2025 output corruption bug affected the first-party API while third-party platforms were unaffected."
+  tag: FACT
+  url: https://www.anthropic.com/research/a-postmortem-of-three-recent-issues
+  title: "A postmortem of three recent issues"
+  source: anthropic-research
+  quote: "This corruption affected requests made to Opus 4.1 and Opus 4 on August 25-28, and requests to Sonnet 4 August 25–September 2. Third-party platforms were not affected by this issue."
+  accessed: 2026-11-19
+
+- id: F8
+  claim: "Because Anthropic's serving routing can be sticky, a subset of users or sessions can experience persistent degradation while overall aggregate metrics look healthy."
+  tag: FACT
+  url: https://www.anthropic.com/research/a-postmortem-of-three-recent-issues
+  title: "A postmortem of three recent issues"
+  source: anthropic-research
+  quote: "However, some users were affected more severely, as our routing is \"sticky\". This meant that once a request was served by the incorrect server, subsequent follow-ups were likely to be served by the same incorrect server."
+  accessed: 2026-11-19
+
+- id: F9
+  claim: "Anthropic's postmortem remediation combined rapid rollback of offending changes with adding targeted deployment detection tests and continuous production quality evaluations."
+  tag: REC
+  url: https://www.anthropic.com/research/a-postmortem-of-three-recent-issues
+  title: "A postmortem of three recent issues"
+  source: anthropic-research
+  quote: "We identified the issue and rolled back the change on September 2. We've added detection tests for unexpected character outputs to our deployment process."
+  accessed: 2026-11-19
+
+- id: F10
+  claim: "Anthropic recommends developing more sensitive evaluations that reliably distinguish working from broken implementations when aggregate benchmarks fail to catch quality regressions."
+  tag: REC
+  url: https://www.anthropic.com/research/a-postmortem-of-three-recent-issues
+  title: "A postmortem of three recent issues"
+  source: anthropic-research
+  quote: "More sensitive evaluations: To help discover the root cause of any given issue, we’ve developed evaluations that can more reliably differentiate between working and broken implementations. We’ll keep improving these evaluations to keep a closer eye on model quality."
+  accessed: 2026-11-19
+
+- id: F11
+  claim: "HTTP 401 authentication_error indicates an issue with your API key (such as being malformed, revoked, or expired) or cloud credentials, distinguishing local auth/revocation failures from Anthropic service outages."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "401 - authentication_error: There’s an issue with your API key (for example, it’s malformed, revoked, or expired; see Key expiration). On Claude Platform on AWS, this can also indicate a problem with your AWS credentials or SigV4 signature."
+  accessed: 2026-11-19
+
+- id: F12
+  claim: "HTTP 529 overloaded_error indicates the Anthropic API is temporarily overloaded across users rather than a bug in the caller's request."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "529 - overloaded_error: The API is temporarily overloaded."
+  accessed: 2026-11-19
+
+- id: F13
+  claim: "The official Anthropic SDKs automatically retry transient failures (connection errors, rate limits, and 5xx server errors) with exponential backoff twice by default, honoring retry-after headers, configurable via max_retries."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "The official SDK automatically retries transient failures (such as connection errors, rate limits, and 5xx server errors) with exponential backoff, twice by default, honoring the retry-after header when present. The SDK client accepts max_retries (typescript, php: maxRetries; java: .maxRetries(); csharp: MaxRetries; go: option.WithMaxRetries()) to configure or disable this behavior."
+  accessed: 2026-11-19
+
+- id: F14
+  claim: "Starting with the Claude 4.6 generation, dateless model IDs such as claude-sonnet-4-6 map to a single fixed model snapshot whose weights and configuration Anthropic does not silently update."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions
+  title: "Model IDs and versioning"
+  source: anthropic-docs
+  quote: "For the 4.6 generation and later, the dateless ID is the canonical model ID for that release. It maps to a single, fixed model snapshot. Anthropic does not update the weights or configuration of an existing model ID. When an updated version is available, it ships under a new model ID."
+  accessed: 2026-11-19
+  version_note: "Applies to Claude 4.6 generation and later; pre-4.6 dateless strings were aliases pointing to dated snapshots."
+
+- id: F15
+  claim: "Even when a model ID's weights are pinned, updates to serving infrastructure—including the request router, safety classifiers, and sampling logic—can cause observable behavioral differences."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions
+  title: "Model IDs and versioning"
+  source: anthropic-docs
+  quote: "Model weights are fixed for a given ID, but the serving infrastructure around the model can change over time. This infrastructure includes components such as the request router, safety classifiers, and sampling logic."
+  accessed: 2026-11-19
+
+- id: F16
+  claim: "When a model returns stop_reason: refusal, setting fallbacks to default (beta header server-side-fallback-2026-07-01) lets the API retry on a recommended fallback model, except for Claude Haiku 5.5 which requires client-side fallback."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback
+  title: "Refusals and fallback"
+  source: anthropic-docs
+  quote: "set fallbacks to \"default\", and the API retries a declined request on the fallback model Anthropic recommends for its refusal category. For categories with no recommended fallback, the refusal stands. Claude Haiku 5.5 has no server-side fallback, so for it use client-side fallback with the SDK middleware or write the retry yourself."
+  accessed: 2026-11-19
+  version_note: "Beta feature using header server-side-fallback-2026-07-01 on Claude API and Google Cloud (Anthropic managed)."
+
+- id: F17
+  claim: "Every successful Messages API response includes stop_reason, allowing application code to branch deterministically between normal completion, tool use, truncation, and refusals."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons
+  title: "Stop reasons and fallback"
+  source: anthropic-docs
+  quote: "The stop_reason field is part of every successful Messages API response. Unlike errors, which indicate failures in processing your request, stop_reason tells you why Claude completed its response generation."
+  accessed: 2026-11-19
+
+- id: F18
+  claim: "In the Claude Console, disabling an API key is reversible (status inactive) while deleting an API key is permanent (status archived), giving responders both temporary containment and hard revocation options."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/authentication
+  title: "Authentication"
+  source: anthropic-docs
+  quote: "On the API keys page in the Claude Console, Disable is reversible (the Admin API reports the key’s status as \"inactive\", and Re-enable returns it to \"active\"), whereas Delete is permanent: the key is archived and still appears in List API Keys with status: \"archived\"."
+  accessed: 2026-11-19
+
+- id: F19
+  claim: "The Admin API endpoint POST /v1/organizations/api_keys/{api_key_id} allows programmatic key containment by updating status to inactive or archived."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/organization/api_keys/update
+  title: "Update API Key"
+  source: anthropic-docs
+  quote: "status: optional \"active\" or \"archived\" or \"inactive\" or null Status of the API key."
+  accessed: 2026-11-19
+
+- id: F20
+  claim: "To stop a runaway Managed Agents session while preserving its transcript for forensics, send a user.interrupt event so the session becomes idle, end any open workflow runs, and then archive the session."
+  tag: VER
+  url: https://platform.claude.com/docs/en/managed-agents/session-operations
+  title: "Session operations"
+  source: anthropic-docs
+  quote: "Archive a session to prevent new events from being sent while preserving its history. A running session cannot be archived; to archive one, send a user.interrupt event by itself and wait for the session to become idle."
+  accessed: 2026-11-19
+  version_note: "Managed Agents beta (anthropic-beta: managed-agents-2026-04-01)."
+
+- id: F21
+  claim: "In Managed Agents, tools can be locked down to an explicit allowlist during containment or hardening by setting default_config.enabled to false and enabling only required tools."
+  tag: VER
+  url: https://platform.claude.com/docs/en/managed-agents/tools
+  title: "Tools"
+  source: anthropic-docs
+  quote: "To start with everything off and enable only what you need, set default_config.enabled to false:"
+  accessed: 2026-11-19
+  version_note: "Managed Agents beta (agent_toolset_20260401)."
+
+- id: F22
+  claim: "In Managed Agents, MCP toolsets default to always_ask whereas the built-in agent toolset defaults to always_allow; switching a toolset policy to always_ask enforces human confirmation before execution."
+  tag: VER
+  url: https://platform.claude.com/docs/en/managed-agents/permission-policies
+  title: "Permission policies"
+  source: anthropic-docs
+  quote: "Each toolset kind has its own default: the agent toolset defaults to always_allow, and MCP toolsets default to always_ask."
+  accessed: 2026-11-19
+  version_note: "Managed Agents beta (managed-agents-2026-04-01)."
+
+- id: F23
+  claim: "Claude Code managed settings override user, project, local, and --settings configurations, making them the authoritative fleet-wide control plane during security or tool incidents."
+  tag: FACT
+  url: https://code.claude.com/docs/en/managed-settings
+  title: "Deploy managed settings"
+  source: claude-code-docs
+  quote: "Managed settings are the settings your organization deploys to every developer's machine. Claude Code applies them above every other level, so no user, project, local, or --settings value overrides them, apart from a few security-sensitive exceptions where a stricter value from a lower level still counts."
+  accessed: 2026-11-19
+
+- id: F24
+  claim: "Claude Code server-managed settings are fetched from Anthropic's servers at startup and refreshed hourly during active sessions, which introduces up to a one-hour propagation window for running clients."
+  tag: FACT
+  url: https://code.claude.com/docs/en/server-managed-settings
+  title: "Configure server-managed settings"
+  source: claude-code-docs
+  quote: "Settings that Claude Code fetches from Anthropic's servers at startup and refreshes hourly during the session"
+  accessed: 2026-11-19
+
+- id: F25
+  claim: "Setting deniedMcpServers in Claude Code blocks matching MCP servers across user, plugin, --mcp-config, managed-mcp.json, and fetched claude.ai connectors, though in-process type: sdk servers are exempt."
+  tag: FACT
+  url: https://code.claude.com/docs/en/settings-reference
+  title: "All settings"
+  source: claude-code-docs
+  quote: "Block specific MCP servers. Claude Code refuses to load a matching server wherever it's defined, including plugin servers, servers passed with --mcp-config, servers from managed-mcp.json, servers from managedMcpServers, and the claude.ai connectors it fetches itself. In-process type: \"sdk\" servers are exempt; the app that started the session registers them."
+  accessed: 2026-11-19
+
+- id: F26
+  claim: "Setting allowManagedPermissionRulesOnly to true in managed settings causes Claude Code to ignore lower-scope allow, ask, and deny rules, ignore --allowedTools, and hide always-allow choices."
+  tag: FACT
+  url: https://code.claude.com/docs/en/settings-reference
+  title: "All settings"
+  source: claude-code-docs
+  quote: "Make managed settings the only settings source of permission rules. Claude Code then ignores allow, ask, and deny rules in user, project, local, and --settings files, ignores --allowedTools, hides the always-allow choices in permission prompts, and stops saving new rules."
+  accessed: 2026-11-19
+
+- id: F27
+  claim: "Setting fallbackModel in Claude Code configures an ordered list of backup models to try for the rest of a turn when the primary model is overloaded or unavailable, at the cost of a cold prompt cache on the fallback turn."
+  tag: FACT
+  url: https://code.claude.com/docs/en/settings-reference
+  title: "All settings"
+  source: claude-code-docs
+  quote: "Name backup models for Claude Code to try, in order, when your primary model is overloaded or unavailable. Claude Code switches to the next available model in the chain for the rest of the turn and shows a notice."
+  accessed: 2026-11-19
+
+- id: F28
+  claim: "In Claude Code v2.1.283+, deniedModels in managed settings blocks specific model IDs or family aliases fleet-wide, even if availableModels would otherwise permit them."
+  tag: VER
+  url: https://code.claude.com/docs/en/settings-reference
+  title: "All settings"
+  source: claude-code-docs
+  quote: "Block specific models, with or without an availableModels allowlist and even when that list permits them. Claude Code hides a blocked model from the /model picker, and the model can't be selected anywhere availableModels is enforced."
+  accessed: 2026-11-19
+  version_note: "Requires Claude Code v2.1.283 or later."
+
+- id: F29
+  claim: "In Claude Code, settings files silently skip any mcp__ permission rule that contains parentheses; parameter-level MCP deny rules must be passed via --disallowedTools instead."
+  tag: FACT
+  url: https://code.claude.com/docs/en/permissions
+  title: "Configure permissions"
+  source: claude-code-docs
+  quote: "To match a parameter on an MCP tool, pass a deny rule with --disallowedTools. When Claude Code loads a settings file, it skips any mcp__ rule that has parentheses."
+  accessed: 2026-11-19
+
+- id: F30
+  claim: "Claude Code PreToolUse hooks execute deterministically before a tool call runs and can block the call, providing an immediate runtime policy kill switch."
+  tag: FACT
+  url: https://code.claude.com/docs/en/hooks
+  title: "Hooks reference"
+  source: claude-code-docs
+  quote: "PreToolUse | Before a tool call executes. Can block it"
+  accessed: 2026-11-19
+
+- id: F31
+  claim: "Google SRE defines objective postmortem triggers in advance, including user-visible downtime or degradation, data loss, on-call intervention such as rollbacks, excessive resolution time, and monitoring failures."
+  tag: STD
+  url: https://sre.google/sre-book/postmortem-culture/
+  title: "Postmortem Culture: Learning from Failure — Google SRE Book"
+  source: standard
+  quote: "common postmortem triggers include: User-visible downtime or degradation beyond a certain threshold Data loss of any kind On-call engineer intervention (release rollback, rerouting of traffic, etc.) A resolution time above some threshold A monitoring failure (which usually implies manual incident discovery)"
+  accessed: 2026-11-19
+
+- id: F32
+  claim: "Blameless postmortems assume everyone acted with good intentions given the information available at the time, preventing fear of punishment from hiding incidents."
+  tag: STD
+  url: https://sre.google/sre-book/postmortem-culture/
+  title: "Postmortem Culture: Learning from Failure — Google SRE Book"
+  source: standard
+  quote: "A blamelessly written postmortem assumes that everyone involved in an incident had good intentions and did the right thing with the information they had. If a culture of finger pointing and shaming individuals or teams for doing the \"wrong\" thing prevails, people will not bring issues to light for fear of punishment."
+  accessed: 2026-11-19
+
+- id: F33
+  claim: "Postmortems must undergo formal review and be archived in a shared repository so lessons and action items are completed rather than forgotten."
+  tag: STD
+  url: https://sre.google/sre-book/postmortem-culture/
+  title: "Postmortem Culture: Learning from Failure — Google SRE Book"
+  source: standard
+  quote: "An unreviewed postmortem might as well never have existed. To ensure that each completed draft is reviewed, we encourage regular review sessions for postmortems. In these meetings, it is important to close out any ongoing discussions and comments, to capture ideas, and to finalize the state."
+  accessed: 2026-11-19
+
+- id: F34
+  claim: "Automated operations and tool commands executed by agents or workflows should be idempotent or fail-safe on repeat invocations to prevent cascading damage during retries."
+  tag: STD
+  url: https://sre.google/workbook/postmortem-culture/
+  title: "Postmortem Culture: Learning from Failure — Google SRE Workbook"
+  source: standard
+  quote: "All commands should be idempotent, or at least fail-safe on repeat invocations."
+  accessed: 2026-11-19
+
+- id: F35
+  claim: "Anthropic distinguishes regression evals from capability evals: regression evals target a nearly 100% pass rate to detect backsliding whenever prompts, tools, or models change."
+  tag: REC
+  url: https://www.anthropic.com/research/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-engineering
+  quote: "Regression evals ask, “Does the agent still handle all the tasks it used to?” and should have a nearly 100% pass rate. They protect against backsliding, as a decline in score signals that something is broken and needs to be improved."
+  accessed: 2026-11-19
+
+- id: F36
+  claim: "Production incidents, bug trackers, and support queues should be mined directly into evaluation test cases prioritized by user impact."
+  tag: REC
+  url: https://www.anthropic.com/research/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-engineering
+  quote: "If you're already in production, look at your bug tracker and support queue. Converting user-reported failures into test cases ensures your suite reflects actual usage; prioritizing by user impact helps you invest effort where it counts."
+  accessed: 2026-11-19
+
+- id: F37
+  claim: "Regression eval suites must include balanced positive and negative cases (when a tool or behavior should trigger and when it must not) so fixing one failure mode does not induce over- or under-triggering."
+  tag: REC
+  url: https://www.anthropic.com/research/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-engineering
+  quote: "Test both the cases where a behavior should occur and where it shouldn't. One-sided evals create one-sided optimization."
+  accessed: 2026-11-19
+
+- id: F38
+  claim: "OpenTelemetry tracing from the Claude API and SDKs links model requests, tool uses, and Managed Agents sessions to application traces so teams can debug failures and build evals from real traffic."
+  tag: VER
+  url: https://platform.claude.com/docs/en/manage-claude/opentelemetry
+  title: "OpenTelemetry tracing for the Claude API"
+  source: anthropic-docs
+  quote: "The Claude API and the SDK can trace your Messages API requests, tool uses, and Managed Agents sessions with OpenTelemetry (OTel). You can view these traces in the observability platform you already have. Use them to debug failed or slow requests, track token spend and latency, and build evals from real traffic."
+  accessed: 2026-11-19
+  version_note: "OpenTelemetry export is in beta on the Claude API and SDK."

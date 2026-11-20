@@ -1,0 +1,152 @@
+[
+  {
+    "id": "F1",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agents"
+  },
+  {
+    "id": "F2",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/common-workflows#run-parallel-sessions-with-worktrees"
+  },
+  {
+    "id": "F3",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/worktrees#start-claude-in-a-worktree"
+  },
+  {
+    "id": "F4",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/worktrees#choose-the-base-branch"
+  },
+  {
+    "id": "F5",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/worktrees#copy-gitignored-files-into-worktrees"
+  },
+  {
+    "id": "F6",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/worktrees#how-claude-code-enforces-isolation"
+  },
+  {
+    "id": "F7",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/worktrees#what-worktrees-share-with-the-main-checkout"
+  },
+  {
+    "id": "F8",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/worktrees#clean-up-worktrees"
+  },
+  {
+    "id": "F9",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/worktrees#isolate-subagents-with-worktrees"
+  },
+  {
+    "id": "F10",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-view#how-file-edits-are-isolated"
+  },
+  {
+    "id": "F11",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/commands"
+  },
+  {
+    "id": "F12",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agents#choose-an-approach"
+  },
+  {
+    "id": "F13",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-teams"
+  },
+  {
+    "id": "F14",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-teams#best-practices"
+  },
+  {
+    "id": "F15",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-teams#limitations"
+  },
+  {
+    "id": "F16",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/hooks#taskcompleted"
+  },
+  {
+    "id": "F17",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/workflows#behavior-and-limits"
+  },
+  {
+    "id": "F18",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/costs#agent-team-token-costs"
+  },
+  {
+    "id": "F19",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/best-practices"
+  },
+  {
+    "id": "F20",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/building-c-compiler"
+  },
+  {
+    "id": "F21",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/building-c-compiler"
+  },
+  {
+    "id": "F22",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/building-c-compiler"
+  },
+  {
+    "id": "F23",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/effective-harnesses-for-long-running-agents"
+  },
+  {
+    "id": "F24",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage#administrator-configuration"
+  },
+  {
+    "id": "F25",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage#session-counter"
+  },
+  {
+    "id": "F26",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage#metrics-cardinality-control"
+  },
+  {
+    "id": "F27",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage#detect-retry-exhaustion"
+  },
+  {
+    "id": "F28",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage#api-refusal-event"
+  },
+  {
+    "id": "F29",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage#traces-beta"
+  },
+  {
+    "id": "F30",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/analytics"
+  }
+]

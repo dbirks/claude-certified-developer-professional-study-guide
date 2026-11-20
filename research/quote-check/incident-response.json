@@ -1,0 +1,192 @@
+[
+  {
+    "id": "F1",
+    "status": "ok",
+    "url": "https://sre.google/workbook/incident-response/"
+  },
+  {
+    "id": "F2",
+    "status": "ok",
+    "url": "https://sre.google/workbook/incident-response/"
+  },
+  {
+    "id": "F3",
+    "status": "ok",
+    "url": "https://sre.google/sre-book/managing-incidents/"
+  },
+  {
+    "id": "F4",
+    "status": "ok",
+    "url": "https://sre.google/sre-book/managing-incidents/"
+  },
+  {
+    "id": "F5",
+    "status": "ok",
+    "url": "https://status.claude.com/"
+  },
+  {
+    "id": "F6",
+    "status": "ok",
+    "url": "https://status.claude.com/"
+  },
+  {
+    "id": "F7",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/a-postmortem-of-three-recent-issues"
+  },
+  {
+    "id": "F8",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/a-postmortem-of-three-recent-issues"
+  },
+  {
+    "id": "F9",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/a-postmortem-of-three-recent-issues"
+  },
+  {
+    "id": "F10",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/a-postmortem-of-three-recent-issues"
+  },
+  {
+    "id": "F11",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/errors"
+  },
+  {
+    "id": "F12",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/errors"
+  },
+  {
+    "id": "F13",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/errors"
+  },
+  {
+    "id": "F14",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions"
+  },
+  {
+    "id": "F15",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions"
+  },
+  {
+    "id": "F16",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback"
+  },
+  {
+    "id": "F17",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons"
+  },
+  {
+    "id": "F18",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/authentication"
+  },
+  {
+    "id": "F19",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/organization/api_keys/update"
+  },
+  {
+    "id": "F20",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/managed-agents/session-operations"
+  },
+  {
+    "id": "F21",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/managed-agents/tools"
+  },
+  {
+    "id": "F22",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/managed-agents/permission-policies"
+  },
+  {
+    "id": "F23",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/managed-settings"
+  },
+  {
+    "id": "F24",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/server-managed-settings"
+  },
+  {
+    "id": "F25",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/settings-reference"
+  },
+  {
+    "id": "F26",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/settings-reference"
+  },
+  {
+    "id": "F27",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/settings-reference"
+  },
+  {
+    "id": "F28",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/settings-reference"
+  },
+  {
+    "id": "F29",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/permissions"
+  },
+  {
+    "id": "F30",
+    "status": "ok-loose",
+    "url": "https://code.claude.com/docs/en/hooks"
+  },
+  {
+    "id": "F31",
+    "status": "ok",
+    "url": "https://sre.google/sre-book/postmortem-culture/"
+  },
+  {
+    "id": "F32",
+    "status": "ok",
+    "url": "https://sre.google/sre-book/postmortem-culture/"
+  },
+  {
+    "id": "F33",
+    "status": "ok",
+    "url": "https://sre.google/sre-book/postmortem-culture/"
+  },
+  {
+    "id": "F34",
+    "status": "ok",
+    "url": "https://sre.google/workbook/postmortem-culture/"
+  },
+  {
+    "id": "F35",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/demystifying-evals-for-ai-agents"
+  },
+  {
+    "id": "F36",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/demystifying-evals-for-ai-agents"
+  },
+  {
+    "id": "F37",
+    "status": "ok-loose",
+    "url": "https://www.anthropic.com/research/demystifying-evals-for-ai-agents"
+  },
+  {
+    "id": "F38",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/opentelemetry"
+  }
+]

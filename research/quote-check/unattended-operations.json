@@ -1,0 +1,177 @@
+[
+  {
+    "id": "F1",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/headless#basic-usage"
+  },
+  {
+    "id": "F2",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/headless#get-structured-output"
+  },
+  {
+    "id": "F3",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/headless#stream-responses"
+  },
+  {
+    "id": "F4",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/cli-reference"
+  },
+  {
+    "id": "F5",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/cli-reference"
+  },
+  {
+    "id": "F6",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/cli-reference"
+  },
+  {
+    "id": "F7",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/headless#turn-off-permission-prompts-in-unattended-runs"
+  },
+  {
+    "id": "F8",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/headless#start-faster-with-bare-mode"
+  },
+  {
+    "id": "F9",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/headless#start-faster-with-bare-mode"
+  },
+  {
+    "id": "F10",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/sessions"
+  },
+  {
+    "id": "F11",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/file-checkpointing"
+  },
+  {
+    "id": "F12",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/file-checkpointing#how-checkpointing-works"
+  },
+  {
+    "id": "F13",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/managed-agents/events-and-streaming#resume-an-idle-session"
+  },
+  {
+    "id": "F14",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/managed-agents/session-operations#session-statuses"
+  },
+  {
+    "id": "F15",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/goal"
+  },
+  {
+    "id": "F16",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/goal#run-non-interactively"
+  },
+  {
+    "id": "F17",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/scheduled-tasks"
+  },
+  {
+    "id": "F18",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/scheduled-tasks#seven-day-expiry"
+  },
+  {
+    "id": "F19",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/routines#add-an-api-trigger"
+  },
+  {
+    "id": "F20",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/routines#trigger-a-scheduled-task"
+  },
+  {
+    "id": "F21",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/routines#supported-events"
+  },
+  {
+    "id": "F22",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/routines#repositories-and-branch-permissions"
+  },
+  {
+    "id": "F23",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/github-actions"
+  },
+  {
+    "id": "F24",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/github-actions#pass-cli-arguments"
+  },
+  {
+    "id": "F25",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/github-actions#run-on-a-schedule"
+  },
+  {
+    "id": "F26",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/hooks#notification"
+  },
+  {
+    "id": "F27",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/hooks#stop"
+  },
+  {
+    "id": "F28",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/headless#stop-a-run-with-sigterm"
+  },
+  {
+    "id": "F29",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/headless#mcp-work-when-a-non-interactive-run-ends"
+  },
+  {
+    "id": "F30",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/managed-agents/secure-deployment"
+  },
+  {
+    "id": "F31",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/managed-agents/session-operations#deleting-a-session"
+  },
+  {
+    "id": "F32",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/github-actions#protect-your-credentials"
+  },
+  {
+    "id": "F33",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/cli-reference"
+  },
+  {
+    "id": "F34",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/routines#create-from-the-web"
+  },
+  {
+    "id": "F35",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/hooks#stop"
+  }
+]

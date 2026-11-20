@@ -8,29 +8,29 @@ Columns: research packet exists · citation entries · quotes verified verbatim 
 | ID | Skill | Domain weight | Packet | Citations | Quotes verified | Chapter | Fact-check |
 |---|---|---|---|---|---|---|---|
 | 1.1 | Multi-Agent Orchestration | 17% | yes | 34 | 32/34 | — | — |
-| 1.2 | Durable Execution and State Management | 17% | yes | 34 | 33/34 | — | — |
+| 1.2 | Durable Execution and State Management | 17% | yes | 34 | 33/34 | [draft](../content/01-agent-architecture/02-durable-execution.mdx) · 2544 words · 34 cited | — |
 | 1.3 | Architecture Selection at Scale | 17% | yes | 30 | 30/30 | — | — |
 | 1.4 | Context and Memory Architecture | 17% | yes | 35 | 35/35 | — | — |
-| 2.1 | Reliability Engineering for Claude Services | 20% | yes | 35 | 34/35 | [draft](../content/02-production-integration/01-reliability.mdx) · 2656 words · 35 cited | — |
+| 2.1 | Reliability Engineering for Claude Services | 20% | yes | 35 | 34/35 | [draft](../content/02-production-integration/01-reliability.mdx) · 2346 words · 35 cited | — |
 | 2.2 | Scale and Throughput Management | 20% | yes | 35 | 35/35 | — | — |
 | 2.3 | Production MCP and Change Management | 20% | yes | 39 | 39/39 | — | — |
 | 2.4 | Retrieval and Knowledge Grounding at Scale | 20% | yes | 35 | 33/35 | — | — |
 | 3.1 | Telemetry and Instrumentation | 12% | yes | 35 | 35/35 | — | — |
 | 3.2 | Production Monitoring and Alerting | 12% | yes | 33 | 33/33 | — | — |
 | 3.3 | Trace Analysis at Scale | 12% | yes | 29 | 29/29 | — | — |
-| 4.1 | Complex Failure Diagnosis | 10% | yes | 30 | — | — | — |
-| 4.2 | Incident Response and Learning Loops | 10% | — | — | — | — | — |
+| 4.1 | Complex Failure Diagnosis | 10% | yes | 30 | 29/30 | — | — |
+| 4.2 | Incident Response and Learning Loops | 10% | yes | 38 | 38/38 | — | — |
 | 5.1 | Evaluation System Design | 12% | yes | 35 | 35/35 | — | — |
 | 5.2 | LLM-as-Judge Engineering | 12% | yes | 37 | 37/37 | — | — |
 | 5.3 | Online Quality Measurement | 12% | yes | 31 | 29/31 | — | — |
 | 6.1 | Cost Architecture at Scale | 8% | yes | 37 | 37/37 | — | — |
-| 6.2 | Latency Engineering | 8% | yes | 25 | 12/25 | — | — |
+| 6.2 | Latency Engineering | 8% | yes | 27 | 27/27 | — | — |
 | 7.1 | Runtime Guardrail Systems | 11% | yes | 35 | 35/35 | — | — |
-| 7.2 | Threat Defense and Adversarial Testing for Agentic Systems | 11% | — | — | — | — | — |
-| 7.3 | Identity, Secrets, and Audit at Scale | 11% | yes | 34 | 4/31 | — | — |
-| 8.1 | Parallel Agent Orchestration for Engineering Work | 10% | — | — | — | — | — |
-| 8.2 | Verification and AI Code Review Operations | 10% | — | — | — | — | — |
-| 8.3 | Unattended and Event-Driven Agent Operations | 10% | — | — | — | — | — |
-| 8.4 | Organization-Wide Coding Agent Configuration | 10% | — | — | — | — | — |
+| 7.2 | Threat Defense and Adversarial Testing for Agentic Systems | 11% | yes | 36 | 36/36 | — | — |
+| 7.3 | Identity, Secrets, and Audit at Scale | 11% | yes | 35 | 34/35 | — | — |
+| 8.1 | Parallel Agent Orchestration for Engineering Work | 10% | yes | 30 | 30/30 | — | — |
+| 8.2 | Verification and AI Code Review Operations | 10% | yes | 32 | 32/32 | — | — |
+| 8.3 | Unattended and Event-Driven Agent Operations | 10% | yes | 35 | 35/35 | — | — |
+| 8.4 | Organization-Wide Coding Agent Configuration | 10% | yes | 33 | 33/33 | — | — |
 
-Unique source URLs: 192 · citation entries: 638
+Unique source URLs: 254 · citation entries: 845

@@ -53,7 +53,7 @@
   url: https://platform.claude.com/docs/en/build-with-claude/streaming
   title: "Streaming messages"
   source: anthropic-docs
-  quote: "Each stream uses the following event flow: 1. message_start: contains a Message object with empty content. 2. A series of content blocks, each of which has a content_block_start, any number of content_block_delta events, and a content_block_stop event. 3. One or more message_delta events, indicating top-level changes to the final Message object. 4. A final message_stop event."
+  quote: "A stream response consists of: 1. A message_start event 2. Potentially multiple content blocks, each of which contains: * A content_block_start event * Potentially multiple content_block_delta events * A content_block_stop event 3. One or more message_delta events 4. A message_stop event"
   accessed: 2026-11-19
 - id: F8
   claim: "Streaming clients should tolerate future event types."
@@ -133,7 +133,7 @@
   url: https://platform.claude.com/docs/en/models/overview
   title: "Models overview"
   source: anthropic-docs
-  quote: "Claude Sonnet 5.5 The best combination of speed and intelligence | Claude Haiku 5.5 For high-volume, latency-sensitive tasks such as classification, extraction, and routing"
+  quote: "Description | For demanding reasoning and long-horizon agentic work | For long-running agentic coding and knowledge work | The best combination of speed and intelligence | For high-volume, latency-sensitive tasks such as classification, extraction, and routing"
   accessed: 2026-11-19
   version_note: "Model lineup positioning as shown on 2026-11-19."
 - id: F18
@@ -189,12 +189,12 @@
   quote: "This strategy works well when combined with propagating RPC deadlines throughout the stack, described in Latency and Deadlines."
   accessed: 2026-11-19
 - id: F24
-  claim: "Opus 5.5 is positioned for long-running agentic coding and knowledge work."
+  claim: "Current relative model latency ranks Haiku 5.5 as fastest, Sonnet 5.5 as fast, and Opus 5.5 as moderate."
   tag: VER
   url: https://platform.claude.com/docs/en/models/overview
   title: "Models overview"
   source: anthropic-docs
-  quote: "Claude Opus 5.5 For long-running agentic coding and knowledge work"
+  quote: "Comparative latency | Moderate | Moderate | Fast | Fastest"
   accessed: 2026-11-19
   version_note: "Model lineup positioning as shown on 2026-11-19."
 - id: F25
@@ -203,5 +203,21 @@
   url: https://platform.claude.com/docs/en/build-with-claude/streaming
   title: "Streaming messages"
   source: anthropic-docs
-  quote: "The .stream() call keeps the HTTP connection alive with server-sent events, and then the SDK’s message-accumulation helper, stream.get_final_message(), collects all events into the complete Message object."
+  quote: "When creating a Message, you can set \"stream\": true to incrementally stream the response using server-sent events (SSE)."
+  accessed: 2026-11-19
+- id: F26
+  claim: "One-hour prompt-cache writes cost twice the base input-token price."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "Cache write tokens with a 1-hour TTL are 2 times the base input tokens price."
+  accessed: 2026-11-19
+- id: F27
+  claim: "A request can define up to four cache breakpoints."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "You can define up to 4 cache breakpoints if you want to:"
   accessed: 2026-11-19

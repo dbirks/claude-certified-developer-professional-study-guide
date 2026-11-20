@@ -1,0 +1,325 @@
+- id: F1
+  claim: "Direct prompt injections occur when a user's prompt input directly alters the model's behavior in unintended ways."
+  tag: STD
+  url: https://genai.owasp.org/llmrisk/llm01-prompt-injection/
+  title: "LLM01:2025 Prompt Injection - OWASP Gen AI Security Project"
+  source: standard
+  quote: "Direct prompt injections occur when a user’s prompt input directly alters the behavior of the model in unintended or unexpected ways."
+  accessed: 2026-11-19
+
+- id: F2
+  claim: "Indirect prompt injections occur when external sources such as websites or files contain data that alters model behavior when interpreted."
+  tag: STD
+  url: https://genai.owasp.org/llmrisk/llm01-prompt-injection/
+  title: "LLM01:2025 Prompt Injection - OWASP Gen AI Security Project"
+  source: standard
+  quote: "Indirect prompt injections occur when an LLM accepts input from external sources, such as websites or files. The content may have in the external content data that when interpreted by the model, alters the behavior of the model in unintended or unexpected ways."
+  accessed: 2026-11-19
+
+- id: F3
+  claim: "Hidden instructions in external content can cause an LLM to insert an image URL that exfiltrates private conversation data."
+  tag: STD
+  url: https://genai.owasp.org/llmrisk/llm01-prompt-injection/
+  title: "LLM01:2025 Prompt Injection - OWASP Gen AI Security Project"
+  source: standard
+  quote: "A user employs an LLM to summarize a webpage containing hidden instructions that cause the LLM to insert an image linking to a URL, leading to exfiltration of the the private conversation."
+  accessed: 2026-11-19
+
+- id: F4
+  claim: "System-prompt restrictions against sensitive data disclosure are not guaranteed and can be bypassed via prompt injection."
+  tag: STD
+  url: https://genai.owasp.org/llmrisk/llm022025-sensitive-information-disclosure/
+  title: "OWASP LLM02: 2025 Sensitive Information Disclosure"
+  source: standard
+  quote: "Adding restrictions within the system prompt about data types that the LLM should return can provide mitigation against sensitive information disclosure. However, such restrictions may not always be honored and could be bypassed via prompt injection or other methods."
+  accessed: 2026-11-19
+
+- id: F5
+  claim: "Data poisoning manipulates pre-training, fine-tuning, or embedding data to introduce vulnerabilities, backdoors, or biases."
+  tag: STD
+  url: https://genai.owasp.org/llmrisk/llm042025-data-and-model-poisoning/
+  title: "OWASP LLM04: 2025 Data and Model Poisoning"
+  source: standard
+  quote: "Data poisoning occurs when pre-training, fine-tuning, or embedding data is manipulated to introduce vulnerabilities, backdoors, or biases. This manipulation can compromise model security, performance, or ethical behavior, leading to harmful outputs or impaired capabilities."
+  accessed: 2026-11-19
+
+- id: F6
+  claim: "Improper output handling of LLM-generated responses (such as unescaped Markdown or backend parameters) can lead to XSS, CSRF, SSRF, privilege escalation, or RCE."
+  tag: STD
+  url: https://genai.owasp.org/llmrisk/llm052025-improper-output-handling/
+  title: "OWASP LLM05: 2025 Improper Output Handling"
+  source: standard
+  quote: "Successful exploitation of an Improper Output Handling vulnerability can result in XSS and CSRF in web browsers as well as SSRF, privilege escalation, or remote code execution on backend systems."
+  accessed: 2026-11-19
+
+- id: F7
+  claim: "Excessive Agency enables damaging actions from unexpected, ambiguous, or manipulated LLM outputs due to excessive functionality, permissions, or autonomy."
+  tag: STD
+  url: https://genai.owasp.org/llmrisk/llm062025-excessive-agency/
+  title: "LLM06:2025 Excessive Agency - OWASP Gen AI Security Project"
+  source: standard
+  quote: "Excessive Agency is the vulnerability that enables damaging actions to be performed in response to unexpected, ambiguous or manipulated outputs from an LLM, regardless of what is causing the LLM to malfunction."
+  accessed: 2026-11-19
+
+- id: F8
+  claim: "Authorization for tool actions should be enforced in downstream systems rather than relying on the LLM."
+  tag: STD
+  url: https://genai.owasp.org/llmrisk/llm062025-excessive-agency/
+  title: "LLM06:2025 Excessive Agency - OWASP Gen AI Security Project"
+  source: standard
+  quote: "Implement authorization in downstream systems rather than relying on an LLM to decide if an action is allowed or not."
+  accessed: 2026-11-19
+
+- id: F9
+  claim: "Combining private data access, untrusted content exposure, and external communication creates Simon Willison's lethal trifecta for data exfiltration."
+  tag: REC
+  url: https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/
+  title: "The lethal trifecta for AI agents: private data, untrusted content, and external communication"
+  source: other
+  quote: "If your agent combines these three features, an attacker can easily trick it into accessing your private data and sending it to that attacker."
+  accessed: 2026-11-19
+
+- id: F10
+  claim: "Untrusted third-party content should be delivered in tool_result blocks rather than system prompts or plain user text blocks."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks
+  title: "Mitigate jailbreaks and prompt injections"
+  source: anthropic-docs
+  quote: "Deliver third-party content to Claude inside tool_result blocks, never in system prompts or plain user text blocks. Claude is trained to treat instructions that appear inside tool results with appropriate skepticism."
+  accessed: 2026-11-19
+
+- id: F11
+  claim: "JSON-encoding untrusted strings inside tool results provides unambiguous delimiters that prevent tag or quote breakout."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks
+  title: "Mitigate jailbreaks and prompt injections"
+  source: anthropic-docs
+  quote: "JSON escaping provides unambiguous delimiters between the untrusted payload and the surrounding structure, so an attacker cannot close a quote or tag to “break out” into an instruction context."
+  accessed: 2026-11-19
+
+- id: F12
+  claim: "Tool outputs can be pre-screened for prompt injection with a lightweight Claude Haiku 5.5 classifier using structured outputs, treating stop_reason refusal as a blocked verdict."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks
+  title: "Mitigate jailbreaks and prompt injections"
+  source: anthropic-docs
+  quote: "Run each tool, pass its raw output to a small classifier call with Claude Haiku 5.5, and only return the content as a tool_result block if the screen reports no injection attempt."
+  accessed: 2026-11-19
+  version_note: "Example uses Claude Haiku 5.5 and output_config structured outputs."
+
+- id: F13
+  claim: "Enabling the web fetch tool alongside untrusted input and sensitive data introduces data exfiltration risks."
+  tag: REC
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool
+  title: "Web fetch tool"
+  source: anthropic-docs
+  quote: "Enabling the web fetch tool in environments where Claude processes untrusted input alongside sensitive data poses data exfiltration risks. Only use this tool in trusted environments or when handling non-sensitive data."
+  accessed: 2026-11-19
+
+- id: F14
+  claim: "The web fetch tool enforces URL provenance and cannot fetch URLs that appear only in Claude's own output or the system prompt."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool
+  title: "Web fetch tool"
+  source: anthropic-docs
+  quote: "The tool cannot fetch URLs that appear only in Claude’s own output or only in the system prompt."
+  accessed: 2026-11-19
+
+- id: F15
+  claim: "The web fetch tool refuses URLs containing credentials unless those credentials appeared in the system prompt or a user message, and url_sources can exclude client tool results from counting as URL sources."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool
+  title: "Web fetch tool"
+  source: anthropic-docs
+  quote: "The tool also refuses a URL that appears to contain a credential, such as an API key or a password, unless that credential appears in the system prompt or in the text of a user message. A credential that appears only in a tool result does not count."
+  accessed: 2026-11-19
+
+- id: F16
+  claim: "Client-side handlers for the memory tool must validate and canonicalize every path to prevent directory traversal outside /memories."
+  tag: REC
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool
+  title: "Memory tool"
+  source: anthropic-docs
+  quote: "A malicious path such as /memories/../../secrets.env can reach files outside the /memories directory. Your implementation must validate every path in every command to prevent directory traversal attacks."
+  accessed: 2026-11-19
+
+- id: F17
+  claim: "The mcp-client-2026-09-15 beta header pins an MCP server's tool list via mcp_tool_listing blocks or an explicit tools list so mid-conversation tool changes (rug-pulls) do not reach Claude."
+  tag: VER
+  url: https://platform.claude.com/docs/en/agents-and-tools/mcp-connector
+  title: "MCP connector"
+  source: anthropic-docs
+  quote: "An MCP server can change its tools at any time. With the mcp-client-2026-09-15 beta header, the API records the tool list each server returns, and you can pin that list. That way, a change to a server’s tools doesn’t change what Claude receives partway through a conversation."
+  accessed: 2026-11-19
+  version_note: "Beta header mcp-client-2026-09-15 on supported platforms."
+
+- id: F18
+  claim: "Browser-use executors must treat all page metadata as untrusted, read from rendered accessibility trees or visible text rather than raw DOM, validate URL schemes, and gate consequential actions with human confirmation."
+  tag: REC
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/browser-use-tool
+  title: "Browser use tool"
+  source: anthropic-docs
+  quote: "Build page reads from what the page renders (the accessibility tree or visible text), not raw DOM source, so hidden text doesn’t reach Claude."
+  accessed: 2026-11-19
+
+- id: F19
+  claim: "Even after RL robustness training and classifier defenses, browser agents remain vulnerable to prompt injection, and even a 1% attack success rate poses meaningful risk."
+  tag: FACT
+  url: https://www.anthropic.com/research/prompt-injection-defenses
+  title: "Mitigating prompt injections in browser use"
+  source: anthropic-research
+  quote: "A 1% attack success rate—while a significant improvement—still represents meaningful risk. No browser agent is immune to prompt injection, and we share these findings to demonstrate progress, not to claim the problem is solved."
+  accessed: 2026-11-19
+
+- id: F20
+  claim: "Anthropic's browser defense pipeline scans untrusted context for hidden text, manipulated images, and deceptive UI elements with classifiers that adjust model behavior upon detection."
+  tag: FACT
+  url: https://www.anthropic.com/research/prompt-injection-defenses
+  title: "Mitigating prompt injections in browser use"
+  source: anthropic-research
+  quote: "These classifiers detect adversarial commands embedded in various forms—hidden text, manipulated images, deceptive UI elements—and adjust Claude's behavior when they identify an attack."
+  accessed: 2026-11-19
+
+- id: F21
+  claim: "Claude Code auto mode combines an input-layer prompt-injection probe with a reasoning-blind, two-stage transcript classifier that strips assistant prose and tool outputs."
+  tag: FACT
+  url: https://www.anthropic.com/research/claude-code-auto-mode
+  title: "How we built Claude Code auto mode"
+  source: anthropic-research
+  quote: "At this layer, stripping tool results is the primary prompt-injection defense, since tool outputs are where hostile content enters the context."
+  accessed: 2026-11-19
+
+- id: F22
+  claim: "Claude Code auto mode stops and escalates to a human (or terminates in headless mode) after 3 consecutive denials or 20 total denials."
+  tag: FACT
+  url: https://www.anthropic.com/research/claude-code-auto-mode
+  title: "How we built Claude Code auto mode"
+  source: anthropic-research
+  quote: "If a session accumulates 3 consecutive denials or 20 total, we stop the model and escalate to the human. This is the backstop against a compromised or overeager agent repeatedly pushing towards an outcome the user wouldn't want."
+  accessed: 2026-11-19
+
+- id: F23
+  claim: "Effective agent sandboxing requires both filesystem isolation and network isolation; omitting either lets a compromised agent escape or exfiltrate secrets."
+  tag: REC
+  url: https://www.anthropic.com/research/claude-code-sandboxing
+  title: "Making Claude Code safer with sandboxing"
+  source: anthropic-research
+  quote: "It is worth noting that effective sandboxing requires both filesystem and network isolation. Without network isolation, a compromised agent could exfiltrate sensitive files like SSH keys; without filesystem isolation, a compromised agent could easily escape the sandbox and gain network access."
+  accessed: 2026-11-19
+
+- id: F24
+  claim: "Claude Code's Bash sandbox isolates shell commands only; built-in file and web tools, local MCP servers, and hooks run outside the sandbox."
+  tag: FACT
+  url: https://code.claude.com/docs/en/sandboxing
+  title: "Configure the sandboxed Bash tool"
+  source: claude-code-docs
+  quote: "The sandbox covers shell commands only. Claude's file tools, MCP servers, and hooks run outside it."
+  accessed: 2026-11-19
+
+- id: F25
+  claim: "In Claude Code, most WebFetch calls pass the page through a separate summarization model call so raw untrusted HTML does not enter Claude's main context."
+  tag: FACT
+  url: https://code.claude.com/docs/en/security
+  title: "Security"
+  source: claude-code-docs
+  quote: "For most WebFetch fetches, a separate model call reads the page, and Claude receives that call's answer instead of the raw page."
+  accessed: 2026-11-19
+
+- id: F26
+  claim: "Claude Code treats CLAUDE.md and auto memory files as context rather than enforced configuration; deterministic blocking requires a PreToolUse hook or permission rules."
+  tag: FACT
+  url: https://code.claude.com/docs/en/memory
+  title: "How Claude remembers your project"
+  source: claude-code-docs
+  quote: "Claude treats them as context, not enforced configuration. To block an action regardless of what Claude decides, use a PreToolUse hook instead."
+  accessed: 2026-11-19
+
+- id: F27
+  claim: "In the Claude Agent SDK permission pipeline, deny rules block tool calls even in bypassPermissions mode and even when a hook returns allow."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/permissions
+  title: "Configure permissions - Claude Code Docs"
+  source: claude-code-docs
+  quote: "The call is denied this way even in bypassPermissions mode and when a hook returned allow."
+  accessed: 2026-11-19
+
+- id: F28
+  claim: "In MCP proxy deployments, combining a static third-party client ID, dynamic client registration, and consent cookies enables confused deputy authorization-code theft."
+  tag: STD
+  url: https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices
+  title: "Security Best Practices - Model Context Protocol"
+  source: mcp-spec
+  quote: "This attack allows malicious clients to obtain authorization codes without proper user consent by exploiting the combination of static client IDs, dynamic client registration, and consent cookies."
+  accessed: 2026-11-19
+
+- id: F29
+  claim: "MCP servers must validate token audience and must never accept or pass through tokens not explicitly issued for the MCP server."
+  tag: STD
+  url: https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices
+  title: "Security Best Practices - Model Context Protocol"
+  source: mcp-spec
+  quote: "MCP servers MUST NOT accept any tokens that were not explicitly issued for the MCP server."
+  accessed: 2026-11-19
+
+- id: F30
+  claim: "Malicious MCP servers can exploit OAuth metadata discovery URLs (resource_metadata, authorization_servers, token_endpoint) to trigger SSRF against internal networks or cloud metadata endpoints."
+  tag: STD
+  url: https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices
+  title: "Security Best Practices - Model Context Protocol"
+  source: mcp-spec
+  quote: "Server-Side Request Forgery (SSRF) is an attack where an attacker can induce an MCP client to make HTTP requests to unintended destinations, potentially accessing internal network resources, cloud metadata endpoints, or other protected services."
+  accessed: 2026-11-19
+
+- id: F31
+  claim: "Stateless MCP servers must verify authorization on every request and never treat possession of a state handle (or 2025-era session ID) as authentication."
+  tag: STD
+  url: https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices
+  title: "Security Best Practices - Model Context Protocol"
+  source: mcp-spec
+  quote: "MCP servers that implement authorization MUST verify all inbound requests. MCP servers MUST NOT treat possession of a state handle as authentication."
+  accessed: 2026-11-19
+
+- id: F32
+  claim: "In stateful MCP 2025-11-25 deployments, stolen or predictable session IDs enable session hijack impersonation and cross-instance SSE prompt injection."
+  tag: STD
+  url: https://modelcontextprotocol.io/docs/2025-11-25/tutorials/security/security_best_practices
+  title: "Security Best Practices - Model Context Protocol"
+  source: mcp-spec
+  quote: "Session hijacking is an attack vector where a client is provided a session ID by the server, and an unauthorized party is able to obtain and use that same session ID to impersonate the original client and perform unauthorized actions on their behalf."
+  accessed: 2026-11-19
+
+- id: F33
+  claim: "The NIST AI RMF 1.0 Core organizes risk management into four functions: Govern, Map, Measure, and Manage."
+  tag: STD
+  url: https://airc.nist.gov/airmf-resources/airmf/5-sec-core/
+  title: "AI RMF Core - AIRC"
+  source: standard
+  quote: "As illustrated in Figure 5, the Core is composed of four functions: govern, map, measure, and manage. Each of these high-level functions is broken down into categories and subcategories."
+  accessed: 2026-11-19
+
+- id: F34
+  claim: "NIST AI 600-1 is the Generative AI Profile companion to AI RMF 1.0, providing generative-AI-specific risks and developer actions."
+  tag: STD
+  url: https://airc.nist.gov/technical-reports/
+  title: "Technical Reports - AIRC"
+  source: standard
+  quote: "This document is a cross-sectoral profile of and companion resource for the AI Risk Management Framework (AI RMF 1.0) for Generative AI."
+  accessed: 2026-11-19
+
+- id: F35
+  claim: "Adversarial and cyber safety evaluations where safeguards are relaxed must run in an internet-isolated sandbox with real-time monitoring."
+  tag: REC
+  url: https://www.anthropic.com/research/building-strong-safety-evaluations
+  title: "Building strong safety evaluations"
+  source: anthropic-research
+  quote: "For this reason, evals should be run in a sandbox with no internet access, and monitored in real time so you can stop a run immediately if a model is acting in ways that could result in real-world harm."
+  accessed: 2026-11-19
+
+- id: F36
+  claim: "Automated red teaming pairs an attack-generating model against a defending model in a red-team/blue-team loop to scale adversarial coverage beyond manual testing."
+  tag: REC
+  url: https://www.anthropic.com/news/challenges-in-red-teaming-ai-systems
+  title: "Challenges in red teaming AI systems"
+  source: anthropic-research
+  quote: "To do this, we employ a red team / blue team dynamic, where we use a model to generate attacks that are likely to elicit the target behavior (red team) and then fine-tune a model on those red teamed outputs in order to make it more robust to similar types of attack (blue team)."
+  accessed: 2026-11-19

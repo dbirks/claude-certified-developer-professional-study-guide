@@ -1,0 +1,152 @@
+[
+  {
+    "id": "F1",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls"
+  },
+  {
+    "id": "F2",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use"
+  },
+  {
+    "id": "F3",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/troubleshooting-tool-use"
+  },
+  {
+    "id": "F4",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons"
+  },
+  {
+    "id": "F5",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons"
+  },
+  {
+    "id": "F6",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/thinking-troubleshooting"
+  },
+  {
+    "id": "F7",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/working-with-messages"
+  },
+  {
+    "id": "F8",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons"
+  },
+  {
+    "id": "F9",
+    "status": "not-found",
+    "url": "https://platform.claude.com/docs/en/api/csharp/messages/create"
+  },
+  {
+    "id": "F10",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions"
+  },
+  {
+    "id": "F11",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/handle-streaming-refusals"
+  },
+  {
+    "id": "F12",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/handle-streaming-refusals"
+  },
+  {
+    "id": "F13",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/search-results"
+  },
+  {
+    "id": "F14",
+    "status": "ok",
+    "url": "https://platform.claude.com/cookbook/capabilities-retrieval-augmented-generation-guide"
+  },
+  {
+    "id": "F15",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/compaction-threshold"
+  },
+  {
+    "id": "F16",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/troubleshooting"
+  },
+  {
+    "id": "F17",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/commands"
+  },
+  {
+    "id": "F18",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/cli-sdks-libraries/sdks/python"
+  },
+  {
+    "id": "F19",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-runner"
+  },
+  {
+    "id": "F20",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/managed-agents/permission-policies"
+  },
+  {
+    "id": "F21",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/managed-agents/session-observability"
+  },
+  {
+    "id": "F22",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/errors"
+  },
+  {
+    "id": "F23",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/cli-sdks-libraries/sdks/typescript"
+  },
+  {
+    "id": "F24",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons"
+  },
+  {
+    "id": "F25",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/commands"
+  },
+  {
+    "id": "F26",
+    "status": "ok-loose",
+    "url": "https://code.claude.com/docs/en/env-vars"
+  },
+  {
+    "id": "F27",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/handle-streaming-refusals"
+  },
+  {
+    "id": "F28",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/errors"
+  },
+  {
+    "id": "F29",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/errors"
+  },
+  {
+    "id": "F30",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/thinking"
+  }
+]

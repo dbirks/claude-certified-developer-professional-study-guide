@@ -1,0 +1,287 @@
+- id: F1
+  claim: "Rapid AI code generation has made human code review the primary delivery bottleneck, with Anthropic engineers shipping 200% more code per engineer year-over-year."
+  tag: FACT
+  url: https://claude.com/resources/articles/code-review
+  title: "Bringing Code Review to Claude Code"
+  source: anthropic-engineering
+  quote: "Code output per Anthropic engineer has grown 200% in the last year. Code review has become a bottleneck, and we hear the same from customers every week. They tell us developers are stretched thin, and many PRs get skims rather than deep reads."
+  accessed: 2026-11-19
+
+- id: F2
+  claim: "At Anthropic, engineers ship 8x as much code per quarter as in 2021-2025 and Claude authors about 80% of merged code, creating an Amdahl's Law bottleneck unless reviews and monitoring scale too."
+  tag: FACT
+  url: https://claude.com/resources/articles/how-anthropic-secures-its-ai-native-software-development-lifecycle
+  title: "How Anthropic secures its AI-native software development lifecycle"
+  source: anthropic-engineering
+  quote: "Our software engineers on average ship 8x as much code per quarter as they did from 2021 to 2025. Our reviews, monitoring, and other security processes needed to scale alongside this increased pace. Otherwise it becomes a formula for bottlenecks (Amdahl’s Law)."
+  accessed: 2026-11-19
+
+- id: F3
+  claim: "Across Anthropic's monorepo, daily landed changes grew from ~2,500 in May to >30,000 in September 2026; on Claude Code (~90% written by Claude), merged PRs more than doubled while revert share fell over 40%."
+  tag: FACT
+  url: https://claude.dev/blog/solving-code-review-at-anthropic/
+  title: "How the Claude Code team does code review"
+  source: anthropic-engineering
+  quote: "From June to September, merged pull requests to Claude Code's codebase more than doubled while the share that had to be reverted fell by more than 40 percent."
+  accessed: 2026-11-19
+
+- id: F4
+  claim: "Anthropic's monorepo volume jumped from about 2,500 landed changes per day in May to over 30,000 per day in September, making manual line-by-line review infeasible."
+  tag: FACT
+  url: https://claude.dev/blog/solving-code-review-at-anthropic/
+  title: "How the Claude Code team does code review"
+  source: anthropic-engineering
+  quote: "In Anthropic's monorepo, changes landing per day went from about 2,500 in May to more than 30,000 in September this year."
+  accessed: 2026-11-19
+
+- id: F5
+  claim: "Verification loops expand agent delegation capacity from one or two human-checked Claude sessions to dozens or hundreds running in parallel."
+  tag: REC
+  url: https://claude.dev/blog/how-the-claude-code-team-thinks-about-verification/
+  title: "How the Claude Code team thinks about verification"
+  source: anthropic-engineering
+  quote: "Verification loops are the building block that lets you delegate more work to Claude. Without them, you can really only run one or two Claudes at a time, because you have to check everything yourself. With them, you can run dozens or hundreds in parallel."
+  accessed: 2026-11-19
+
+- id: F6
+  claim: "Giving Claude a deterministic pass/fail check (tests, build exit code, linter, fixture diff, or browser screenshot) lets it self-correct, and asking for command output as evidence avoids false completion claims."
+  tag: REC
+  url: https://code.claude.com/docs/en/best-practices#give-claude-a-check-to-run
+  title: "Best practices for Claude Code"
+  source: claude-code-docs
+  quote: "If you give it something that comes back pass or fail, Claude can close that loop itself. It makes the change, runs the check, and if something broke it reads the output and fixes it before running the check again."
+  accessed: 2026-11-19
+
+- id: F7
+  claim: "A Stop hook enforces deterministic checks at turn end: exiting with code 2 blocks the stop and feeds stderr back to Claude until the check passes or the 8-consecutive-continuation cap (CLAUDE_CODE_STOP_HOOK_BLOCK_CAP) is reached."
+  tag: FACT
+  url: https://code.claude.com/docs/en/hooks#stop-input
+  title: "Hooks reference"
+  source: claude-code-docs
+  quote: "Claude Code applies an 8-consecutive-continuation cap: after stop hooks have continued the turn eight times in a row, Claude Code overrides the next block and ends the turn. The count of consecutive continuations resets each time Claude calls a tool. To raise the cap, set CLAUDE_CODE_STOP_HOOK_BLOCK_CAP."
+  accessed: 2026-11-19
+
+- id: F8
+  claim: "The /goal command wraps a session-scoped prompt-based Stop hook that invokes a separate small fast model after each turn to return Met, Not yet met, or Impossible based on conversation evidence."
+  tag: FACT
+  url: https://code.claude.com/docs/en/goal#how-evaluation-works
+  title: "Keep Claude working toward a goal"
+  source: claude-code-docs
+  quote: "/goal is a wrapper around a session-scoped prompt-based Stop hook. Each time Claude finishes a turn, Claude Code sends the condition and the conversation so far to your configured small fast model. The model returns one of three verdicts, each with a short reason:"
+  accessed: 2026-11-19
+
+- id: F9
+  claim: "The /verify skill builds and runs the application to observe real behavior rather than relying on tests or type checks alone, and project-level verify/simplify skills run automatically before commits on Claude Code v2.1.286+."
+  tag: FACT
+  url: https://code.claude.com/docs/en/commands#all-commands
+  title: "Commands"
+  source: claude-code-docs
+  quote: "Confirm a code change does what it should by building your project's app, running it, and observing the result, rather than relying on tests or type checks."
+  accessed: 2026-11-19
+
+- id: F10
+  claim: "End-to-end, property-based (fast-check, Hypothesis, proptest), and differential tests are harder for coding agents to fool than unit tests, and failing checks escalate to a human after three repair rounds."
+  tag: REC
+  url: https://claude.dev/blog/how-the-claude-code-team-thinks-about-verification/
+  title: "How the Claude Code team thinks about verification"
+  source: anthropic-engineering
+  quote: "Claude runs the checks and tries to fix anything that fails. If a check is still failing after three rounds, Claude stops and brings in a human."
+  accessed: 2026-11-19
+
+- id: F11
+  claim: "Internal testing on structured file generation showed that adding a separate rubric grader improved task success by up to 10 points over a standard prompting loop."
+  tag: FACT
+  url: https://claude.dev/blog/how-the-claude-code-team-thinks-about-verification/
+  title: "How the Claude Code team thinks about verification"
+  source: anthropic-engineering
+  quote: "In internal testing around structured file generation, having a separate grader check Claude’s work against a rubric improved task success by up to 10 points over a standard prompting loop, with the largest gains on the hardest problems."
+  accessed: 2026-11-19
+
+- id: F12
+  claim: "Managed Code Review (Team/Enterprise on GitHub) executes four stages on Anthropic infrastructure (Find in parallel, Verify to drop false positives, Rank by severity, Post inline comments and check run) with read-only repo access and without executing code."
+  tag: FACT
+  url: https://code.claude.com/docs/en/code-review#how-reviews-work
+  title: "Code Review"
+  source: claude-code-docs
+  quote: "A review runs on Anthropic infrastructure in four stages: 1. Find: several agents examine the diff and the surrounding code in parallel. 2. Verify: a verification step checks the candidate findings against the code and filters out false positives. 3. Rank: the findings that remain are deduplicated and ranked by severity. 4. Post: the review posts its results on the pull request."
+  accessed: 2026-11-19
+
+- id: F13
+  claim: "Managed Code Review categorizes findings as Important, Nit, or Pre-existing, and its Claude Code Review check run concludes neutral or skipped—never failure—leaving merge blocking to repository rules or scripts."
+  tag: FACT
+  url: https://code.claude.com/docs/en/code-review-pull-requests#check-run-output
+  title: "Read and request reviews on a pull request"
+  source: claude-code-docs
+  quote: "The check run concludes as neutral, or as skipped after some pushes that change no files and keep the earlier result. It never concludes as a failure, so a finished review doesn't fail a required check."
+  accessed: 2026-11-19
+
+- id: F14
+  claim: "Managed Code Review embeds a machine-readable severity JSON comment in the check run output.text so CI scripts can gate merges on normal (Important) findings while treating a missing line as no verdict."
+  tag: FACT
+  url: https://code.claude.com/docs/en/code-review-pull-requests#read-the-result-from-a-script
+  title: "Read and request reviews on a pull request"
+  source: claude-code-docs
+  quote: "To gate a merge or post a summary from your own CI, parse the last line of the Details text with gh and jq. That line is an HTML comment that holds the severity counts as JSON:"
+  accessed: 2026-11-19
+
+- id: F15
+  claim: "Code Review supports Quick, Standard, and Deep levels and three trigger cadences (Once after PR creation, After every push, Manual), skips automatic runs on drafts and forks, and bills ~$15-25 on average through usage credits with monthly spend caps."
+  tag: FACT
+  url: https://code.claude.com/docs/en/code-review-setup#set-when-reviews-run
+  title: "Set up Code Review"
+  source: claude-code-docs
+  quote: "Each repository has its own Review runs setting, which decides when its pull requests get reviewed. Once after PR creation: a review runs when a pull request is opened, reopened, or marked ready for review After every push: a review runs on pushes to the pull request branch, catching new issues as the pull request evolves and auto-resolving threads when you fix flagged issues Manual (@claude review): opening or pushing to a pull request doesn't start a review."
+  accessed: 2026-11-19
+
+- id: F16
+  claim: "Code Review reads REVIEW.md from the base or default branch—never from the pull request's own diff—and only honors severity downgrades, exclusions, and nit caps when branch protection is confirmed."
+  tag: FACT
+  url: https://code.claude.com/docs/en/code-review-customize#which-branch-review-md-is-read-from
+  title: "Customize Code Review"
+  source: claude-code-docs
+  quote: "Code Review reads REVIEW.md from the pull request's base branch or from the default branch, never from the pull request's own changes. To change review behavior, merge the REVIEW.md change first."
+  accessed: 2026-11-19
+
+- id: F17
+  claim: "Local /code-review (alias /review) runs in a fresh forked subagent context so it is unbiased by the author session, accepts effort levels (low through max) to trade false-positive filtering for coverage, and escalates via /code-review ultra to a cloud multi-agent sandbox."
+  tag: FACT
+  url: https://code.claude.com/docs/en/code-review-local#tune-effort-and-arguments
+  title: "Review locally with /code-review"
+  source: claude-code-docs
+  quote: "Pass an effort level to trade coverage for confidence. At low, the review reports the findings it's most confident in, so you see fewer false positives. From medium through max, the review broadens coverage."
+  accessed: 2026-11-19
+
+- id: F18
+  claim: "Ultrareview (/code-review ultra or claude ultrareview) runs a multi-agent fleet in a cloud sandbox where findings are independently reproduced and verified, taking 5-15 minutes with a default limit of 500 files and 8,000 changed lines."
+  tag: FACT
+  url: https://code.claude.com/docs/en/ultrareview#diff-limits-and-fallbacks
+  title: "Find bugs with ultrareview"
+  source: claude-code-docs
+  quote: "Higher signal: every reported finding is independently reproduced and verified, so the results focus on real bugs rather than style suggestions Broader coverage: a larger fleet of reviewer agents explores the change in parallel, which surfaces issues that a local review can miss"
+  accessed: 2026-11-19
+
+- id: F19
+  claim: "Claude Code GitHub Actions (anthropics/claude-code-action@v1) runs on GitHub runners in interactive mode (@claude trigger) or automation mode (prompt input), supports OIDC workload identity federation, enforces write-access and non-bot checks, and requires a distinct trigger_phrase if paired with Code Review."
+  tag: FACT
+  url: https://code.claude.com/docs/en/code-review-pull-requests#use-code-review-alongside-the-claude-code-github-action
+  title: "Read and request reviews on a pull request"
+  source: claude-code-docs
+  quote: "If the repository also runs the Claude Code GitHub Action in interactive mode with its default @claude trigger phrase, an @claude review comment starts the Action as well. To keep the two apart, set the Action's trigger_phrase input to a different phrase."
+  accessed: 2026-11-19
+
+- id: F20
+  claim: "When running against pull requests, claude-code-action restores .claude/, .mcp.json, .claude.json, CLAUDE.md, and related config paths from the base or default branch and requires avoiding checking out untrusted PR heads on pull_request_target or workflow_run."
+  tag: FACT
+  url: https://github.com/anthropics/claude-code-action/blob/main/docs/security.md
+  title: "Claude Code Action Security"
+  source: other
+  quote: "When the action runs against a pull request, it restores a fixed list of Claude configuration paths from the PR base branch before starting Claude: .claude/, .mcp.json, .claude.json, .gitmodules, .ripgreprc, CLAUDE.md, CLAUDE.local.md, AGENTS.md, and .husky/."
+  accessed: 2026-11-19
+
+- id: F21
+  claim: "The /security-review command and anthropics/claude-code-security-review GitHub Action run semantic diff-aware vulnerability analysis with automated false-positive filtering, and require maintainer approval for external fork PRs to mitigate prompt injection."
+  tag: FACT
+  url: https://github.com/anthropics/claude-code-security-review
+  title: "Claude Code Security Reviewer"
+  source: other
+  quote: "This action is not hardened against prompt injection attacks and should only be used to review trusted PRs. We recommend configuring your repository to use the \"Require approval for all external contributors\" option to ensure workflows only run after a maintainer has reviewed the PR."
+  accessed: 2026-11-19
+
+- id: F22
+  claim: "The security-guidance plugin layers three automatic in-session checks (deterministic per-edit pattern matching, end-of-turn background diff review, and agentic commit/push review with fresh context) before code reaches a PR."
+  tag: FACT
+  url: https://code.claude.com/docs/en/security-guidance#what-the-plugin-checks
+  title: "Catch security issues as Claude writes code"
+  source: claude-code-docs
+  quote: "The plugin does not ask the same Claude instance that wrote the code to grade itself. The per-edit check is a deterministic string match with no model involved. The end-of-turn and commit reviews run as a separate Claude call with a fresh context and a security-focused prompt: the reviewer starts from the diff, has no investment in the original approach, and is instructed only to find problems."
+  accessed: 2026-11-19
+
+- id: F23
+  claim: "Anthropic rolls out new AI reviewers in shadow mode (posting comments for human approval until trust is earned), red-teams them with malicious changes, and samples automated approvals."
+  tag: REC
+  url: https://claude.com/resources/articles/how-anthropic-secures-its-ai-native-software-development-lifecycle
+  title: "How Anthropic secures its AI-native software development lifecycle"
+  source: anthropic-engineering
+  quote: "Shadow mode for all new AI reviewers. New agents post comments for human approval until trust is earned. Our team also “red teams” them and tries to insert malicious changes."
+  accessed: 2026-11-19
+
+- id: F24
+  claim: "New verification gates roll out across off, observe, and enforce modes: observe mode logs what would have been blocked so teams can measure false positives before enabling enforce."
+  tag: REC
+  url: https://claude.dev/blog/how-the-claude-code-team-thinks-about-verification/
+  title: "How the Claude Code team thinks about verification"
+  source: anthropic-engineering
+  quote: "We've also created a commit gate that can block a commit if the session did not contain /code-review or /verify. We've set it up with off, observe, and enforce modes. Observe mode will log what would have been blocked, so that we can review any false positives and ensure no one is impacted."
+  accessed: 2026-11-19
+
+- id: F25
+  claim: "Anthropic calibrates AI reviewers against an eval set of past incidents and reverts (with expert-confirmed bug keys) plus clean merged PRs as a control for over-flagging, scoring recall separately at raw, post-verification, and final stages."
+  tag: REC
+  url: https://claude.dev/blog/how-the-claude-code-team-thinks-about-verification/
+  title: "How the Claude Code team thinks about verification"
+  source: anthropic-engineering
+  quote: "They also evaluated the recall rate for raw findings, post-verification, and final review separately. This lets them see if the system is losing bugs it had already found. Any evaluation that treats all these as one end-to-end score won't capture this nuance."
+  accessed: 2026-11-19
+
+- id: F26
+  claim: "Deploying Code Review internally raised PRs receiving substantive comments from 16% to 54%, with findings on 84% of PRs over 1,000 lines (avg 7.5) vs 31% under 50 lines (avg 0.5) and under 1% marked incorrect."
+  tag: FACT
+  url: https://claude.com/resources/articles/code-review
+  title: "Bringing Code Review to Claude Code"
+  source: anthropic-engineering
+  quote: "We've been running Code Review internally for months: on large PRs (over 1,000 lines changed), 84% get findings, averaging 7.5 issues. On small PRs under 50 lines, that drops to 31%, averaging 0.5 issues. Engineers largely agree with what it surfaces: less than 1% of findings are marked incorrect."
+  accessed: 2026-11-19
+
+- id: F27
+  claim: "False positives and nits are far costlier when the PR author is an agent—because agents fix every comment and trigger new review rounds (one CLI PR looped >50 rounds overnight)—so Anthropic tracks comment disposition and enforces convergence caps."
+  tag: FACT
+  url: https://claude.dev/blog/solving-code-review-at-anthropic/
+  title: "How the Claude Code team does code review"
+  source: anthropic-engineering
+  quote: "Noise costs more when the author is an agent. A person can wave off a nit in seconds. An agent fixes it, which means another commit and another round of review. Review has to converge. An agent author and an agent reviewer can keep each other busy indefinitely."
+  accessed: 2026-11-19
+
+- id: F28
+  claim: "Convergence controls (3-round cap, diff-only re-review after early passes, flagging bug classes, suppressing duplicates) raised first-round pass rate from 65% to 78% and cut 5+ round PRs from 8.9% to 1.5%."
+  tag: FACT
+  url: https://claude.dev/blog/solving-code-review-at-anthropic/
+  title: "How the Claude Code team does code review"
+  source: anthropic-engineering
+  quote: "Pass after one review and fix round 65% 78% Need five or more rounds 8.9% 1.5% Mean reviews to pass 2.08 1.32"
+  accessed: 2026-11-19
+
+- id: F29
+  claim: "Human oversight scales by risk tier (Low: 0 humans for trusted authors if automated review and security pass; Medium: 1 human; High/sensitive paths: 2 humans + CODEOWNERS), while bot approvals never replace required humans."
+  tag: REC
+  url: https://claude.dev/blog/solving-code-review-at-anthropic/
+  title: "How the Claude Code team does code review"
+  source: anthropic-engineering
+  quote: "An agent's approval never counts as a person's, either. Automated review can clear a low-risk change, but it can't fill a slot that calls for a human."
+  accessed: 2026-11-19
+
+- id: F30
+  claim: "Teams measure human oversight capacity via human approvals per PR (median and p95), human comments, and wait time, using revert rate and incident rate as guardrails."
+  tag: REC
+  url: https://claude.dev/blog/solving-code-review-at-anthropic/
+  title: "How the Claude Code team does code review"
+  source: anthropic-engineering
+  quote: "To measure human time, we track human approvals per PR (median and 95th percentile), human comments, and how long a PR waits on a person. Revert and incident rates are the guardrail: if they rise, we haven't saved human time, we've only moved it."
+  accessed: 2026-11-19
+
+- id: F31
+  claim: "Claude Code records provenance via the attribution settings object (commit, pr, sessionUrl, or false on v2.1.281+), defaulting to a Co-Authored-By git trailer naming the active or subagent model and a PR footer."
+  tag: FACT
+  url: https://code.claude.com/docs/en/settings-reference#attribution-commit
+  title: "Settings reference"
+  source: claude-code-docs
+  quote: "Default: unset, so Claude Code adds Co-Authored-By: <name> <noreply@anthropic.com>. The name is the model in use when the commit is made, such as Claude Sonnet 5. When a subagent makes the commit, the trailer names the subagent's model."
+  accessed: 2026-11-19
+
+- id: F32
+  claim: "Anthropic also stamps commits with how they were verified—explicitly recording \"none\" for unverified commits—so unvetted changes can be queried across the repository."
+  tag: REC
+  url: https://claude.dev/blog/how-the-claude-code-team-thinks-about-verification/
+  title: "How the Claude Code team thinks about verification"
+  source: anthropic-engineering
+  quote: "In our own repos, we stamp each commit with how it was verified. The stamp even includes \"none\" so we can query for commits that weren't verified."
+  accessed: 2026-11-19

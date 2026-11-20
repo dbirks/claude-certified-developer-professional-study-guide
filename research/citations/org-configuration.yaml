@@ -1,0 +1,296 @@
+- id: F1
+  claim: "Claude Code applies a strict five-level settings precedence stack with managed settings at the top, overriding command-line flags, project local, shared project, and user settings."
+  tag: FACT
+  url: https://code.claude.com/docs/en/settings#settings-precedence
+  title: "Settings files and precedence"
+  source: claude-code-docs
+  quote: "Settings precedence, highest first: managed settings, command line, project local, shared project, user. A key set at a higher level overrides the same key set lower down."
+  accessed: 2026-11-19
+
+- id: F2
+  claim: "Array settings such as permissions.allow merge across settings scopes instead of overriding, whereas fallbackModel, availableModels, and modelPicker follow scope replacement rules."
+  tag: FACT
+  url: https://code.claude.com/docs/en/settings#lists-merge-instead-of-overriding
+  title: "Settings files and precedence"
+  source: claude-code-docs
+  quote: "When you set the same list key, such as permissions.allow, in more than one file, Claude Code combines the lists instead of picking one, so each file can add entries without removing another file's."
+  accessed: 2026-11-19
+
+- id: F3
+  claim: "Managed settings files and managed-settings.d drop-ins live in OS-specific system directories on macOS, Linux/WSL, and Windows."
+  tag: FACT
+  url: https://code.claude.com/docs/en/managed-settings#where-each-mechanism-stores-the-policy
+  title: "Deploy managed settings"
+  source: claude-code-docs
+  quote: "File-based: managed-settings.json, an optional managed-settings.d/ directory, and managed-mcp.json in the system directory: /Library/Application Support/ClaudeCode/ on macOS, /etc/claude-code/ on Linux and WSL, and C:\\Program Files\\ClaudeCode\\ on Windows."
+  accessed: 2026-11-19
+
+- id: F4
+  claim: "Claude Code also supports native OS policy delivery via the macOS com.anthropic.claudecode managed preferences domain and Windows HKLM or HKCU registry keys."
+  tag: FACT
+  url: https://code.claude.com/docs/en/managed-settings#where-each-mechanism-stores-the-policy
+  title: "Deploy managed settings"
+  source: claude-code-docs
+  quote: "macOS configuration profile: the com.anthropic.claudecode managed preferences domain. Use the same top-level keys as managed-settings.json, with nested settings as dictionaries and lists as plist arrays."
+  accessed: 2026-11-19
+
+- id: F5
+  claim: "Within the managed tier, Claude Code ranks remote server-managed settings first, then MDM/OS policies, then managed settings files, and finally user-writable HKCU, defaulting to first-wins unless managedSourcesBehavior is set to merge."
+  tag: FACT
+  url: https://code.claude.com/docs/en/managed-settings#how-claude-code-combines-managed-sources
+  title: "Deploy managed settings"
+  source: claude-code-docs
+  quote: "\"first-wins\", the default: Claude Code uses the highest-ranked source that delivers at least one policy key and ignores the rest rather than merging them, apart from the keys in Keys read from every admin source."
+  accessed: 2026-11-19
+
+- id: F6
+  claim: "Server-managed settings are fetched from Anthropic's servers at startup and polled hourly, requiring Team or Enterprise and network access to api.anthropic.com."
+  tag: FACT
+  url: https://code.claude.com/docs/en/server-managed-settings
+  title: "Configure server-managed settings"
+  source: claude-code-docs
+  quote: "Claude Code fetches settings from Anthropic's servers at startup and polls for updates hourly during active sessions."
+  accessed: 2026-11-19
+
+- id: F7
+  claim: "Server-managed delivery is skipped when apiKeyHelper, Workload Identity Federation, a third-party cloud provider variable, or a custom ANTHROPIC_BASE_URL is active."
+  tag: FACT
+  url: https://code.claude.com/docs/en/server-managed-settings#platform-availability
+  title: "Configure server-managed settings"
+  source: claude-code-docs
+  quote: "Neither keys returned by an apiKeyHelper script nor Workload Identity Federation credentials trigger the settings fetch."
+  accessed: 2026-11-19
+
+- id: F8
+  claim: "Server-managed settings use a 24-hour fail-open cache by default, while forceRemoteSettingsRefresh: true blocks CLI startup until fresh settings are fetched and exits on failure."
+  tag: FACT
+  url: https://code.claude.com/docs/en/server-managed-settings#enforce-fail-closed-startup
+  title: "Configure server-managed settings"
+  source: claude-code-docs
+  quote: "To stop clients from starting on cached or absent server-managed settings, set forceRemoteSettingsRefresh: true in your managed settings."
+  accessed: 2026-11-19
+
+- id: F9
+  claim: "Permission rules are evaluated in deny-then-ask-then-allow order across all scopes, so a deny rule at any level blocks any allow rule."
+  tag: FACT
+  url: https://code.claude.com/docs/en/permissions#manage-permissions
+  title: "Configure permissions"
+  source: claude-code-docs
+  quote: "Rules are evaluated in order: deny, then ask, then allow. The first match in that order determines the outcome, and rule specificity doesn't change the order."
+  accessed: 2026-11-19
+
+- id: F10
+  claim: "allowManagedPermissionRulesOnly makes managed settings the sole settings source of permission rules, ignoring user, project, local, --settings, --allowedTools, and skill allowed-tools frontmatter."
+  tag: FACT
+  url: https://code.claude.com/docs/en/settings-reference#allowmanagedpermissionrulesonly
+  title: "All settings"
+  source: claude-code-docs
+  quote: "Make managed settings the only settings source of permission rules. Claude Code then ignores allow, ask, and deny rules in user, project, local, and --settings files, ignores --allowedTools, hides the always-allow choices in permission prompts, and stops saving new rules."
+  accessed: 2026-11-19
+
+- id: F11
+  claim: "disableBypassPermissionsMode and disableAutoMode set to \"disable\" prevent users from activating bypassPermissions or auto mode."
+  tag: FACT
+  url: https://code.claude.com/docs/en/permissions#permission-modes
+  title: "Configure permissions"
+  source: claude-code-docs
+  quote: "To prevent bypassPermissions or auto mode from being used, set permissions.disableBypassPermissionsMode or permissions.disableAutoMode to \"disable\" in any settings file. These are most useful in managed settings where they can't be overridden."
+  accessed: 2026-11-19
+
+- id: F12
+  claim: "Project allow rules and additionalDirectories in .claude/settings.json wait for workspace trust before applying, whereas deny and ask rules apply immediately."
+  tag: FACT
+  url: https://code.claude.com/docs/en/permissions#project-allow-rules-and-workspace-trust
+  title: "Configure permissions"
+  source: claude-code-docs
+  quote: "permissions.allow rules and permissions.additionalDirectories entries in a project's .claude/settings.json grant capability, so Claude Code applies them only after you accept the workspace trust dialog for that folder."
+  accessed: 2026-11-19
+
+- id: F13
+  claim: "Deploying managed-mcp.json places MCP servers under exclusive control, blocking user-added, project, plugin, and --mcp-config servers; an empty server map disables MCP entirely."
+  tag: FACT
+  url: https://code.claude.com/docs/en/managed-mcp#exclusive-control-with-managed-mcp-json
+  title: "Control MCP server access for your organization"
+  source: claude-code-docs
+  quote: "Users can't add, modify, or use any other MCP servers, including plugin-provided servers and servers passed with the --mcp-config CLI flag. The file also suppresses the claude.ai connectors Claude Code fetches itself unless you allow them alongside the managed set."
+  accessed: 2026-11-19
+
+- id: F14
+  claim: "managedMcpServers in managed settings distributes remote HTTPS or SSE MCP servers to every user without taking exclusive control over user-configured servers."
+  tag: FACT
+  url: https://code.claude.com/docs/en/managed-mcp#provide-servers-through-managed-settings
+  title: "Control MCP server access for your organization"
+  source: claude-code-docs
+  quote: "To give every user a set of remote MCP servers without taking exclusive control of MCP, list them under managedMcpServers in a managed settings source: server-managed settings, a Claude apps gateway policy, an MDM profile or registry policy, or managed-settings.json. Users keep the servers they add themselves and receive yours in addition."
+  accessed: 2026-11-19
+
+- id: F15
+  claim: "Setting allowManagedMcpServersOnly: true ignores user, project, and local MCP allowlists so only the managed allowedMcpServers list applies, while deniedMcpServers always merges across every scope."
+  tag: FACT
+  url: https://code.claude.com/docs/en/managed-mcp#restrict-the-allowlist-to-managed-settings-only
+  title: "Control MCP server access for your organization"
+  source: claude-code-docs
+  quote: "When allowManagedMcpServersOnly is true, allowlists from user, project, and local settings are ignored. The denylist still merges from every settings scope, so users can always block servers for themselves."
+  accessed: 2026-11-19
+
+- id: F16
+  claim: "serverName in allowedMcpServers or deniedMcpServers is only a user-assigned label and is not a security control; security policies must use serverUrl or serverCommand."
+  tag: FACT
+  url: https://code.claude.com/docs/en/managed-mcp#how-servername-entries-match
+  title: "Control MCP server access for your organization"
+  source: claude-code-docs
+  quote: "A serverName entry, in either list, is not a security control. The name is the label a user assigns when running claude mcp add or editing a config file, not the underlying server, so a user can call any server github."
+  accessed: 2026-11-19
+
+- id: F17
+  claim: "MCP evaluation merges lists, checks the denylist first (nothing overrides it), and then checks the allowlist by serverUrl for remote servers or exact serverCommand array for stdio servers."
+  tag: FACT
+  url: https://code.claude.com/docs/en/managed-mcp#how-a-server-is-evaluated
+  title: "Control MCP server access for your organization"
+  source: claude-code-docs
+  quote: "Check the denylist. A server that matches any denylist entry, by URL, command, or name, is blocked. Nothing overrides a denylist match."
+  accessed: 2026-11-19
+
+- id: F18
+  claim: "Claude Code exports OpenTelemetry metrics, log events, and beta distributed traces when CLAUDE_CODE_ENABLE_TELEMETRY=1 is configured."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Claude Code exports metrics as time series data via the standard metrics protocol, events via the logs/events protocol, and optionally distributed traces via OpenTelemetry."
+  accessed: 2026-11-19
+
+- id: F19
+  claim: "Claude Code ignores OpenTelemetry exporter variables in repository project and local settings files, and managed OTLP variables remove conflicting developer-set per-signal endpoints and credentials."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage#administrator-configuration
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Claude Code ignores the OpenTelemetry exporter variables in a repository's .claude/settings.json and .claude/settings.local.json, so a repository can't use them to turn telemetry on, choose where it goes, or capture content."
+  accessed: 2026-11-19
+
+- id: F20
+  claim: "Sensitive OTel content fields—user prompts, assistant responses, tool details, tool content, and raw API bodies—are disabled by default and require explicit opt-in toggles."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage#traces-beta
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Spans redact user prompt text, tool input details, and tool content by default. Set OTEL_LOG_USER_PROMPTS=1, OTEL_LOG_TOOL_DETAILS=1, and OTEL_LOG_TOOL_CONTENT=1 to include them."
+  accessed: 2026-11-19
+
+- id: F21
+  claim: "Setting DISABLE_TELEMETRY=1 in managed settings turns off Anthropic-bound operational telemetry across the organization, which is required when CMEK is enabled behind a custom gateway."
+  tag: FACT
+  url: https://code.claude.com/docs/en/managed-settings#turn-telemetry-off-for-your-organization
+  title: "Deploy managed settings"
+  source: claude-code-docs
+  quote: "Claude Code sends Anthropic operational telemetry by default on sessions that use the Anthropic API, whether directly, through an LLM gateway, or through a custom ANTHROPIC_BASE_URL; Default behaviors by API provider says which providers send it. To turn it off for every developer without relying on each person's shell, deliver DISABLE_TELEMETRY through the env block of your managed settings."
+  accessed: 2026-11-19
+
+- id: F22
+  claim: "ANTHROPIC_BASE_URL routes requests to an LLM gateway; ANTHROPIC_AUTH_TOKEN sends Authorization: Bearer, ANTHROPIC_API_KEY sends x-api-key, and apiKeyHelper sends both headers with a 5-minute default cache TTL."
+  tag: FACT
+  url: https://code.claude.com/docs/en/llm-gateway-connect#how-the-credential-variable-maps-to-a-header
+  title: "Connect Claude Code to an LLM gateway"
+  source: claude-code-docs
+  quote: "Each variable sends the credential in a different HTTP header: ANTHROPIC_AUTH_TOKEN in Authorization: Bearer, ANTHROPIC_API_KEY in x-api-key, and apiKeyHelper in both."
+  accessed: 2026-11-19
+
+- id: F23
+  claim: "LiteLLM exposes an Anthropic Messages API endpoint at /v1/messages, so setting ANTHROPIC_BASE_URL and ANTHROPIC_AUTH_TOKEN routes Claude Code through the LiteLLM gateway."
+  tag: FACT
+  url: https://docs.litellm.ai/docs/proxy/client_setup/claude_code
+  title: "Claude Code (CLI) | liteLLM"
+  source: other
+  quote: "Claude Code talks to the Anthropic Messages API. LiteLLM serves that format at /v1/messages, so two environment variables point Claude Code at the gateway and it works against any model in your config, not just Anthropic's."
+  accessed: 2026-11-19
+
+- id: F24
+  claim: "To lock a fleet exclusively to an LLM gateway, set allowedProviders to [\"customEndpoint\"] alongside ANTHROPIC_BASE_URL in managed settings; do not combine gateway credentials with forceLoginMethod or forceLoginOrgUUID."
+  tag: REC
+  url: https://code.claude.com/docs/en/llm-gateway-rollout#distribute-through-managed-settings
+  title: "Roll out an LLM gateway for your organization"
+  source: claude-code-docs
+  quote: "Don't include forceLoginMethod, forceLoginOrgUUID, or forceLoginGatewayUrl in managed settings alongside a gateway credential. forceLoginMethod or forceLoginOrgUUID, with any value, blocks ANTHROPIC_API_KEY, ANTHROPIC_AUTH_TOKEN, and apiKeyHelper at startup, and developers can't proceed."
+  accessed: 2026-11-19
+
+- id: F25
+  claim: "Claude apps gateway is Anthropic's self-hosted gateway built into the claude binary, providing OIDC SSO login, per-IdP-group managed settings and model allowlists, OTLP telemetry, and upstream translation to Bedrock, Vertex, Foundry, or Anthropic API."
+  tag: FACT
+  url: https://code.claude.com/docs/en/claude-apps-gateway
+  title: "Claude apps gateway for Amazon Bedrock, Claude Platform on AWS, Google Cloud, and Microsoft Foundry"
+  source: claude-code-docs
+  quote: "Claude apps gateway is a self-hosted service that sits between your developers' Claude Code clients and your model provider. Developers sign in with your corporate identity provider (IdP) instead of holding API keys or cloud credentials. The gateway holds the upstream credential, enforces model access and managed settings by IdP group, and relays usage telemetry to your own observability stack."
+  accessed: 2026-11-19
+
+- id: F26
+  claim: "Organizations deploying on Amazon Bedrock, Google Cloud's Agent Platform, or Microsoft Foundry should pin model versions via ANTHROPIC_DEFAULT_*_MODEL and must note that claude.ai Analytics and server-managed settings are unavailable on these providers."
+  tag: REC
+  url: https://code.claude.com/docs/en/third-party-integrations#pin-model-versions-for-cloud-providers
+  title: "Enterprise deployment overview"
+  source: claude-code-docs
+  quote: "Without pinning, model aliases resolve to Claude Code's built-in default for that provider, which can lag the newest release and may not yet be enabled in your account. Pinning lets you control when your users move to a new model."
+  accessed: 2026-11-19
+
+- id: F27
+  claim: "Organizations govern plugins via strictKnownMarketplaces, blockedMarketplaces, extraKnownMarketplaces, enabledPlugins, disableSideloadFlags, and strictPluginOnlyCustomization."
+  tag: FACT
+  url: https://code.claude.com/docs/en/plugins/org#restrict-what-users-can-install
+  title: "Manage Claude Code plugins for your organization"
+  source: claude-code-docs
+  quote: "The managed strictKnownMarketplaces allowlist and blockedMarketplaces blocklist decide which marketplace sources plugins may come from. A marketplace's source is the git repository, URL, or local path that Claude Code fetches it from. Both lists match the source of the marketplace a plugin comes from, not the plugin's own entry inside that marketplace."
+  accessed: 2026-11-19
+
+- id: F28
+  claim: "Claude Code plugins can run arbitrary code via hooks, monitors, mods, stdio MCP/LSP servers, and bin/ executables outside Claude Code's tool permission and sandbox boundaries."
+  tag: FACT
+  url: https://code.claude.com/docs/en/plugins/security#understand-what-a-plugin-can-do
+  title: "Plugin security and trust"
+  source: claude-code-docs
+  quote: "Hooks, monitors, and server processes: command hooks and monitors are shell commands that run with your full user permissions. Claude Code runs hooks, monitors, MCP servers, LSP servers, and the processes a mod starts outside the sandbox."
+  accessed: 2026-11-19
+
+- id: F29
+  claim: "allowManagedHooksOnly: true restricts hook execution to managed hooks, Agent SDK hooks, and hooks in plugins force-enabled via managed enabledPlugins, while narrowing statusLine and fileSuggestion to managed settings."
+  tag: FACT
+  url: https://code.claude.com/docs/en/hooks#configure-hooks-in-settings
+  title: "Hooks reference"
+  source: claude-code-docs
+  quote: "Your user, project, local, and plugin hooks are blocked. Hooks from plugins force-enabled in managed settings enabledPlugins are exempt"
+  accessed: 2026-11-19
+
+- id: F30
+  claim: "CLAUDE.md files follow a managed-to-user-to-project-to-local hierarchy and act as behavioral context for Claude rather than a hard client-side enforcement layer."
+  tag: FACT
+  url: https://code.claude.com/docs/en/memory#deploy-organization-wide-claude-md
+  title: "How Claude remembers your project"
+  source: claude-code-docs
+  quote: "Settings rules are enforced by the client regardless of what Claude decides to do. CLAUDE.md instructions shape Claude's behavior but are not a hard enforcement layer."
+  accessed: 2026-11-19
+
+- id: F31
+  claim: "Custom Skills do not sync across surfaces—API-uploaded Skills are unavailable in claude.ai and Claude Code—so enterprises should store Skill source directories in Git, pin production API versions, and apply a security review checklist with separation of duties."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/enterprise#cross-surface-considerations
+  title: "Skills for enterprise"
+  source: anthropic-docs
+  quote: "Custom Skills do not sync across surfaces. Skills uploaded to the API are not available on claude.ai or in Claude Code, and vice versa. Each surface requires separate uploads and management."
+  accessed: 2026-11-19
+
+- id: F32
+  claim: "Enterprise Skills governance requires security review, automated scanning in claude.ai/Cowork where eligible, and pre-deployment evaluations of 3-5 queries across models measuring triggering accuracy, isolation, and coexistence."
+  tag: REC
+  url: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/enterprise#evaluation-requirements
+  title: "Skills for enterprise"
+  source: anthropic-docs
+  quote: "Require Skill authors to submit evaluation suites with 3–5 representative queries for each Skill, covering cases where the Skill should trigger, cases where it should not trigger, and ambiguous edge cases. Require testing across the models your organization uses (Haiku, Sonnet, Opus), because Skill effectiveness varies by model."
+  accessed: 2026-11-19
+
+- id: F33
+  claim: "Before releasing or distributing Claude Code plugins internally, teams should validate manifests with claude plugin validate --strict and run regression evals against a no-plugin baseline with claude plugin eval."
+  tag: REC
+  url: https://code.claude.com/docs/en/plugin-evals#the-no-plugin-baseline
+  title: "Test plugins with evals"
+  source: claude-code-docs
+  quote: "A high score on its own doesn't tell you the plugin helped, because Claude might do as well without it. To separate the two, a case's runs are repeated with no plugin loaded, and you get two scores, WITH and W/OUT. Their difference, Δ, is what the plugin contributed."
+  accessed: 2026-11-19

@@ -1,0 +1,182 @@
+[
+  {
+    "id": "F1",
+    "status": "ok",
+    "url": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/"
+  },
+  {
+    "id": "F2",
+    "status": "ok",
+    "url": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/"
+  },
+  {
+    "id": "F3",
+    "status": "ok",
+    "url": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/"
+  },
+  {
+    "id": "F4",
+    "status": "ok",
+    "url": "https://genai.owasp.org/llmrisk/llm022025-sensitive-information-disclosure/"
+  },
+  {
+    "id": "F5",
+    "status": "ok",
+    "url": "https://genai.owasp.org/llmrisk/llm042025-data-and-model-poisoning/"
+  },
+  {
+    "id": "F6",
+    "status": "ok",
+    "url": "https://genai.owasp.org/llmrisk/llm052025-improper-output-handling/"
+  },
+  {
+    "id": "F7",
+    "status": "ok",
+    "url": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/"
+  },
+  {
+    "id": "F8",
+    "status": "ok",
+    "url": "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/"
+  },
+  {
+    "id": "F9",
+    "status": "ok",
+    "url": "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"
+  },
+  {
+    "id": "F10",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks"
+  },
+  {
+    "id": "F11",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks"
+  },
+  {
+    "id": "F12",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks"
+  },
+  {
+    "id": "F13",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool"
+  },
+  {
+    "id": "F14",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool"
+  },
+  {
+    "id": "F15",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool"
+  },
+  {
+    "id": "F16",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool"
+  },
+  {
+    "id": "F17",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/mcp-connector"
+  },
+  {
+    "id": "F18",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/browser-use-tool"
+  },
+  {
+    "id": "F19",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/prompt-injection-defenses"
+  },
+  {
+    "id": "F20",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/prompt-injection-defenses"
+  },
+  {
+    "id": "F21",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/claude-code-auto-mode"
+  },
+  {
+    "id": "F22",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/claude-code-auto-mode"
+  },
+  {
+    "id": "F23",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/claude-code-sandboxing"
+  },
+  {
+    "id": "F24",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/sandboxing"
+  },
+  {
+    "id": "F25",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/security"
+  },
+  {
+    "id": "F26",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/memory"
+  },
+  {
+    "id": "F27",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/permissions"
+  },
+  {
+    "id": "F28",
+    "status": "ok",
+    "url": "https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices"
+  },
+  {
+    "id": "F29",
+    "status": "ok",
+    "url": "https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices"
+  },
+  {
+    "id": "F30",
+    "status": "ok",
+    "url": "https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices"
+  },
+  {
+    "id": "F31",
+    "status": "ok",
+    "url": "https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices"
+  },
+  {
+    "id": "F32",
+    "status": "ok",
+    "url": "https://modelcontextprotocol.io/docs/2025-11-25/tutorials/security/security_best_practices"
+  },
+  {
+    "id": "F33",
+    "status": "ok",
+    "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/"
+  },
+  {
+    "id": "F34",
+    "status": "ok",
+    "url": "https://airc.nist.gov/technical-reports/"
+  },
+  {
+    "id": "F35",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/building-strong-safety-evaluations"
+  },
+  {
+    "id": "F36",
+    "status": "ok",
+    "url": "https://www.anthropic.com/news/challenges-in-red-teaming-ai-systems"
+  }
+]

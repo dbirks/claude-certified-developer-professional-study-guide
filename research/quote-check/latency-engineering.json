@@ -1,12 +1,12 @@
 [
   {
     "id": "F1",
-    "status": "fetch-failed",
+    "status": "ok",
     "url": "https://platform.claude.com/cookbook/latency-optimization-latency-optimization"
   },
   {
     "id": "F2",
-    "status": "fetch-failed",
+    "status": "ok",
     "url": "https://platform.claude.com/cookbook/latency-optimization-latency-optimization"
   },
   {
@@ -31,7 +31,7 @@
   },
   {
     "id": "F7",
-    "status": "not-found",
+    "status": "ok-loose",
     "url": "https://platform.claude.com/docs/en/build-with-claude/streaming"
   },
   {
@@ -41,17 +41,17 @@
   },
   {
     "id": "F9",
-    "status": "fetch-failed",
+    "status": "ok-loose",
     "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/fine-grained-tool-streaming"
   },
   {
     "id": "F10",
-    "status": "fetch-failed",
+    "status": "ok-loose",
     "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use"
   },
   {
     "id": "F11",
-    "status": "fetch-failed",
+    "status": "ok-loose",
     "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use"
   },
   {
@@ -61,7 +61,7 @@
   },
   {
     "id": "F13",
-    "status": "fetch-failed",
+    "status": "ok-loose",
     "url": "https://platform.claude.com/docs/en/api/typescript/messages"
   },
   {
@@ -81,17 +81,17 @@
   },
   {
     "id": "F17",
-    "status": "not-found",
+    "status": "ok",
     "url": "https://platform.claude.com/docs/en/models/overview"
   },
   {
     "id": "F18",
-    "status": "fetch-failed",
+    "status": "ok",
     "url": "https://platform.claude.com/docs/en/build-with-claude/fast-mode"
   },
   {
     "id": "F19",
-    "status": "fetch-failed",
+    "status": "ok-loose",
     "url": "https://platform.claude.com/docs/en/build-with-claude/fast-mode"
   },
   {
@@ -106,7 +106,7 @@
   },
   {
     "id": "F22",
-    "status": "fetch-failed",
+    "status": "ok",
     "url": "https://sre.google/sre-book/monitoring-distributed-systems/"
   },
   {
@@ -116,12 +116,22 @@
   },
   {
     "id": "F24",
-    "status": "not-found",
+    "status": "ok",
     "url": "https://platform.claude.com/docs/en/models/overview"
   },
   {
     "id": "F25",
-    "status": "not-found",
+    "status": "ok-loose",
     "url": "https://platform.claude.com/docs/en/build-with-claude/streaming"
+  },
+  {
+    "id": "F26",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F27",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
   }
 ]

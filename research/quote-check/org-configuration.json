@@ -1,0 +1,167 @@
+[
+  {
+    "id": "F1",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/settings#settings-precedence"
+  },
+  {
+    "id": "F2",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/settings#lists-merge-instead-of-overriding"
+  },
+  {
+    "id": "F3",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/managed-settings#where-each-mechanism-stores-the-policy"
+  },
+  {
+    "id": "F4",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/managed-settings#where-each-mechanism-stores-the-policy"
+  },
+  {
+    "id": "F5",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/managed-settings#how-claude-code-combines-managed-sources"
+  },
+  {
+    "id": "F6",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/server-managed-settings"
+  },
+  {
+    "id": "F7",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/server-managed-settings#platform-availability"
+  },
+  {
+    "id": "F8",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/server-managed-settings#enforce-fail-closed-startup"
+  },
+  {
+    "id": "F9",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/permissions#manage-permissions"
+  },
+  {
+    "id": "F10",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/settings-reference#allowmanagedpermissionrulesonly"
+  },
+  {
+    "id": "F11",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/permissions#permission-modes"
+  },
+  {
+    "id": "F12",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/permissions#project-allow-rules-and-workspace-trust"
+  },
+  {
+    "id": "F13",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/managed-mcp#exclusive-control-with-managed-mcp-json"
+  },
+  {
+    "id": "F14",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/managed-mcp#provide-servers-through-managed-settings"
+  },
+  {
+    "id": "F15",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/managed-mcp#restrict-the-allowlist-to-managed-settings-only"
+  },
+  {
+    "id": "F16",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/managed-mcp#how-servername-entries-match"
+  },
+  {
+    "id": "F17",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/managed-mcp#how-a-server-is-evaluated"
+  },
+  {
+    "id": "F18",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F19",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage#administrator-configuration"
+  },
+  {
+    "id": "F20",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage#traces-beta"
+  },
+  {
+    "id": "F21",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/managed-settings#turn-telemetry-off-for-your-organization"
+  },
+  {
+    "id": "F22",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/llm-gateway-connect#how-the-credential-variable-maps-to-a-header"
+  },
+  {
+    "id": "F23",
+    "status": "ok",
+    "url": "https://docs.litellm.ai/docs/proxy/client_setup/claude_code"
+  },
+  {
+    "id": "F24",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/llm-gateway-rollout#distribute-through-managed-settings"
+  },
+  {
+    "id": "F25",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/claude-apps-gateway"
+  },
+  {
+    "id": "F26",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/third-party-integrations#pin-model-versions-for-cloud-providers"
+  },
+  {
+    "id": "F27",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/plugins/org#restrict-what-users-can-install"
+  },
+  {
+    "id": "F28",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/plugins/security#understand-what-a-plugin-can-do"
+  },
+  {
+    "id": "F29",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/hooks#configure-hooks-in-settings"
+  },
+  {
+    "id": "F30",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/memory#deploy-organization-wide-claude-md"
+  },
+  {
+    "id": "F31",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/enterprise#cross-surface-considerations"
+  },
+  {
+    "id": "F32",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/enterprise#evaluation-requirements"
+  },
+  {
+    "id": "F33",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/plugin-evals#the-no-plugin-baseline"
+  }
+]
