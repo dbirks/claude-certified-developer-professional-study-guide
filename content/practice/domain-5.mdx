@@ -1,0 +1,184 @@
+---
+title: "Practice: Domain 5 — Evaluation Engineering and Quality Assurance"
+summary: "10 original scenario questions for Domain 5, with cited rationales."
+kind: reference
+slug: practice-domain-5
+order: 15
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+These are original practice items written for this guide in the style of the official sample items. They are not official exam content. Try each before opening the answer.
+
+## Q1. Release gating on multi-trial consistency (Skill 5.1)
+
+A fintech support agent that cancels cards and waives late fees is evaluated across `40` golden tasks using `k=3` isolated trials per task. Before rollout, the suite reports `pass@3 = 97.5%`, `pass^3 = 42.5%`, and a `75%` per-trial pass rate. Inspection of failed trial transcripts shows that on roughly one in four attempts the agent skips caller verification or cites an outdated fee table before succeeding on a later retry. The product lead argues the agent is ready for production because `pass@3` exceeds the `95%` launch target.
+
+**Which action best addresses the risk shown by these metrics?**
+
+- **A.** Block release, gate the customer-facing agent on `pass^k` consistency, and debug the failing trial transcripts before launching.
+- **B.** Increase the trial count to `k=10` per task and ship to `10%` of live users once `pass@10` crosses `99%`.
+- **C.** Rewrite the graders to assert an exact sequence of tool calls so the agent cannot skip caller verification during evaluation.
+- **D.** Upgrade the underlying model to a larger frontier snapshot and evaluate with `k=1` trial per task to avoid multi-trial variance.
+
+<SelfCheck question="Answer to Q1">
+
+**A.** For a customer-facing agent where users expect reliable behavior on every interaction, `pass^k` (the probability that all `k` trials succeed; at `75%` per-trial success, expected `pass^3` is `0.75^3 ≈ 42%`, matching the observed `42.5%`) is the right release metric, whereas `pass@k` measures only the likelihood of at least one correct solution across `k` attempts.<Cite id="F3 F4 F57" /> Option B fails because `pass@k` rises toward `100%` as `k` grows and masks single-attempt unreliability.<Cite id="F4" /> Option C creates brittle tests that penalize valid alternative tool paths without fixing the agent itself.<Cite id="F7" /> Option D hides stochastic inconsistency behind a single run (`k=1`), where `pass@1` equals `pass^1` and provides no visibility into multi-trial reliability.<Cite id="F4" />
+
+</SelfCheck>
+
+## Q2. Isolating RAG retrieval vs. generation failures (Skill 5.1)
+
+After modifying document chunking and the system prompt for an internal compliance RAG assistant, end-to-end answer accuracy on a `120`-query golden set drops from `84%` to `61%`. Stage-level retrieval metrics from the same run show `Recall@20 = 0.96` (`1 - recall@20 = 0.04`) and `MRR@10 = 0.87`. Responses generated with `citations: {"enabled": true}` include valid `cited_text` spans, yet manual spot-checks show `32%` of wrong answers omit mandatory policy exceptions or extrapolate beyond the cited sentences.
+
+**Which diagnostic step should the team take first?**
+
+- **A.** Increase retrieval `top_k` from `20` to `50` and add a cross-encoder reranker so `Recall@20` rises above `0.99`.
+- **B.** Evaluate answer groundedness and key-fact coverage independently of retrieval, and inspect failed transcripts against the retrieved chunks.
+- **C.** Re-index the compliance corpus with a smaller chunk size and a new embedding model to reduce irrelevant context tokens.
+- **D.** Instruct the assistant in its system prompt to abstain unless it retrieves at least three distinct documents per query.
+
+<SelfCheck question="Answer to Q2">
+
+**B.** RAG evaluations must measure retrieval separately from end-to-end generation performance.<Cite id="F14" /> Because `Recall@20 = 0.96` (`1 - recall@20 = 0.04`) and `MRR@10 = 0.87` already show that relevant chunks are consistently surfaced near the top, the bottleneck lies in generation groundedness and key-fact coverage rather than retrieval, and valid `cited_text` pointers do not guarantee claim entailment or completeness.<Cite id="F9 F16 F17" /> Options A and C tune retrieval parameters even though LLMs can filter minor distractions when recall is already high.<Cite id="F15" /> Option D adds an arbitrary prompt heuristic instead of auditing transcripts and measuring claim support and coverage.<Cite id="F9 F24" />
+
+</SelfCheck>
+
+## Q3. Hardening `claude plugin eval` CI gates (Skill 5.1)
+
+A platform team integrates `claude plugin eval` into GitHub Actions (with `--trust-plugin`, `--json`, and `--max-cost-usd`) to gate pull requests to an internal Claude Code plugin. Over two weeks, CI reports `Δ = +44%` plugin gains despite trivial prompt edits, merges builds on days when `--max-cost-usd` aborts runs mid-suite, and exhibits sudden pass-rate swings with no repository changes. Investigation shows a `tool_used` (`tool: Skill`) check sets `arm: both`, CI omits `--model` and `--judge-model`, and the workflow merges whenever `aggregates.meanDelta > 0` instead of checking the command exit code.
+
+**Which TWO configuration changes fix these evaluation integrity issues? (Select TWO.)**
+
+- **A.** Pin `--model` and `--judge-model` explicitly in CI so silent model updates cannot skew suite pass rates over time.
+- **B.** Remove `arm: both` from the `Skill` check so it stays excluded from arm scores, and gate CI on the command exit code.
+- **C.** Write a custom Python grader inside `claude plugin eval` to resume cost-capped runs inside the same temporary workspace.
+- **D.** Pass `--ablation none` and `--runs 1` so CI skips the baseline arm and stays under the `--max-cost-usd` ceiling.
+- **E.** Skip `partial: true` JSON reports in a post-step while continuing to evaluate merges solely via `aggregates.meanDelta > 0`.
+
+<SelfCheck question="Answer to Q3">
+
+**A and B.** Pinning `--model` and `--judge-model` keeps scores comparable over time, and failing the build on the command exit code prevents threshold failures, API errors (exit code `1`), and `--max-cost-usd` partial runs (exit code `2`) from merging.<Cite id="F13 F59" /> Removing `arm: both` lets `claude plugin eval` exclude the plugin-only `Skill` invocation check from both arms' scores (reporting it in the with-arm as an indicator only) rather than pushing the no-plugin baseline toward zero and inflating `Δ`.<Cite id="F11 F58" /> Option C fails because `claude plugin eval` has no custom-code graders and sharing workspace state breaks trial isolation.<Cite id="F6 F12" /> Option D removes baseline comparison and increases single-trial variance, while Option E ignores `--threshold` failures and API errors because `Δ` never determines the exit code or absolute pass threshold.<Cite id="F13 F59" />
+
+</SelfCheck>
+
+## Q4. Maintaining suite validity against saturation and coverage gaps (Skill 5.1)
+
+A team's `60`-task evaluation suite for an enterprise coding assistant has climbed to a `98%` pass rate over four releases, so engineers stop running offline evals on prompt refinements. Meanwhile, production support tickets show the assistant frequently triggers an external web-search tool on purely offline codebase questions and breaks when refactoring across five or more files. Auditing the `60` tasks reveals that all tasks edit a single file and every search-related task tests only queries where web search is expected.
+
+**Which suite-maintenance strategy best restores diagnostic signal?**
+
+- **A.** Lower the regression gate from `98%` to `85%` and run `k=10` trials per existing task so minor prompt changes produce visible score variance.
+- **B.** Graduate the mastered tasks into a continuous regression suite, author harder multi-file capability tasks, and add balanced non-trigger search cases.
+- **C.** Replace the `60` automated tasks with `30` SME hand-graded multi-file tasks so human reviewers catch subtle refactoring flaws directly.
+- **D.** Add strict `tool_order` assertions to all `60` existing tasks requiring `search` to run after `read_file` so pass rates fall below `90%`.
+
+<SelfCheck question="Answer to Q4">
+
+**B.** An evaluation suite near `100%` is saturated and provides no signal for improvement; graduating mastered tasks into a near-100% regression suite preserves drift protection while freeing capability evals to target harder multi-file workflows.<Cite id="F1 F2 F8" /> Pairing positive trigger queries with negative non-trigger cases eliminates one-sided optimization that causes over-triggering.<Cite id="F5" /> Option A degrades regression protection without exposing missing failure modes.<Cite id="F1" /> Option C trades automated volume for a small manual set and still omits negative non-trigger cases.<Cite id="F5 F10" /> Option D introduces brittle path-ordering checks rather than expanding task coverage.<Cite id="F7" />
+
+</SelfCheck>
+
+## Q5. Resolving `reasoning_extraction` refusals in structured judges (Skill 5.2)
+
+An engineer deploys an automated groundedness judge on `claude-opus-5-5` using `output_config.format` with a JSON schema containing `"reasoning": {"type": "string"}` and `"verdict": {"enum": ["pass", "fail", "unknown"]}`. In the first batch, `38%` of judge requests return `stop_reason: "refusal"` with `stop_details.category: "reasoning_extraction"`, and `4%` of completed responses fail strict string equality downstream because `verdict` returns `"Pass"` instead of `"pass"`.
+
+**Which change best resolves both failures while preserving judge accuracy?**
+
+- **A.** Configure a fallback to a smaller Claude model whenever `reasoning_extraction` occurs, and wrap `"reasoning"` in `<thinking>` tags.
+- **B.** Switch from `output_config.format` to assistant prefilling (`"{"`) so the judge emits lowercase JSON keys without refusal checks.
+- **C.** Remove `"reasoning"` from the schema, enable native `thinking` (`display: "summarized"` for audits) with a brief `evidence_summary` field, and compare `verdict` case-insensitively.
+- **D.** Set `output_config.effort` to `"low"` and retry refused judge calls with exponential backoff until the model populates `"reasoning"`.
+
+<SelfCheck question="Answer to Q5">
+
+**C.** Requesting internal reasoning or thinking in output text or JSON properties triggers `reasoning_extraction` refusals, which have no recommended fallback model.<Cite id="F32 F33" /> Native `thinking` runs outside constrained output grammars so the judge can reason before emitting valid JSON (`display: "summarized"` exposes reasoning summaries for audits), while normalizing `verdict` handles structured-output enum capitalization differences.<Cite id="F21 F30 F31 F33" /> Option A fails because `<thinking>` output tags also trigger `reasoning_extraction` and no fallback model avoids it.<Cite id="F32 F33" /> Option B fails because assistant prefilling is unsupported on Claude 4.6+ models such as `claude-opus-5-5` and sacrifices guaranteed schema compliance.<Cite id="F18" /> Option D repeats the same offending schema instead of changing the prompt.<Cite id="F33" />
+
+</SelfCheck>
+
+## Q6. Selecting IRR metrics and calibrating rubric design (Skill 5.2)
+
+A quality team evaluates a single holistic `1–5` LLM judge against three human subject-matter experts across `250` support transcripts, where two of the three SMEs label each transcript (`33%` missing ratings per SME) alongside the judge. After binarizing scores `>= 4` as `pass`, raw human-judge agreement is `91%`, yet Cohen's `κ` between the judge and lead SME is `0.28` because `93%` of sampled transcripts are passing cases. Transcript review further reveals that the judge awards `5/5` to verbose replies that omit a refund caveat and guesses `"pass"` when tool logs are truncated.
+
+**Which TWO actions best fix the calibration methodology and judge design? (Select TWO.)**
+
+- **A.** Compute ordinal Krippendorff's `α` across all three SMEs and the judge on a balanced positive/negative calibration set, targeting `α >= 0.800` before gating.
+- **B.** Split the holistic judge into isolated per-dimension rubrics with an `"Unknown"` escape hatch for incomplete logs, and inspect disagreement transcripts.
+- **C.** Use the `91%` raw agreement instead of chance-corrected IRR because `κ` is unreliable whenever pass rates exceed `90%`.
+- **D.** Keep the `93%`-pass production sample and evaluate binary `pass`/`fail` Cohen's `κ` against the lead SME to preserve real traffic prevalence.
+- **E.** Replace the discrete `1–5` scale with free-form qualitative prose rationales in the single prompt so nuanced refund caveats are captured.
+
+<SelfCheck question="Answer to Q6">
+
+**A and B.** Cohen's `κ` is restricted to two raters with complete categorical ratings, whereas Krippendorff's `α` supports three or more raters, missing labels, and ordinal `1–5` scales, with `α >= 0.800` as the standard reliability benchmark.<Cite id="F37 F38 F39" /> Balancing positive and negative cases prevents one-sided skew, while isolated per-dimension rubrics, an `"Unknown"` escape hatch for missing evidence, and transcript inspection curb verbosity bias and hallucinated passes.<Cite id="F19 F23 F24 F25 F36" /> Option C ignores chance agreement under class imbalance; Option D preserves severe class imbalance and ignores the remaining SMEs.<Cite id="F25 F37" /> Option E degrades grading scalability and retains dimension conflation.<Cite id="F20 F23" />
+
+</SelfCheck>
+
+## Q7. Separating judge drift from application regressions (Skill 5.2)
+
+A nightly CI pipeline runs a pointwise LLM judge configured with model string `claude-sonnet-4-5` against a frozen `200`-item regression suite. On Tuesday morning, with zero application code, prompt, or retrieval commits since Monday, the suite pass rate drops from `92.0%` to `83.5%`, blocking all pull requests. The judge wrapper logs only the string `claude-sonnet-4-5` and aggregate daily pass percentages.
+
+**Which action should the team take first to diagnose and resolve the blocked pipeline?**
+
+- **A.** Evaluate the current and prior dated judge snapshots side-by-side on a human-labeled anchor set, audit disagreements, and pin an immutable ID.
+- **B.** Roll back the last five application releases in production because pointwise score drops indicate silent harness degradation.
+- **C.** Switch the nightly judge to pairwise comparison against Monday's outputs to eliminate single-answer score fluctuations.
+- **D.** Lower the CI merge gate from `90%` to `80%` so routine judge updates do not block pull requests.
+
+<SelfCheck question="Answer to Q7">
+
+**A.** Pre-4.6 dateless strings such as `claude-sonnet-4-5` are moving convenience aliases that resolve to the latest dated snapshot, and pointwise scores fluctuate more when a judge model changes (while serving infrastructure can also shift even on pinned weights).<Cite id="F27 F28 F29 F34" /> Calibrating side-by-side against human labels, reading disagreement transcripts, and pinning an immutable snapshot ID (or 4.6+ canonical ID) separates judge drift from true regressions.<Cite id="F22 F26 F27 F28" /> Option B blames the application despite zero code changes; Option C introduces potential position bias without calibrating against human labels or pinning the moving alias; and Option D hides real future regressions.<Cite id="F27 F28 F35" />
+
+</SelfCheck>
+
+## Q8. Estimating live fleet quality under sampling and privacy constraints (Skill 5.3)
+
+After routing `50%` of live traffic to a new support prompt, a team observes voter thumbs-up rate rising from `74%` to `86%`. Simultaneously, the explicit voting rate falls from `12%` of exposures to `3%`, and a separate error-audit pipeline run exclusively on thumbs-down conversations reports a `62%` defect rate. Engineers cannot read raw transcripts directly because customer messages contain OAuth tokens and personal identifiers.
+
+**Which measurement approach yields an unbiased estimate of live fleet quality under privacy constraints?**
+
+- **A.** Draw a separate known-probability random sample across all eligible exposures, strip credentials and identifiers before calibrated grading, and track exposure-normalized outcomes.
+- **B.** Report the `62%` defect rate from the thumbs-down pipeline as the fleet error rate because failure-enriched traces surface bugs faster.
+- **C.** Use the `86%` thumbs-up rate among explicit voters as the live quality metric, weighting each day's votes equally across arms.
+- **D.** Run an automated PII redactor over thumbs-down transcripts and publish ungrouped conversation summaries to analysts without minimum cohort thresholds.
+
+<SelfCheck question="Answer to Q8">
+
+**A.** Effective teams pair automated evals with representative production monitoring and periodic human review for calibration, converting user-reported failures into regression tests rather than treating failure-only slices as fleet baselines.<Cite id="F40 F41" /> Drawing a separate random sample across eligible exposures avoids voter self-selection bias when vote participation drops, while redacting identifiers, enforcing minimum cohort thresholds, and checking summaries for identifying details protect privacy (recognizing no privacy filter is perfect).<Cite id="F42 F43 F44" /> Options B and C misread failure-enriched and self-selected voter rates as population rates, and Option D retains failure-slice bias while omitting minimum cohort thresholds and summary checks.<Cite id="F42 F43 F44" />
+
+</SelfCheck>
+
+## Q9. Preventing interference and peeking in live A/B tests (Skill 5.3)
+
+A team wants to test whether a lower-cost Claude configuration (`Variant B`) matches the `80%` verified completion rate of `Control A` inside a collaborative workspace where teammates share persistent agent state and an MCP memory store. To finish quickly, the team plans to randomize each individual API call `50/50`, inspect the two-sample p-value every morning for two weeks, and declare `B` equivalent to `A` if `p >= 0.05` after `500` requests.
+
+**Which TWO changes are required to make this online experiment valid? (Select TWO.)**
+
+- **A.** Randomize persistently at the shared workspace or tenant unit rather than per API request so state sharing across teammates does not cause interference.
+- **B.** Size the sample for a predefined noninferiority margin, power, and alpha, and use a sequential test instead of fixed-horizon peeking.
+- **C.** Keep per-request randomization, pin sticky session headers, and exclude requests made after a teammate updates shared memory.
+- **D.** Run a one-sided fixed-horizon test at `p < 0.05` each morning so the team can halt the rollout immediately if quality drops.
+- **E.** Extend the experiment to `1,000` requests and treat `p >= 0.05` on a standard two-sample z-test as statistical proof of parity.
+
+<SelfCheck question="Answer to Q9">
+
+**A and B.** When teammates share workspace state, unit outcomes depend on others' assignments (interference), biasing request-level experiments; cluster/tenant-level randomization reduces cross-unit contamination.<Cite id="F54" /> Sample size must be planned from the target effect size, variance, power, and significance level, and continuous monitoring requires a sequential method because repeated peeking at a fixed-horizon test inflates Type I false positives.<Cite id="F45 F46 F55" /> Option C introduces post-assignment selection bias; Option D institutionalizes invalid peeking; and Option E mistakes an underpowered non-significant result for statistical equivalence.<Cite id="F45 F54 F55" />
+
+</SelfCheck>
+
+## Q10. Matching online telemetry and task metrics to API semantics (Skill 5.3)
+
+A platform team monitors two live systems: (1) a Claude Code rollout queried via `GET /v1/organizations/usage_report/claude_code`, where an analyst authenticates with a workspace API key and averages per-row acceptance percentages across an actor's multiple daily records; and (2) a retrieval-grounded Q&A service using `citations: {"enabled": true}`, where dashboards mark any response with a non-empty `cited_text` field as fully entailed and compute total input tokens solely from `usage.input_tokens`.
+
+**Which remediation corrects the measurement errors across both telemetry pipelines?**
+
+- **A.** Use an Admin API key, sum each actor's daily records before dividing `accepted / (accepted + rejected)`, sum all three input-token fields, and grade claim entailment separately.
+- **B.** Use an Admin API key, weight daily acceptance by row count, run citations on image-only scanned PDFs, and sum `usage.input_tokens` with `output_tokens`.
+- **C.** Use an `org:admin` OAuth token, poll the analytics endpoint every `60` seconds for real-time acceptance, treat `cited_text` as entailment, and read `usage.input_tokens` directly.
+- **D.** Use an unscoped service key, average acceptance across all actors by model, subtract `cache_read_input_tokens` from `usage.input_tokens`, and grade with exact string match.
+
+<SelfCheck question="Answer to Q10">
+
+**A.** The Claude Code Analytics API requires an Admin API key, `org:admin` OAuth token, or unscoped personal/service key (workspace API keys fail) and splits actors across multiple daily rows that must be summed before calculating `edit_tool.accepted / (accepted + rejected)`.<Cite id="F47 F48 F49" /> For prompt caching, `usage.input_tokens` counts only tokens after the last cache breakpoint, so total input equals `cache_read_input_tokens + cache_creation_input_tokens + input_tokens`, while `citations: {"enabled": true}` guarantees valid source pointers without proving semantic entailment.<Cite id="F17 F50 F52 F56" /> Option B misaggregates rows, ignores that Claude cannot cite image-only scanned PDFs, and omits cached input tokens; Option C ignores the up-to-1-hour analytics delay, conflates pointers with entailment, and undercounts cached input; and Option D loses per-actor totals, double-subtracts cached tokens, and penalizes valid paraphrasing.<Cite id="F47 F50 F51 F53" />
+
+</SelfCheck>

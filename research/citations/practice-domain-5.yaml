@@ -504,3 +504,30 @@
   source: anthropic-docs
   quote: "total_input_tokens = cache_read_input_tokens + cache_creation_input_tokens + input_tokens"
   accessed: 2026-11-19
+
+- id: F57
+  claim: "pass@k measures the likelihood that an agent produces at least one correct solution in k attempts."
+  tag: FACT
+  url: https://www.anthropic.com/research/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-research
+  quote: "pass@k measures the likelihood that an agent gets at least one correct solution in k attempts."
+  accessed: 2026-11-19
+
+- id: F58
+  claim: "Setting arm: both on a claude plugin eval grader forces it to be scored in both arms regardless of default exclusion."
+  tag: FACT
+  url: https://code.claude.com/docs/en/plugin-evals
+  title: "Test plugins with evals"
+  source: claude-code-docs
+  quote: "set arm: both on a grader to score it in both arms regardless, which is what you want for a “must not invoke the skill” check with min: 0 and max: 0."
+  accessed: 2026-11-19
+
+- id: F59
+  claim: "In claude plugin eval, the with-minus-without delta never changes the command exit code."
+  tag: FACT
+  url: https://code.claude.com/docs/en/plugin-evals
+  title: "Test plugins with evals"
+  source: claude-code-docs
+  quote: "The with-minus-without delta is reported but never changes the exit code, and neither do problems writing or publishing the HTML report."
+  accessed: 2026-11-19

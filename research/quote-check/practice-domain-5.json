@@ -278,5 +278,20 @@
     "id": "F56",
     "status": "ok",
     "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F57",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/demystifying-evals-for-ai-agents"
+  },
+  {
+    "id": "F58",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/plugin-evals"
+  },
+  {
+    "id": "F59",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/plugin-evals"
   }
 ]
