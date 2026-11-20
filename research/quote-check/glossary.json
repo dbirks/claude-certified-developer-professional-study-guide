@@ -6,8 +6,8 @@
   },
   {
     "id": "F2",
-    "status": "not-found",
-    "url": "https://docs.cloud.google.com/monitoring/api/ref_v3/rest/v3/services.serviceLevelObjectives"
+    "status": "ok",
+    "url": "https://sre.google/workbook/implementing-slos/"
   },
   {
     "id": "F3",
@@ -101,8 +101,8 @@
   },
   {
     "id": "F21",
-    "status": "not-found",
-    "url": "https://docs.cloud.google.com/monitoring/api/ref_v3/rest/v3/services.serviceLevelObjectives"
+    "status": "ok",
+    "url": "https://sre.google/workbook/implementing-slos/"
   },
   {
     "id": "F22",
@@ -121,18 +121,18 @@
   },
   {
     "id": "F25",
-    "status": "not-found",
-    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5654219/"
+    "status": "ok",
+    "url": "https://scikit-learn.org/stable/modules/generated/sklearn.metrics.cohen_kappa_score.html"
   },
   {
     "id": "F26",
-    "status": "not-found",
-    "url": "https://acf.gov/sites/default/files/documents/opre/Power%20Analysis%20Webinar-oct-2021.pdf"
+    "status": "ok",
+    "url": "https://www.povertyactionlab.org/resource/power-calculations"
   },
   {
     "id": "F27",
-    "status": "not-found",
-    "url": "https://acf.gov/sites/default/files/documents/opre/Power%20Analysis%20Webinar-oct-2021.pdf"
+    "status": "ok",
+    "url": "https://en.wikipedia.org/wiki/Power_(statistics)"
   },
   {
     "id": "F28",
@@ -151,17 +151,17 @@
   },
   {
     "id": "F31",
-    "status": "not-found",
-    "url": "https://web.stanford.edu/class/cs329z/slides/lecture15.pdf"
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/demystifying-evals-for-ai-agents"
   },
   {
     "id": "F32",
-    "status": "not-found",
-    "url": "https://web.stanford.edu/class/cs329z/slides/lecture15.pdf"
+    "status": "ok",
+    "url": "https://arxiv.org/html/2406.12045v1"
   },
   {
     "id": "F33",
-    "status": "not-found",
+    "status": "ok",
     "url": "https://arxiv.org/pdf/2107.03374"
   },
   {

@@ -7,12 +7,12 @@
   quote: "A Service-Level Objective (SLO) describes a level of desired good service. It consists of a service-level indicator (SLI), a performance goal, and a period over which the objective is to be evaluated against that goal."
   accessed: 2026-11-19
 - id: F2
-  claim: "A request-based SLI can be the ratio of good service to total service."
+  claim: "An SLI is commonly defined as the ratio of good events divided by total events, such as successful requests over total requests."
   tag: STD
-  url: https://docs.cloud.google.com/monitoring/api/ref_v3/rest/v3/services.serviceLevelObjectives
-  title: "REST Resource: services.serviceLevelObjectives"
-  source: other
-  quote: "The means to compute a ratio of good_service to total_service."
+  url: https://sre.google/workbook/implementing-slos/
+  title: "Implementing SLOs"
+  source: standard
+  quote: "While many numbers can function as an SLI, we generally recommend treating the SLI as the ratio of two numbers: the number of good events divided by the total number of events. For example: Number of successful HTTP requests / total HTTP requests (success rate)"
   accessed: 2026-11-19
 - id: F3
   claim: "Burn rate measures how quickly service consumes its error budget relative to its SLO."
@@ -164,10 +164,10 @@
 - id: F21
   claim: "A good request-based SLI can count successful requests or requests below a latency threshold."
   tag: STD
-  url: https://docs.cloud.google.com/monitoring/api/ref_v3/rest/v3/services.serviceLevelObjectives
-  title: "REST Resource: services.serviceLevelObjectives"
-  source: other
-  quote: "This SLI can be evaluated on the basis of availability or latency."
+  url: https://sre.google/workbook/implementing-slos/
+  title: "Implementing SLOs"
+  source: standard
+  quote: "Our availability SLI is the proportion of successful requests, and our latency SLIs are the proportion of requests that are faster than defined thresholds."
   accessed: 2026-11-19
 - id: F22
   claim: "OpenTelemetry histograms are intended for statistically meaningful values such as percentiles."
@@ -196,26 +196,26 @@
 - id: F25
   claim: "Cohen's kappa adjusts observed categorical agreement by chance-expected agreement."
   tag: STD
-  url: https://pmc.ncbi.nlm.nih.gov/articles/PMC5654219/
-  title: "Common pitfalls in statistical analysis: Measures of agreement"
+  url: https://scikit-learn.org/stable/modules/generated/sklearn.metrics.cohen_kappa_score.html
+  title: "cohen_kappa_score"
   source: standard
-  quote: "Cohen's kappa (κ) calculates inter-observer agreement taking into account the expected agreement by chance as follows: κ = (observed agreement [P_{o}] – expected agreement [P_{e}])/(1-expected agreement [P_{e}])."
+  quote: "This function computes Cohen’s kappa [1], a score that expresses the level of agreement between two annotators on a classification problem. It is defined as \\[\\kappa = (p_o - p_e) / (1 - p_e)\\] where \\(p_o\\) is the empirical probability of agreement on the label assigned to any sample (the observed agreement ratio), and \\(p_e\\) is the expected agreement when both annotators assign labels randomly."
   accessed: 2026-11-19
 - id: F26
   claim: "MDE is the minimum effect distinguishable from the null under stated design assumptions."
   tag: STD
-  url: https://acf.gov/sites/default/files/documents/opre/Power%20Analysis%20Webinar-oct-2021.pdf
-  title: "Power Analysis Webinar"
+  url: https://www.povertyactionlab.org/resource/power-calculations
+  title: "Power calculations"
   source: other
-  quote: "Minimum detectable effect (MDE)—minimum effect you are able to distinguish from a null effect"
+  quote: "Minimum detectable effect (MDE): The smallest effect that, if true, has (1-β)% chance of producing an estimate that is statistically significant at the α% level (Bloom 1995). In other words, the MDE is the effect size below which we may not be able to distinguish that the effect is different from zero, even if it is."
   accessed: 2026-11-19
 - id: F27
   claim: "A priori power analysis solves for sample size during planning."
   tag: STD
-  url: https://acf.gov/sites/default/files/documents/opre/Power%20Analysis%20Webinar-oct-2021.pdf
-  title: "Power Analysis Webinar"
-  source: other
-  quote: "A priori power analysis is done during planning phase"
+  url: https://en.wikipedia.org/wiki/Power_(statistics)
+  title: "Power (statistics)"
+  source: standard
+  quote: "A priori power analysis is conducted prior to the research study, and is typically used in estimating sufficient sample sizes to achieve adequate power."
   accessed: 2026-11-19
 - id: F28
   claim: "Little's law relates mean in-system work to arrival rate times mean residence time under steady state."
@@ -243,20 +243,20 @@
   accessed: 2026-11-19
   version_note: "Claude API errors page accessed 2026-11-19; SDK defaults may change."
 - id: F31
-  claim: "Pass^k is the chance all k independent task trials succeed, averaged across tasks."
+  claim: "Pass^k measures the probability that all k trials succeed."
   tag: STD
-  url: https://web.stanford.edu/class/cs329z/slides/lecture15.pdf
-  title: "LLM-as-Judge"
-  source: standard
-  quote: "For real-world agent tasks requiring reliability and consistency like customer service, we propose a new metric – pass^k (pass hat k), defined as the chance that all k i.i.d. task trials are successful, averaged across tasks."
+  url: https://www.anthropic.com/research/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-research
+  quote: "pass^k measures the probability that all k trials succeed. As k increases, pass^k falls since demanding consistency across more trials is a harder bar to clear."
   accessed: 2026-11-19
 - id: F32
-  claim: "An observed pass^k estimate counts all-pass k-sized combinations among all k-sized combinations."
+  claim: "An observed pass^k estimate counts all-pass k-sized combinations among all k-sized combinations, averaged across tasks."
   tag: STD
-  url: https://web.stanford.edu/class/cs329z/slides/lecture15.pdf
-  title: "LLM-as-Judge"
-  source: standard
-  quote: "Therefore, if a task is run for n trials and c of those trials end up successful (r = 1), unbiased estimates for pass^k and pass@k would be:"
+  url: https://arxiv.org/html/2406.12045v1
+  title: "τ-bench: A Benchmark for Tool-Agent-User Interaction in Real-World Domains"
+  source: other
+  quote: "\\text{pass\\textasciicircum k}=\\mathbb{E}_{\\text{task}}\\left[\\binom{c}{k}\\middle/\\binom{n}{k}\\right]"
   accessed: 2026-11-19
 - id: F33
   claim: "Pass@k measures probability that at least one of k generated samples passes unit tests."
