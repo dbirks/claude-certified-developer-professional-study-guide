@@ -437,3 +437,16 @@
     animation: none;
   }
 }
+
+/* Quotes can contain long unbreakable tokens (env vars, URLs, flags): let them wrap instead of
+   widening the page on phones. */
+.source__quote,
+.source__claim,
+.source__meta,
+.source__title,
+.cite-pop__quote,
+.cite-pop__title,
+.cite-pop__supports,
+.cite-pop__meta {
+  overflow-wrap: anywhere;
+}
