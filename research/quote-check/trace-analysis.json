@@ -143,5 +143,65 @@
     "id": "F29",
     "status": "ok",
     "url": "https://platform.claude.com/docs/en/manage-claude/opentelemetry"
+  },
+  {
+    "id": "F30",
+    "status": "ok",
+    "url": "https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/tailsamplingprocessor/README.md"
+  },
+  {
+    "id": "F31",
+    "status": "ok",
+    "url": "https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/tailsamplingprocessor/README.md"
+  },
+  {
+    "id": "F32",
+    "status": "ok",
+    "url": "https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/tailsamplingprocessor/README.md"
+  },
+  {
+    "id": "F33",
+    "status": "ok",
+    "url": "https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/tailsamplingprocessor/README.md"
+  },
+  {
+    "id": "F34",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/opentelemetry/spans"
+  },
+  {
+    "id": "F35",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/opentelemetry/spans"
+  },
+  {
+    "id": "F36",
+    "status": "ok-loose",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F37",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/clio"
+  },
+  {
+    "id": "F38",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/opentelemetry/spans"
+  },
+  {
+    "id": "F39",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/opentelemetry/spans"
+  },
+  {
+    "id": "F40",
+    "status": "ok",
+    "url": "https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/tailsamplingprocessor/README.md"
+  },
+  {
+    "id": "F41",
+    "status": "ok",
+    "url": "https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/tailsamplingprocessor/README.md"
   }
 ]

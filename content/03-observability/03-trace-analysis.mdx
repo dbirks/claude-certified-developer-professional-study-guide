@@ -1,0 +1,181 @@
+---
+title: "Trace Analysis at Scale"
+summary: "Decide what to sample, aggregate, and compare so trace data quantifies systemic agent failures instead of illustrating anecdotes."
+kind: skill
+skill: "3.3"
+slug: trace-analysis
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+**Trace analysis at scale** uses many traces and population measurements to identify and quantify patterns across attempts. A single trace shows one timeout, not a timeout rate that tripled after a prompt deploy. The skill combines **sampling** (which traces you keep), **aggregation** (what the population did), and **failure-cohort analysis** (what differs between groups of attempts). 
+
+## How it works
+
+Two stores feed one comparison. **Full-population aggregates** are counters and histograms computed across the intended population before trace sampling; their denominators are complete only when instrumentation and delivery are complete. **Retained traces** are the spans and events a sampling policy kept, so they carry the mechanism. Aggregates size a problem; traces explain it.
+
+<Figure caption="Preserve population denominators while retaining targeted traces to explain cohort-level changes. Steps 2 and 3 are parallel branches out of the same instrumented services.">
+  <Flow direction="vertical" steps={[
+    { label: "Instrumented agent + MCP service", note: "spans, events, outcome" },
+    { label: "Full-population aggregates", note: "counts, histograms" },
+    { label: "Trace-ID-affine collector", note: "one instance per trace" },
+    { label: "Tail policies", note: "baseline, failure, slow, rare" },
+    { label: "Restricted trace store", note: "traces + probability" },
+    { label: "Cohort comparison", note: "both stores" },
+    { label: "Transcript review", note: "failures and successes" },
+    { label: "Hypothesis", note: "prompt, tool, service, mix" },
+    { label: "Controlled measurement + regression eval", tone: "good" }
+  ]} />
+</Figure>
+
+**Head sampling** decides as early as possible, and that decision is not made by inspecting the trace as a whole.<Cite id="F1" /> **Tail sampling** decides by considering all or most of the spans in the trace, so it can apply criteria that appear late.<Cite id="F3" /> That gap is why tail sampling exists: with head sampling alone you cannot ensure that all traces containing an error are sampled.<Cite id="F2" /> Some systems combine head and tail sampling.<Cite id="F4" /> When head sampling comes first, a 10% uniform head sampler independent of failure, feeding a policy that keeps every received error, delivers in expectation roughly 10% of errors; the tail policy cannot recover what the head stage dropped.
+
+| Strategy | Decision point | Coverage you can promise | Reach for it when |
+|---|---|---|---|
+| Head | Early, without the full trace.<Cite id="F1" /> | No guarantee of error coverage.<Cite id="F2" /> | Volume must fall before any state is built |
+| Tail | After all or most spans.<Cite id="F3" /> | Trace-wide properties, if spans arrive intact and in time.<Cite id="F3 F9" /> | Failures, slow traces, and rare paths need explanation |
+| Head then tail | Head first, tail second.<Cite id="F4" /> | Only the errors that survived the head stage | Full volume will not fit in tail-sampling state |
+
+## Sampling design and collector capacity
+
+The OTel Collector's `tail_sampling` processor keeps spans in memory while it waits to decide, and all spans for a given trace must be sent to the same Collector instance.<Cite id="F5" /> Its configuration requires `policies`.<Cite id="F30" /> The `status_code` policy samples on `OK`, `ERROR`, or `UNSET`.<Cite id="F6" /> A `latency` policy measures earliest span start to latest span end, not one tool's execution.<Cite id="F31" /> `decision_wait` is the time before timer handling for a trace and defaults to `30s`;<Cite id="F7" /> `num_traces` bounds buffered traces.<Cite id="F8" />
+
+Capacity pressure can discard traces before sampling.<Cite id="F8" /> By default the collector evicts old traces when `num_traces` is reached; `block_on_overflow` can instead wait for space.<Cite id="F32" /> Spans arriving after the decision can cause different sampling decisions for different parts of the same trace.<Cite id="F9" /> Monitor `otelcol_processor_tail_sampling_sampling_trace_dropped_too_early`, `otelcol_processor_tail_sampling_sampling_trace_removal_age`, and `otelcol_processor_tail_sampling_sampling_late_span_age`, route by trace ID to the sampling tier, and size `decision_wait` and buffers to the observed workload.<Cite id="F33 F40 F41" /> The first metric warns of telemetry loss, not application failure. Treat any "100% of failures" claim as conditional: the trace reached this collector, the decision came after the failure appeared, and the buffer had room.
+
+Long-running agents sharpen that trade-off: estimate concurrent traces as arrival rate times decision wait, add burst headroom, and validate against live metrics. A short wait can decide before the task fails; a long wait grows retained state, so split workflows that outlive the window with explicit task correlation.
+
+Design the policy in layers: reserve a known-probability baseline across all traffic, then oversample errors, slow traces, new routes and models, small tenants, and rare tool paths. Give known low-volume strata a higher documented rate, inside your privacy and volume limits, and keep the sampling rate, policy version, and loss counters with every observation. A rare route first visible after sampling needs an upstream signal or a policy redesign.
+
+## Claude trace surfaces and identifiers
+
+Claude Code tracing is beta and off by default: set `CLAUDE_CODE_ENABLE_TELEMETRY=1` and `CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1`, then set `OTEL_TRACES_EXPORTER` to choose where spans are sent, separately from metric and log export.<Cite id="F12" /> Spans redact user prompt text, tool input details, and tool content by default,<Cite id="F13" /> so content capture is a privacy decision, not a way to build cohort counts. The Agent SDK shares the Claude Code runtime, which exports OTel metrics and events when enabled,<Cite id="F17" /> and the Claude API and SDK can trace Messages API requests, tool uses, and Managed Agents sessions.<Cite id="F29" />
+
+| Field | Emits | What it carries |
+|---|---|---|
+| `prompt.id` | Claude Code events | Ties the multiple API calls and tool runs back to the one submitted prompt.<Cite id="F14" /> |
+| `claude_code.tool_result` | Claude Code event | `tool_name` and execution outcome.<Cite id="F27 F15" /> Not emitted if the tool call was rejected.<Cite id="F15" /> |
+| `claude_code.tool.execution` | Claude Code span | `duration_ms` is time spent running the tool body.<Cite id="F16" /> |
+| `claude_code.api_request` | Claude Code event | Request duration in milliseconds.<Cite id="F28" /> |
+| `gen_ai.request.model` | Claude API / SDK span | The request's model.<Cite id="F26" /> |
+| `gen_ai.tool.name`, `gen_ai.tool.call.id`, `error.type` | Claude API / SDK tool span | Tool and call identity plus failure type; `tool_error` can indicate a raised error or error result.<Cite id="F34 F39 F20" /> |
+| `anthropic.custom_tool_use <tool>` | SDK only | One span per use of a tool the application defines and a tool runner runs.<Cite id="F18" /> |
+| `anthropic.session.id`, `gen_ai.conversation.id` | Managed Agents spans | Session and thread grouping across traces when the fields are present.<Cite id="F19 F35" /> |
+
+Read the boundaries, not just the fields. `prompt.id` is a per-prompt correlation key, not a prompt-template version,<Cite id="F14" /> and a rejected call emits no tool result, so study tool decisions as well as results to see the whole funnel.<Cite id="F15" /> The execution span's `duration_ms` covers the tool body.<Cite id="F16" /> Its parent tool span can include permission wait.<Cite id="F36" /> Session scope outruns trace scope: a session's spans can sit in several traces, for example when a later request comes from a new root trace, and with multiagent enabled a session can have several threads, so group by session or thread ID rather than a trace ID.<Cite id="F19" /> MCP server names and session and thread IDs have source- and context-dependent availability,<Cite id="F35 F38" /> and `gen_ai.request.model` is only the requested model,<Cite id="F26" /> so verify the schema on your deployed runtime.
+
+A **task outcome** is the final state in the environment at the end of the trial,<Cite id="F22" /> not what the final assistant message claims. You will not know whether graders work unless you read transcripts and grades from many trials.<Cite id="F21" /> Fields such as `prompt_version`, tenant cohort, route template, task outcome, and outcome provenance are not verified native Claude telemetry keys; set them yourself and keep tenant-level analysis in a governed warehouse.
+
+<Callout type="version" title="Checked 2026-11-19">
+
+Collector policy names and defaults, including the `decision_wait` default above, come from an evolving collector README: pin the collector distribution and check the deployed version. Claude Code tracing and Claude API spans are beta; verify redaction defaults and attribute names on the deployed version.<Cite id="F7 F12 F13 F17 F29" />
+
+</Callout>
+
+## Aggregation, denominators, and cardinality
+
+Define the statistical unit before you aggregate: one completed user task or attempt, with a stable task ID and one independently assessed terminal outcome. Track incomplete, timed-out, and ungraded attempts separately, because silently excluding them makes failure rates look better. Join spans and events to the attempt without counting retries, tool calls, and model calls as separate tasks, and keep technical error separate from an unmet user objective.
+
+Prefer full-population counters or pre-sampling aggregates for task starts, completed outcomes, and tool latency histograms; a metric denominator beats a trace-store count. A store holding 100% of errors plus 5% of successes is excellent for investigation and terrible as a rate: its raw failure fraction is biased upward. Where per-trace inclusion probabilities are known and nonzero, estimate counts by inverse inclusion probability and report weighted failures over weighted attempts. Overlapping policies need the union inclusion probability, not the sum of policy percentages, and `1/p` is wrong for a rate-limited or adaptive policy whose realized probability is unknown. Quantify uncertainty on sampled estimates.
+
+**Cardinality** is the number of distinct attribute combinations in a metric stream. The OpenTelemetry metrics SDK aggregates measurements by the full set of attribute values, and each unique attribute combination becomes a separate data point tracked in memory.<Cite id="F11" /> When a metric stream overflows, the total value remains correct while queries that filter or group by attributes can undercount.<Cite id="F10" /> So exact tenant, task, user, session, prompt, and trace identifiers belong in restricted trace search, not in metric labels: a group suppressed by overflow can look failure-free while its counts vanish. Keep bounded route templates, model families, prompt versions, and approved tenant classes on dashboards, and keep granular cohort analysis in a governed store with overflow monitored and small public cohorts suppressed.
+
+Aggregation also finds patterns no individual record reveals. Clio (renamed Anthropic Insights in the source's 2026 update<Cite id="F37" />) does bottom-up discovery by distilling conversations into abstracted topic clusters,<Cite id="F23" /> keeps a minimum threshold on unique users or conversations so low-frequency topics are not inadvertently exposed,<Cite id="F24" /> and has identified coordinated misuse invisible when looking at individual conversations.<Cite id="F25" /> Treat it as an analogy for cohort-level discovery and small-group suppression, not a trace product or a turnkey collector: these safeguards are not a formal privacy guarantee merely because they resemble its design.
+
+## Failure-cohort analysis
+
+Failure-cohort analysis compares outcomes between groups of attempts to find and quantify systemic patterns; comparison alone does not establish a cause. Build one task-level table with time window, deployment, requested and actual model, application prompt version, tenant or approved tenant class, route template, tool or server, outcome, latency, and sample probability. Group by one dimension first, then targeted combinations, and compare counts and failure rates, each cohort's share of total failures, latency p50 and p95, and a baseline. Relative risk and total impact differ: a cohort can be 5x worse and still be a rounding error, while a small increase on a high-volume route dominates the incident. Check mix shifts, including Simpson's paradox, with standardized or matched comparisons.
+
+For tool attribution, compare `P(task failure | tool latency bucket, route, model, prompt, tenant class)` against tool error and timeout rates, task latency, and retry counts. Align the call that precedes the terminal failure, account for multiple calls per task, and pick one per-task statistic such as maximum or first relevant call. A slow tool can be a consequence of task difficulty, workload, or a retry storm rather than the cause, so causality needs rollout timing, a controlled intervention, or randomization.
+
+### Worked regression (synthetic)
+
+A production Claude agent performs OAuth-protected MCP document lookup. One attempt equals one user task, with the outcome from a validated downstream completion check. Values and labels are invented to illustrate the analysis, not product performance; the five traces are examples, not a sample. The aggregate is complete pre-sampling telemetry for the same hour.
+
+| Trace | Model / prompt | Tenant / route | Lookup latency | Tool result | Task outcome |
+|---|---|---|---:|---|---|
+| T1 | M1 / v1 | A / search | 0.4 s | success | success |
+| T2 | M1 / v2 | A / search | 4.8 s | timeout | failure |
+| T3 | M1 / v2 | A / search | 5.1 s | timeout | failure |
+| T4 | M1 / v2 | B / search | 0.5 s | success | success |
+| T5 | M1 / v2 | A / search | 4.6 s | success after retry | success |
+
+Their raw 2-of-5 rate says nothing about the population; the aggregation does:
+
+| Cohort (all M1, search, lookup) | Attempts | Failures | Failure rate | Lookup &ge;4 s | Failures among &ge;4 s | Failures among &lt;4 s |
+|---|---:|---:|---:|---:|---:|---:|
+| Tenant A, v1 | 1,000 | 20 | 2% | 50 | 10 / 50 (20%) | 10 / 950 (1.05%) |
+| Tenant A, v2 | 1,000 | 100 | 10% | 200 | 80 / 200 (40%) | 20 / 800 (2.5%) |
+| Tenant B, v2 | 1,000 | 20 | 2% | 50 | 10 / 50 (20%) | 10 / 950 (1.05%) |
+| Total | 3,000 | 140 | 4.67% | 300 | 100 / 300 (33.3%) | 40 / 2,700 (1.48%) |
+
+Tenant A/v2 sits 8 percentage points above A/v1 in absolute failure rate, 5x the rate, and contributes 100 of 140 observed failures (71.4%). Slow lookups are associated with more failures, and A/v2 has both more slow calls and a higher failure rate inside the slow bucket. The table cannot separate the prompt change from an OAuth refresh, MCP service capacity, or a tenant task-mix shift. T2 and T3 show a timeout but cannot establish how often timeouts occur or what they cost: individual traces show a mechanism, only the aggregate shows a systemic issue.
+
+### Transcript review and next measurement
+
+Inspect representative transcripts from failing and successful cohorts, including tool arguments and results where policy permits. Check whether the agent adapted, whether the tool returned a meaningful result, whether a timeout or permission rejection occurred, and whether grading matched the external outcome. Convert confirmed patterns into held-out regression evals; do not let the same samples define and prove the fix.
+
+The next measurement is a controlled comparison. During a v1/v2 split inside tenant A, record one row per attempt with assignment, task type, OAuth refresh and `401` and retry timing, lookup latency, deadline, timeout reason, and externally verified outcome. Compare failure and latency rates by assigned version and task type with counts and confidence intervals, and read sampled transcripts, including T5-like recoveries. Give both variants similar traffic and account for in-flight tasks and data loss. Without randomization, compare matched windows and workload mix, and label the result observational.
+
+## Decision criteria
+
+1. **Estimating a population rate?** Use complete counters or a known-probability baseline sample, not the raw composition of an oversampled trace store.<Cite id="F2 F8" />
+2. **Explaining a failure invisible in aggregate?** Tail-sample on trace-wide properties such as error status.<Cite id="F3 F6" />
+3. **Protecting a rare path?** Raise its documented rate upstream; a head stage before the tail policy caps what any downstream rule can retain.<Cite id="F2 F4" />
+4. **Seeing trace loss or split traces?** Fix trace-ID-affine routing, `decision_wait`, and buffer capacity before concluding anything about the application.<Cite id="F5 F8 F9" />
+5. **A global failure rate moved?** Rebuild task-based denominators, track incomplete attempts, then segment by model, prompt version, tenant class, route, and tool.<Cite id="F22" />
+6. **Exposing raw transcripts or tenant IDs?** Keep metric labels bounded, guard against overflow undercounting, and route detail review through a governed store.<Cite id="F10 F11" />
+
+Before committing, also report the window, the probability actually applied, collector loss counters, the boundaries behind each latency number, and grader validation against environment outcomes.<Cite id="F21 F22" />
+
+## Failure modes and recovery
+
+<Callout type="mistake" title="Reading the failure rate off the trace store">
+
+An oversampled store's failure fraction is a property of your policy, not of production: a 100%-error rule plus a 5%-success rule manufactures a plausible rate out of thin air. Head-dropped traces are unrecoverable downstream, since the tail decision cannot inspect spans that never arrived.<Cite id="F1 F2" /> Take the rate from full-population counters, and report sampled rates only with known inclusion probabilities and an uncertainty range.
+
+</Callout>
+
+<Callout type="mistake" title="Treating a tool `ERROR` as a task failure">
+
+Tool status and task outcome are different measurements. `claude_code.tool_result` is absent for rejected tool calls,<Cite id="F15" /> and on the API side `tool_error` can indicate a tool that raised or returned an error result.<Cite id="F20" /> A retry can absorb a tool error, as T5 illustrates. A task outcome is the final state in the environment,<Cite id="F22" /> so define the task unit and keep technical error separate from an unmet user objective.
+
+</Callout>
+
+<Callout type="mistake" title="Claiming full failure coverage while the collector drops traces">
+
+The tail processor holds spans in memory and needs every span of a trace on one instance.<Cite id="F5" /> Capacity pressure can drop traces before sampling,<Cite id="F8" /> and late spans can lead to different decisions.<Cite id="F9" /> Recover by routing on trace ID, sizing `decision_wait` and buffers from measured arrival rates, and publishing the drop and late-span metrics beside the coverage claim.
+
+</Callout>
+
+The last trap sits in the numbers, not the pipeline: latency comparisons can mislead when boundaries differ, since the execution span measures only the tool body while the encompassing span may include permission wait.<Cite id="F16 F36" /> A healthy dashboard total beside a shrinking filtered view can indicate metric overflow; verify overflow before re-deriving the cohort from the governed store.<Cite id="F10" />
+
+## Exam lens
+
+<ExamLens>
+
+- Many healthy traces, rare costly failures: choose explicit rare and failure coverage plus a known-probability baseline over uniform-only sampling.
+- Trace loss or split traces: fix trace-affine routing, buffer and wait tuning, and collector health before concluding the application improved.<Cite id="F5 F8 F9" />
+- A changed global failure rate: rebuild task-based denominators, track incomplete attempts, and segment by model, prompt, tenant, route, and tool before causal attribution.
+- High-cardinality identifiers and sensitive transcripts: bounded metrics, governed detail review, and a privacy-aware sampling policy,<Cite id="F10 F11 F13" /> with small-group suppression designed apart from rare-path capture.
+
+</ExamLens>
+
+## Self-check
+
+<SelfCheck question="A 10% head sampler feeds a tail policy that keeps all errors. What fraction of errors reaches the tail policy?">
+
+In expectation about 10%, assuming independent uniform head sampling. The tail policy decides over traces it actually received,<Cite id="F3" /> and head sampling alone cannot ensure every trace containing an error is sampled,<Cite id="F2" /> so the rest are gone.
+
+</SelfCheck>
+
+<SelfCheck question="Sampled traces show 100 failures and 100 successes, with known inclusion probabilities of 1 and 0.1. What is the estimated failure rate?">
+
+100 / (100 + 100 / 0.1) = about 9.1%. Quantify its uncertainty, and remember that further unaccounted-for drops can bias it.<Cite id="F8 F9" />
+
+</SelfCheck>
+
+<SelfCheck question="Why inspect both successful and failed slow-tool traces?">
+
+To see whether latency preceded the failure, how a successful run recovered, and whether the apparent pattern or the grader is misleading. Read transcripts and grades across many trials to check graders,<Cite id="F21" /> and a plausible final answer is not the outcome — the outcome is the final state in the environment.<Cite id="F22" />
+
+</SelfCheck>

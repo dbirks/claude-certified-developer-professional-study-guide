@@ -512,6 +512,7 @@
     - trace-analysis:F16
     - trace-analysis:F27
     - trace-analysis:F28
+    - trace-analysis:F36
     - identity-secrets-audit:F23
     - identity-secrets-audit:F24
     - identity-secrets-audit:F25
@@ -684,6 +685,7 @@
   accessed: 2026-11-19
   cited_by:
     - failure-diagnosis:F16
+    - failure-diagnosis:F37
 - url: https://code.claude.com/docs/en/ultrareview
   title: Find bugs with ultrareview
   source: claude-code-docs
@@ -798,6 +800,12 @@
     - trace-analysis:F7
     - trace-analysis:F8
     - trace-analysis:F9
+    - trace-analysis:F30
+    - trace-analysis:F31
+    - trace-analysis:F32
+    - trace-analysis:F33
+    - trace-analysis:F40
+    - trace-analysis:F41
 - url: https://github.com/open-telemetry/semantic-conventions-genai/blob/main/docs/gen-ai/client-inference.md
   title: Semantic conventions for generative AI client inference
   source: standard
@@ -1178,6 +1186,10 @@
     - trace-analysis:F18
     - trace-analysis:F20
     - trace-analysis:F26
+    - trace-analysis:F34
+    - trace-analysis:F35
+    - trace-analysis:F38
+    - trace-analysis:F39
 - url: https://platform.claude.com/docs/en/api/organization/api_keys/update
   title: Update API Key
   source: anthropic-docs
@@ -1191,10 +1203,11 @@
   cited_by:
     - reliability:F5
 - url: https://platform.claude.com/docs/en/api/rate-limits
-  title: Rate limits
+  title: Rate limits - Claude Platform Docs
   source: anthropic-docs
   accessed: 2026-11-19
   cited_by:
+    - multi-agent-orchestration:F62
     - reliability:F11
     - reliability:F12
     - reliability:F13
@@ -1578,6 +1591,7 @@
     - reliability:F17
     - reliability:F18
     - failure-diagnosis:F18
+    - failure-diagnosis:F38
 - url: https://platform.claude.com/docs/en/cli-sdks-libraries/sdks/typescript
   title: TypeScript SDK
   source: anthropic-docs
@@ -1902,6 +1916,7 @@
     - failure-diagnosis:F27
     - failure-diagnosis:F34
     - failure-diagnosis:F35
+    - failure-diagnosis:F36
 - url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/increase-consistency
   title: Increase output consistency
   source: anthropic-docs
@@ -2138,6 +2153,7 @@
     - trace-analysis:F23
     - trace-analysis:F24
     - trace-analysis:F25
+    - trace-analysis:F37
     - online-quality:F9
     - online-quality:F10
     - online-quality:F11
