@@ -33,6 +33,8 @@ const SELECTORS = [
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.json': 'application/json' };
 const server = createServer((req, res) => {
   let p = decodeURIComponent(req.url.split('?')[0]);
+  const base = (process.env.BASE_PATH || '/').replace(/\/?$/, '/');
+  if (base !== '/' && p.startsWith(base)) p = '/' + p.slice(base.length);
   let f = join(dist, p);
   if (existsSync(f) && statSync(f).isDirectory()) f = join(f, 'index.html');
   if (!existsSync(f)) { res.writeHead(404); return res.end(); }
@@ -84,7 +86,7 @@ for (const width of WIDTHS) {
   const page = await browser.newPage({ viewport: { width, height: 900 } });
   await page.addInitScript((t) => localStorage.setItem('ccdvp:theme', t), THEME);
   for (const p of paths) {
-    await page.goto(`http://localhost:${port}/${p}`);
+    await page.goto(`http://localhost:${port}${(process.env.BASE_PATH || '/').replace(/\/?$/, '/')}${p}`);
     await page.evaluate(() => document.fonts.ready);
     const res = await page.evaluate(probe, { selectors: SELECTORS, tol: TOL });
     // collapse duplicates per selector
