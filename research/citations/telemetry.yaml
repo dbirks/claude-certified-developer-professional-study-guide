@@ -1,0 +1,317 @@
+- id: F1
+  claim: "OpenTelemetry automatically correlates logs with active trace and span IDs when instrumentation or an SDK is active."
+  tag: STD
+  url: https://opentelemetry.io/docs/concepts/signals/logs/
+  title: "Logs"
+  source: standard
+  quote: "When you add autoinstrumentation or activate an SDK, OpenTelemetry will automatically correlate your existing logs with any active trace and span, wrapping the log body with their IDs. In other words, OpenTelemetry automatically correlates your logs and traces."
+  accessed: 2026-11-19
+
+- id: F2
+  claim: "OpenTelemetry GenAI semantic conventions are at Development stability and specify spans covering logical operations including automatic retries."
+  tag: STD
+  url: https://github.com/open-telemetry/semantic-conventions-genai/blob/main/docs/gen-ai/gen-ai-spans.md
+  title: "Semantic conventions for generative client AI spans"
+  source: standard
+  quote: "GenAI spans represent logical operations as observed by the caller. They SHOULD cover the duration of the operation, starting when it is initiated and ending when the response is fully received or the operation is terminated due to an error or cancellation."
+  accessed: 2026-11-19
+
+- id: F3
+  claim: "OpenTelemetry GenAI inference conventions define gen_ai.usage.input_tokens for provider-reported input token counts."
+  tag: STD
+  url: https://github.com/open-telemetry/semantic-conventions-genai/blob/main/docs/gen-ai/client-inference.md
+  title: "Semantic conventions for generative AI client inference"
+  source: standard
+  quote: "The number of input tokens reported by the provider for this inference operation."
+  accessed: 2026-11-19
+
+- id: F4
+  claim: "Anthropic's OpenTelemetry tracing for the Claude API and SDK defaults to metadata_only mode, excluding prompt and response content."
+  tag: VER
+  url: https://platform.claude.com/docs/en/manage-claude/opentelemetry
+  title: "OpenTelemetry tracing for the Claude API"
+  source: anthropic-docs
+  quote: "Metadata only (metadata_only in the SDK): The default. Spans include identifiers, timing, status, token counts, and text that you choose, such as the names and descriptions of your agents and tools and the names of your MCP servers."
+  accessed: 2026-11-19
+  version_note: "OpenTelemetry export for the Claude API and SDK is in beta as of November 2026."
+
+- id: F5
+  claim: "Full content mode on Claude API and SDK spans includes prompts and responses, capped at 0.75 MB per span by default."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/opentelemetry
+  title: "OpenTelemetry tracing for the Claude API"
+  source: anthropic-docs
+  quote: "With Full content, each span holds up to 0.75 MB of content by default. That fits a 200k-token context window of English text and stays below the 1 MB request limit of many observability platforms and proxies."
+  accessed: 2026-11-19
+
+- id: F6
+  claim: "When a Messages API request emits both an SDK CLIENT span and an API SERVER span named anthropic.messages.create, sum only the API spans to avoid double-counting tokens."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/opentelemetry
+  title: "OpenTelemetry tracing for the Claude API"
+  source: anthropic-docs
+  quote: "When a Messages API request has both an SDK span and an API span, sum its API spans. Both are named anthropic.messages.create, so tell them apart by kind: the SDK span is CLIENT and its child, the API span, is SERVER."
+  accessed: 2026-11-19
+
+- id: F7
+  claim: "On Anthropic OpenTelemetry spans, gen_ai.usage.input_tokens already includes cache reads and cache writes, so do not add cache token attributes onto it."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/opentelemetry
+  title: "OpenTelemetry tracing for the Claude API"
+  source: anthropic-docs
+  quote: "gen_ai.usage.input_tokens already includes the tokens read from and written to the prompt cache, so don't add the cache attributes to it."
+  accessed: 2026-11-19
+
+- id: F8
+  claim: "Full-content OpenTelemetry span export for Messages API requests is ZDR-compatible because exported content is held only in memory until delivered."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/opentelemetry
+  title: "OpenTelemetry tracing for the Claude API"
+  source: anthropic-docs
+  quote: "With zero data retention, you can still use Full content. For Messages API requests, the API holds the exported content only in memory until it delivers it to the destination."
+  accessed: 2026-11-19
+
+- id: F9
+  claim: "API server spans read the W3C traceparent header and emit no request or child spans if the sampled flag is off."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/opentelemetry/api
+  title: "Set up OpenTelemetry with the Claude API"
+  source: anthropic-docs
+  quote: "The API reads each request's trace context from the W3C traceparent header. If the sampled flag in the header is off, the API doesn't emit the request's span or the spans under it."
+  accessed: 2026-11-19
+
+- id: F10
+  claim: "When calling remote MCP tools via the Messages API or Managed Agents MCP connector, Anthropic injects W3C traceparent into params._meta referencing the anthropic.mcp_tool_use span."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/opentelemetry/api
+  title: "Set up OpenTelemetry with the Claude API"
+  source: anthropic-docs
+  quote: "In params._meta of a tools/call request, the API sends a W3C traceparent that references the anthropic.mcp_tool_use span for that tool use."
+  accessed: 2026-11-19
+
+- id: F11
+  claim: "Passing open_telemetry in Anthropic SDK client options overrides all ANTHROPIC_OPEN_TELEMETRY* environment variables as a whole, resetting omitted nested keys to defaults."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/opentelemetry/sdk
+  title: "Set up OpenTelemetry with the Anthropic SDK"
+  source: anthropic-docs
+  quote: "If you pass open_telemetry (typescript, java, php: openTelemetry; csharp: OpenTelemetry; go: option.With…()) to the client, it overrides that option's environment variables as a whole, including nested keys. Any nested key that you leave out uses its default from the table, even if its environment variable is set."
+  accessed: 2026-11-19
+
+- id: F12
+  claim: "API-side OpenTelemetry spans report billed token counts even on failed or canceled requests, whereas client SDK spans reflect only response-reported counts."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/opentelemetry/spans
+  title: "OpenTelemetry span reference"
+  source: anthropic-docs
+  quote: "On the API spans for a Messages API request, the token counts are the tokens that your organization is billed for, even when the request fails or the application cancels it. The SDK's anthropic.messages.create span has the counts that the response reports instead, so for a failed or canceled request they can be lower than on the API span, or absent."
+  accessed: 2026-11-19
+
+- id: F13
+  claim: "Claude Code distributed tracing requires both CLAUDE_CODE_ENABLE_TELEMETRY=1 and CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1 alongside OTEL_TRACES_EXPORTER."
+  tag: VER
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Tracing is off by default. To enable it, set both CLAUDE_CODE_ENABLE_TELEMETRY=1 and CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1, then set OTEL_TRACES_EXPORTER to choose where spans are sent."
+  accessed: 2026-11-19
+  version_note: "Distributed tracing in Claude Code is in beta."
+
+- id: F14
+  claim: "Claude Code redacts user prompts, tool details, and tool content by default unless OTEL_LOG_USER_PROMPTS=1, OTEL_LOG_TOOL_DETAILS=1, and OTEL_LOG_TOOL_CONTENT=1 are set."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Spans redact user prompt text, tool input details, and tool content by default. Set OTEL_LOG_USER_PROMPTS=1, OTEL_LOG_TOOL_DETAILS=1, and OTEL_LOG_TOOL_CONTENT=1 to include them."
+  accessed: 2026-11-19
+
+- id: F15
+  claim: "Claude Code reads inbound TRACEPARENT and TRACESTATE in Agent SDK and -p sessions to parent its interaction spans under the caller's trace."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "In Agent SDK and non-interactive sessions started with -p, Claude Code also reads TRACEPARENT and TRACESTATE from its own environment when starting each interaction span."
+  accessed: 2026-11-19
+
+- id: F16
+  claim: "Interactive Claude Code sessions ignore inbound TRACEPARENT to prevent inheriting ambient CI or container trace contexts."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Interactive sessions ignore inbound TRACEPARENT to avoid accidentally inheriting ambient values from CI or container environments."
+  accessed: 2026-11-19
+
+- id: F17
+  claim: "Claude Code always redacts extended-thinking content even when raw API body logging is enabled."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Claude Code always redacts Claude's extended-thinking content from these bodies, regardless of other settings."
+  accessed: 2026-11-19
+
+- id: F18
+  claim: "Refusals arrive on a successful stream rather than as an HTTP error, so Claude Code emits claude_code.api_refusal instead of claude_code.api_error."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Logged when an API request returns stop_reason: \"refusal\". Refusals arrive on a successful response stream rather than as an HTTP error, so the api_error event doesn't fire for them."
+  accessed: 2026-11-19
+
+- id: F19
+  claim: "In the Agent SDK, Python merges ClaudeAgentOptions.env onto the inherited environment while TypeScript options.env replaces it entirely."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/observability
+  title: "Observability with OpenTelemetry"
+  source: claude-code-docs
+  quote: "In Python, env is merged on top of the inherited environment. In TypeScript, env replaces the inherited environment entirely, so include ...process.env in the object you pass."
+  accessed: 2026-11-19
+
+- id: F20
+  claim: "Never configure the console OTel exporter with the Agent SDK because stdout serves as the SDK's message channel."
+  tag: REC
+  url: https://code.claude.com/docs/en/agent-sdk/observability
+  title: "Observability with OpenTelemetry"
+  source: claude-code-docs
+  quote: "The console exporter writes telemetry to standard output, which the SDK uses as its message channel. Do not set console as an exporter value when running through the SDK."
+  accessed: 2026-11-19
+
+- id: F21
+  claim: "Agent SDK telemetry export errors fail silently by default unless CLAUDE_CODE_OTEL_DIAG_STDERR=1 is enabled."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/observability
+  title: "Observability with OpenTelemetry"
+  source: claude-code-docs
+  quote: "The CLI fails silently on export errors by default: if the endpoint is unreachable or rejects the data, the agent still runs normally and the CLI drops the telemetry without surfacing an error in your application."
+  accessed: 2026-11-19
+
+- id: F22
+  claim: "In Agent SDK ResultMessage, use model_usage (modelUsage) rather than usage for whole-tree token accounting when subagents are spawned."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/cost-tracking
+  title: "Track cost and usage"
+  source: claude-code-docs
+  quote: "Use modelUsage, or model_usage in Python, for whole-tree token accounting; the usage field undercounts as soon as nesting occurs."
+  accessed: 2026-11-19
+
+- id: F23
+  claim: "In Messages API responses, usage.input_tokens counts only uncached tokens after the last cache breakpoint, not total input tokens."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "The input_tokens field represents only the tokens that come after the last cache breakpoint in your request, not all the input tokens you sent."
+  accessed: 2026-11-19
+
+- id: F24
+  claim: "When 5-minute and 1-hour cache TTLs are used, cache_creation_input_tokens equals the sum of cache_creation.ephemeral_5m_input_tokens and ephemeral_1h_input_tokens."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "The cache_creation_input_tokens field equals the sum of the values in the cache_creation object."
+  accessed: 2026-11-19
+
+- id: F25
+  claim: "Cache diagnostics stores lightweight hash-and-token-estimate fingerprints keyed by response id to diagnose prefix divergence without storing raw prompt text."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics
+  title: "Cache diagnostics"
+  source: anthropic-docs
+  quote: "For each request that includes the diagnostics object, the API stores a lightweight fingerprint keyed by the response id. It stores nothing for requests that omit the object."
+  accessed: 2026-11-19
+
+- id: F26
+  claim: "Combining diagnostics with usage.cache_read_input_tokens separates prefix mutations from cache TTL expiry or prompts below the minimum cacheable length."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics
+  title: "Cache diagnostics"
+  source: anthropic-docs
+  quote: "diagnostics tells you whether your request changed, and usage.cache_read_input_tokens tells you whether the cache hit. Combining them tells you where to look."
+  accessed: 2026-11-19
+
+- id: F27
+  claim: "Every Claude API response includes a unique request-id header (and request_id in error bodies) for end-to-end log correlation and support escalation."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "Every API response includes a unique request-id header. This header contains a value such as req_018EeWyXxfu5pfWkrYcMdjWG. The same identifier appears as the request_id field in error response bodies."
+  accessed: 2026-11-19
+
+- id: F28
+  claim: "The Usage and Cost Analytics API (beta) unifies Console and Enterprise reporting and requires the analytics-usage-cost-2026-08-24 beta header."
+  tag: VER
+  url: https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api
+  title: "Usage and Cost Analytics API"
+  source: anthropic-docs
+  quote: "The Usage and Cost Analytics API is in beta. Send the anthropic-beta: analytics-usage-cost-2026-08-24 header and an anthropic-version header on every request."
+  accessed: 2026-11-19
+  version_note: "Beta endpoints /v1/organizations/analytics/usage and /cost as of November 2026."
+
+- id: F29
+  claim: "Usage and Cost Analytics API data typically refreshes within 4 hours (up to 24 hours) and finalizes roughly 7 days after month-end."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api
+  title: "Usage and Cost Analytics API"
+  source: anthropic-docs
+  quote: "Data typically refreshes within 4 hours of the underlying usage and can take up to 24 hours. Values can be revised as late events arrive and reconciliation runs, until about 7 days after the end of the calendar month."
+  accessed: 2026-11-19
+
+- id: F30
+  claim: "The legacy Usage and Cost API (/v1/organizations/usage_report/messages and /v1/organizations/cost_report) remains supported, though new integrations should use the Analytics API."
+  tag: REC
+  url: https://platform.claude.com/docs/en/manage-claude/usage-cost-api
+  title: "Usage and Cost API"
+  source: anthropic-docs
+  quote: "The Usage and Cost API (/v1/organizations/usage_report/messages and /v1/organizations/cost_report) is a legacy API and remains supported. For new integrations, use the Usage and Cost Analytics API, which reports usage and cost with more grouping and filtering dimensions."
+  accessed: 2026-11-19
+
+- id: F31
+  claim: "Citations cannot be combined with structured JSON output formatting (output_config.format) and return a 400 error if sent together."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/citations
+  title: "Citations"
+  source: anthropic-docs
+  quote: "If you enable citations on any user-provided document (document blocks or search_result blocks) and also include the output_config.format parameter (or the deprecated output_format parameter), the API returns a 400 error."
+  accessed: 2026-11-19
+
+- id: F32
+  claim: "Regular thinking blocks carry an encrypted signature field verified by the API when passed back in multi-turn conversations."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/thinking
+  title: "Thinking"
+  source: anthropic-docs
+  quote: "Full thinking content is encrypted and returned in the signature field on each thinking block. The API uses the signature to verify that thinking blocks were generated by Claude when you pass them back."
+  accessed: 2026-11-19
+
+- id: F33
+  claim: "Safety-redacted reasoning is returned as redacted_thinking blocks containing encrypted data without readable text."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/thinking
+  title: "Thinking"
+  source: anthropic-docs
+  quote: "In addition to regular thinking blocks, the API might return redacted_thinking blocks when portions of Claude's reasoning are safety-redacted. A redacted_thinking block contains encrypted thinking content in a data field, with no readable text:"
+  accessed: 2026-11-19
+
+- id: F34
+  claim: "Under ZDR, Anthropic does not store prompts or responses at rest, but the API does not block non-eligible stateful features—calling them steps outside ZDR for that data."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/api-and-data-retention
+  title: "API and data retention"
+  source: anthropic-docs
+  quote: "Under ZDR, the API does not block these features; using one is a choice to step outside your ZDR arrangement for that specific data, and the feature's own documented retention policy applies."
+  accessed: 2026-11-19
+
+- id: F35
+  claim: "In MCP 2026-07-28, traceparent, tracestate, and baggage are reserved unprefixed keys in _meta following W3C Trace Context and W3C Baggage."
+  tag: STD
+  url: https://modelcontextprotocol.io/specification/2026-07-28/basic/index
+  title: "Model Context Protocol - Basic Protocol"
+  source: mcp-spec
+  quote: "As an exception to the prefix requirement above, the keys traceparent, tracestate, and baggage are reserved for OpenTelemetry trace context propagation. When present, their values MUST follow W3C Trace Context and W3C Baggage formats respectively."
+  accessed: 2026-11-19

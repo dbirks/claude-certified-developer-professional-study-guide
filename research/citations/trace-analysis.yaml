@@ -164,7 +164,7 @@
   url: https://www.anthropic.com/research/demystifying-evals-for-ai-agents
   title: "Demystifying evals for AI agents"
   source: anthropic-engineering
-  quote: "You won’t know if your graders are working well unless you read the transcripts and grades from many trials."
+  quote: "You won't know if your graders are working well unless you read the transcripts and grades from many trials."
   accessed: 2026-11-19
 - id: F22
   claim: "The outcome is the final state in the environment, distinct from transcript claims."

@@ -1,0 +1,300 @@
+- id: F1
+  claim: "An SLI is a quantitative measure of some aspect of service level (latency, error rate, throughput, yield-based availability), aggregated as a rate, average, or percentile, while an SLO defines a target value or range."
+  tag: STD
+  url: https://sre.google/sre-book/service-level-objectives/
+  title: "Service Level Objectives"
+  source: standard
+  quote: "An SLI is a service level indicator—a carefully defined quantitative measure of some aspect of the level of service that is provided."
+  accessed: 2026-11-19
+
+- id: F2
+  claim: "Google SRE recommends keeping the number of SLOs small, choosing just enough objectives to cover key service attributes without over-constraining teams."
+  tag: STD
+  url: https://sre.google/sre-book/service-level-objectives/
+  title: "Service Level Objectives"
+  source: standard
+  quote: "Choose just enough SLOs to provide good coverage of your system's attributes."
+  accessed: 2026-11-19
+
+- id: F3
+  claim: "Burn rate measures how fast a service consumes its error budget relative to the SLO window; a burn rate of 1 exhausts 100% of the budget at the end of the compliance period."
+  tag: STD
+  url: https://sre.google/workbook/alerting-on-slos/
+  title: "Alerting on SLOs"
+  source: standard
+  quote: "Burn rate is how fast, relative to the SLO, the service consumes the error budget."
+  accessed: 2026-11-19
+
+- id: F4
+  claim: "Multiwindow, multi-burn-rate alerting pairs a long window with a short window (1/12 of the long window) so alerts only fire while budget burn is active and reset quickly after recovery."
+  tag: STD
+  url: https://sre.google/workbook/alerting-on-slos/
+  title: "Alerting on SLOs"
+  source: standard
+  quote: "A good guideline is to make the short window 1/12 the duration of the long window"
+  accessed: 2026-11-19
+
+- id: F5
+  claim: "The Google SRE Workbook baseline for a 30-day 99.9% SLO pages at 2% budget burn in 1 hour (short window 5 minutes, 14.4x burn rate) and 5% in 6 hours (short window 30 minutes, 6x burn rate), and creates a ticket at 10% burn in 3 days (short window 6 hours, 1x burn rate)."
+  tag: STD
+  url: https://sre.google/workbook/alerting-on-slos/
+  title: "Alerting on SLOs"
+  source: standard
+  quote: "We recommend 2% budget consumption in one hour and 5% budget consumption in six hours as reasonable starting numbers for paging, and 10% budget consumption in three days as a good baseline for ticket alerts."
+  accessed: 2026-11-19
+
+- id: F6
+  claim: "Low-traffic services or quiet night/weekend periods distort burn-rate alerts because a single failed request can exceed a high burn-rate threshold; mitigations include synthetic traffic, aggregating related services, retries/fallbacks, or widening windows."
+  tag: STD
+  url: https://sre.google/workbook/alerting-on-slos/
+  title: "Alerting on SLOs"
+  source: standard
+  quote: "If a system has either a low number of users or natural low-traffic periods (such as nights and weekends), you may need to alter your approach."
+  accessed: 2026-11-19
+
+- id: F7
+  claim: "Time to first token (TTFT) measures the time for the model to generate its first output token after receiving a prompt, making it the primary responsiveness SLI for streaming and interactive applications."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/about-claude/glossary
+  title: "Glossary"
+  source: anthropic-docs
+  quote: "Time to first token (TTFT) is a performance metric that measures the time it takes for a language model to generate the first token of its output after receiving a prompt."
+  accessed: 2026-11-19
+
+- id: F8
+  claim: "Anthropic distinguishes baseline latency (prompt processing and response generation independent of token throughput) from TTFT (time to first token in streaming responses), and exposes output_config.effort (e.g., low on Claude Haiku 5.5) to tune latency vs. reasoning depth."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-latency
+  title: "Reducing latency"
+  source: anthropic-docs
+  quote: "Time to first token (TTFT): This metric measures the time it takes for the model to generate the first token of the response, from when the prompt was sent."
+  accessed: 2026-11-19
+
+- id: F9
+  claim: "Production LLM services require multidimensional success criteria covering task fidelity, consistency, latency percentiles, safety, and price rather than a single aggregate metric."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/develop-tests
+  title: "Define success criteria and build evaluations"
+  source: anthropic-docs
+  quote: "Most use cases need multidimensional evaluation along several success criteria."
+  accessed: 2026-11-19
+
+- id: F10
+  claim: "Grounded-answer quality can be instrumented and audited by requiring direct-quote citations from source documents and post-generation claim verification, plus explicit uncertainty admission when evidence is absent."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-hallucinations
+  title: "Reduce hallucinations"
+  source: anthropic-docs
+  quote: "Make Claude's response auditable by having it cite quotes and sources for each of its claims. You can also have Claude verify each claim by finding a supporting quote after it generates a response."
+  accessed: 2026-11-19
+
+- id: F11
+  claim: "Every HTTP 200 Messages API response includes stop_reason (end_turn, max_tokens, stop_sequence, tool_use, pause_turn, refusal, or model_context_window_exceeded), separating successful processing from truncated or incomplete completions."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons
+  title: "Stop reasons and fallback"
+  source: anthropic-docs
+  quote: "The stop_reason field is part of every successful Messages API response. Unlike errors, which indicate failures in processing your request, stop_reason tells you why Claude completed its response generation."
+  accessed: 2026-11-19
+
+- id: F12
+  claim: "Safety classifier refusals on Claude Fable, Opus, Sonnet 5.5, and Haiku 5.5 return a normal HTTP 200 response with stop_reason: refusal and stop_details.category, so refusal rate must be tracked on stop_reason rather than HTTP error codes."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback
+  title: "Refusals and fallback"
+  source: anthropic-docs
+  quote: "When that happens, you receive a normal response, not an error, with stop_reason: \"refusal\". Its stop_details.category names the policy area"
+  accessed: 2026-11-19
+
+- id: F13
+  claim: "The Usage and Cost Analytics API (GET /v1/organizations/analytics/usage and /cost) is in beta and requires the anthropic-beta: analytics-usage-cost-2026-08-24 header alongside anthropic-version on every request."
+  tag: VER
+  url: https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api
+  title: "Usage and Cost Analytics API"
+  source: anthropic-docs
+  quote: "The Usage and Cost Analytics API is in beta. Send the anthropic-beta: analytics-usage-cost-2026-08-24 header and an anthropic-version header on every request."
+  accessed: 2026-11-19
+  version_note: "Beta header analytics-usage-cost-2026-08-24 as of 2026-11-19."
+
+- id: F14
+  claim: "Usage and Cost Analytics API data typically refreshes within 4 hours (up to 24 hours) and may be revised until about 7 days after month-end; callers should pin ending_at to data_refreshed_at for consistent reads and wait 7 days post-month for final invoicing totals."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api
+  title: "Usage and Cost Analytics API"
+  source: anthropic-docs
+  quote: "Data typically refreshes within 4 hours of the underlying usage and can take up to 24 hours. Values can be revised as late events arrive and reconciliation runs, until about 7 days after the end of the calendar month."
+  accessed: 2026-11-19
+
+- id: F15
+  claim: "The Analytics /cost endpoint returns amount and list_amount as decimal strings in USD cents with six decimal places (e.g., 41280.000000 equals $412.80 USD) and supports cost_type and token_type breakdowns outside the 5-dimension group_by[] cap."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api
+  title: "Usage and Cost Analytics API"
+  source: anthropic-docs
+  quote: "Amounts are decimal strings in cents with six decimal places: \"41280.000000\" is $412.80 USD."
+  accessed: 2026-11-19
+
+- id: F16
+  claim: "The legacy Usage and Cost API (/v1/organizations/usage_report/messages and /v1/organizations/cost_report) remains supported with ~5-minute freshness, but Anthropic recommends the Usage and Cost Analytics API for new integrations due to richer dimensions, request counts, and Default Workspace IDs."
+  tag: REC
+  url: https://platform.claude.com/docs/en/manage-claude/usage-cost-api
+  title: "Usage and Cost API"
+  source: anthropic-docs
+  quote: "The Usage and Cost API (/v1/organizations/usage_report/messages and /v1/organizations/cost_report) is a legacy API and remains supported. For new integrations, use the Usage and Cost Analytics API, which reports usage and cost with more grouping and filtering dimensions."
+  accessed: 2026-11-19
+
+- id: F17
+  claim: "The Claude Code Analytics Admin API (GET /v1/organizations/usage_report/claude_code) provides daily per-actor Claude Code productivity metrics, tool acceptance/rejection counts, and estimated model costs with up to a 1-hour lag, requiring an Admin API key."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/claude-code-analytics-api
+  title: "Claude Code Analytics API"
+  source: anthropic-docs
+  quote: "The Claude Code Analytics Admin API provides programmatic access to daily aggregated usage metrics for Claude Code users, allowing organizations to analyze developer productivity and build custom dashboards."
+  accessed: 2026-11-19
+
+- id: F18
+  claim: "Claude Code natively exports OpenTelemetry time-series metrics (including claude_code.session.count, claude_code.cost.usage, claude_code.token.usage, claude_code.code_edit_tool.decision, and claude_code.active_time.total), structured events, and optional beta traces."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Claude Code exports metrics as time series data via the standard metrics protocol, events via the logs/events protocol, and optionally distributed traces via OpenTelemetry."
+  accessed: 2026-11-19
+
+- id: F19
+  claim: "Claude Code OTel logs distinguish claude_code.api_error (HTTP/network failures) from claude_code.api_refusal (HTTP 200 streams with stop_reason: refusal), enabling separate alerting on safety refusals vs. API errors."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Refusals arrive on a successful response stream rather than as an HTTP error, so the api_error event doesn't fire for them. This event lets you track refusal frequency and group refusals by the same attributes as api_request and api_error."
+  accessed: 2026-11-19
+
+- id: F20
+  claim: "Claude Code distributed tracing (beta) requires both CLAUDE_CODE_ENABLE_TELEMETRY=1 and CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1, recording ttft_ms, first_content_ms, duration_ms, error_class, and stop_reason on claude_code.llm_request spans."
+  tag: VER
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Tracing is off by default. To enable it, set both CLAUDE_CODE_ENABLE_TELEMETRY=1 and CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1, then set OTEL_TRACES_EXPORTER to choose where spans are sent."
+  accessed: 2026-11-19
+  version_note: "Distributed tracing in Claude Code is beta; several span attributes require Claude Code v2.1.268+."
+
+- id: F21
+  claim: "Claude API OpenTelemetry spans (beta) follow GenAI semantic conventions (gen_ai.usage.*), and server-side API spans report exact billed token counts even when a request fails or is canceled by the client."
+  tag: VER
+  url: https://platform.claude.com/docs/en/api/opentelemetry/spans
+  title: "OpenTelemetry span reference"
+  source: anthropic-docs
+  quote: "On the API spans for a Messages API request, the token counts are the tokens that your organization is billed for, even when the request fails or the application cancels it."
+  accessed: 2026-11-19
+  version_note: "OpenTelemetry export for Claude API and SDK is in beta (GenAI semconv commit e57c543b)."
+
+- id: F22
+  claim: "Claude Managed Agents sessions emit cumulative session.usage events (holding list_cost, active_seconds, and budget state) on idle transitions and budget pauses, while the Console Inspector Tools tab surfaces per-tool call counts and failure rates."
+  tag: VER
+  url: https://platform.claude.com/docs/en/managed-agents/session-observability
+  title: "Inspect sessions and track usage"
+  source: anthropic-docs
+  quote: "The session.usage event carries the same cumulative snapshot on the session stream and in the event history."
+  accessed: 2026-11-19
+  version_note: "Managed Agents is in beta (managed-agents-2026-04-01)."
+
+- id: F23
+  claim: "The Claude Console Usage page displays Rate Limit - Input Tokens (including cache read percentage) and Output Tokens charts; because cache_read_input_tokens do not count toward ITPM limits, prompt cache misses simultaneously spike token spend and erode rate-limit headroom."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "The API's default ITPM rate limits count only uncached input tokens."
+  accessed: 2026-11-19
+
+- id: F24
+  claim: "Prompt cache drift appears first as usage.cache_read_input_tokens dropping to zero; passing diagnostics.previous_message_id instructs the API to compare prefix hashes and return the first divergence point (model, system prompt, tools, or messages)."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics
+  title: "Cache diagnostics"
+  source: anthropic-docs
+  quote: "Without cache diagnostics, the only signal is usage.cache_read_input_tokens dropping to zero, with no indication of what changed."
+  accessed: 2026-11-19
+
+- id: F25
+  claim: "To quantify stochastic agent reliability, Anthropic pairs pass@k (probability of at least one success in k trials) with pass^k (probability all k trials succeed, measuring production consistency)."
+  tag: FACT
+  url: https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-engineering
+  quote: "pass@k measures the likelihood that an agent gets at least one correct solution in k attempts."
+  accessed: 2026-11-19
+
+- id: F26
+  claim: "Anthropic advocates a Swiss Cheese evaluation stack: automated CI/CD evals catch regressions before release, while production monitoring detects live distribution drift and unanticipated real-world failures, complemented by A/B tests, user feedback, and transcript review."
+  tag: REC
+  url: https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-engineering
+  quote: "Automated evals are especially useful pre-launch and in CI/CD, running on each agent change and model upgrade as the first line of defense against quality problems. Production monitoring kicks in post-launch to detect distribution drift and unanticipated real-world failures."
+  accessed: 2026-11-19
+
+- id: F27
+  claim: "From Claude 4.6 onward, dateless model IDs (such as claude-sonnet-4-6 or claude-sonnet-5) are pinned snapshots with frozen weights rather than rolling aliases, whereas pre-4.6 models used dated snapshots (claude-sonnet-4-5-20250929) and optional convenience aliases (claude-sonnet-4-5)."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions
+  title: "Model IDs and versioning"
+  source: anthropic-docs
+  quote: "For the 4.6 generation and later, the dateless ID is the canonical model ID for that release. It maps to a single, fixed model snapshot. Anthropic does not update the weights or configuration of an existing model ID."
+  accessed: 2026-11-19
+
+- id: F28
+  claim: "Even when model ID and weights are pinned, updates to serving infrastructure—such as request routers, safety classifiers, and sampling logic—can cause observable behavioral shifts in production."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions
+  title: "Model IDs and versioning"
+  source: anthropic-docs
+  quote: "Model weights are fixed for a given ID, but the serving infrastructure around the model can change over time. This infrastructure includes components such as the request router, safety classifiers, and sampling logic."
+  accessed: 2026-11-19
+
+- id: F29
+  claim: "Anthropic classifies models as Active, Legacy, Deprecated, or Retired, providing at least 60 days' notice before retiring public first-party models; Bedrock and Google-managed Vertex AI maintain separate retirement schedules."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/about-claude/model-deprecations
+  title: "Model deprecations"
+  source: anthropic-docs
+  quote: "Anthropic notifies customers with active deployments for models with upcoming retirements, providing at least 60 days' notice before model retirement for publicly released models."
+  accessed: 2026-11-19
+
+- id: F30
+  claim: "User-configured organization or workspace spend limits fail with HTTP 400 invalid_request_error (Claude Code workspaces may return 429), whereas hitting a tier monthly spend cap ($500 Start, $1,000 Build, $200,000 Scale) returns HTTP 429 rate_limit_error without retry-after until the next UTC month."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "When usage reaches a spend limit you set, requests return HTTP 400 with error type invalid_request_error."
+  accessed: 2026-11-19
+
+- id: F31
+  claim: "Ramp limits reject sudden token-rate spikes with HTTP 429 rate_limit_error (error.details.error_code: ramp_limit_exceeded) even while an organization remains below its nominal ITPM and OTPM limits."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "A ramp limit caps how fast your organization's token usage on a model can grow. After a sharp increase in usage, requests can return a 429 error even while you're under your ITPM and OTPM rate limits."
+  accessed: 2026-11-19
+
+- id: F32
+  claim: "Workspaces (wrkspc_..., default max 100 per org) isolate API keys, monthly spend limits, Console email spend alerts, and per-model rate limits; every authenticated API response returns anthropic-workspace-id."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/workspaces
+  title: "Workspaces"
+  source: anthropic-docs
+  quote: "Every organization has a Default Workspace that cannot be renamed, archived, or deleted. When you create additional workspaces, you can assign members, service accounts, API keys, and resource limits to each one."
+  accessed: 2026-11-19
+
+- id: F33
+  claim: "For Claude Enterprise organizations (not Claude Console orgs), the Spend Limits API reads each member's resolved effective spend limit and period-to-date spend and manages per-user overrides and limit-increase requests."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/spend-limits-api
+  title: "Spend Limits API"
+  source: anthropic-docs
+  quote: "The Spend Limits API is available to Claude Enterprise organizations only. It is not available to Claude Platform (Claude Console) organizations."
+  accessed: 2026-11-19

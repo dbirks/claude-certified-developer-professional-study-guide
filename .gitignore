@@ -25,3 +25,6 @@ pnpm-debug.log*
 .playwright-cli/
 .ccdvp-*/
 PROJECT_HANDOFF.md
+.ccdvp-e2e/
+test-results/
+playwright-report/

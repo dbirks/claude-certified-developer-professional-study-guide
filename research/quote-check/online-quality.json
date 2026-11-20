@@ -1,0 +1,157 @@
+[
+  {
+    "id": "F1",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/demystifying-evals-for-ai-agents"
+  },
+  {
+    "id": "F2",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/demystifying-evals-for-ai-agents"
+  },
+  {
+    "id": "F3",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/demystifying-evals-for-ai-agents"
+  },
+  {
+    "id": "F4",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/demystifying-evals-for-ai-agents"
+  },
+  {
+    "id": "F5",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/demystifying-evals-for-ai-agents"
+  },
+  {
+    "id": "F6",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/demystifying-evals-for-ai-agents"
+  },
+  {
+    "id": "F7",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/develop-tests"
+  },
+  {
+    "id": "F8",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/develop-tests"
+  },
+  {
+    "id": "F9",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/clio"
+  },
+  {
+    "id": "F10",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/clio"
+  },
+  {
+    "id": "F11",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/clio"
+  },
+  {
+    "id": "F12",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/clio"
+  },
+  {
+    "id": "F13",
+    "status": "ok",
+    "url": "https://www.microsoft.com/en-us/research/articles/for-event-based-a-b-tests-why-they-are-special/"
+  },
+  {
+    "id": "F14",
+    "status": "ok",
+    "url": "https://www.microsoft.com/en-us/research/articles/for-event-based-a-b-tests-why-they-are-special/"
+  },
+  {
+    "id": "F15",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/claude-code-analytics-api"
+  },
+  {
+    "id": "F16",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/claude-code-analytics-api"
+  },
+  {
+    "id": "F17",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/claude-code-analytics-api"
+  },
+  {
+    "id": "F18",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F19",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
+  },
+  {
+    "id": "F20",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
+  },
+  {
+    "id": "F21",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
+  },
+  {
+    "id": "F22",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/develop-tests"
+  },
+  {
+    "id": "F23",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/claude-code-analytics-api"
+  },
+  {
+    "id": "F24",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/claude-code-analytics-api"
+  },
+  {
+    "id": "F25",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/develop-tests"
+  },
+  {
+    "id": "F26",
+    "status": "fetch-failed",
+    "url": "https://online.stat.psu.edu/stat509/Lesson08"
+  },
+  {
+    "id": "F27",
+    "status": "ok",
+    "url": "https://research.google/pubs/cluster-randomized-designs-for-one-sided-bipartite-experiments-2/"
+  },
+  {
+    "id": "F28",
+    "status": "fetch-failed",
+    "url": "https://online.stat.psu.edu/stat555/node/43/"
+  },
+  {
+    "id": "F29",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/claude-code-analytics-api"
+  },
+  {
+    "id": "F30",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F31",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
+  }
+]

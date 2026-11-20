@@ -1,0 +1,177 @@
+[
+  {
+    "id": "F1",
+    "status": "ok",
+    "url": "https://opentelemetry.io/docs/concepts/signals/logs/"
+  },
+  {
+    "id": "F2",
+    "status": "ok",
+    "url": "https://github.com/open-telemetry/semantic-conventions-genai/blob/main/docs/gen-ai/gen-ai-spans.md"
+  },
+  {
+    "id": "F3",
+    "status": "ok",
+    "url": "https://github.com/open-telemetry/semantic-conventions-genai/blob/main/docs/gen-ai/client-inference.md"
+  },
+  {
+    "id": "F4",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/opentelemetry"
+  },
+  {
+    "id": "F5",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/opentelemetry"
+  },
+  {
+    "id": "F6",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/opentelemetry"
+  },
+  {
+    "id": "F7",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/opentelemetry"
+  },
+  {
+    "id": "F8",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/opentelemetry"
+  },
+  {
+    "id": "F9",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/opentelemetry/api"
+  },
+  {
+    "id": "F10",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/opentelemetry/api"
+  },
+  {
+    "id": "F11",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/opentelemetry/sdk"
+  },
+  {
+    "id": "F12",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/opentelemetry/spans"
+  },
+  {
+    "id": "F13",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F14",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F15",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F16",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F17",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F18",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F19",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/observability"
+  },
+  {
+    "id": "F20",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/observability"
+  },
+  {
+    "id": "F21",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/observability"
+  },
+  {
+    "id": "F22",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/cost-tracking"
+  },
+  {
+    "id": "F23",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F24",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F25",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics"
+  },
+  {
+    "id": "F26",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics"
+  },
+  {
+    "id": "F27",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/errors"
+  },
+  {
+    "id": "F28",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api"
+  },
+  {
+    "id": "F29",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api"
+  },
+  {
+    "id": "F30",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/usage-cost-api"
+  },
+  {
+    "id": "F31",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
+  },
+  {
+    "id": "F32",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/thinking"
+  },
+  {
+    "id": "F33",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/thinking"
+  },
+  {
+    "id": "F34",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/api-and-data-retention"
+  },
+  {
+    "id": "F35",
+    "status": "ok",
+    "url": "https://modelcontextprotocol.io/specification/2026-07-28/basic/index"
+  }
+]

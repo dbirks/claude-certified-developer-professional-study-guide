@@ -1,0 +1,127 @@
+[
+  {
+    "id": "F1",
+    "status": "fetch-failed",
+    "url": "https://platform.claude.com/cookbook/latency-optimization-latency-optimization"
+  },
+  {
+    "id": "F2",
+    "status": "fetch-failed",
+    "url": "https://platform.claude.com/cookbook/latency-optimization-latency-optimization"
+  },
+  {
+    "id": "F3",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-latency"
+  },
+  {
+    "id": "F4",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-latency"
+  },
+  {
+    "id": "F5",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-latency"
+  },
+  {
+    "id": "F6",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F7",
+    "status": "not-found",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/streaming"
+  },
+  {
+    "id": "F8",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/streaming"
+  },
+  {
+    "id": "F9",
+    "status": "fetch-failed",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/fine-grained-tool-streaming"
+  },
+  {
+    "id": "F10",
+    "status": "fetch-failed",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use"
+  },
+  {
+    "id": "F11",
+    "status": "fetch-failed",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use"
+  },
+  {
+    "id": "F12",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F13",
+    "status": "fetch-failed",
+    "url": "https://platform.claude.com/docs/en/api/typescript/messages"
+  },
+  {
+    "id": "F14",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F15",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/effort"
+  },
+  {
+    "id": "F16",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/effort"
+  },
+  {
+    "id": "F17",
+    "status": "not-found",
+    "url": "https://platform.claude.com/docs/en/models/overview"
+  },
+  {
+    "id": "F18",
+    "status": "fetch-failed",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/fast-mode"
+  },
+  {
+    "id": "F19",
+    "status": "fetch-failed",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/fast-mode"
+  },
+  {
+    "id": "F20",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/service-tiers"
+  },
+  {
+    "id": "F21",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/service-tiers"
+  },
+  {
+    "id": "F22",
+    "status": "fetch-failed",
+    "url": "https://sre.google/sre-book/monitoring-distributed-systems/"
+  },
+  {
+    "id": "F23",
+    "status": "ok",
+    "url": "https://sre.google/sre-book/addressing-cascading-failures/"
+  },
+  {
+    "id": "F24",
+    "status": "not-found",
+    "url": "https://platform.claude.com/docs/en/models/overview"
+  },
+  {
+    "id": "F25",
+    "status": "not-found",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/streaming"
+  }
+]

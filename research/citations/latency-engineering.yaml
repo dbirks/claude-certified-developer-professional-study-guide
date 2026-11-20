@@ -1,0 +1,207 @@
+- id: F1
+  claim: "Measure TTFT, time to last token, and output tokens per second separately."
+  tag: FACT
+  url: https://platform.claude.com/cookbook/latency-optimization-latency-optimization
+  title: "Latency Optimization on the Claude API"
+  source: anthropic-docs
+  quote: "Time to first token (TTFT) is how long it takes to see any response from the model. Time to last token (TTLT) is how long it takes to get the entire final response. Output tokens per second (OTPS) is the rate at which the response is generated between the two."
+  accessed: 2026-11-19
+- id: F2
+  claim: "Approximate task latency as calls times TTFT, plus output generation time and other latency."
+  tag: REC
+  url: https://platform.claude.com/cookbook/latency-optimization-latency-optimization
+  title: "Latency Optimization on the Claude API"
+  source: anthropic-docs
+  quote: "TTLT ≈ calls × TTFT + output tokens ÷ OTPS + additional client- or server-side latency"
+  accessed: 2026-11-19
+- id: F3
+  claim: "Streaming improves perceived responsiveness by showing output before completion."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-latency
+  title: "Reducing latency"
+  source: anthropic-docs
+  quote: "Streaming is a feature that allows the model to start sending back its response before the full output is complete. This can significantly improve the perceived responsiveness of your application, as users can see the model’s output in real time."
+  accessed: 2026-11-19
+- id: F4
+  claim: "Haiku 5.5 is Anthropic's currently recommended fastest response-time model for speed-critical work."
+  tag: VER
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-latency
+  title: "Reducing latency"
+  source: anthropic-docs
+  quote: "For speed-critical applications, Claude Haiku 5.5 offers the fastest response times while maintaining high intelligence."
+  accessed: 2026-11-19
+  version_note: "Claude model lineup and docs as accessed 2026-11-19."
+- id: F5
+  claim: "Reducing prompt tokens can improve latency."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-latency
+  title: "Reducing latency"
+  source: anthropic-docs
+  quote: "The fewer tokens the model has to process and generate, the faster the response will be."
+  accessed: 2026-11-19
+- id: F6
+  claim: "Prompt caching speeds repeated-prefix processing but does not speed output generation."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "Output token generation: Prompt caching has no effect on output token generation. The response you receive is identical to what you would get if prompt caching were not used."
+  accessed: 2026-11-19
+- id: F7
+  claim: "The streaming response begins with message_start, sends content block events, then ends with message_stop."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/streaming
+  title: "Streaming messages"
+  source: anthropic-docs
+  quote: "Each stream uses the following event flow: 1. message_start: contains a Message object with empty content. 2. A series of content blocks, each of which has a content_block_start, any number of content_block_delta events, and a content_block_stop event. 3. One or more message_delta events, indicating top-level changes to the final Message object. 4. A final message_stop event."
+  accessed: 2026-11-19
+- id: F8
+  claim: "Streaming clients should tolerate future event types."
+  tag: STD
+  url: https://platform.claude.com/docs/en/build-with-claude/streaming
+  title: "Streaming messages"
+  source: anthropic-docs
+  quote: "In accordance with the versioning policy, new event types may be added, and your code should handle unknown event types gracefully."
+  accessed: 2026-11-19
+- id: F9
+  claim: "Fine-grained tool streaming uses eager_input_streaming and can produce partial or invalid JSON."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/fine-grained-tool-streaming
+  title: "Fine-grained tool streaming"
+  source: anthropic-docs
+  quote: "Because the API does not buffer or validate a tool's input before streaming it, you might receive partial or invalid JSON. A response that ends with the stop reason max_tokens can also cut a parameter off midway."
+  accessed: 2026-11-19
+- id: F10
+  claim: "Concurrent tool calls should return one matching result per call together in the next user message."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use
+  title: "Parallel tool use"
+  source: anthropic-docs
+  quote: "Whichever strategy you use, return one tool_result for each tool_use block, all together in the next user message. Match each result to its call with tool_use_id, and put every tool_result block before any text content in that message."
+  accessed: 2026-11-19
+- id: F11
+  claim: "disable_parallel_tool_use is a tool_choice field that constrains the number of calls."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use
+  title: "Parallel tool use"
+  source: anthropic-docs
+  quote: "When the tool_choice type is auto (the default), setting disable_parallel_tool_use: true means Claude calls at most one tool in each response."
+  accessed: 2026-11-19
+- id: F12
+  claim: "Place the cache breakpoint on the last stable block before variable request content."
+  tag: REC
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "Key takeaway: Place cache_control on the last block whose prefix is identical across the requests you want to share a cache."
+  accessed: 2026-11-19
+- id: F13
+  claim: "Prompt-cache breakpoints allow 5-minute or 1-hour TTLs, defaulting to five minutes."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/typescript/messages
+  title: "Messages - Claude API Reference"
+  source: anthropic-docs
+  quote: "5m: 5 minutes\n1h: 1 hour\nDefaults to 5m. See prompt caching pricing for details."
+  accessed: 2026-11-19
+- id: F14
+  claim: "The cache lifetime is measured from request start, so response generation consumes TTL."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "The lifetime is measured from the start of the request that writes or reads the cache entry, not from the end of its response."
+  accessed: 2026-11-19
+- id: F15
+  claim: "Set effort using output_config.effort on Messages API requests."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/effort
+  title: "Effort"
+  source: anthropic-docs
+  quote: "Set output_config.effort on the request. With no value, the model’s default level applies."
+  accessed: 2026-11-19
+- id: F16
+  claim: "Adaptive thinking is controlled primarily by effort, whose lower levels trade capability for speed and token efficiency."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/effort
+  title: "Effort"
+  source: anthropic-docs
+  quote: "Adaptive thinking is always on and can’t be turned off, so effort is the primary control for how much the model reasons and what a request costs."
+  accessed: 2026-11-19
+- id: F17
+  claim: "Sonnet 5.5 is positioned for a speed/intelligence balance and Haiku 5.5 for latency-sensitive high-volume tasks."
+  tag: VER
+  url: https://platform.claude.com/docs/en/models/overview
+  title: "Models overview"
+  source: anthropic-docs
+  quote: "Claude Sonnet 5.5 The best combination of speed and intelligence | Claude Haiku 5.5 For high-volume, latency-sensitive tasks such as classification, extraction, and routing"
+  accessed: 2026-11-19
+  version_note: "Model lineup positioning as shown on 2026-11-19."
+- id: F18
+  claim: "Fast mode can raise output token rate up to 2.5 times, focusing on OTPS rather than TTFT."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/fast-mode
+  title: "Fast mode"
+  source: anthropic-docs
+  quote: "Speed benefits are focused on output tokens per second (OTPS), not time to first token (TTFT)"
+  accessed: 2026-11-19
+  version_note: "Availability varies by model, platform, and date; check current fast-mode availability."
+- id: F19
+  claim: "Fast mode is limited by distinct capacity/rate limits and can return 429 or 529."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/fast-mode
+  title: "Fast mode"
+  source: anthropic-docs
+  quote: "Requesting speed: fast on a model that doesn’t support fast mode returns an error, and so does exceeding fast mode’s rate limits or capacity (a 429 or 529)."
+  accessed: 2026-11-19
+  version_note: "Current fast-mode behavior as documented on 2026-11-19."
+- id: F20
+  claim: "Priority Tier gives eligible requests priority over other traffic to minimize overload errors."
+  tag: VER
+  url: https://platform.claude.com/docs/en/api/service-tiers
+  title: "Service tiers"
+  source: anthropic-docs
+  quote: "The API prioritizes requests in this tier over all other requests. This prioritization helps minimize ‘server overloaded’ errors, even during peak times."
+  accessed: 2026-11-19
+  version_note: "Priority commitments are legacy and availability/model eligibility can change."
+- id: F21
+  claim: "Priority Tier capacity commitments are no longer available for purchase."
+  tag: VER
+  url: https://platform.claude.com/docs/en/api/service-tiers
+  title: "Service tiers"
+  source: anthropic-docs
+  quote: "Priority Tier capacity commitments are no longer available for purchase. Organizations with an existing commitment can continue to use Priority Tier through their contract end date, and this page remains available as a reference for them."
+  accessed: 2026-11-19
+  version_note: "Public documentation status as of 2026-11-19."
+- id: F22
+  claim: "Monitor tail latency and distinguish successful request latency from error latency."
+  tag: REC
+  url: https://sre.google/sre-book/monitoring-distributed-systems/
+  title: "Monitoring Distributed Systems"
+  source: standard
+  quote: "It’s important to distinguish between the latency of successful requests and the latency of failed requests."
+  accessed: 2026-11-19
+- id: F23
+  claim: "Queue wait adds latency and deadlines should propagate through downstream RPCs."
+  tag: REC
+  url: https://sre.google/sre-book/addressing-cascading-failures/
+  title: "Addressing Cascading Failures"
+  source: standard
+  quote: "This strategy works well when combined with propagating RPC deadlines throughout the stack, described in Latency and Deadlines."
+  accessed: 2026-11-19
+- id: F24
+  claim: "Opus 5.5 is positioned for long-running agentic coding and knowledge work."
+  tag: VER
+  url: https://platform.claude.com/docs/en/models/overview
+  title: "Models overview"
+  source: anthropic-docs
+  quote: "Claude Opus 5.5 For long-running agentic coding and knowledge work"
+  accessed: 2026-11-19
+  version_note: "Model lineup positioning as shown on 2026-11-19."
+- id: F25
+  claim: "The Python SDK stream keeps the HTTP connection alive using server-sent events."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/streaming
+  title: "Streaming messages"
+  source: anthropic-docs
+  quote: "The .stream() call keeps the HTTP connection alive with server-sent events, and then the SDK’s message-accumulation helper, stream.get_final_message(), collects all events into the complete Message object."
+  accessed: 2026-11-19

@@ -48,6 +48,7 @@
   accessed: 2026-11-19
   cited_by:
     - multi-agent-orchestration:F26
+    - runtime-guardrails:F7
 - url: https://code.claude.com/docs/en/agent-sdk/observability
   title: Observability with OpenTelemetry
   source: claude-code-docs
@@ -69,6 +70,8 @@
   cited_by:
     - multi-agent-orchestration:F23
     - multi-agent-orchestration:F24
+    - runtime-guardrails:F8
+    - runtime-guardrails:F9
 - url: https://code.claude.com/docs/en/agent-sdk/python
   title: Agent SDK reference - Python - Claude Code Docs
   source: claude-code-docs
@@ -77,6 +80,12 @@
     - multi-agent-orchestration:F19
     - durable-execution:F8
     - durable-execution:F14
+- url: https://code.claude.com/docs/en/agent-sdk/secure-deployment
+  title: Securely deploying AI agents
+  source: claude-code-docs
+  accessed: 2026-11-19
+  cited_by:
+    - runtime-guardrails:F23
 - url: https://code.claude.com/docs/en/agent-sdk/session-storage
   title: Persist sessions to external storage
   source: claude-code-docs
@@ -121,12 +130,25 @@
   accessed: 2026-11-19
   cited_by:
     - multi-agent-orchestration:F25
+    - runtime-guardrails:F15
 - url: https://code.claude.com/docs/en/agent-teams
   title: Orchestrate teams of Claude Code sessions - Claude Code Docs
   source: claude-code-docs
   accessed: 2026-11-19
   cited_by:
     - multi-agent-orchestration:F30
+- url: https://code.claude.com/docs/en/amazon-bedrock
+  title: Claude Code on Amazon Bedrock
+  source: claude-code-docs
+  accessed: 2026-11-19
+  cited_by:
+    - identity-secrets-audit:F12
+- url: https://code.claude.com/docs/en/auto-mode-config
+  title: Configure auto mode
+  source: claude-code-docs
+  accessed: 2026-11-19
+  cited_by:
+    - runtime-guardrails:F33
 - url: https://code.claude.com/docs/en/checkpointing
   title: Checkpointing
   source: claude-code-docs
@@ -134,18 +156,43 @@
   cited_by:
     - durable-execution:F11
     - durable-execution:F12
+- url: https://code.claude.com/docs/en/commands
+  title: Commands
+  source: claude-code-docs
+  accessed: 2026-11-19
+  cited_by:
+    - failure-diagnosis:F17
+    - failure-diagnosis:F25
 - url: https://code.claude.com/docs/en/context-window
   title: Explore the context window
   source: claude-code-docs
   accessed: 2026-11-19
   cited_by:
     - context-memory:F32
+- url: https://code.claude.com/docs/en/data-usage
+  title: Data usage
+  source: claude-code-docs
+  accessed: 2026-11-19
+  cited_by:
+    - runtime-guardrails:F35
+- url: https://code.claude.com/docs/en/devcontainer
+  title: Development containers
+  source: claude-code-docs
+  accessed: 2026-11-19
+  cited_by:
+    - runtime-guardrails:F22
 - url: https://code.claude.com/docs/en/env-vars
   title: Environment variables
   source: claude-code-docs
   accessed: 2026-11-19
   cited_by:
-    - failure-diagnosis:F17
+    - failure-diagnosis:F26
+- url: https://code.claude.com/docs/en/google-vertex-ai
+  title: Claude Code on Google Cloud's Agent Platform
+  source: claude-code-docs
+  accessed: 2026-11-19
+  cited_by:
+    - identity-secrets-audit:F14
 - url: https://code.claude.com/docs/en/headless
   title: Run Claude Code programmatically
   source: claude-code-docs
@@ -161,6 +208,12 @@
     - multi-agent-orchestration:F27
     - architecture-selection:F22
     - architecture-selection:F23
+    - runtime-guardrails:F1
+    - runtime-guardrails:F2
+    - runtime-guardrails:F3
+    - runtime-guardrails:F4
+    - runtime-guardrails:F5
+    - runtime-guardrails:F6
 - url: https://code.claude.com/docs/en/llm-gateway
   title: Other LLM gateways
   source: claude-code-docs
@@ -182,6 +235,12 @@
   accessed: 2026-11-19
   cited_by:
     - durable-execution:F29
+- url: https://code.claude.com/docs/en/microsoft-foundry
+  title: Claude Code on Microsoft Foundry
+  source: claude-code-docs
+  accessed: 2026-11-19
+  cited_by:
+    - identity-secrets-audit:F15
 - url: https://code.claude.com/docs/en/model-config
   title: Model configuration
   source: claude-code-docs
@@ -210,6 +269,24 @@
     - trace-analysis:F16
     - trace-analysis:F27
     - trace-analysis:F28
+    - identity-secrets-audit:F23
+    - identity-secrets-audit:F24
+    - identity-secrets-audit:F25
+- url: https://code.claude.com/docs/en/permission-modes
+  title: Choose a permission mode
+  source: claude-code-docs
+  accessed: 2026-11-19
+  cited_by:
+    - runtime-guardrails:F14
+- url: https://code.claude.com/docs/en/permissions
+  title: Configure permissions
+  source: claude-code-docs
+  accessed: 2026-11-19
+  cited_by:
+    - runtime-guardrails:F10
+    - runtime-guardrails:F11
+    - runtime-guardrails:F12
+    - identity-secrets-audit:F22
 - url: https://code.claude.com/docs/en/plugin-evals
   title: Test plugins with evals
   source: claude-code-docs
@@ -226,6 +303,20 @@
   cited_by:
     - durable-execution:F23
     - context-memory:F35
+- url: https://code.claude.com/docs/en/sandbox-environments
+  title: Choose a sandbox environment
+  source: claude-code-docs
+  accessed: 2026-11-19
+  cited_by:
+    - runtime-guardrails:F21
+- url: https://code.claude.com/docs/en/sandboxing
+  title: Configure the sandboxed Bash tool
+  source: claude-code-docs
+  accessed: 2026-11-19
+  cited_by:
+    - runtime-guardrails:F18
+    - runtime-guardrails:F19
+    - runtime-guardrails:F20
 - url: https://code.claude.com/docs/en/sessions
   title: Manage sessions
   source: claude-code-docs
@@ -233,6 +324,21 @@
   cited_by:
     - durable-execution:F9
     - durable-execution:F10
+- url: https://code.claude.com/docs/en/settings
+  title: Settings files and precedence
+  source: claude-code-docs
+  accessed: 2026-11-19
+  cited_by:
+    - runtime-guardrails:F13
+    - identity-secrets-audit:F33
+- url: https://code.claude.com/docs/en/settings-reference
+  title: All settings
+  source: claude-code-docs
+  accessed: 2026-11-19
+  cited_by:
+    - identity-secrets-audit:F13
+    - identity-secrets-audit:F16
+    - identity-secrets-audit:F17
 - url: https://code.claude.com/docs/en/skills
   title: Extend Claude with skills
   source: claude-code-docs
@@ -310,6 +416,14 @@
   accessed: 2026-11-19
   cited_by:
     - telemetry:F2
+- url: https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization
+  title: Authorization
+  source: mcp-spec
+  accessed: 2026-11-19
+  cited_by:
+    - identity-secrets-audit:F18
+    - identity-secrets-audit:F19
+    - identity-secrets-audit:F20
 - url: https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization
   title: Authorization
   source: mcp-spec
@@ -401,6 +515,13 @@
   accessed: 2026-11-19
   cited_by:
     - trace-analysis:F17
+- url: https://platform.claude.com/cookbook/latency-optimization-latency-optimization
+  title: Latency Optimization on the Claude API
+  source: anthropic-docs
+  accessed: 2026-11-19
+  cited_by:
+    - latency-engineering:F1
+    - latency-engineering:F2
 - url: https://platform.claude.com/cookbook/misc-building-evals
   title: Building evals | Claude Cookbook
   source: anthropic-docs
@@ -437,12 +558,40 @@
     - llm-as-judge:F17
     - llm-as-judge:F18
     - llm-as-judge:F19
+- url: https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence
+  title: Optimizing for cost and intelligence
+  source: anthropic-docs
+  accessed: 2026-11-19
+  cited_by:
+    - cost-architecture:F21
+    - cost-architecture:F22
+    - cost-architecture:F23
+    - cost-architecture:F24
+    - cost-architecture:F25
+    - cost-architecture:F27
+    - cost-architecture:F29
+    - cost-architecture:F37
 - url: https://platform.claude.com/docs/en/about-claude/pricing
   title: Pricing
   source: anthropic-docs
   accessed: 2026-11-19
   cited_by:
     - context-memory:F8
+    - cost-architecture:F2
+    - cost-architecture:F3
+    - cost-architecture:F4
+    - cost-architecture:F5
+    - cost-architecture:F6
+    - cost-architecture:F7
+    - cost-architecture:F8
+    - cost-architecture:F9
+    - cost-architecture:F10
+- url: https://platform.claude.com/docs/en/about-claude/use-case-guides/content-moderation
+  title: Content moderation
+  source: anthropic-docs
+  accessed: 2026-11-19
+  cited_by:
+    - runtime-guardrails:F34
 - url: https://platform.claude.com/docs/en/agents-and-tools/mcp-connector
   title: MCP connector
   source: anthropic-docs
@@ -455,6 +604,19 @@
     - mcp-change-management:F17
     - mcp-change-management:F38
     - mcp-change-management:F39
+    - identity-secrets-audit:F21
+- url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool
+  title: Advisor tool
+  source: anthropic-docs
+  accessed: 2026-11-19
+  cited_by:
+    - cost-architecture:F28
+- url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/fine-grained-tool-streaming
+  title: Fine-grained tool streaming
+  source: anthropic-docs
+  accessed: 2026-11-19
+  cited_by:
+    - latency-engineering:F9
 - url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls
   title: Handle tool calls
   source: anthropic-docs
@@ -482,6 +644,8 @@
   accessed: 2026-11-19
   cited_by:
     - failure-diagnosis:F2
+    - latency-engineering:F10
+    - latency-engineering:F11
 - url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/programmatic-tool-calling
   title: Programmatic tool calling
   source: anthropic-docs
@@ -554,19 +718,14 @@
     - reliability:F16
     - telemetry:F27
     - failure-diagnosis:F22
+    - failure-diagnosis:F28
+    - failure-diagnosis:F29
 - url: https://platform.claude.com/docs/en/api/messages/batches/create
   title: Create a Message Batch
   source: anthropic-docs
   accessed: 2026-11-19
   cited_by:
     - scale-throughput:F33
-- url: https://platform.claude.com/docs/en/api/messages/create
-  title: Create a Message
-  source: anthropic-docs
-  accessed: 2026-11-19
-  cited_by:
-    - failure-diagnosis:F5
-    - failure-diagnosis:F8
 - url: https://platform.claude.com/docs/en/api/opentelemetry/spans
   title: OpenTelemetry span reference
   source: anthropic-docs
@@ -620,12 +779,23 @@
     - monitoring-alerting:F23
     - monitoring-alerting:F30
     - monitoring-alerting:F31
+    - cost-architecture:F35
+    - cost-architecture:F36
 - url: https://platform.claude.com/docs/en/api/service-tiers
   title: Service tiers
   source: anthropic-docs
   accessed: 2026-11-19
   cited_by:
     - scale-throughput:F35
+    - cost-architecture:F20
+    - latency-engineering:F20
+    - latency-engineering:F21
+- url: https://platform.claude.com/docs/en/api/typescript/messages
+  title: Messages - Claude API Reference
+  source: anthropic-docs
+  accessed: 2026-11-19
+  cited_by:
+    - latency-engineering:F13
 - url: https://platform.claude.com/docs/en/build-with-claude/batch-processing
   title: Batch processing
   source: anthropic-docs
@@ -640,6 +810,8 @@
     - scale-throughput:F32
     - scale-throughput:F34
     - llm-as-judge:F26
+    - cost-architecture:F18
+    - cost-architecture:F19
 - url: https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics
   title: Cache diagnostics
   source: anthropic-docs
@@ -648,6 +820,7 @@
     - telemetry:F25
     - telemetry:F26
     - monitoring-alerting:F24
+    - cost-architecture:F17
 - url: https://platform.claude.com/docs/en/build-with-claude/citations
   title: Citations
   source: anthropic-docs
@@ -738,6 +911,16 @@
   accessed: 2026-11-19
   cited_by:
     - llm-as-judge:F25
+    - cost-architecture:F26
+    - latency-engineering:F15
+    - latency-engineering:F16
+- url: https://platform.claude.com/docs/en/build-with-claude/fast-mode
+  title: Fast mode
+  source: anthropic-docs
+  accessed: 2026-11-19
+  cited_by:
+    - latency-engineering:F18
+    - latency-engineering:F19
 - url: https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons
   title: Stop reasons and fallback
   source: anthropic-docs
@@ -749,6 +932,8 @@
     - reliability:F23
     - monitoring-alerting:F11
     - failure-diagnosis:F4
+    - failure-diagnosis:F5
+    - failure-diagnosis:F8
     - failure-diagnosis:F24
 - url: https://platform.claude.com/docs/en/build-with-claude/mid-conversation-system-messages
   title: Mid-conversation system messages and tool changes
@@ -789,6 +974,15 @@
     - telemetry:F24
     - online-quality:F18
     - online-quality:F30
+    - cost-architecture:F11
+    - cost-architecture:F12
+    - cost-architecture:F13
+    - cost-architecture:F14
+    - cost-architecture:F15
+    - cost-architecture:F16
+    - latency-engineering:F6
+    - latency-engineering:F12
+    - latency-engineering:F14
 - url: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices
   title: Prompting best practices
   source: anthropic-docs
@@ -806,6 +1000,9 @@
     - monitoring-alerting:F12
     - llm-as-judge:F22
     - llm-as-judge:F23
+    - runtime-guardrails:F28
+    - runtime-guardrails:F29
+    - runtime-guardrails:F30
 - url: https://platform.claude.com/docs/en/build-with-claude/search-results
   title: Search results
   source: anthropic-docs
@@ -822,6 +1019,9 @@
   cited_by:
     - reliability:F24
     - reliability:F25
+    - latency-engineering:F7
+    - latency-engineering:F8
+    - latency-engineering:F25
 - url: https://platform.claude.com/docs/en/build-with-claude/structured-outputs
   title: Structured outputs
   source: anthropic-docs
@@ -836,6 +1036,7 @@
   cited_by:
     - telemetry:F32
     - telemetry:F33
+    - failure-diagnosis:F30
     - llm-as-judge:F24
 - url: https://platform.claude.com/docs/en/build-with-claude/thinking-troubleshooting
   title: Thinking troubleshooting
@@ -850,6 +1051,7 @@
   cited_by:
     - context-memory:F9
     - context-memory:F10
+    - cost-architecture:F30
 - url: https://platform.claude.com/docs/en/build-with-claude/working-with-messages
   title: Using the Messages API
   source: anthropic-docs
@@ -871,12 +1073,33 @@
   cited_by:
     - reliability:F19
     - failure-diagnosis:F23
+- url: https://platform.claude.com/docs/en/get-api-key
+  title: Get your Claude API key
+  source: anthropic-docs
+  accessed: 2026-11-19
+  cited_by:
+    - identity-secrets-audit:F32
+- url: https://platform.claude.com/docs/en/manage-claude/admin-api
+  title: Admin API
+  source: anthropic-docs
+  accessed: 2026-11-19
+  cited_by:
+    - identity-secrets-audit:F4
 - url: https://platform.claude.com/docs/en/manage-claude/api-and-data-retention
   title: API and data retention
   source: anthropic-docs
   accessed: 2026-11-19
   cited_by:
     - telemetry:F34
+- url: https://platform.claude.com/docs/en/manage-claude/authentication
+  title: Authentication
+  source: anthropic-docs
+  accessed: 2026-11-19
+  cited_by:
+    - identity-secrets-audit:F1
+    - identity-secrets-audit:F2
+    - identity-secrets-audit:F3
+    - identity-secrets-audit:F30
 - url: https://platform.claude.com/docs/en/manage-claude/claude-code-analytics-api
   title: Claude Code Analytics API
   source: anthropic-docs
@@ -889,6 +1112,32 @@
     - online-quality:F23
     - online-quality:F24
     - online-quality:F29
+- url: https://platform.claude.com/docs/en/manage-claude/compliance-activity-feed
+  title: Query the Activity Feed
+  source: anthropic-docs
+  accessed: 2026-11-19
+  cited_by:
+    - identity-secrets-audit:F27
+- url: https://platform.claude.com/docs/en/manage-claude/compliance-api
+  title: Compliance API
+  source: anthropic-docs
+  accessed: 2026-11-19
+  cited_by:
+    - identity-secrets-audit:F26
+- url: https://platform.claude.com/docs/en/manage-claude/compliance-api-access
+  title: Set up the Compliance API
+  source: anthropic-docs
+  accessed: 2026-11-19
+  cited_by:
+    - identity-secrets-audit:F28
+    - identity-secrets-audit:F31
+- url: https://platform.claude.com/docs/en/manage-claude/compliance-integration-patterns
+  title: Design your compliance integration
+  source: anthropic-docs
+  accessed: 2026-11-19
+  cited_by:
+    - identity-secrets-audit:F29
+    - identity-secrets-audit:F34
 - url: https://platform.claude.com/docs/en/manage-claude/opentelemetry
   title: OpenTelemetry tracing for the Claude API
   source: anthropic-docs
@@ -930,6 +1179,9 @@
     - monitoring-alerting:F13
     - monitoring-alerting:F14
     - monitoring-alerting:F15
+    - cost-architecture:F31
+    - cost-architecture:F32
+    - cost-architecture:F33
 - url: https://platform.claude.com/docs/en/manage-claude/usage-cost-api
   title: Usage and Cost API
   source: anthropic-docs
@@ -937,6 +1189,23 @@
   cited_by:
     - telemetry:F30
     - monitoring-alerting:F16
+- url: https://platform.claude.com/docs/en/manage-claude/wif-reference
+  title: WIF reference
+  source: anthropic-docs
+  accessed: 2026-11-19
+  cited_by:
+    - identity-secrets-audit:F9
+- url: https://platform.claude.com/docs/en/manage-claude/workload-identity-federation
+  title: Workload Identity Federation
+  source: anthropic-docs
+  accessed: 2026-11-19
+  cited_by:
+    - identity-secrets-audit:F5
+    - identity-secrets-audit:F6
+    - identity-secrets-audit:F7
+    - identity-secrets-audit:F8
+    - identity-secrets-audit:F10
+    - identity-secrets-audit:F11
 - url: https://platform.claude.com/docs/en/manage-claude/workspaces
   title: Workspaces
   source: anthropic-docs
@@ -944,6 +1213,7 @@
   cited_by:
     - scale-throughput:F20
     - monitoring-alerting:F32
+    - cost-architecture:F34
 - url: https://platform.claude.com/docs/en/managed-agents/choosing-an-environment
   title: Choosing an agent environment
   source: anthropic-docs
@@ -986,6 +1256,7 @@
   accessed: 2026-11-19
   cited_by:
     - failure-diagnosis:F20
+    - runtime-guardrails:F16
 - url: https://platform.claude.com/docs/en/managed-agents/session-observability
   title: Inspect sessions and track usage
   source: anthropic-docs
@@ -1024,6 +1295,14 @@
     - mcp-change-management:F31
     - mcp-change-management:F32
     - evaluation-design:F34
+- url: https://platform.claude.com/docs/en/models/overview
+  title: Models overview
+  source: anthropic-docs
+  accessed: 2026-11-19
+  cited_by:
+    - cost-architecture:F1
+    - latency-engineering:F17
+    - latency-engineering:F24
 - url: https://platform.claude.com/docs/en/release-notes/overview
   title: Claude Platform release notes
   source: anthropic-docs
@@ -1065,12 +1344,20 @@
     - reliability:F27
     - failure-diagnosis:F11
     - failure-diagnosis:F12
+    - failure-diagnosis:F27
 - url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/increase-consistency
   title: Increase output consistency
   source: anthropic-docs
   accessed: 2026-11-19
   cited_by:
     - evaluation-design:F33
+- url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks
+  title: Mitigate jailbreaks and prompt injections
+  source: anthropic-docs
+  accessed: 2026-11-19
+  cited_by:
+    - runtime-guardrails:F24
+    - runtime-guardrails:F25
 - url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-hallucinations
   title: Reduce hallucinations
   source: anthropic-docs
@@ -1080,12 +1367,22 @@
     - retrieval-grounding:F19
     - monitoring-alerting:F10
     - evaluation-design:F30
+    - runtime-guardrails:F27
 - url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-latency
   title: Reducing latency
   source: anthropic-docs
   accessed: 2026-11-19
   cited_by:
     - monitoring-alerting:F8
+    - latency-engineering:F3
+    - latency-engineering:F4
+    - latency-engineering:F5
+- url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-prompt-leak
+  title: Reduce prompt leak
+  source: anthropic-docs
+  accessed: 2026-11-19
+  cited_by:
+    - runtime-guardrails:F26
 - url: https://research.google/pubs/cluster-randomized-designs-for-one-sided-bipartite-experiments-2/
   title: Cluster Randomized Designs for One-Sided Bipartite Experiments
   source: other
@@ -1104,12 +1401,19 @@
   accessed: 2026-11-19
   cited_by:
     - durable-execution:F34
+    - latency-engineering:F23
 - url: https://sre.google/sre-book/handling-overload/
   title: Handling Overload — Google SRE Book
   source: standard
   accessed: 2026-11-19
   cited_by:
     - reliability:F35
+- url: https://sre.google/sre-book/monitoring-distributed-systems/
+  title: Monitoring Distributed Systems
+  source: standard
+  accessed: 2026-11-19
+  cited_by:
+    - latency-engineering:F22
 - url: https://sre.google/sre-book/service-level-objectives/
   title: Service Level Objectives
   source: standard
@@ -1132,6 +1436,19 @@
   accessed: 2026-11-19
   cited_by:
     - mcp-change-management:F12
+- url: https://www.anthropic.com/engineering/claude-code-auto-mode
+  title: "How we built Claude Code auto mode: a safer way to skip permissions"
+  source: anthropic-engineering
+  accessed: 2026-11-19
+  cited_by:
+    - runtime-guardrails:F31
+    - runtime-guardrails:F32
+- url: https://www.anthropic.com/engineering/claude-code-sandboxing
+  title: "Beyond permission prompts: making Claude Code more secure and autonomous"
+  source: anthropic-engineering
+  accessed: 2026-11-19
+  cited_by:
+    - runtime-guardrails:F17
 - url: https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents
   title: Demystifying evals for AI agents
   source: anthropic-engineering

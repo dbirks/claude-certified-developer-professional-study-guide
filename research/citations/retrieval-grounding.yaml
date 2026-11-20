@@ -1,5 +1,5 @@
 - id: F1
-  claim: "Conventional RAG embeds chunks, retrieves them through semantic similarity, and adds selected chunks to the prompt."
+  claim: "Conventional RAG uses a vector database to retrieve chunks by semantic similarity and adds selected chunks to the model prompt."
   tag: FACT
   url: https://www.anthropic.com/research/contextual-retrieval
   title: "Contextual retrieval in AI systems"
@@ -26,7 +26,7 @@
       * Combining Contextual Embeddings and Contextual BM25 reduced the top-20-chunk retrieval failure rate by 49% (5.7% → 2.9%).
   accessed: 2026-11-19
 - id: F4
-  claim: "Chunk size, boundaries, and overlap affect retrieval; Voyage and Gemini embeddings were particularly effective in Anthropic's test."
+  claim: "Chunk size, boundaries, and overlap affect retrieval."
   tag: REC
   url: https://www.anthropic.com/research/contextual-retrieval
   title: "Contextual retrieval in AI systems"
@@ -42,7 +42,7 @@
   quote: "BM25 (Best Matching 25) is a ranking function that uses lexical matching to find precise word or phrase matches. It's particularly effective for queries that include unique identifiers or technical terms."
   accessed: 2026-11-19
 - id: F6
-  claim: "Anthropic's reranking flow retrieved up to 150 candidates, reranked them against the query, selected the top 20, and reported a 67% top-20 failure-rate reduction in its setup."
+  claim: "Anthropic reported a 67% top-20 retrieval failure reduction when contextual embeddings and contextual BM25 were combined with reranking in its test setup."
   tag: FACT
   url: https://www.anthropic.com/research/contextual-retrieval
   title: "Contextual retrieval in AI systems"
@@ -74,7 +74,7 @@
   quote: "Claude Code is an agent that employs this hybrid model: CLAUDE.md files are naively dropped into context up front, while primitives like glob and grep allow it to navigate its environment and retrieve files just-in-time, effectively bypassing the issues of stale indexing and complex syntax trees."
   accessed: 2026-11-19
 - id: F10
-  claim: "Agentic exploration is slower than precomputed retrieval; a hybrid may retrieve some data up front and allow autonomous exploration when useful."
+  claim: "Anthropic recommends a hybrid strategy that retrieves some data up front and allows autonomous exploration when useful."
   tag: REC
   url: https://www.anthropic.com/research/effective-context-engineering-for-ai-agents
   title: "Effective context engineering for AI agents"
@@ -114,7 +114,7 @@
   quote: "Search result content blocks let Claude cite your own content the same way it cites web search results: each citation carries the source and title you provided. Use them in RAG (Retrieval-Augmented Generation) applications where Claude needs to attribute answers to your documents."
   accessed: 2026-11-19
 - id: F15
-  claim: "Claude's citations feature returns pointers to provided source documents, but applications still need to assess whether sources support the generated claim."
+  claim: "Claude's citations feature returns valid pointers to provided source documents."
   tag: FACT
   url: https://platform.claude.com/docs/en/build-with-claude/citations
   title: "Citations"
@@ -122,12 +122,17 @@
   quote: "Better citation reliability: Because the API parses citations into the response formats described in the following sections and extracts cited_text directly, citations are guaranteed to contain valid pointers to the provided documents."
   accessed: 2026-11-19
 - id: F16
-  claim: "The Messages API web search tool provides citations for search results, with tool versions and search/domain controls documented in the live reference."
+  claim: "The Messages API web search tool always enables citations and returns the documented source and excerpt fields for each citation."
   tag: VER
   url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool
   title: "Web search tool"
   source: anthropic-docs
-  quote: "Citations are always enabled for web search, and each web_search_result_location includes:"
+  quote: |
+    Citations are always enabled for web search, and each web_search_result_location includes:
+      * url: The URL of the cited source
+      * title: The title of the cited source
+      * encrypted_index: A reference that must be passed back for multi-turn conversations
+      * cited_text: Up to 150 characters of the cited content
   accessed: 2026-11-19
   version_note: "Claude Platform web_search tool documentation accessed 2026-11-19; tool version identifiers evolve."
 - id: F17
@@ -156,7 +161,7 @@
   quote: "Verify with citations: Make Claude’s response auditable by having it cite quotes and sources for each of its claims. You can also have Claude verify each claim by finding a supporting quote after it generates a response. If it can’t find a quote, it must retract the claim."
   accessed: 2026-11-19
 - id: F20
-  claim: "Voyage recommends query/document input types for retrieval embeddings and documents the associated prompt behavior and truncation option."
+  claim: "Voyage recommends specifying query or document input_type for retrieval embeddings."
   tag: REC
   url: https://docs.voyageai.com/docs/embeddings
   title: "Text Embeddings"
@@ -164,15 +169,15 @@
   quote: 'For retrieval/search purposes, where a "query" is used to search for relevant information among a collection of data, referred to as "documents", we recommend specifying whether your inputs ("texts") are intended as queries or documents by setting input_type to query or document, respectively.'
   accessed: 2026-11-19
 - id: F21
-  claim: "Voyage describes rerankers as jointly scoring query-document pairs and refining preliminary retrieval candidates."
+  claim: "Voyage embedding requests default to truncating over-length inputs unless truncation is disabled."
   tag: FACT
-  url: https://docs.voyageai.com/docs/reranker
-  title: "Rerankers"
+  url: https://docs.voyageai.com/docs/embeddings
+  title: "Text Embeddings"
   source: other
-  quote: "Unlike embedding models that encode queries and documents separately, rerankers are cross-encoders that jointly process a pair of query and document, enabling more accurate relevancy prediction."
+  quote: "truncation (bool, optional, defaults to True) - Whether to truncate the input texts to fit within the context length. If True, an over-length input texts will be truncated to fit within the context length, before vectorized by the embedding model."
   accessed: 2026-11-19
 - id: F23
-  claim: "Citations and strict structured outputs cannot be combined; structured extraction should validate values and citations after parsing."
+  claim: "Citations and strict structured outputs cannot be combined in a Messages API request."
   tag: FACT
   url: https://platform.claude.com/docs/en/build-with-claude/citations
   title: "Citations"
@@ -282,17 +287,12 @@
   quote: 'Citations are disabled by default; every example on this page sets "enabled": true explicitly. All search results in a request must use the same setting (see Citation control)'
   accessed: 2026-11-19
 - id: F36
-  claim: "Anthropic's reranking experiment retrieved an initial candidate set, scored candidates against the query, selected a smaller top set, and sent that context to Claude."
+  claim: "Anthropic describes reranking as filtering retrieved chunks so that only the most relevant candidates reach the model."
   tag: FACT
   url: https://www.anthropic.com/research/contextual-retrieval
   title: "Contextual retrieval in AI systems"
   source: anthropic-research
-  quote: |
-    The key steps are:
-      1. Perform initial retrieval to get the top potentially relevant chunks (we used the top 150);
-      2. Pass the top-N chunks, along with the user's query, through the reranking model;
-      3. Using a reranking model, give each chunk a score based on its relevance and importance to the prompt, then select the top-K chunks (we used the top 20);
-      4. Pass the top-K chunks into the model as context to generate the final result.
+  quote: "Reranking is a commonly used filtering technique to ensure that only the most relevant chunks are passed to the model."
   accessed: 2026-11-19
 
 - id: F22

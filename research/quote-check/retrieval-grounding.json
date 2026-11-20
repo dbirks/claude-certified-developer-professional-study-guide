@@ -1,0 +1,177 @@
+[
+  {
+    "id": "F1",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/contextual-retrieval"
+  },
+  {
+    "id": "F2",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/contextual-retrieval"
+  },
+  {
+    "id": "F3",
+    "status": "ok-loose",
+    "url": "https://www.anthropic.com/research/contextual-retrieval"
+  },
+  {
+    "id": "F4",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/contextual-retrieval"
+  },
+  {
+    "id": "F5",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/contextual-retrieval"
+  },
+  {
+    "id": "F6",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/contextual-retrieval"
+  },
+  {
+    "id": "F7",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/contextual-retrieval"
+  },
+  {
+    "id": "F8",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/effective-context-engineering-for-ai-agents"
+  },
+  {
+    "id": "F9",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/effective-context-engineering-for-ai-agents"
+  },
+  {
+    "id": "F10",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/effective-context-engineering-for-ai-agents"
+  },
+  {
+    "id": "F11",
+    "status": "not-found",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
+  },
+  {
+    "id": "F12",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
+  },
+  {
+    "id": "F13",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
+  },
+  {
+    "id": "F14",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/search-results"
+  },
+  {
+    "id": "F15",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
+  },
+  {
+    "id": "F16",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool"
+  },
+  {
+    "id": "F17",
+    "status": "not-found",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool"
+  },
+  {
+    "id": "F18",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-hallucinations"
+  },
+  {
+    "id": "F19",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-hallucinations"
+  },
+  {
+    "id": "F20",
+    "status": "ok-loose",
+    "url": "https://docs.voyageai.com/docs/embeddings"
+  },
+  {
+    "id": "F21",
+    "status": "ok",
+    "url": "https://docs.voyageai.com/docs/embeddings"
+  },
+  {
+    "id": "F23",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
+  },
+  {
+    "id": "F24",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/contextual-retrieval"
+  },
+  {
+    "id": "F25",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/contextual-retrieval"
+  },
+  {
+    "id": "F26",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/contextual-retrieval"
+  },
+  {
+    "id": "F27",
+    "status": "ok",
+    "url": "https://docs.voyageai.com/docs/reranker"
+  },
+  {
+    "id": "F28",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool"
+  },
+  {
+    "id": "F29",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool"
+  },
+  {
+    "id": "F31",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
+  },
+  {
+    "id": "F32",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/effective-context-engineering-for-ai-agents"
+  },
+  {
+    "id": "F33",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/search-results"
+  },
+  {
+    "id": "F34",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/contextual-retrieval"
+  },
+  {
+    "id": "F35",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/search-results"
+  },
+  {
+    "id": "F36",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/contextual-retrieval"
+  },
+  {
+    "id": "F22",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/contextual-retrieval"
+  }
+]

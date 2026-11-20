@@ -1,0 +1,187 @@
+[
+  {
+    "id": "F1",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/models/overview"
+  },
+  {
+    "id": "F2",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing"
+  },
+  {
+    "id": "F3",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing"
+  },
+  {
+    "id": "F4",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing"
+  },
+  {
+    "id": "F5",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing"
+  },
+  {
+    "id": "F6",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing"
+  },
+  {
+    "id": "F7",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing"
+  },
+  {
+    "id": "F8",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing"
+  },
+  {
+    "id": "F9",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing"
+  },
+  {
+    "id": "F10",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing"
+  },
+  {
+    "id": "F11",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F12",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F13",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F14",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F15",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F16",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F17",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics"
+  },
+  {
+    "id": "F18",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/batch-processing"
+  },
+  {
+    "id": "F19",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/batch-processing"
+  },
+  {
+    "id": "F20",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/service-tiers"
+  },
+  {
+    "id": "F21",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence"
+  },
+  {
+    "id": "F22",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence"
+  },
+  {
+    "id": "F23",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence"
+  },
+  {
+    "id": "F24",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence"
+  },
+  {
+    "id": "F25",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence"
+  },
+  {
+    "id": "F26",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/effort"
+  },
+  {
+    "id": "F27",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence"
+  },
+  {
+    "id": "F28",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool"
+  },
+  {
+    "id": "F29",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence"
+  },
+  {
+    "id": "F30",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/token-counting"
+  },
+  {
+    "id": "F31",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api"
+  },
+  {
+    "id": "F32",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api"
+  },
+  {
+    "id": "F33",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api"
+  },
+  {
+    "id": "F34",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/workspaces"
+  },
+  {
+    "id": "F35",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F36",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F37",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence"
+  }
+]

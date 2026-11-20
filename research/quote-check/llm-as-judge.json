@@ -1,0 +1,187 @@
+[
+  {
+    "id": "F1",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/develop-tests"
+  },
+  {
+    "id": "F2",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/develop-tests"
+  },
+  {
+    "id": "F3",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/develop-tests"
+  },
+  {
+    "id": "F4",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/develop-tests"
+  },
+  {
+    "id": "F5",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/develop-tests"
+  },
+  {
+    "id": "F6",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/develop-tests"
+  },
+  {
+    "id": "F7",
+    "status": "ok",
+    "url": "https://platform.claude.com/cookbook/misc-building-evals"
+  },
+  {
+    "id": "F8",
+    "status": "ok",
+    "url": "https://platform.claude.com/cookbook/misc-building-evals"
+  },
+  {
+    "id": "F9",
+    "status": "ok",
+    "url": "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+  },
+  {
+    "id": "F10",
+    "status": "ok",
+    "url": "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+  },
+  {
+    "id": "F11",
+    "status": "ok",
+    "url": "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+  },
+  {
+    "id": "F12",
+    "status": "ok",
+    "url": "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+  },
+  {
+    "id": "F13",
+    "status": "ok",
+    "url": "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+  },
+  {
+    "id": "F14",
+    "status": "ok-loose",
+    "url": "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+  },
+  {
+    "id": "F15",
+    "status": "ok",
+    "url": "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+  },
+  {
+    "id": "F16",
+    "status": "ok",
+    "url": "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+  },
+  {
+    "id": "F17",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions"
+  },
+  {
+    "id": "F18",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions"
+  },
+  {
+    "id": "F19",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions"
+  },
+  {
+    "id": "F20",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/structured-outputs"
+  },
+  {
+    "id": "F21",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/structured-outputs"
+  },
+  {
+    "id": "F22",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback"
+  },
+  {
+    "id": "F23",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback"
+  },
+  {
+    "id": "F24",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/thinking"
+  },
+  {
+    "id": "F25",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/effort"
+  },
+  {
+    "id": "F26",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/batch-processing"
+  },
+  {
+    "id": "F27",
+    "status": "ok",
+    "url": "https://arxiv.org/html/2306.05685v4"
+  },
+  {
+    "id": "F28",
+    "status": "ok",
+    "url": "https://arxiv.org/html/2306.05685v4"
+  },
+  {
+    "id": "F29",
+    "status": "ok",
+    "url": "https://arxiv.org/html/2306.05685v4"
+  },
+  {
+    "id": "F30",
+    "status": "ok",
+    "url": "https://arxiv.org/html/2306.05685v4"
+  },
+  {
+    "id": "F31",
+    "status": "ok",
+    "url": "https://arxiv.org/html/2306.05685v4"
+  },
+  {
+    "id": "F32",
+    "status": "ok",
+    "url": "https://arxiv.org/html/2306.05685v4"
+  },
+  {
+    "id": "F33",
+    "status": "ok",
+    "url": "https://en.wikipedia.org/wiki/Cohen%27s_kappa"
+  },
+  {
+    "id": "F34",
+    "status": "ok",
+    "url": "https://scikit-learn.org/stable/modules/model_evaluation.html"
+  },
+  {
+    "id": "F35",
+    "status": "ok",
+    "url": "https://en.wikipedia.org/wiki/Krippendorff%27s_alpha"
+  },
+  {
+    "id": "F36",
+    "status": "ok",
+    "url": "https://en.wikipedia.org/wiki/Krippendorff%27s_alpha"
+  },
+  {
+    "id": "F37",
+    "status": "ok",
+    "url": "https://en.wikipedia.org/wiki/Krippendorff%27s_alpha"
+  }
+]

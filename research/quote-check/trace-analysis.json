@@ -1,0 +1,147 @@
+[
+  {
+    "id": "F1",
+    "status": "ok",
+    "url": "https://opentelemetry.io/docs/concepts/sampling/"
+  },
+  {
+    "id": "F2",
+    "status": "ok",
+    "url": "https://opentelemetry.io/docs/concepts/sampling/"
+  },
+  {
+    "id": "F3",
+    "status": "ok",
+    "url": "https://opentelemetry.io/docs/concepts/sampling/"
+  },
+  {
+    "id": "F4",
+    "status": "ok",
+    "url": "https://opentelemetry.io/docs/concepts/sampling/"
+  },
+  {
+    "id": "F5",
+    "status": "ok",
+    "url": "https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/tailsamplingprocessor/README.md"
+  },
+  {
+    "id": "F6",
+    "status": "ok",
+    "url": "https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/tailsamplingprocessor/README.md"
+  },
+  {
+    "id": "F7",
+    "status": "ok",
+    "url": "https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/tailsamplingprocessor/README.md"
+  },
+  {
+    "id": "F8",
+    "status": "ok",
+    "url": "https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/tailsamplingprocessor/README.md"
+  },
+  {
+    "id": "F9",
+    "status": "ok",
+    "url": "https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/tailsamplingprocessor/README.md"
+  },
+  {
+    "id": "F10",
+    "status": "ok",
+    "url": "https://opentelemetry.io/blog/2026/cardinality-limits-in-opentelemetry/"
+  },
+  {
+    "id": "F11",
+    "status": "ok",
+    "url": "https://opentelemetry.io/blog/2026/cardinality-limits-in-opentelemetry/"
+  },
+  {
+    "id": "F12",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F13",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F14",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F15",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F16",
+    "status": "ok-loose",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F17",
+    "status": "ok",
+    "url": "https://platform.claude.com/cookbook/claude-agent-sdk-04-migrating-from-openai-agents-sdk"
+  },
+  {
+    "id": "F18",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/opentelemetry/spans"
+  },
+  {
+    "id": "F19",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/opentelemetry"
+  },
+  {
+    "id": "F20",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/opentelemetry/spans"
+  },
+  {
+    "id": "F21",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/demystifying-evals-for-ai-agents"
+  },
+  {
+    "id": "F22",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/demystifying-evals-for-ai-agents"
+  },
+  {
+    "id": "F23",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/clio"
+  },
+  {
+    "id": "F24",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/clio"
+  },
+  {
+    "id": "F25",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/clio"
+  },
+  {
+    "id": "F26",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/opentelemetry/spans"
+  },
+  {
+    "id": "F27",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F28",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F29",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/opentelemetry"
+  }
+]

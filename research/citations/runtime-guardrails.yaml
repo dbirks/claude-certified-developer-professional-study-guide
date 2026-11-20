@@ -1,0 +1,316 @@
+- id: F1
+  claim: "In Claude Code command hooks, exit code 0 applies stdout JSON, exit code 2 blocks blockable events with stderr as reason, and any other exit code (including 1) is a non-blocking error unless onFailure is set to block."
+  tag: FACT
+  url: https://code.claude.com/docs/en/hooks#other-exit-codes
+  title: "Hooks reference"
+  source: claude-code-docs
+  quote: "Exit code 1 without valid JSON output is a non-blocking error unless the hook is one whose failure blocks the action, even though 1 is the conventional Unix failure code. If your hook is meant to enforce a policy, use exit 2."
+  accessed: 2026-11-19
+
+- id: F2
+  claim: "When multiple PreToolUse hooks return different decisions, Claude Code applies the most restrictive decision in the order deny > defer > ask > allow."
+  tag: FACT
+  url: https://code.claude.com/docs/en/hooks#pretooluse-decision-control
+  title: "Hooks reference"
+  source: claude-code-docs
+  quote: "When multiple PreToolUse hooks return different decisions, precedence is deny > defer > ask > allow."
+  accessed: 2026-11-19
+
+- id: F3
+  claim: "A PreToolUse hook's updatedInput replaces the entire tool_input object before execution and permission-rule re-evaluation, so unchanged fields must be preserved alongside modified ones."
+  tag: FACT
+  url: https://code.claude.com/docs/en/hooks#pretooluse-decision-control
+  title: "Hooks reference"
+  source: claude-code-docs
+  quote: "Modifies the tool's input parameters before execution. Replaces the entire input object, so include unchanged fields alongside modified ones."
+  accessed: 2026-11-19
+
+- id: F4
+  claim: "Blocking a prompt in UserPromptSubmit stops Claude from processing it, but the prompt can still persist in local transcript and prompt history files, so a blocking hook does not keep secrets off disk."
+  tag: FACT
+  url: https://code.claude.com/docs/en/hooks#what-a-blocked-prompt-leaves-behind
+  title: "Hooks reference"
+  source: claude-code-docs
+  quote: "Either way, the prompt can still appear in local files such as the session transcript and your prompt history. A blocking hook isn't a way to keep a secret off disk."
+  accessed: 2026-11-19
+
+- id: F5
+  claim: "PostToolUse updatedToolOutput replaces what Claude sees, not what already executed on disk/network or what OpenTelemetry spans and analytics events already captured."
+  tag: FACT
+  url: https://code.claude.com/docs/en/hooks#posttooluse-decision-control
+  title: "Hooks reference"
+  source: claude-code-docs
+  quote: "updatedToolOutput only changes what Claude sees. The tool has already run by the time the hook fires, so any files written, commands executed, or network requests sent have already taken effect. Telemetry such as OpenTelemetry tool spans and analytics events also captures the original output before the hook runs."
+  accessed: 2026-11-19
+
+- id: F6
+  claim: "MessageDisplay hooks redact or reformat displayed assistant text (such as API keys or internal hostnames) on screen only; the transcript and model context retain the original text."
+  tag: FACT
+  url: https://code.claude.com/docs/en/hooks#messagedisplay
+  title: "Hooks reference"
+  source: claude-code-docs
+  quote: "MessageDisplay is display-only: the replacement text changes only what is rendered on screen. The transcript and what Claude sees keep the original text, so Claude never sees the replacement, and verbose mode shows the original."
+  accessed: 2026-11-19
+
+- id: F7
+  claim: "Agent SDK hook callbacks fail open on exceptions or invalid output by default (letting PreToolUse calls fall through to normal permissions) unless onFailure/on_failure is set to block."
+  tag: VER
+  url: https://code.claude.com/docs/en/agent-sdk/hooks#block-the-action-when-a-callback-fails
+  title: "Intercept and control agent behavior with hooks"
+  source: claude-code-docs
+  quote: "On most events, if a callback throws or returns output that fails validation, the action goes ahead and your app receives an SDKInformationalMessage warning whose tag is hook_callback_failed. A PreToolUse guard that crashes then lets the tool call reach the normal permission flow."
+  accessed: 2026-11-19
+  version_note: "onFailure/on_failure='block' requires TypeScript Agent SDK v0.3.317+ or Python Agent SDK v0.2.177+."
+
+- id: F8
+  claim: "In the Agent SDK six-step permission pipeline, hooks run first, and a PreToolUse allow decision does not skip downstream deny-rule or ask-rule checks."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/permissions#how-permissions-are-evaluated
+  title: "Configure permissions"
+  source: claude-code-docs
+  quote: "A hook can deny the call outright or pass it on. A hook that returns allow doesn't skip the deny-rule and ask-rule steps, which are evaluated regardless of the hook result."
+  accessed: 2026-11-19
+
+- id: F9
+  claim: "Tool calls auto-approved by allow rules, acceptEdits, or bypassPermissions never reach the canUseTool callback, silently bypassing any checks placed only inside canUseTool."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/permissions#allow-and-deny-rules
+  title: "Configure permissions"
+  source: claude-code-docs
+  quote: "Auto-approved tools never reach canUseTool. A tool call approved at any earlier step, by acceptEdits or bypassPermissions, or by an allow rule, skips your canUseTool callback, so permission checks you put there are silently bypassed for that tool."
+  accessed: 2026-11-19
+
+- id: F10
+  claim: "Permission rules evaluate strictly in the order deny, then ask, then allow (first match wins), and a narrower allow rule cannot carve an exception out of a broader deny or ask rule."
+  tag: FACT
+  url: https://code.claude.com/docs/en/permissions#manage-permissions
+  title: "Configure permissions"
+  source: claude-code-docs
+  quote: "Rules are evaluated in order: deny, then ask, then allow. The first match in that order determines the outcome, and rule specificity doesn't change the order."
+  accessed: 2026-11-19
+
+- id: F11
+  claim: "Prompt-level instructions and CLAUDE.md shape what Claude attempts, whereas permission rules and hooks are enforced by the runtime outside the model."
+  tag: FACT
+  url: https://code.claude.com/docs/en/permissions#manage-permissions
+  title: "Configure permissions"
+  source: claude-code-docs
+  quote: "Permission rules are enforced by Claude Code, not by the model. Instructions in your prompt or CLAUDE.md shape what Claude tries to do, but they don't change these rules."
+  accessed: 2026-11-19
+
+- id: F12
+  claim: "Bash permission rules match command text after splitting compound operators and stripping known wrappers, so deny rules like Bash(curl *) miss /usr/bin/curl or sh -c and are not a security boundary."
+  tag: FACT
+  url: https://code.claude.com/docs/en/permissions#what-a-bash-rule-doesnt-match
+  title: "Configure permissions"
+  source: claude-code-docs
+  quote: "A Bash rule matches the command text Claude writes, after Claude Code splits compound commands and strips wrappers. It doesn't match the same program invoked in a different form, so a deny or ask rule covers the invocation Claude usually produces and isn't a security boundary around the program."
+  accessed: 2026-11-19
+
+- id: F13
+  claim: "Claude Code settings precedence runs highest-to-lowest: managed settings, command line (--settings), project local, shared project, and user settings, with list keys merging across scopes."
+  tag: FACT
+  url: https://code.claude.com/docs/en/settings#settings-precedence
+  title: "Settings files and precedence"
+  source: claude-code-docs
+  quote: "Settings precedence, highest first: managed settings, command line, project local, shared project, user. A key set at a higher level overrides the same key set lower down."
+  accessed: 2026-11-19
+
+- id: F14
+  claim: "Recognized rm and rmdir critical-path removals cannot be approved by allow rules or by a PreToolUse hook returning allow."
+  tag: FACT
+  url: https://code.claude.com/docs/en/permission-modes#critical-paths
+  title: "Choose a permission mode"
+  source: claude-code-docs
+  quote: "A critical-path removal is an rm or rmdir command whose target Claude Code recognizes as a critical path. No PreToolUse hook that returns \"allow\" approves one either."
+  accessed: 2026-11-19
+
+- id: F15
+  claim: "For human approvals that exceed process lifetime, use a PreToolUse hook returning permissionDecision defer (with claude -p) to end the turn with stop_reason tool_deferred and resume later rather than blocking in canUseTool."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/user-input
+  title: "Handle approvals and user input"
+  source: claude-code-docs
+  quote: "If a user might take longer to respond than your process can reasonably stay running, register a PreToolUse hook that returns the defer decision instead of waiting in the callback, so the process can exit and resume later from the persisted session."
+  accessed: 2026-11-19
+
+- id: F16
+  claim: "In Claude Managed Agents, auto permission policy is not a human checkpoint; irreversible tools requiring human review must use always_ask."
+  tag: REC
+  url: https://platform.claude.com/docs/en/managed-agents/permission-policies
+  title: "Permission policies"
+  source: anthropic-docs
+  quote: "auto is not a human checkpoint. If the server determines that a call is safe, the call runs before anyone sees it, and its effects might not be reversible. If a person must review a tool’s calls before they run, configure always_ask on that tool."
+  accessed: 2026-11-19
+
+- id: F17
+  claim: "Anthropic's internal usage of Claude Code OS-level sandboxing reduced permission prompts by 84% while enforcing filesystem and network boundaries."
+  tag: FACT
+  url: https://www.anthropic.com/engineering/claude-code-sandboxing
+  title: "Beyond permission prompts: making Claude Code more secure and autonomous"
+  source: anthropic-engineering
+  quote: "In our internal usage, we've found that sandboxing safely reduces permission prompts by 84%. By defining set boundaries within which Claude can work freely, they increase security and agency."
+  accessed: 2026-11-19
+
+- id: F18
+  claim: "Claude Code's built-in sandbox isolates Bash, PowerShell, and Monitor shell commands and their child processes, while built-in file tools, MCP servers, and hooks run outside it."
+  tag: FACT
+  url: https://code.claude.com/docs/en/sandboxing#what-runs-outside-the-sandbox
+  title: "Configure the sandboxed Bash tool"
+  source: claude-code-docs
+  quote: "The sandbox covers shell commands only. Claude's file tools, MCP servers, and hooks run outside it."
+  accessed: 2026-11-19
+
+- id: F19
+  claim: "By default Claude Code falls back to unsandboxed execution if sandbox dependencies or platform support are missing; setting sandbox.failIfUnavailable to true forces startup failure instead."
+  tag: FACT
+  url: https://code.claude.com/docs/en/sandboxing#get-started
+  title: "Configure the sandboxed Bash tool"
+  source: claude-code-docs
+  quote: "By default, when the platform doesn't support the sandbox or the dependency check at startup fails, Claude Code runs commands without sandboxing. To make Claude Code exit at startup instead, set sandbox.failIfUnavailable to true."
+  accessed: 2026-11-19
+
+- id: F20
+  claim: "Credential masking replaces secret env vars or files with a per-session sentinel inside the sandbox while the TLS-terminating sandbox proxy injects the real value only for allowed hosts."
+  tag: FACT
+  url: https://code.claude.com/docs/en/sandboxing#mask-credentials
+  title: "Configure the sandboxed Bash tool"
+  source: claude-code-docs
+  quote: "When you mask a credential, Claude Code shows sandboxed commands a per-session placeholder called the sentinel, and the sandbox proxy substitutes the real value on outbound requests to hosts you allow."
+  accessed: 2026-11-19
+
+- id: F21
+  claim: "The @anthropic-ai/sandbox-runtime (srt) package wraps the entire Claude Code process—including file tools, hooks, and MCP servers—in OS-level Seatbelt or bubblewrap isolation without Docker."
+  tag: FACT
+  url: https://code.claude.com/docs/en/sandbox-environments#sandbox-runtime
+  title: "Choose a sandbox environment"
+  source: claude-code-docs
+  quote: "The @anthropic-ai/sandbox-runtime package wraps an entire process in the same Seatbelt or bubblewrap isolation that the built-in Bash sandbox uses. Running Claude Code through the runtime constrains the session's tools, hooks, and MCP servers as well as shell commands."
+  accessed: 2026-11-19
+
+- id: F22
+  claim: "Running Claude Code with --dangerously-skip-permissions inside a dev container does not stop a malicious repo from exfiltrating credentials accessible inside the container such as ~/.claude, so dev containers should be paired with egress firewalls and trusted repos."
+  tag: REC
+  url: https://code.claude.com/docs/en/devcontainer
+  title: "Development containers"
+  source: claude-code-docs
+  quote: "When executed with --dangerously-skip-permissions, dev containers do not prevent a malicious project from exfiltrating anything accessible inside the container, including the Claude Code credentials stored in ~/.claude. Only use dev containers when developing with trusted repositories, and monitor Claude's activities."
+  accessed: 2026-11-19
+
+- id: F23
+  claim: "For Agent SDK deployments, the recommended credential architecture runs a proxy outside the agent's security boundary (such as Envoy or ANTHROPIC_BASE_URL) to inject credentials on outbound calls."
+  tag: REC
+  url: https://code.claude.com/docs/en/agent-sdk/secure-deployment#the-proxy-pattern
+  title: "Securely deploying AI agents"
+  source: claude-code-docs
+  quote: "The recommended approach is to run a proxy outside the agent's security boundary that injects credentials into outgoing requests. The agent sends requests without credentials, the proxy adds them, and forwards the request to its destination."
+  accessed: 2026-11-19
+
+- id: F24
+  claim: "Anthropic recommends pre-screening untrusted user inputs with a lightweight model such as Claude Haiku 5.5 using structured outputs, treating stop_reason refusal from the classifier itself as a harmful verdict."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks#jailbreaks-and-direct-prompt-injection
+  title: "Mitigate jailbreaks and prompt injections"
+  source: anthropic-docs
+  quote: "Use a lightweight model such as Claude Haiku 5.5 to pre-screen user input before it reaches your main conversation. Use structured outputs to constrain the response to a simple classification. Claude Haiku 5.5 runs safety classifiers that can decline the screening request itself, so treat a response with stop_reason: \"refusal\" as a harmful verdict."
+  accessed: 2026-11-19
+
+- id: F25
+  claim: "Third-party untrusted content should be delivered exclusively in tool_result blocks (ideally JSON-encoded), never in system prompts or plain user text blocks, to resist indirect prompt injection."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks#indirect-prompt-injection
+  title: "Mitigate jailbreaks and prompt injections"
+  source: anthropic-docs
+  quote: "Deliver third-party content to Claude inside tool_result blocks, never in system prompts or plain user text blocks. Claude is trained to treat instructions that appear inside tool results with appropriate skepticism."
+  accessed: 2026-11-19
+
+- id: F26
+  claim: "Anthropic advises using leak-resistant prompt engineering only when strictly necessary—preferring output screening and omitting unneeded secrets—because over-complex anti-leak prompts can degrade task performance."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-prompt-leak#before-you-try-to-reduce-prompt-leak
+  title: "Reduce prompt leak"
+  source: anthropic-docs
+  quote: "Consider using leak-resistant prompt engineering strategies only when absolutely necessary. Attempts to leak-proof your prompt can make the LLM’s overall task more complex, which might degrade performance in other parts of the task."
+  accessed: 2026-11-19
+
+- id: F27
+  claim: "For long documents (>20k tokens), requiring Claude to extract word-for-word quotes before analyzing them grounds outputs and reduces hallucinations."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-hallucinations#basic-hallucination-minimization-strategies
+  title: "Reduce hallucinations"
+  source: anthropic-docs
+  quote: "For tasks involving long documents (>20k tokens), ask Claude to extract word-for-word quotes first before performing its task. This grounds its responses in the actual text, reducing hallucinations."
+  accessed: 2026-11-19
+
+- id: F28
+  claim: "Refusals arrive as HTTP 200 responses with stop_reason equal to refusal and a stop_details object whose category and explanation fields may be null, so applications must branch on stop_reason or stop_details.type directly."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback#common-pitfalls
+  title: "Refusals and fallback"
+  source: anthropic-docs
+  quote: "The stop_details object is always present on a refusal, but its category and explanation fields can be null. Check for stop_reason equal to \"refusal\" directly."
+  accessed: 2026-11-19
+
+- id: F29
+  claim: "A reasoning_extraction refusal has no recommended fallback model; applications should revise the prompt or use adaptive thinking with display set to summarized rather than retrying."
+  tag: REC
+  url: https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback#keep-reasoning-in-thinking-blocks
+  title: "Refusals and fallback"
+  source: anthropic-docs
+  quote: "This category has no recommended fallback model, so change the prompt rather than retry the request."
+  accessed: 2026-11-19
+
+- id: F30
+  claim: "Server-side refusal fallback (fallbacks='default', beta server-side-fallback-2026-07-01) is limited to Claude API and Google Cloud Anthropic-managed, and is unavailable on Claude Haiku 5.5 and Message Batches."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback#server-side-fallback
+  title: "Refusals and fallback"
+  source: anthropic-docs
+  quote: "Claude Haiku 5.5 has no server-side fallback: with fallbacks: \"default\", a declined request stays declined, and a list of fallback models returns a 400 error."
+  accessed: 2026-11-19
+  version_note: "Beta header server-side-fallback-2026-07-01; use BetaRefusalFallbackMiddleware for Haiku 5.5, Bedrock, Google-managed Vertex AI, and Microsoft Foundry."
+
+- id: F31
+  claim: "Anthropic's two-stage auto-mode classifier pairs a fast single-token Stage 1 filter (8.5% FPR) with a Stage 2 chain-of-thought reviewer on flagged calls, cutting end-to-end FPR to 0.4% at the cost of 17% FNR on overeager actions."
+  tag: FACT
+  url: https://www.anthropic.com/engineering/claude-code-auto-mode
+  title: "How we built Claude Code auto mode: a safer way to skip permissions"
+  source: anthropic-engineering
+  quote: "FPR drops from 8.5% to 0.4%, at the cost of some recall. The 17% false-negative rate on real overeager actions is the honest number."
+  accessed: 2026-11-19
+
+- id: F32
+  claim: "The auto-mode classifier is reasoning-blind by design—seeing only user messages and tool calls while stripping assistant messages and tool outputs—so prompt-injected content or persuasive model reasoning cannot talk the classifier into approving unsafe calls."
+  tag: FACT
+  url: https://www.anthropic.com/engineering/claude-code-auto-mode
+  title: "How we built Claude Code auto mode: a safer way to skip permissions"
+  source: anthropic-engineering
+  quote: "The classifier sees only user messages and the agent's tool calls; we strip out Claude's own messages and tool outputs, making it reasoning-blind by design."
+  accessed: 2026-11-19
+
+- id: F33
+  claim: "Claude Code ignores autoMode configuration in repository .claude/settings.json and .claude/settings.local.json files so untrusted repositories cannot inject classifier allow rules."
+  tag: FACT
+  url: https://code.claude.com/docs/en/auto-mode-config#where-the-classifier-reads-configuration
+  title: "Configure auto mode"
+  source: claude-code-docs
+  quote: "The classifier doesn't read autoMode from project settings in .claude/settings.json or .claude/settings.local.json. Both files live in the repo directory, so a checked-in repo or a build step could otherwise inject its own allow rules."
+  accessed: 2026-11-19
+
+- id: F34
+  claim: "Multi-level risk classification (e.g., 0–3) lets moderation guardrails tune false-positive/false-negative action thresholds by auto-blocking high-risk inputs while routing medium-risk inputs to human review."
+  tag: REC
+  url: https://platform.claude.com/docs/en/about-claude/use-case-guides/content-moderation#evaluate-your-prompt
+  title: "Content moderation"
+  source: anthropic-docs
+  quote: "Creating multiple risk levels allows you to adjust the aggressiveness of your moderation. For example, you might want to automatically block user queries that are deemed high risk, whereas users with many medium risk queries are flagged for human review."
+  accessed: 2026-11-19
+
+- id: F35
+  claim: "Claude Code automatically redacts known patterns of secrets, file paths, email addresses, and other personal information from internal error reports before data leaves the machine."
+  tag: FACT
+  url: https://code.claude.com/docs/en/data-usage#telemetry-services
+  title: "Data usage"
+  source: claude-code-docs
+  quote: "Claude Code redacts known patterns of secrets, file paths, email addresses, and other personal information before anything leaves your machine."
+  accessed: 2026-11-19

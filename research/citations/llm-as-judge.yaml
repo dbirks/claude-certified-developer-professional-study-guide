@@ -1,0 +1,299 @@
+- id: F1
+  claim: "Code-based grading is the fastest, most reliable, and most scalable evaluation method, though it lacks nuance for complex judgments."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/develop-tests
+  title: "Define success criteria and build evaluations"
+  source: anthropic-docs
+  quote: "Code-based grading: Fastest and most reliable, extremely scalable, but also lacks nuance for more complex judgments that require less rule-based rigidity."
+  accessed: 2026-11-19
+- id: F2
+  claim: "LLM-based grading is fast, flexible, and scalable for complex judgment, and Anthropic recommends testing it for reliability before scaling."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/develop-tests
+  title: "Define success criteria and build evaluations"
+  source: anthropic-docs
+  quote: "LLM-based grading: Fast and flexible, scalable and suitable for complex judgment. Test to ensure reliability first, then scale."
+  accessed: 2026-11-19
+- id: F3
+  claim: "Human grading offers the highest flexibility and quality but is slow and expensive, so Anthropic advises avoiding it as the primary grader when automated grading suffices."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/develop-tests
+  title: "Define success criteria and build evaluations"
+  source: anthropic-docs
+  quote: "Human grading: Most flexible and high quality, but slow and expensive. Avoid if possible."
+  accessed: 2026-11-19
+- id: F4
+  claim: "LLM-based grading rubrics should be detailed and clear, and complex use cases or criteria may require multiple rubrics."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/develop-tests
+  title: "Define success criteria and build evaluations"
+  source: anthropic-docs
+  quote: "A given use case, or even a specific success criterion for that use case, might require several rubrics for holistic evaluation."
+  accessed: 2026-11-19
+- id: F5
+  claim: "LLM judge prompts should request empirical or specific outputs such as binary labels or 1-5 scales rather than purely qualitative prose."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/develop-tests
+  title: "Define success criteria and build evaluations"
+  source: anthropic-docs
+  quote: "Be empirical or specific: For example, instruct the LLM to output only ‘correct’ or ‘incorrect’, or to judge from a scale of 1–5. Purely qualitative evaluations are hard to assess quickly and at scale."
+  accessed: 2026-11-19
+- id: F6
+  claim: "Using a grader model with thinking enabled so it reasons before producing an evaluation score improves grading performance on complex judgments."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/develop-tests
+  title: "Define success criteria and build evaluations"
+  source: anthropic-docs
+  quote: "Encourage reasoning: Use a grader model with thinking on, so that it reasons before it produces an evaluation score. This increases evaluation performance, particularly for tasks requiring complex judgment."
+  accessed: 2026-11-19
+- id: F7
+  claim: "Grading is a recurring per-run evaluation cost, unlike writing test cases and golden answers, which is largely a fixed upfront cost."
+  tag: FACT
+  url: https://platform.claude.com/cookbook/misc-building-evals
+  title: "Building evals | Claude Cookbook"
+  source: anthropic-docs
+  quote: "Grading on the other hand is a cost you will incur every time you re-run your eval, in perpetuity - and you will likely re-run your eval a lot. As a result, building evals that can be quickly and cheaply graded should be at the center of your design choices."
+  accessed: 2026-11-19
+- id: F8
+  claim: "Practitioners should empirically test a model-based grader and inspect graded samples to verify that the task is suitable for LLM grading."
+  tag: REC
+  url: https://platform.claude.com/cookbook/misc-building-evals
+  title: "Building evals | Claude Cookbook"
+  source: anthropic-docs
+  quote: "The only way to know if a model-based grader can do a good job grading your task is to try. Try it out and read some samples to see if your task is a good candidate."
+  accessed: 2026-11-19
+- id: F9
+  claim: "Model-based graders require iterative validation and close calibration against human experts to confirm low divergence between human and LLM scores."
+  tag: REC
+  url: https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-engineering
+  quote: "Model grading often takes careful iteration to validate accuracy. LLM-as-judge graders should be closely calibrated with human experts to gain confidence that there is little divergence between the human grading and model grading."
+  accessed: 2026-11-19
+- id: F10
+  claim: "Giving an LLM judge an 'Unknown' escape hatch reduces hallucinated verdicts, and grading each dimension with an isolated judge improves clarity over one multi-dimension judge."
+  tag: REC
+  url: https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-engineering
+  quote: "To avoid hallucinations, give the LLM a way out, like providing an instruction to return “Unknown” when it doesn’t have enough information. It can also help to create clear, structured rubrics to grade each dimension of a task, and then grade each dimension with an isolated LLM-as-judge rather than using one to grade all dimensions."
+  accessed: 2026-11-19
+- id: F11
+  claim: "Once a model-based grading pipeline is validated and robust, human review can drop to occasional spot-checking."
+  tag: REC
+  url: https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-engineering
+  quote: "Once the system is robust, it’s sufficient to use human review only occasionally."
+  accessed: 2026-11-19
+- id: F12
+  claim: "Ambiguous task specs and vague grader rubrics introduce noise and inconsistent judgments; two domain experts should independently reach the same verdict."
+  tag: REC
+  url: https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-engineering
+  quote: "A good task is one where two domain experts would independently reach the same pass/fail verdict. Could they pass the task themselves? If not, the task needs refinement. Ambiguity in task specifications becomes noise in metrics. The same applies to criteria for model-based graders: vague rubrics produce inconsistent judgments."
+  accessed: 2026-11-19
+- id: F13
+  claim: "Inspecting evaluation transcripts alongside grader outputs is necessary to distinguish genuine model failures from faulty graders."
+  tag: REC
+  url: https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-engineering
+  quote: "You won't know if your graders are working well unless you read the transcripts and grades from many trials. At Anthropic, we invested in tooling for viewing eval transcripts and we regularly take the time to read them. When a task fails, the transcript tells you whether the agent made a genuine mistake or whether your graders rejected a valid solution."
+  accessed: 2026-11-19
+- id: F14
+  claim: "Evaluation suites should balance positive and negative cases because one-sided test sets optimize one failure direction at the expense of the other."
+  tag: REC
+  url: https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-engineering
+  quote: "Test both the cases where a behavior should occur and where it shouldn't. One-sided evals create one-sided optimization."
+  accessed: 2026-11-19
+- id: F15
+  claim: "Regression evals verify retained behavior and should pass at nearly 100%, whereas systematic human studies should be reserved for calibrating LLM judges or subjective tasks."
+  tag: REC
+  url: https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-engineering
+  quote: "Reserve systematic human studies for calibrating LLM graders or evaluating subjective outputs where human consensus serves as the reference standard."
+  accessed: 2026-11-19
+- id: F16
+  claim: "Eval scores should not be trusted at face value until transcripts are audited to rule out unfair grading, ambiguous tasks, or harness constraints."
+  tag: REC
+  url: https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents
+  title: "Demystifying evals for AI agents"
+  source: anthropic-engineering
+  quote: "As a rule, we do not take eval scores at face value until someone digs into the details of the eval and reads some transcripts. If grading is unfair, tasks are ambiguous, valid solutions are penalized, or the harness constrains the model, the eval should be revised."
+  accessed: 2026-11-19
+- id: F17
+  claim: "Starting with Claude 4.6, dateless canonical model IDs map to single fixed snapshots whose weights Anthropic never silently updates."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions
+  title: "Model IDs and versioning"
+  source: anthropic-docs
+  quote: "For the 4.6 generation and later, the dateless ID is the canonical model ID for that release. It maps to a single, fixed model snapshot. Anthropic does not update the weights or configuration of an existing model ID. When an updated version is available, it ships under a new model ID."
+  accessed: 2026-11-19
+  version_note: "Applies to Claude 4.6 generation and later; pre-4.6 models use dated snapshot IDs and separate convenience aliases."
+- id: F18
+  claim: "Pre-4.6 dateless strings such as claude-sonnet-4-5 are moving aliases that resolve to the latest dated snapshot, unlike 4.6+ canonical IDs."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions
+  title: "Model IDs and versioning"
+  source: anthropic-docs
+  quote: "An alias such as claude-sonnet-4-5 is a convenience pointer that resolves to the most recent dated snapshot for that minor version. A 4.6-generation ID such as claude-sonnet-4-6 is not an alias. It is the snapshot."
+  accessed: 2026-11-19
+  version_note: "Applies when comparing pre-4.6 aliases against Claude 4.6+ dateless snapshot IDs."
+- id: F19
+  claim: "Even when model IDs and weights are pinned, serving-infrastructure updates can introduce minor behavioral drift over time."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions
+  title: "Model IDs and versioning"
+  source: anthropic-docs
+  quote: "Model weights are fixed for a given ID, but the serving infrastructure around the model can change over time. This infrastructure includes components such as the request router, safety classifiers, and sampling logic."
+  accessed: 2026-11-19
+- id: F20
+  claim: "Constrained decoding grammars for structured outputs apply only to Claude's direct output and not to thinking blocks, allowing unconstrained reasoning before schema-enforced output."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/structured-outputs
+  title: "Structured outputs"
+  source: anthropic-docs
+  quote: "Grammar scope: Grammars apply only to Claude’s direct output, not to tool use calls, tool results, or thinking tags (when using thinking). Grammar state resets between sections, allowing Claude to think freely while still producing structured output in the final response."
+  accessed: 2026-11-19
+- id: F21
+  claim: "Structured outputs do not guarantee exact string casing on enum and const values, so judge parsers should compare enum strings case-insensitively."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/structured-outputs
+  title: "Structured outputs"
+  source: anthropic-docs
+  quote: "Structured outputs don’t guarantee the capitalization of string enum and const values: Claude might return a value that differs from your schema only in capitalization, typically in the first letter of a word following a space."
+  accessed: 2026-11-19
+- id: F22
+  claim: "Asking for thinking tags or a reasoning/thinking JSON field in structured judge prompts can trigger a reasoning_extraction refusal."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback
+  title: "Refusals and fallback"
+  source: anthropic-docs
+  quote: "A reasoning_extraction refusal usually comes from a prompt that asks the model to put its thinking or reasoning in the output, either verbatim or in a fixed format."
+  accessed: 2026-11-19
+- id: F23
+  claim: "For reasoning_extraction refusals, no fallback model is recommended; instead inspect summarized thinking blocks with display set to summarized or ask for a short explanation and evidence."
+  tag: REC
+  url: https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback
+  title: "Refusals and fallback"
+  source: anthropic-docs
+  quote: "To see how the model reasoned, set display: \"summarized\" and read the thinking blocks. This category has no recommended fallback model, so change the prompt rather than retry the request."
+  accessed: 2026-11-19
+- id: F24
+  claim: "Thinking defaults to omitted display on Claude 5 and newer models, returning empty thinking strings while keeping encrypted signatures; request summarized display when auditing judge rationales."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/thinking
+  title: "Thinking"
+  source: anthropic-docs
+  quote: "The display field on the thinking configuration controls how thinking content is returned in API responses. display works in both modes: set it alongside type: \"adaptive\" or type: \"enabled\"."
+  accessed: 2026-11-19
+  version_note: "display defaults to omitted on Claude 4.7, 4.8, 5, 5.1, 5.2, and 5.5 models, and summarized on Claude 4.6 and earlier."
+- id: F25
+  claim: "The output_config.effort parameter adjusts how many tokens Claude spends across output and thinking, trading thoroughness for speed and cost."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/effort
+  title: "Effort"
+  source: anthropic-docs
+  quote: "The effort parameter lets you control how many tokens Claude spends when responding to requests. You can trade off between response thoroughness and token efficiency with a single model."
+  accessed: 2026-11-19
+- id: F26
+  claim: "The Message Batches API cuts evaluation grading costs by 50 percent for asynchronous workloads that finish within 24 hours (typically under 1 hour)."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/batch-processing
+  title: "Batch processing"
+  source: anthropic-docs
+  quote: "The Message Batches API is a powerful, cost-effective way to asynchronously process large volumes of Messages requests. This approach is well-suited to tasks that do not require immediate responses, with most batches finishing in less than 1 hour while reducing costs by 50 percent and increasing throughput."
+  accessed: 2026-11-19
+- id: F27
+  claim: "Pairwise comparison scales quadratically with the number of candidates, while pointwise single-answer grading loses sensitivity to subtle differences and fluctuates more when the judge changes."
+  tag: STD
+  url: https://arxiv.org/html/2306.05685v4
+  title: "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena"
+  source: standard
+  quote: "For example, the pairwise comparison may lack scalability when the number of players increases, given that the number of possible pairs grows quadratically; single answer grading may be unable to discern subtle differences between specific pairs, and its results may become unstable, as absolute scores are likely to fluctuate more than relative pairwise results if the judge model changes."
+  accessed: 2026-11-19
+- id: F28
+  claim: "Zheng et al. define position bias as an LLM judge's propensity to favor answers in specific prompt positions over others."
+  tag: STD
+  url: https://arxiv.org/html/2306.05685v4
+  title: "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena"
+  source: standard
+  quote: "Position bias is when an LLM exhibits a propensity to favor certain positions over others."
+  accessed: 2026-11-19
+- id: F29
+  claim: "Conservative position-bias mitigation calls the pairwise judge twice with swapped answer order and treats inconsistent verdicts as ties; random assignment is an alternative at large scale."
+  tag: STD
+  url: https://arxiv.org/html/2306.05685v4
+  title: "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena"
+  source: standard
+  quote: "A conservative approach is to call a judge twice by swapping the order of two answers and only declare a win when an answer is preferred in both orders. If the results are inconsistent after swapping, we can call it a tie."
+  accessed: 2026-11-19
+- id: F30
+  claim: "Verbosity bias causes LLM judges to prefer longer, wordier answers over clearer, higher-quality, or more accurate concise answers."
+  tag: STD
+  url: https://arxiv.org/html/2306.05685v4
+  title: "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena"
+  source: standard
+  quote: "Verbosity bias is when an LLM judge favors longer, verbose responses, even if they are not as clear, high-quality, or accurate as shorter alternatives."
+  accessed: 2026-11-19
+- id: F31
+  claim: "Self-enhancement (self-preference) bias refers to an LLM judge systematically favoring answers generated by itself or its own model family."
+  tag: STD
+  url: https://arxiv.org/html/2306.05685v4
+  title: "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena"
+  source: standard
+  quote: "For example, GPT-4 favors itself with a 10% higher win rate; Claude-v1 favors itself with a 25% higher win rate. However, they also favor other models and GPT-3.5 does not favor itself."
+  accessed: 2026-11-19
+- id: F32
+  claim: "Strong frontier LLM judges in MT-Bench and Chatbot Arena reached over 80% agreement with human preferences, comparable to human-to-human agreement."
+  tag: STD
+  url: https://arxiv.org/html/2306.05685v4
+  title: "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena"
+  source: standard
+  quote: "Our results reveal that strong LLM judges like GPT-4 can match both controlled and crowdsourced human preferences well, achieving over 80% agreement, the same level of agreement between humans."
+  accessed: 2026-11-19
+- id: F33
+  claim: "Cohen's kappa measures chance-corrected categorical agreement between exactly two raters evaluating N items across C mutually exclusive categories."
+  tag: STD
+  url: https://en.wikipedia.org/wiki/Cohen%27s_kappa
+  title: "Cohen's kappa"
+  source: standard
+  quote: "Cohen's kappa measures the agreement between two raters who each classify N items into C mutually exclusive categories."
+  accessed: 2026-11-19
+- id: F34
+  claim: "In scikit-learn's standard guidance, Cohen's kappa ranges from -1 to 1, is restricted to two annotators on single-label binary or multiclass ratings, and scores above 0.8 generally denote good agreement."
+  tag: STD
+  url: https://scikit-learn.org/stable/modules/model_evaluation.html
+  title: "3.4. Metrics and scoring: quantifying the quality of predictions"
+  source: standard
+  quote: "The kappa score is a number between -1 and 1. Scores above .8 are generally considered good agreement; zero or lower means no agreement (practically random labels)."
+  accessed: 2026-11-19
+- id: F35
+  claim: "Krippendorff's alpha handles any number of coders, incomplete or missing ratings, small samples, and nominal, ordinal, interval, or ratio scales."
+  tag: STD
+  url: https://en.wikipedia.org/wiki/Krippendorff%27s_alpha
+  title: "Krippendorff's alpha"
+  source: standard
+  quote: "Krippendorff's alpha is applicable to any number of coders, each assigning one value to one unit of analysis, to incomplete (missing) data, to any number of values available for coding a variable, to binary, nominal, ordinal, interval, ratio, polar, and circular metrics"
+  accessed: 2026-11-19
+- id: F36
+  claim: "The minimum acceptable Krippendorff's alpha threshold depends on decision stakes and the cost of mistaken conclusions."
+  tag: STD
+  url: https://en.wikipedia.org/wiki/Krippendorff%27s_alpha
+  title: "Krippendorff's alpha"
+  source: standard
+  quote: "The minimum acceptable alpha coefficient should be chosen according to the importance of the conclusions to be drawn from imperfect data. When the costs of mistaken conclusions are high, the minimum alpha needs to be set high as well."
+  accessed: 2026-11-19
+- id: F37
+  claim: "Standard Krippendorff's alpha benchmarks treat alpha >= 0.800 as reliable and 0.667 <= alpha < 0.800 as sufficient only for tentative conclusions (with < 0.667 discarded)."
+  tag: STD
+  url: https://en.wikipedia.org/wiki/Krippendorff%27s_alpha
+  title: "Krippendorff's alpha"
+  source: standard
+  quote: "In the absence of knowledge of the risks of drawing false conclusions from unreliable data, social scientists commonly rely on data with reliabilities α ≥ 0.800, consider data with 0.800 > α ≥ 0.667 only to draw tentative conclusions"
+  accessed: 2026-11-19

@@ -1,0 +1,274 @@
+- id: F1
+  claim: "A tool-use assistant turn must be followed by a matching tool_result for each tool_use id, with tool results first in the user content; violating the contract can produce a 400."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls
+  title: "Handle tool calls"
+  source: anthropic-docs
+  quote: "In the user message containing tool results, the tool_result blocks must come FIRST in the content array."
+  accessed: 2026-11-19
+
+- id: F2
+  claim: "When responding to parallel client tool calls, return all tool results together in one user message."
+  tag: REC
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use
+  title: "Parallel tool use"
+  source: anthropic-docs
+  quote: "Correct: all tool results together in a single user message"
+  accessed: 2026-11-19
+
+- id: F3
+  claim: "A `tool_result.tool_use_id` identifies the tool call it answers; missing or misplaced results are a documented cause of the unresolved-tool 400."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/troubleshooting-tool-use
+  title: "Troubleshooting tool use"
+  source: anthropic-docs
+  quote: "tool_use ids were found without tool_result blocks immediately after | Missing tool_result for some tool_use IDs, or tool_result is not the first content block in the user message | Return one tool_result for every tool_use block in the assistant response. Put tool_result blocks before any text."
+  accessed: 2026-11-19
+
+- id: F4
+  claim: "For `pause_turn`, replay the paused assistant content unchanged, keep the same tools, and do not append a user message."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons
+  title: "Stop reasons and fallback"
+  source: anthropic-docs
+  quote: "Keep the earlier messages and add the response’s content unchanged as an assistant message, including any server_tool_use block that has no result block."
+  accessed: 2026-11-19
+
+- id: F5
+  claim: "`max_tokens` means Claude stopped because it reached the output limit specified in the request; an incomplete tool-use block can result when this happens."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons
+  title: "Stop reasons and fallback"
+  source: anthropic-docs
+  quote: "Claude stopped because it reached the max_tokens limit specified in your request."
+  accessed: 2026-11-19
+
+- id: F6
+  claim: "Tool-use continuations must preserve the latest assistant thinking blocks exactly; changing or omitting them can trigger a 400."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/thinking-troubleshooting
+  title: "Thinking troubleshooting"
+  source: anthropic-docs
+  quote: "Echo the assistant turn back verbatim, thinking blocks included."
+  accessed: 2026-11-19
+
+- id: F7
+  claim: "A Messages API response includes `stop_reason`, `stop_sequence`, and token `usage` fields."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/working-with-messages
+  title: "Using the Messages API"
+  source: anthropic-docs
+  quote: "\"stop_reason\": \"end_turn\", \"stop_sequence\": null, \"usage\": { \"input_tokens\": 12, \"output_tokens\": 6"
+  accessed: 2026-11-19
+
+- id: F8
+  claim: "A `tool_use` stop reason means the model invoked one or more tools."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons
+  title: "Stop reasons and fallback"
+  source: anthropic-docs
+  quote: "Claude is calling a tool that you need to run."
+  accessed: 2026-11-19
+
+- id: F9
+  claim: "A temperature of zero does not make Claude fully deterministic; reproduce a suspected nondeterministic failure across repeated trials."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/csharp/messages/create
+  title: "Create a Message"
+  source: anthropic-docs
+  quote: "Note that even with temperature of 0.0, the results will not be fully deterministic."
+  accessed: 2026-11-19
+
+- id: F10
+  claim: "Pinned model IDs keep model weights/configuration fixed, but serving infrastructure changes can still cause minor observable behavior differences."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions
+  title: "Model IDs and versioning"
+  source: anthropic-docs
+  quote: "Occasionally, infrastructure updates produce minor differences in observable behavior even when the model ID and weights have not changed."
+  accessed: 2026-11-19
+  version_note: "Claude model ID and serving-infrastructure behavior documented on 2026-11-19."
+
+- id: F11
+  claim: "In a streaming classifier refusal, `stop_details` arrives on the `message_delta` event alongside `stop_reason`."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/handle-streaming-refusals
+  title: "Handle streaming refusals"
+  source: anthropic-docs
+  quote: "In the event stream, stop_details arrives on the message_delta event alongside stop_reason."
+  accessed: 2026-11-19
+
+- id: F12
+  claim: "When a refusal stop reason is received, reset the conversation context before continuing."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/handle-streaming-refusals
+  title: "Handle streaming refusals"
+  source: anthropic-docs
+  quote: "When you receive stop_reason: refusal, you must reset the conversation context before continuing."
+  accessed: 2026-11-19
+
+- id: F13
+  claim: "Messages API `search_result` content blocks support RAG results with source attribution and automatic citations when citations are enabled."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/search-results
+  title: "Search results"
+  source: anthropic-docs
+  quote: "Search result content blocks let Claude cite your own content the same way it cites web search results: each citation carries the source and title you provided."
+  accessed: 2026-11-19
+
+- id: F14
+  claim: "Evaluate retrieval quality separately from end-to-end answer quality to distinguish retrieval misses from generation/grounding errors."
+  tag: REC
+  url: https://platform.claude.com/cookbook/capabilities-retrieval-augmented-generation-guide
+  title: "Retrieval augmented generation"
+  source: anthropic-docs
+  quote: "When evaluating RAG applications, it's critical to evaluate the performance of the retrieval system and end to end system separately."
+  accessed: 2026-11-19
+
+- id: F15
+  claim: "Compaction replaces earlier conversation content with a summary; the summary is all the model has of the earlier work, so important constraints can be lost unless preserved."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/compaction-threshold
+  title: "Compaction at a token threshold"
+  source: anthropic-docs
+  quote: "Thinking blocks from before a compaction block aren’t carried forward, so the summary is all the model has of that earlier work."
+  accessed: 2026-11-19
+
+- id: F16
+  claim: "Claude Code `/doctor` checks installation, settings, extensions, and context usage; `/mcp` reports MCP server status."
+  tag: REC
+  url: https://code.claude.com/docs/en/troubleshooting
+  title: "Troubleshooting"
+  source: claude-code-docs
+  quote: "If you’re not sure which applies, run /doctor inside Claude Code for an automated check of your installation, settings, extensions, and context usage"
+  accessed: 2026-11-19
+
+- id: F17
+  claim: "Claude Code `/debug` diagnoses runtime issues, and `claude --debug` enables debug logging from session start."
+  tag: VER
+  url: https://code.claude.com/docs/en/commands
+  title: "Commands"
+  source: claude-code-docs
+  quote: "Debug logging is off by default unless you started with claude --debug, so running /debug mid-session starts capturing logs from that point forward."
+  accessed: 2026-11-19
+  version_note: "Current Claude Code command documentation accessed 2026-11-19."
+
+- id: F18
+  claim: "The Anthropic Python SDK supports request logging through `ANTHROPIC_LOG=debug` and emits OpenTelemetry spans when a tracer provider is registered."
+  tag: REC
+  url: https://platform.claude.com/docs/en/cli-sdks-libraries/sdks/python
+  title: "Python SDK"
+  source: anthropic-docs
+  quote: "When your application registers an OpenTelemetry tracer provider, the SDK emits a span for each request that it sends."
+  accessed: 2026-11-19
+
+- id: F19
+  claim: "The SDK tool runner catches tool exceptions and returns an error tool result; Python SDK logging can include full exception stack traces."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-runner
+  title: "Tool runner (SDK)"
+  source: anthropic-docs
+  quote: "The Python SDK logs the full exception, including its stack trace, through the standard logging module whenever a tool raises an unhandled exception."
+  accessed: 2026-11-19
+
+- id: F20
+  claim: "Managed Agents `auto` permission policy can deny a tool call and return an error tool result with `is_error: true`; permission failures can therefore resemble tool failures."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/managed-agents/permission-policies
+  title: "Permission policies"
+  source: anthropic-docs
+  quote: "The agent receives an error tool result with the content Permission to use {tool_name} has been denied. and is_error: true."
+  accessed: 2026-11-19
+
+- id: F21
+  claim: "Managed Agents session observability can show usage and a timeline lane per thread in multi-agent sessions."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/managed-agents/session-observability
+  title: "Inspect sessions and track usage"
+  source: anthropic-docs
+  quote: "The session viewer shows: Timeline minimap: A zoomable overview of the session’s activity over time, with one lane for each thread in multiagent sessions."
+  accessed: 2026-11-19
+
+- id: F22
+  claim: "Every Claude API response carries a `request-id` header that can correlate a failing request with Anthropic-side diagnostics."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "Every API response includes a unique request-id header."
+  accessed: 2026-11-19
+
+- id: F23
+  claim: "The TypeScript SDK debug log level can log HTTP requests and responses, including headers and bodies, so logs must be handled as sensitive."
+  tag: REC
+  url: https://platform.claude.com/docs/en/cli-sdks-libraries/sdks/typescript
+  title: "TypeScript SDK"
+  source: anthropic-docs
+  quote: "At the 'debug' level, all HTTP requests and responses are logged, including headers and bodies. Some authentication-related headers are redacted, but sensitive data in request and response bodies might still be visible."
+  accessed: 2026-11-19
+
+- id: F24
+  claim: "For a server tool, `pause_turn` means the server-side loop paused; client `tool_use` instead hands execution back to the application."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons
+  title: "Stop reasons and fallback"
+  source: anthropic-docs
+  quote: "When Claude stops to call a tool that you run, the stop reason is tool_use, never pause_turn."
+  accessed: 2026-11-19
+
+- id: F25
+  claim: "Claude Code debug logs are written to a session-specific file by default, and `/export` can save the current conversation as plain text."
+  tag: VER
+  url: https://code.claude.com/docs/en/commands
+  title: "Commands"
+  source: claude-code-docs
+  quote: "Export the current conversation as plain text. With a filename, writes directly to that file."
+  accessed: 2026-11-19
+  version_note: "Current Claude Code command documentation accessed 2026-11-19."
+
+- id: F26
+  claim: "Claude Code debug logs are written to `~/.claude/debug/<session-id>.txt` by default or to a path set by `CLAUDE_CODE_DEBUG_LOGS_DIR`."
+  tag: VER
+  url: https://code.claude.com/docs/en/env-vars
+  title: "Environment variables"
+  source: claude-code-docs
+  quote: "Debug logs are written to ~/.claude/debug/<session-id>.txt or to the path set by CLAUDE_CODE_DEBUG_LOGS_DIR."
+  accessed: 2026-11-19
+  version_note: "Current Claude Code environment variable documentation accessed 2026-11-19."
+
+- id: F27
+  claim: "Retrying a classifier-refused request on the same model usually produces another refusal; Anthropic recommends retrying on a different model."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/handle-streaming-refusals
+  title: "Handle streaming refusals"
+  source: anthropic-docs
+  quote: "Re-sending a refused request to the same model usually results in another refusal."
+  accessed: 2026-11-19
+
+- id: F28
+  claim: "Long requests can fail when an intermediary network drops an idle connection."
+  tag: REC
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "Some networks might drop idle connections after a variable period of time, which can cause the request to fail or time out without receiving a response from Anthropic."
+  accessed: 2026-11-19
+
+- id: F29
+  claim: "An HTTP 401 `authentication_error` points to an API key issue."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "There’s an issue with your API key (for example, it’s malformed, revoked, or expired; see Key expiration)."
+  accessed: 2026-11-19
+
+- id: F30
+  claim: "Starting with API version `2026-10-21`, sending `temperature`, `top_p`, or `top_k` returns HTTP 400 on every model; do not use them as a reproducibility switch for that API version."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/thinking
+  title: "Thinking"
+  source: anthropic-docs
+  quote: "Starting with API version 2026-10-21, a request that includes temperature, top_p, or top_k at any value returns a 400 error on every model."
+  accessed: 2026-11-19
+  version_note: "Applies beginning with Messages API version 2026-10-21, current as of 2026-11-19."

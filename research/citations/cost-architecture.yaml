@@ -1,0 +1,348 @@
+- id: F1
+  claim: "Current flagship Claude models span four tiers: Fable 5.2 ($8/$40 per MTok), Opus 5.5 ($4/$20 per MTok), Sonnet 5.5 ($2/$10 per MTok), and Haiku 5.5 (from $0.10/$0.50 per MTok)."
+  tag: VER
+  url: https://platform.claude.com/docs/en/models/overview
+  title: "Models overview"
+  source: anthropic-docs
+  quote: "Pricing | $8 / input MTok, $40 / output MTok | $4 / input MTok, $20 / output MTok | $2 / input MTok, $10 / output MTok | From $0.10 / input MTok, From $0.50 / output MTok"
+  accessed: 2026-11-19
+  version_note: "Claude API list prices as of 2026-11-19 for Claude Fable 5.2, Opus 5.5, Sonnet 5.5, and Haiku 5.5."
+
+- id: F2
+  claim: "Claude Haiku 5.5 charges $0.10/$0.50 per MTok for prompts up to 100,000 tokens and 5x more ($0.50/$2.50 per MTok) for prompts over 100,000 tokens."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/pricing
+  title: "Pricing"
+  source: anthropic-docs
+  quote: "Claude Haiku 5.5 (for prompts up to 100,000 tokens) | $0.10 / MTok | $0.125 / MTok | $0.20 / MTok | $0.01 / MTok | $0.50 / MTok"
+  accessed: 2026-11-19
+  version_note: "Claude Haiku 5.5 <=100K prompt tier as of 2026-11-19."
+
+- id: F3
+  claim: "Above 100,000 tokens, every token category on Claude Haiku 5.5 increases 5x, and cache reads and writes count toward the request's prompt length."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/pricing
+  title: "Pricing"
+  source: anthropic-docs
+  quote: "Claude Haiku 5.5 is priced by prompt length: a request whose prompt is over 100,000 tokens pays higher prices. A request’s prompt length counts all of its input tokens, including cache reads and cache writes."
+  accessed: 2026-11-19
+  version_note: "Claude Haiku 5.5 >100K prompt tier ($0.50 input, $0.625 5m write, $1 1h write, $0.05 cache hit, $2.50 output per MTok) as of 2026-11-19."
+
+- id: F4
+  claim: "Claude 4.6 and later models (other than Haiku 5.5) include the full 1M token context window at standard per-token pricing."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/pricing
+  title: "Pricing"
+  source: anthropic-docs
+  quote: "Claude 4.6 and later models (except Claude Haiku 5.5) and Claude Mythos Preview include the full 1M token context window at standard pricing."
+  accessed: 2026-11-19
+  version_note: "Applies to Claude 4.6 and later models except Haiku 5.5 as of 2026-11-19."
+
+- id: F5
+  claim: "Prompt caching charges 1.25x base input for 5-minute cache writes and 2x base input for 1-hour cache writes (saving money after 1 and 2 reads, respectively)."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/about-claude/pricing
+  title: "Pricing"
+  source: anthropic-docs
+  quote: "5-minute cache write | 1.25x base input price | Cache valid for 5 minutes"
+  accessed: 2026-11-19
+
+- id: F6
+  claim: "Cache hit multipliers vary by model family: 0.025x on Fable/Mythos 5.1 and 5.2, 0.05x on Opus 5.5 and Sonnet 5.5, and 0.1x on all other models."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/pricing
+  title: "Pricing"
+  source: anthropic-docs
+  quote: "Cache hits and refreshes on Claude Fable 5.2, Claude Mythos 5.2, Claude Fable 5.1, and Claude Mythos 5.1 are priced at 0.025x the base input price."
+  accessed: 2026-11-19
+  version_note: "Opus 5.5 and Sonnet 5.5 use 0.05x ($0.20 and $0.10/MTok); all other models use 0.1x."
+
+- id: F7
+  claim: "Claude Opus 5.5 and Sonnet 5.5 cache hits are priced at 0.05x base input ($0.20 and $0.10 USD/MTok)."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/pricing
+  title: "Pricing"
+  source: anthropic-docs
+  quote: "Cache hits and refreshes on Claude Opus 5.5 and Claude Sonnet 5.5 are priced at 0.05x the base input price."
+  accessed: 2026-11-19
+  version_note: "Applies to Claude Opus 5.5 and Claude Sonnet 5.5 as of 2026-11-19."
+
+- id: F8
+  claim: "Specifying US-only inference via inference_geo on Claude 4.6 and later models applies a 1.1x multiplier across all token categories and returns a 400 error on earlier models."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/pricing
+  title: "Pricing"
+  source: anthropic-docs
+  quote: "For Claude 4.6 and later models, specifying US-only inference through the inference_geo parameter incurs a 1.1x multiplier on all token pricing categories, including input tokens, output tokens, cache writes, and cache reads."
+  accessed: 2026-11-19
+  version_note: "Applies to Claude 4.6+ on first-party Claude API, Claude Platform on AWS, Anthropic-managed Google Cloud, and Azure US Data Zone Standard."
+
+- id: F9
+  claim: "Fast mode delivers up to 2.5x higher output speed at 2x standard token prices, stacks with caching and data residency, and is unavailable with the Batch API."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/pricing
+  title: "Pricing"
+  source: anthropic-docs
+  quote: "Fast mode provides up to 2.5x higher output tokens per second at premium pricing. It is available for Claude Fable 5.2, Claude Opus 5.5, Claude Opus 5, and Claude Opus 4.8."
+  accessed: 2026-11-19
+  version_note: "Fast mode is $16/$80 per MTok for Fable/Mythos 5.2, $8/$40 for Opus 5.5, and $10/$50 for Opus 5 / Opus 4.8."
+
+- id: F10
+  claim: "Claude 4.7 and later models and Mythos Preview use a newer tokenizer that produces roughly 30% more tokens for the same text than earlier models."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/pricing
+  title: "Pricing"
+  source: anthropic-docs
+  quote: "Claude 4.7 and later models and Claude Mythos Preview use a newer tokenizer that contributes to their improved performance on a wide range of tasks. This tokenizer produces approximately 30% more tokens for the same text."
+  accessed: 2026-11-19
+  version_note: "Affects token-count comparisons across generations; compare models by cost per completed task."
+
+- id: F11
+  claim: "Prompt cache prefixes are evaluated in strict order—tools, system, then messages—up to 4 breakpoints, and breakpoints themselves add no fee."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "Cache prefixes are created in the following order: tools, system, then messages. This order forms a hierarchy where each level builds upon the previous ones."
+  accessed: 2026-11-19
+
+- id: F12
+  claim: "Each cache breakpoint performs a backward lookback of at most 20 block positions for prior cache writes, and writes occur only at breakpoints."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "The lookback window is 20 blocks. The system checks at most 20 positions for each breakpoint, counting the breakpoint itself as the first."
+  accessed: 2026-11-19
+
+- id: F13
+  claim: "Automatic caching places a single top-level cache_control field that dynamically moves to the last cacheable block, consuming one of the 4 breakpoint slots."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "Automatic caching enables prompt caching with one field. Instead of placing cache_control on individual content blocks, add a single cache_control field at the top level of your request body. The system automatically applies the cache breakpoint to the last cacheable block."
+  accessed: 2026-11-19
+
+- id: F14
+  claim: "Minimum cacheable prefix lengths depend on the model (512 tokens for Claude 5/5.5/Fable/Mythos models, 1,024 for Opus 4.8 and Sonnet 4.6/5, 2,048 for Opus 4.7, 4,096 for Opus 4.5/4.6 and Haiku 4.5); shorter prompts silently skip caching without error."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "Shorter prompts cannot be cached, even if marked with cache_control. Any requests to cache fewer than this number of tokens are processed without caching, and no error is returned."
+  accessed: 2026-11-19
+  version_note: "512 tokens for Fable 5.2/5.1/5, Mythos 5.2/5.1/5, Opus 5.5/5, Sonnet 5.5, Haiku 5.5; 1,024 for Opus 4.8 and Sonnet 5/4.6/4.5; 2,048 for Opus 4.7 and Mythos Preview; 4,096 for Opus 4.6/4.5 and Haiku 4.5."
+
+- id: F15
+  claim: "When mixing 1-hour and 5-minute TTLs in one request, 1-hour cache breakpoints must precede any 5-minute breakpoints, and cache lifetime starts from request initiation."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "You can use both 1-hour and 5-minute cache controls in the same request, but with an important constraint: Cache entries with longer TTL must appear before shorter TTLs (that is, a 1-hour cache entry must appear before any 5-minute cache entries)."
+  accessed: 2026-11-19
+
+- id: F16
+  claim: "Response usage.input_tokens counts only uncached tokens after the last cache breakpoint; total input equals cache_read_input_tokens + cache_creation_input_tokens + input_tokens, with TTL splits under usage.cache_creation."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "The input_tokens field represents only the tokens that come after the last cache breakpoint in your request, not all the input tokens you sent."
+  accessed: 2026-11-19
+
+- id: F17
+  claim: "Cache diagnostics compares consecutive requests via diagnostics.previous_message_id and reports the earliest prefix divergence in cache_miss_reason."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics
+  title: "Cache diagnostics"
+  source: anthropic-docs
+  quote: "On your next request, include the previous response’s id as diagnostics.previous_message_id. The API rebuilds the fingerprint for the new request, compares it against the stored one, and attaches a diagnostics object to the response describing the first point of divergence."
+  accessed: 2026-11-19
+
+- id: F18
+  claim: "The Message Batches API cuts input and output token prices by 50% for async workloads finishing within 24 hours, supports up to 100,000 requests or 256 MB per batch, and leaves errored, canceled, and expired items unbilled."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/batch-processing
+  title: "Batch processing"
+  source: anthropic-docs
+  quote: "The Batches API offers significant cost savings. All usage is charged at 50 percent of the standard API prices."
+  accessed: 2026-11-19
+
+- id: F19
+  claim: "Batch processing discounts stack with prompt caching, but batched requests cannot use max_tokens: 0 pre-warming, stream: true, speed, or fallbacks, and can slightly overshoot workspace spend limits."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/batch-processing
+  title: "Batch processing"
+  source: anthropic-docs
+  quote: "Because of high throughput and concurrent processing, batches might go slightly over the spend limit configured in the Claude Console for your Workspace."
+  accessed: 2026-11-19
+
+- id: F20
+  claim: "Priority Tier commitments are legacy and no longer sold; existing commitments remain usable via service_tier='auto' or 'standard_only', burning down capacity at 0.1x for cache reads, 1.25x/2.00x for 5m/1h cache writes, and 1.1x for US-only inference."
+  tag: VER
+  url: https://platform.claude.com/docs/en/api/service-tiers
+  title: "Service tiers"
+  source: anthropic-docs
+  quote: "Priority Tier capacity commitments are no longer available for purchase. Organizations with an existing commitment can continue to use Priority Tier through their contract end date, and this page remains available as a reference for them."
+  accessed: 2026-11-19
+  version_note: "Priority Tier is legacy as of 2026-11-19; also unsupported on Claude 5/5.5/Fable 5.1/5.2/Mythos models."
+
+- id: F21
+  claim: "Prompt caching is the primary cost lever in multi-turn agent loops because uncached task cost grows roughly quadratically with turn count; well-built agent loops read a median 84% (and top 10% >=94%) of input from cache."
+  tag: REC
+  url: https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence
+  title: "Optimizing for cost and intelligence"
+  source: anthropic-docs
+  quote: "Over a full day of real traffic, agent loops read a median 84% of their input from the cache, and the top 10% of them, coding or not, read 94% or more."
+  accessed: 2026-11-19
+
+- id: F22
+  claim: "Use the 1-hour cache duration instead of the 5-minute default once roughly 1 turn in 20 follows a 5-to-60 minute pause and few pauses exceed an hour (break-even ~1 turn in 30 on Sonnet/Opus 5.5)."
+  tag: REC
+  url: https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence
+  title: "Optimizing for cost and intelligence"
+  source: anthropic-docs
+  quote: "If your loop waits on a person between turns, use the 1-hour cache duration once about 1 turn in 20 follows a pause between 5 minutes and an hour and few gaps run over an hour."
+  accessed: 2026-11-19
+
+- id: F23
+  claim: "Compare models on cost per completed task rather than per token, because a stronger model can take fewer turns and retries while tail failures and retries drive the total bill."
+  tag: REC
+  url: https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence
+  title: "Optimizing for cost and intelligence"
+  source: anthropic-docs
+  quote: "Compare models on cost per completed task, not per token, because you pay for completed tasks."
+  accessed: 2026-11-19
+
+- id: F24
+  claim: "Failed cheap attempts, retries, and downstream failure costs determine the effective bill, and tail problems dominate spend."
+  tag: REC
+  url: https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence
+  title: "Optimizing for cost and intelligence"
+  source: anthropic-docs
+  quote: "The bill is decided by the tasks the cheaper model fails, because a failed task still bills its tokens, then the retry, then whatever the failure costs downstream."
+  accessed: 2026-11-19
+
+- id: F25
+  claim: "When tasks have a reliable verifier, running everything at low effort and re-running only failures at high effort is cheaper than fixed high effort at equal or higher pass rate."
+  tag: REC
+  url: https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence
+  title: "Optimizing for cost and intelligence"
+  source: anthropic-docs
+  quote: "When a task’s outcome is checkable, the cheapest policy on the effort curve is not a fixed setting: run every task at a low setting and re-run only the failures at a higher one."
+  accessed: 2026-11-19
+
+- id: F26
+  claim: "Setting output_config.effort controls response tokens across text, tool calls, and thinking (defaulting to medium on Opus 5.5 and Haiku 5.5, and high on other models); changing top-level effort mid-conversation can invalidate cached prefixes."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/effort
+  title: "Effort"
+  source: anthropic-docs
+  quote: "Most Claude models default to high effort, spending as many tokens as needed for excellent results; Claude Opus 5.5 and Claude Haiku 5.5 default to medium. You can raise the effort level to max for the absolute highest capability, or lower it to be more conservative with token usage, optimizing for speed and cost while accepting some reduction in capability."
+  accessed: 2026-11-19
+  version_note: "Effort levels: low, medium, high, xhigh, max; model-specific availability."
+
+- id: F27
+  claim: "Because max_tokens caps output invisibly to the model, truncating turns with stop_reason: max_tokens wastes billed tokens and causes doomed retries; set max_tokens generously (e.g., 64,000) and control spend via effort."
+  tag: REC
+  url: https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence
+  title: "Optimizing for cost and intelligence"
+  source: anthropic-docs
+  quote: "max_tokens caps a single response, invisibly to the model, so lowering it does not make the model economize. The turns that needed the room are discarded and still billed."
+  accessed: 2026-11-19
+
+- id: F28
+  claim: "The beta advisor tool (advisor_20260301) lets a cheaper executor escalate mid-turn to a stronger advisor model; top-level usage reports executor tokens only, while usage.iterations[] itemizes both executor and advisor_message sub-inference tokens."
+  tag: VER
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool
+  title: "Advisor tool"
+  source: anthropic-docs
+  quote: "Top-level usage fields reflect executor tokens only. Advisor tokens are not rolled into the top-level totals because they are billed at a different rate. Iterations with type: \"advisor_message\" are billed at the advisor model’s rates, and iterations with type: \"message\" are billed at the executor model’s rates."
+  accessed: 2026-11-19
+  version_note: "Beta feature requiring header advisor-tool-2026-03-01 as of 2026-11-19."
+
+- id: F29
+  claim: "Sweep effort on a single model before adopting an advisor or orchestrator multi-model architecture, and verify the pairing beats the single model's cost-vs-score curve."
+  tag: REC
+  url: https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence
+  title: "Optimizing for cost and intelligence"
+  source: anthropic-docs
+  quote: "Tune one model before you add a second: sweep effort on your current model first, because most workloads end there, and if the sweep shows a gap, price the stronger model alone at low effort. Build a pairing only if it beats the single model’s whole curve of score against spend."
+  accessed: 2026-11-19
+
+- id: F30
+  claim: "The token counting endpoint (POST /v1/messages/count_tokens) is free, has separate RPM limits (5k/10k/20k for Start/Build/Scale), counts under the specified model's tokenizer, and does not invoke prompt caching."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/token-counting
+  title: "Token counting"
+  source: anthropic-docs
+  quote: "Token counting is free to use but subject to requests per minute rate limits based on your usage tier."
+  accessed: 2026-11-19
+
+- id: F31
+  claim: "The Usage and Cost Analytics API (GET /v1/organizations/analytics/usage and /cost, beta header analytics-usage-cost-2026-08-24) attributes usage and USD cents cost by workspace_id, api_key_id, actor, model, service_tier, cost_type, and token_type."
+  tag: VER
+  url: https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api
+  title: "Usage and Cost Analytics API"
+  source: anthropic-docs
+  quote: "The Usage and Cost Analytics API is in beta. Send the anthropic-beta: analytics-usage-cost-2026-08-24 header and an anthropic-version header on every request."
+  accessed: 2026-11-19
+  version_note: "Beta as of 2026-11-19; replaces legacy /v1/organizations/usage_report/messages and /cost_report for new integrations."
+
+- id: F32
+  claim: "Analytics API cost rows report USD cents as six-decimal strings (amount after discounts, list_amount at list rates); Priority Tier requests report zero token cost here because commitments are billed separately."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api
+  title: "Usage and Cost Analytics API"
+  source: anthropic-docs
+  quote: "Amounts are decimal strings in cents with six decimal places: \"41280.000000\" is $412.80 USD."
+  accessed: 2026-11-19
+
+- id: F33
+  claim: "Usage and Cost Analytics data refreshes within ~4 hours (up to 24 hours) and reconciles until ~7 days after month-end; set ending_at <= data_refreshed_at for stable snapshots."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api
+  title: "Usage and Cost Analytics API"
+  source: anthropic-docs
+  quote: "Data typically refreshes within 4 hours of the underlying usage and can take up to 24 hours. Values can be revised as late events arrive and reconciliation runs, until about 7 days after the end of the calendar month."
+  accessed: 2026-11-19
+
+- id: F34
+  claim: "Workspaces isolate API keys, batches, files, prompt caches, and monthly spend limits within an organization (up to 100 active workspaces by default), and responses echo anthropic-workspace-id."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/workspaces
+  title: "Workspaces"
+  source: anthropic-docs
+  quote: "Workspace limits can keep a workspace below your organization’s limits, but they can’t raise those limits:"
+  accessed: 2026-11-19
+
+- id: F35
+  claim: "Tier monthly spend caps ($500 Start, $1,000 Build, $200,000 Scale) return HTTP 429 rate_limit_error with error_code enforced_spend_limit_reached and no retry-after, whereas user-set org or workspace spend limits return HTTP 400 invalid_request_error."
+  tag: VER
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "When usage reaches a spend limit you set, requests return HTTP 400 with error type invalid_request_error. The message starts with You have reached your specified API usage limits, or You have reached your specified workspace API usage limits for a workspace limit, and states when access resumes."
+  accessed: 2026-11-19
+  version_note: "Tier spend caps: Start $500, Build $1,000, Scale $200,000 USD as of 2026-11-19."
+
+- id: F36
+  claim: "Cache read tokens do not count toward default ITPM rate limits—only input_tokens plus cache_creation_input_tokens count—so high cache hit rates multiply effective input throughput."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "For rate limit purposes, only input_tokens + cache_creation_input_tokens count toward your ITPM limit, making prompt caching an effective way to increase your throughput."
+  accessed: 2026-11-19
+
+- id: F37
+  claim: "Claude Managed Agents session budgets enforce a per-session list-cost ceiling that pauses execution with stop_reason: budget_reached, complemented by workspace spend limits as an org/tenant backstop."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence
+  title: "Optimizing for cost and intelligence"
+  source: anthropic-docs
+  quote: "At the cap, or a fraction past it, the session pauses with stop_reason: budget_reached; raising the budget resumes it."
+  accessed: 2026-11-19
+  version_note: "Applies to Claude Managed Agents sessions (beta) as of 2026-11-19."
