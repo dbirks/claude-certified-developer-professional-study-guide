@@ -14,7 +14,7 @@ Log: [fact-check/api-reference.md](fact-check/api-reference.md) · passes: 1 · 
 
 ### 1.3 Architecture Selection at Scale
 
-Log: [fact-check/architecture-selection.md](fact-check/architecture-selection.md) · passes: 1 · reviewer(s): OpenAI GPT-6 Codex
+Log: [fact-check/architecture-selection.md](fact-check/architecture-selection.md) · passes: 2 · reviewer(s): OpenAI GPT-6 Codex
 
 - Checked 62 final citation placements against their quotes and context; all 62 are supported as revised. Made 8 substantive claim or citation-scope fixes and removed 2 unsupported or repeated assertions; these counts overlap with the reviewed placements. Added 1 citation; checked 0 fenced code blocks. Inline SDK and CLI syntax was checked against official documentation. The objective covers measurement, migration in both directions, and selection of harnesses, frameworks, and reusable standards. Exam lens items are editorial decision patterns and do not contradict the three sample rationales.
 

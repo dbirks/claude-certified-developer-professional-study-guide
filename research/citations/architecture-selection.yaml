@@ -251,3 +251,12 @@
   quote: "runner = client.beta.messages.tool_runner("
   accessed: "2026-11-19"
   version_note: "Python SDK beta tool runner, documentation accessed 2026-11-19."
+- id: "F32"
+  claim: "PreToolUse deferral requires non-interactive mode and a single tool call."
+  tag: "VER"
+  url: "https://code.claude.com/docs/en/hooks"
+  title: "Hooks reference"
+  source: "claude-code-docs"
+  quote: 'Claude Code honors "defer" only in non-interactive mode with the -p flag, and only when Claude makes a single tool call in the turn:'
+  accessed: "2026-11-19"
+  version_note: "Claude Code hooks documentation accessed 2026-11-19."

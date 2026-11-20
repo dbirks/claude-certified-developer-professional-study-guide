@@ -153,5 +153,10 @@
     "id": "F31",
     "status": "ok",
     "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-runner"
+  },
+  {
+    "id": "F32",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/hooks"
   }
 ]

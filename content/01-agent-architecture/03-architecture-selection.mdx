@@ -38,15 +38,15 @@ Fix the unit first. Recommended practice: define it as one accepted user task, c
 | Cost per successful task | Fully loaded cost of all eligible attempts / successful tasks | True unit economics of a working feature |
 | Cost per attempted task | Same cost / eligible tasks | Waste spent on tasks that never succeeded |
 | Absolute spend | Sum over the window, all arms | A "cheaper" option that costs more in total |
-| End-to-end p50 / p95 | Task accepted → final output | Deadline fit, and tail pain average latency hides |
+| End-to-end p50 / p95 | 50th / 95th percentile of time from task acceptance to final output | Deadline fit, and tail pain average latency hides |
 | Time to first output | Request → first token or step | Responsiveness for interactive clients |
 | Timeout / deadline-miss rate | Timed-out tasks / eligible tasks | Work that failed slowly rather than not at all |
 | Tool-call failure rate | Failed calls / total calls | Dependency health per tool, model, tenant |
 | Task-level impact | Tasks with ≥1 failed call / eligible tasks | Exposure created by making more calls |
 
-Instrument each tool separately for attempts, error type, retry count, timeouts, and latency, and keep the last two rows apart: a per-call rate says nothing about how many tasks were exposed. Correlate loop length and tokens with failures, and fix or isolate an outage-prone dependency before blaming the architecture.
+Instrument each tool separately for attempts, error type, retry count, timeouts, and latency, and keep the last two rows apart: a per-call rate alone does not determine how many tasks were exposed. Correlate loop length and tokens with failures, and fix or isolate an outage-prone dependency before blaming the architecture.
 
-Compare options on matched or randomized traffic under the same rubric, risk controls, tool access, deadline, and budget, accounting for confidence intervals, rare high-severity failures, and selection bias. Use holdouts and canaries, monitor cohort-level guardrails, and keep a rapid rollback path. Shadow runs with side effects disabled estimate quality but do not demonstrate real execution reliability. The most accurate option is not automatically best when reliability, budget, safety, or deadline requirements fail.
+Compare options on matched or randomized traffic under the same rubric, risk controls, tool access, deadline, and budget, accounting for confidence intervals, rare high-severity failures, and selection bias. Use holdouts and canaries, monitor cohort-level guardrails, and keep a rapid rollback path. Shadow runs with side effects disabled can estimate quality but do not demonstrate real execution reliability. The most accurate option is not automatically best when reliability, budget, safety, or deadline requirements fail.
 
 ## A hypothetical: workflow versus bounded agent
 
@@ -119,10 +119,10 @@ Treat shared patterns as versioned engineering assets, each with an owner, purpo
 
 | Asset | Location and shape | Standard to enforce |
 |---|---|---|
-| Project Skill | `.claude/skills/&lt;skill-name>/SKILL.md`; commit it so the team gets it too.<Cite id="F20" /> | One purpose, versioned, with evaluation cases |
+| Project Skill | `.claude/skills/&lt;skill-name>/SKILL.md`; commit it for repository sessions. Project cloud threads do not load it.<Cite id="F20" /> | One purpose, versioned, with evaluation cases |
 | Project subagent | `.claude/agents/`; YAML frontmatter followed by a Markdown system prompt; check into version control so the team can improve it collaboratively.<Cite id="F21 F29" /> | Explicit scope, permitted tools, return format, handoff requirements |
 | Shared tool library | Your reviewed code | Timeout and retry semantics, idempotency, least privilege; never duplicate OAuth secrets into prompts |
-| Hook | `PreToolUse` runs after Claude creates tool parameters and before processing the call, and can allow, deny, ask, or defer it.<Cite id="F22 F23" /> | Lifecycle policy, not a credential boundary |
+| Hook | `PreToolUse` runs after Claude creates tool parameters and before processing the call, and can allow, deny, ask, or defer it under supported conditions.<Cite id="F22 F23" /> `defer` requires non-interactive `-p` mode and a single tool call in the turn.<Cite id="F32" /> | Lifecycle policy, not a credential boundary |
 
 Keep authorization for irreversible actions in a trusted service as well as in any hook. Validate Skill and subagent discovery and precedence in each runtime before claiming portability.
 
@@ -136,7 +136,7 @@ Compare candidates in this order:
 4. Check ownership boundaries: who runs the loop, who runs the tools, where event history lives, what leaves your infrastructure.<Cite id="F10 F13 F15 F16 F17" />
 5. Check the exit: upgrade path, portability of Skill and subagent definitions, cost of returning to the simpler pattern.
 
-Evidence worth demanding: production traces grouped by task cohort, a router's missed-exception rate if you plan to route, incremental cost per additional success against the value of one success, and a canary that passed with real side effects enabled.
+Evidence worth demanding: production traces grouped by task cohort, a router's missed-exception rate if you plan to route, incremental cost per additional success against the value of one success, and a canary using appropriately authorized real side effects where relevant.
 
 ## Failure modes and recovery
 
@@ -154,7 +154,7 @@ Your worker executes the agent's bash and file tool calls locally, but what a to
 
 <Callout type="mistake" title="Treating instructions or a hook as the permission system">
 
-`PreToolUse` can allow, deny, ask, or defer a call after parameters are generated.<Cite id="F22 F23" /> Prompt text alone does not enforce permissions, and a local hook does not intercept every data path. Enforce authorization for consequential actions in the service that holds the credential.
+`PreToolUse` can allow, deny, ask, or defer a call after parameters are generated; deferral requires non-interactive `-p` mode and one tool call in the turn.<Cite id="F22 F23 F32" /> Prompt text alone does not enforce permissions, and a local hook does not intercept every data path. Enforce authorization for consequential actions in the service that holds the credential.
 
 </Callout>
 

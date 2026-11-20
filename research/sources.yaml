@@ -414,6 +414,7 @@
     - multi-agent-orchestration:F51
     - architecture-selection:F22
     - architecture-selection:F23
+    - architecture-selection:F32
     - incident-response:F30
     - runtime-guardrails:F1
     - runtime-guardrails:F2
@@ -1296,6 +1297,10 @@
     - scale-throughput:F44
     - scale-throughput:F47
     - scale-throughput:F52
+    - scale-throughput:F56
+    - scale-throughput:F57
+    - scale-throughput:F58
+    - scale-throughput:F59
     - monitoring-alerting:F23
     - monitoring-alerting:F30
     - monitoring-alerting:F31
