@@ -120,7 +120,7 @@
   quote: "Set output_config.effort on the request. With no value, the model’s default level applies."
   accessed: 2026-11-19
 - id: F16
-  claim: "Adaptive thinking is controlled primarily by effort, whose lower levels trade capability for speed and token efficiency."
+  claim: "On Claude Opus 5.5, adaptive thinking is always on and effort controls reasoning and cost."
   tag: FACT
   url: https://platform.claude.com/docs/en/build-with-claude/effort
   title: "Effort"
@@ -198,7 +198,7 @@
   accessed: 2026-11-19
   version_note: "Model lineup positioning as shown on 2026-11-19."
 - id: F25
-  claim: "The Python SDK stream keeps the HTTP connection alive using server-sent events."
+  claim: "The Messages API supports incremental streaming using server-sent events."
   tag: FACT
   url: https://platform.claude.com/docs/en/build-with-claude/streaming
   title: "Streaming messages"
@@ -220,4 +220,80 @@
   title: "Prompt caching"
   source: anthropic-docs
   quote: "You can define up to 4 cache breakpoints if you want to:"
+  accessed: 2026-11-19
+- id: F28
+  claim: "Streaming events can contain text, tool use, and thinking deltas."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/fast-mode
+  title: "Fast mode"
+  source: anthropic-docs
+  quote: "Stream Messages API responses incrementally with server-sent events, including text, tool use, and extended thinking deltas."
+  accessed: 2026-11-19
+- id: F29
+  claim: "Disabling parallel tool use with forced tool choice gives one call, where supported."
+  tag: VER
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use
+  title: "Parallel tool use"
+  source: anthropic-docs
+  quote: "When the tool_choice type is any or tool, setting disable_parallel_tool_use: true means Claude calls exactly one tool. Claude Fable 5.2, Claude Mythos 5.2, Claude Fable 5.1, Claude Mythos 5.1, Claude Opus 5.5, and Claude Sonnet 5.5 don’t support these tool_choice types (see Forcing tool use)."
+  accessed: 2026-11-19
+  version_note: "Model support as documented on 2026-11-19."
+- id: F30
+  claim: "Cache reads check the breakpoint and look backward for earlier written entries."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "On each request the system computes the prefix hash at your breakpoint and checks for a matching cache entry. If none exists, it walks backward one block at a time, checking whether the prefix hash at each earlier position matches something already in the cache."
+  accessed: 2026-11-19
+- id: F31
+  claim: "Cache prefixes follow tools, system, then messages."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+  title: "Prompt caching"
+  source: anthropic-docs
+  quote: "Cache prefixes are created in the following order: tools, system, then messages. This order forms a hierarchy where each level builds upon the previous ones."
+  accessed: 2026-11-19
+- id: F32
+  claim: "Effort affects quality, latency, and cost; evaluate lower effort for the workload."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/effort
+  title: "Effort"
+  source: anthropic-docs
+  quote: "Effort is the main control for how much the model thinks, and with it quality, latency, and cost."
+  accessed: 2026-11-19
+  version_note: "Claude Haiku 5.5 guidance as of 2026-11-19."
+- id: F33
+  claim: "Fast mode offers up to 2.5 times standard output throughput."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/fast-mode
+  title: "Fast mode"
+  source: anthropic-docs
+  quote: "Up to 2.5x higher output tokens per second compared to standard speed"
+  accessed: 2026-11-19
+  version_note: "Fast-mode documentation as of 2026-11-19; not a per-request guarantee."
+- id: F34
+  claim: "Microsoft Foundry uses fast-mode deployments rather than the speed parameter."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/fast-mode
+  title: "Fast mode"
+  source: anthropic-docs
+  quote: "On Microsoft Foundry, fast mode has its own model IDs, which end in -fast. Send requests to a deployment of the fast mode model, and leave out speed."
+  accessed: 2026-11-19
+  version_note: "Microsoft Foundry behavior as of 2026-11-19."
+- id: F35
+  claim: "Streams may include ping events."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/streaming
+  title: "Streaming messages"
+  source: anthropic-docs
+  quote: "Event streams might also include any number of ping events."
+  accessed: 2026-11-19
+- id: F36
+  claim: "The API can send errors in the event stream."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/streaming
+  title: "Streaming messages"
+  source: anthropic-docs
+  quote: "The API might occasionally send errors in the event stream."
   accessed: 2026-11-19

@@ -408,6 +408,7 @@
     - runtime-guardrails:F4
     - runtime-guardrails:F5
     - runtime-guardrails:F6
+    - runtime-guardrails:F42
     - parallel-agents:F16
     - verification-review:F7
     - unattended-operations:F26
@@ -518,6 +519,7 @@
     - identity-secrets-audit:F23
     - identity-secrets-audit:F24
     - identity-secrets-audit:F25
+    - identity-secrets-audit:F46
     - parallel-agents:F24
     - parallel-agents:F25
     - parallel-agents:F26
@@ -543,6 +545,7 @@
     - runtime-guardrails:F11
     - runtime-guardrails:F12
     - identity-secrets-audit:F22
+    - identity-secrets-audit:F45
     - org-configuration:F9
     - org-configuration:F11
     - org-configuration:F12
@@ -643,6 +646,7 @@
   accessed: 2026-11-19
   cited_by:
     - runtime-guardrails:F13
+    - runtime-guardrails:F43
     - org-configuration:F1
     - org-configuration:F2
 - url: https://code.claude.com/docs/en/settings-reference
@@ -850,6 +854,7 @@
     - identity-secrets-audit:F19
     - identity-secrets-audit:F20
     - identity-secrets-audit:F39
+    - identity-secrets-audit:F47
 - url: https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization
   title: Authorization
   source: mcp-spec
@@ -1033,6 +1038,7 @@
     - threat-defense:F17
     - threat-defense:F39
     - identity-secrets-audit:F21
+    - identity-secrets-audit:F44
 - url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool
   title: Advisor tool
   source: anthropic-docs
@@ -1085,6 +1091,7 @@
     - failure-diagnosis:F2
     - latency-engineering:F10
     - latency-engineering:F11
+    - latency-engineering:F29
 - url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/programmatic-tool-calling
   title: Programmatic tool calling
   source: anthropic-docs
@@ -1421,6 +1428,7 @@
     - cost-architecture:F26
     - latency-engineering:F15
     - latency-engineering:F16
+    - latency-engineering:F32
 - url: https://platform.claude.com/docs/en/build-with-claude/fast-mode
   title: Fast mode
   source: anthropic-docs
@@ -1428,6 +1436,9 @@
   cited_by:
     - latency-engineering:F18
     - latency-engineering:F19
+    - latency-engineering:F28
+    - latency-engineering:F33
+    - latency-engineering:F34
 - url: https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons
   title: Stop reasons and fallback
   source: anthropic-docs
@@ -1505,6 +1516,8 @@
     - latency-engineering:F14
     - latency-engineering:F26
     - latency-engineering:F27
+    - latency-engineering:F30
+    - latency-engineering:F31
 - url: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices
   title: Prompting best practices
   source: anthropic-docs
@@ -1551,6 +1564,8 @@
     - latency-engineering:F7
     - latency-engineering:F8
     - latency-engineering:F25
+    - latency-engineering:F35
+    - latency-engineering:F36
 - url: https://platform.claude.com/docs/en/build-with-claude/structured-outputs
   title: Structured outputs
   source: anthropic-docs
@@ -1738,6 +1753,7 @@
     - identity-secrets-audit:F9
     - identity-secrets-audit:F36
     - identity-secrets-audit:F37
+    - identity-secrets-audit:F43
 - url: https://platform.claude.com/docs/en/manage-claude/workload-identity-federation
   title: Workload Identity Federation
   source: anthropic-docs
@@ -1750,6 +1766,9 @@
     - identity-secrets-audit:F10
     - identity-secrets-audit:F11
     - identity-secrets-audit:F35
+    - identity-secrets-audit:F40
+    - identity-secrets-audit:F41
+    - identity-secrets-audit:F42
 - url: https://platform.claude.com/docs/en/manage-claude/workspaces
   title: Workspaces
   source: anthropic-docs

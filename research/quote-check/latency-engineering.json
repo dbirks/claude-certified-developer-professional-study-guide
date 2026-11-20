@@ -133,5 +133,50 @@
     "id": "F27",
     "status": "ok",
     "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F28",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/fast-mode"
+  },
+  {
+    "id": "F29",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use"
+  },
+  {
+    "id": "F30",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F31",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+  },
+  {
+    "id": "F32",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/effort"
+  },
+  {
+    "id": "F33",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/fast-mode"
+  },
+  {
+    "id": "F34",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/fast-mode"
+  },
+  {
+    "id": "F35",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/streaming"
+  },
+  {
+    "id": "F36",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/streaming"
   }
 ]

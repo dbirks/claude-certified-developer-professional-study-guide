@@ -1,0 +1,173 @@
+---
+title: "Latency Engineering"
+summary: "Decide which latency lever to pull—streaming, parallel tools, cache checkpoints, effort, model, fast mode—from TTFT and TTLT evidence."
+kind: skill
+skill: "6.2"
+slug: latency-engineering
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+**Latency engineering** means measuring a task's elapsed time and choosing changes that meet a latency target. **Time to first token (TTFT)** measures the wait for the model's first response; **time to last token (TTLT)** measures the wait for its complete response; **output tokens per second (OTPS)** measures the generation rate between them.<Cite id="F1" /> Set separate **service-level objectives (SLOs)**, or measurable service targets, for the first user-visible response and task completion.
+
+## How latency decomposes
+
+Anthropic defines the three metrics precisely: TTFT is how long it takes to see any response from the model, TTLT is how long it takes to get the entire final response, and OTPS is the rate at which the response is generated between the two.<Cite id="F1" /> The same guide models task latency as approximately `calls × TTFT + output tokens ÷ OTPS + additional client- or server-side latency`.<Cite id="F2" /> Read that formula as a decision table: only the terms you can actually influence are worth tuning. Prompt size feeds the first term, because "the fewer tokens the model has to process and generate, the faster the response will be."<Cite id="F5" /> Generation rate feeds the second term, which is where model choice and fast mode act. Tool duration and orchestration gaps feed the last term, which no API parameter shortens for you.
+
+Track latency percentiles such as **p95**, the value at or below which 95% of observations fall. Keep successful and failed requests in separate series; their latency distributions can differ.<Cite id="F22" /> Include gateway queue time in the user-facing measurement. Propagate deadlines to downstream work so it can stop when the caller's budget expires.<Cite id="F23" />
+
+For an agent loop, decompose the end-to-end span into admission and queue wait, each Claude call's TTFT, model generation, each tool's execution, network and serialization, and application rendering. Record per-span timings and task-level percentiles; a single API duration cannot tell you whether a target missed because of first response, long generation, a serial tool chain, or one tailing tool. Treat failed calls separately, but include their duration in service health.
+
+<Figure caption="End-to-end completion follows the dependency graph's critical path. Streaming exposes partial output sooner, while parallel calls shorten only independent branches.">
+  <Sequence actors={["Client", "Gateway queue", "Claude API", "Orchestrator", "Account tool", "Order tool"]} messages={[
+    { from: 0, to: 1, label: "submit task" },
+    { from: 1, to: 2, label: "queue wait, then call 1" },
+    { from: 2, to: 3, label: "tool_use deltas (streamed)", dashed: true },
+    { from: 3, to: 4, label: "account lookup" },
+    { from: 3, to: 5, label: "order lookup" },
+    { from: 4, to: 3, label: "tool_result", dashed: true },
+    { from: 5, to: 3, label: "tool_result (slower branch)", dashed: true },
+    { at: 3, note: "one user message, two tool_result blocks" },
+    { from: 3, to: 2, label: "call 2 with both results" },
+    { from: 2, to: 0, label: "answer deltas to message_stop", dashed: true },
+    { at: 5, note: "sequential path: tool1 + tool2", tone: "bad" }
+  ]} />
+</Figure>
+
+The **critical path** is the longest chain of dependent work determining completion. For a simple fan-out with no overlap or scheduling overhead, it includes sequential model calls and the longest branch of each parallel batch. If three independent lookups start together and take 180, 420, and 260 ms, the join waits about 420 ms. Measure end-to-end p95 directly; adding component averages or percentiles does not establish it.
+
+## Streaming and the first-token metric
+
+**Streaming** delivers a response incrementally. Set `"stream": true` on a Messages request to receive it as server-sent events (SSE).<Cite id="F25" /> A normal stream starts with `message_start`; each content block has a start, zero or more delta events, and a stop; one or more `message_delta` events and `message_stop` follow.<Cite id="F7" /> Handle `ping` and `error` events as well, and tolerate unknown future event types.<Cite id="F8 F35 F36" />
+
+Streaming can improve perceived responsiveness by showing output before it is complete.<Cite id="F3" /> Do not assume streaming increases OTPS or meets a completion target. Track the first user-visible content separately from the first protocol event and from completion: tool input or thinking may arrive before visible text.<Cite id="F28" />
+
+**Fine-grained tool streaming** extends this to tool arguments: set `eager_input_streaming: true` on a user-defined tool and enable request streaming, and the API exposes fragments of the tool input earlier by skipping server-side buffering and validation.<Cite id="F9" /> The cost is that "you might receive partial or invalid JSON. A response that ends with the stop reason max_tokens can also cut a parameter off midway."<Cite id="F9" /> Accumulate the fragments and validate the completed object before dispatch. Never let partial JSON trigger a non-idempotent side effect.
+
+## Parallel tool execution
+
+Claude may return several `tool_use` blocks in one assistant response, and the application chooses whether to execute them concurrently, sequentially, or in a mix.<Cite id="F10" /> Independent read-only calls are the safe fan-out candidates. Execute each call using its own `id`, then post one user message containing one `tool_result` block per call: "return one tool_result for each tool_use block, all together in the next user message. Match each result to its call with tool_use_id, and put every tool_result block before any text content in that message."<Cite id="F10" />
+
+To cap the fan-out at the API, set `"disable_parallel_tool_use": true` inside `tool_choice`.<Cite id="F11" /> With the default `auto` type, Claude calls at most one tool per response. With `any` or `tool`, it calls exactly one; some models do not support these forced-choice types.<Cite id="F29" />
+
+Parallelize only independent operations. Serialize writes, calls that share mutable state, and calls where one result feeds the next. Bound concurrency so a single agent turn cannot saturate the tool service, the connection pool, or your rate limits: more simultaneous tools shortens the critical path while raising contention and tail risk.
+
+## Cache checkpointing
+
+A **cache breakpoint** marks the end of a prompt prefix eligible for caching. Place `cache_control` on the last block whose prefix is identical across requests that should share it.<Cite id="F12" /> A changing timestamp or query prevents an exact match at a later breakpoint. An earlier written prefix may still hit within the lookback window; otherwise the request misses.<Cite id="F30" /> You can define up to four breakpoints for sections that change at different rates.<Cite id="F27" />
+
+Two facts bound the payoff. Fewer input tokens to process reduce prefill work, and a cache hit avoids reprocessing a repeated prefix, so caching targets TTFT. But "prompt caching has no effect on output token generation. The response you receive is identical to what you would get if prompt caching were not used."<Cite id="F6" /> Caching a 24k-token prompt will not make a 2,000-token answer generate faster.
+
+Set the TTL deliberately. `ttl` accepts `"5m"` or `"1h"` and defaults to `"5m"`;<Cite id="F13" /> a 1-hour cache write costs twice the base input-token price.<Cite id="F26" /> The lifetime "is measured from the start of the request that writes or reads the cache entry, not from the end of its response,"<Cite id="F14" /> so a long streaming response consumes part of the window you just paid for. For an agent run with gaps longer than five minutes, compare the write premium against expected reuse before switching to the 1-hour TTL.
+
+Keep stable content before the variable suffix. Cache prefix order is tools, system, then messages; put the checkpoint after the reusable portion in that order.<Cite id="F31" /> Avoid placing secrets in cached content. Measure cache reads rather than assuming every request hits.
+
+## Effort, model choice, and capacity tiers
+
+**Effort** controls how much work Claude puts into a response. Set `output_config.effort` on the request; otherwise the model's default applies.<Cite id="F15" /> For Opus 5.5, adaptive thinking is always on and effort controls reasoning depth and cost.<Cite id="F16" /> Lower effort can reduce latency and cost at the expense of quality; measure that trade-off on representative tasks.<Cite id="F32" /> Levels, defaults, and calibration differ by model, so repeat the quality and latency sweep after a model change.
+
+Model choice moves both prefill and generation. Current positioning and relative latency:
+
+| Model | Documented positioning | Comparative latency |
+| --- | --- | --- |
+| Haiku 5.5 | High-volume, latency-sensitive classification, extraction, routing<Cite id="F17" /> | Fastest<Cite id="F24" /> |
+| Sonnet 5.5 | Best combination of speed and intelligence<Cite id="F17" /> | Fast<Cite id="F24" /> |
+| Opus 5.5 | Long-running agentic coding and knowledge work<Cite id="F17" /> | Moderate<Cite id="F24" /> |
+
+For speed-critical applications "Claude Haiku 5.5 offers the fastest response times while maintaining high intelligence."<Cite id="F4" /> Select on a representative-workload eval, not on the family name: the right answer is the fastest model that passes your quality bar.
+
+**Fast mode** uses a faster inference configuration on supported models. Anthropic documents up to 2.5 times standard OTPS, with benefits focused on OTPS rather than TTFT.<Cite id="F18 F33" /> On the Claude API, requesting `speed: "fast"` on an unsupported model returns an error; exceeding fast mode's limits or capacity returns a 429 or 529.<Cite id="F19" /> On Microsoft Foundry, use a fast-mode deployment instead of the `speed` field.<Cite id="F34" /> Consider fast mode when generation dominates the wait, and measure the result.
+
+**Priority Tier** is a service-tier arrangement: "The API prioritizes requests in this tier over all other requests. This prioritization helps minimize 'server overloaded' errors, even during peak times."<Cite id="F20" /> It is availability and queue protection, not a generation-speed control, and "Priority Tier capacity commitments are no longer available for purchase. Organizations with an existing commitment can continue to use Priority Tier through their contract end date."<Cite id="F21" />
+
+<Callout type="version" title="Checked 2026-11-19">
+
+Model lineup, comparative-latency ratings, effort levels and defaults, cache TTL prices, fast-mode availability, and Priority Tier eligibility are all version-sensitive and have changed over time. Re-verify against the live docs and your organization's contract before encoding any of these numbers.
+
+</Callout>
+
+## Working against a target
+
+The scenario: a support agent has a 4.0-second p95 target for a complete answer and a 0.8-second p95 target for visible first response. It runs Sonnet 5.5 with a 24k-token prompt, two independent MCP lookups, then a synthesis call. Assume the first call streams a user-visible acknowledgment before requesting tools. The following numbers describe one illustrative trace, not p95 measurements or service guarantees.
+
+| Critical-path component | Before | Tuned estimate |
+| --- | ---: | ---: |
+| Queue + Claude first response (TTFT) | 0.90 s | 0.55 s (stable 20k prefix cached; effort chosen by eval) |
+| Parallel lookup join | 0.70 s (serialized 0.42 + 0.28) | 0.42 s (max of 0.42 and 0.28) |
+| Follow-up Claude call TTFT | 0.90 s | 0.55 s |
+| 240 output tokens at measured OTPS | 2.00 s at 120 OTPS | 1.50 s at 160 OTPS |
+| App, network, serialization overhead | 0.35 s | 0.25 s |
+| **Total task time** | **4.85 s** | **3.27 s** |
+
+The tuned estimate is `2 × 0.55 + 0.42 + 240 ÷ 160 + 0.25 = 3.27 s`, following the cookbook's approximate formula.<Cite id="F2" /> Under the acknowledgment assumption, visible output starts near 0.55 s. Neither estimate proves a p95 target: measure first-visible and complete-task latency across requests, alongside cache reads and tool duration.
+
+## Decision criteria
+
+Diagnose the objective before tuning a lever. High TTFT points at queues, model and prompt prefill, cache misses, or reasoning before the first visible token; high TTLT with an acceptable TTFT points at output volume, low OTPS, tool duration, or extra round trips.<Cite id="F1" /> A slow completion caused by long reasoning is not repaired by token streaming alone.
+
+| Symptom at p95 | Evidence to inspect | First lever |
+| --- | --- | --- |
+| First visible response too slow | Queue wait, prompt length, cache-hit rate, thinking before first token | Cache checkpoint on the stable prefix; shorten the prompt<Cite id="F5 F12" /> |
+| First token fine, completion late | Output-token count, measured OTPS, reasoning volume | Lower `output_config.effort`; fast mode where OTPS dominates<Cite id="F16 F18" /> |
+| Many sequential round trips dominate | Call count per task, tool dependencies in the trace | Merge calls, parallelize independent tools<Cite id="F10" /> |
+| One slow tool in a fan-out | Per-tool duration, join wait vs. max branch | Bound and instrument the branch, not the model |
+| Whole task too slow at acceptable quality | Task success rate vs. latency by model | Move to a faster model that still passes evals<Cite id="F4 F17 F24" /> |
+| Overloaded errors at peak, existing commitment | 529 rate, tier assignment | Priority Tier within the contract; it changes queuing, not speed<Cite id="F20 F21" /> |
+
+Prefer the least expensive, faster model and effort setting that passes task-specific quality checks. Lower effort can reduce thinking and tool-call verbosity, but if it causes omissions, retries, or extra agent turns, total latency rises. Evaluate the whole task — success rate, calls, tokens, p50/p95 — not one completion's raw token rate.
+
+## Failure modes and recovery
+
+<Callout type="mistake" title="Reporting TTFT as task latency">
+
+A first token at 0.6 s is not a 0.6 s task. TTFT, TTLT, and OTPS are three distinct measurements, and streaming changes the visibility of output rather than the rate of its generation.<Cite id="F1 F3" /> Publish both a first-response metric and a completion SLO, and label which one a tuning change moved.
+
+</Callout>
+
+<Callout type="mistake" title="Executing partial tool input">
+
+Fine-grained tool streaming skips server-side buffering and validation, so early fragments can be partial or invalid JSON and a `max_tokens` stop can truncate a parameter mid-value.<Cite id="F9" /> Buffer and validate before dispatch, and re-check the completed object against the tool schema before any side effect.
+
+</Callout>
+
+<Callout type="mistake" title="Checkpointing after volatile content">
+
+A changing timestamp or query prevents an exact match at a later breakpoint; an earlier cached prefix may still hit through lookback.<Cite id="F30" /> Check cache-read usage and move the breakpoint to the end of the reusable prefix if needed.<Cite id="F12" />
+
+</Callout>
+
+Measure the whole task, including queue wait, tool execution, retries, and orchestration gaps. When Claude returns parallel calls, send one matching result per call together in the next user message, before any text.<Cite id="F10" /> Propagate the caller's deadline to downstream work.<Cite id="F23" /> Reserve time for final synthesis, stop launching work after the deadline, and keep retries inside the same budget.
+
+Assuming a cheaper or faster setting is universally better is the last common error: low effort, Haiku, fast mode, and Priority Tier each help under specific conditions and can hurt or be unavailable under others — quality regressions that add turns, unsupported models, and separate 429 or 529 capacity limits.<Cite id="F16 F19" />
+
+## Exam lens
+
+<ExamLens>
+
+- "Faster first visible response" means separate TTFT causes from output-throughput causes: streaming changes visibility, while prompt reduction, caching, model choice, and effort can move the first-token delay.<Cite id="F1 F3 F5" />
+- For independent `tool_use` blocks, consider concurrent execution and return all matching `tool_result` blocks in one user message; account for dependencies and safety before dispatch.<Cite id="F10" />
+- When total latency is dominated by many calls or tools, tune the critical path and reduce round trips — a higher OTPS mode cannot remove sequential dependencies.<Cite id="F18 F2" />
+- For a repeated prefix that misses cache, inspect placement and cache-read usage; use the 1-hour TTL when reuse timing justifies its write premium.<Cite id="F12 F13 F26" />
+- Distinguish cached prefill from output generation: caching does not accelerate output-token generation.<Cite id="F6" />
+
+</ExamLens>
+
+## Self-check
+
+<SelfCheck question="The stream's first token arrives at 0.6 s, 300 tokens then take 1.5 s to generate, and 0.4 s of tool and network work follows. Is the task latency 0.6 s?">
+
+No. TTFT is 0.6 s; total task time includes generation and non-model work, about 2.5 s ignoring overlap.<Cite id="F1 F2" /> Report the first-token metric and the completion metric as two numbers against two targets.
+
+</SelfCheck>
+
+<SelfCheck question="Claude returns three independent read-only tool_use blocks. What does the orchestrator send on the next turn?">
+
+One user message containing three `tool_result` blocks, each matched by `tool_use_id`, after executing the calls concurrently where safe. Every `tool_result` block precedes any text content in that message.<Cite id="F10" />
+
+</SelfCheck>
+
+<SelfCheck question="A repeated 15k-token prompt misses cache whenever a timestamp changes. Where should the checkpoint go?">
+
+On the last block before the timestamp, so the cumulative prefix is identical across the requests that should share a cache.<Cite id="F12" /> Verify with measured prefill time or cache-read usage, not by assuming the marker took effect.
+
+</SelfCheck>
