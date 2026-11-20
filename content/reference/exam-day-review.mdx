@@ -1,0 +1,281 @@
+---
+title: "Exam-day review"
+summary: "Every skill's decision patterns and top traps on one page, linked back to the chapters."
+kind: reference
+order: 0
+slug: exam-day-review
+status: draft
+lastReviewed: "2026-11-19"
+---
+
+Read this the night before as a checklist, and follow each chapter link when a line is not enough to make you confident. The decision patterns below condense each chapter's exam lens, which is editorial inference about how an objective may be examined — not official exam content.
+
+## Domain 1 — Advanced Agent Architecture and Orchestration (17%)
+
+### 1.1 Multi-Agent Orchestration
+
+- Consolidate tightly coupled work; isolate only independent slices or black-box verification.
+- Enforce policy in `PreToolUse` with `on_failure="block"` and `disallowed_tools`, not `allowed_tools`.
+- Subagents for bounded delegation, Agent Teams for interactive peers, Dynamic Workflows for fan-outs of dozens or hundreds.
+
+Watch out: treating `canUseTool` as the security boundary; a permissive parent overriding a subagent's `permissionMode`.
+
+[Read 1.1 →](../../agent-architecture/multi-agent-orchestration/)
+
+### 1.2 Durable Execution
+
+- `resume` restores the transcript, `rewind_files()` reverts tracked file edits, external effects need a step log with idempotency keys.
+- Mid-session model change: keep the last successful `system` and `tools`, switch `thinking.type` to `"adaptive"`.
+- Hosted Managed Agents and its memory stores are ineligible for ZDR and HIPAA.
+
+Watch out: assuming `resume` replays a crashed tool call, and treating `rewind_files` as a general undo.
+
+[Read 1.2 →](../../agent-architecture/durable-execution/)
+
+### 1.3 Architecture Selection
+
+- Judge verified completion and cost per successful task, not the lowest per-request price.
+- Traces decide: variable paths need model decisions, stable repeated paths justify a workflow.
+- Distinguish an embedded harness, a tool loop, a headless CLI, and a hosted service.
+
+Watch out: the 15× figure is versus **chat**, not versus a single agent; a prompt or a hook is not the permission system.
+
+[Read 1.3 →](../../agent-architecture/architecture-selection/)
+
+### 1.4 Context and Memory
+
+- Caching cuts repeated input cost but does not remove cached tokens from the window.
+- Match bloat to the fix: deferred definitions, programmatic intermediate results, selective clearing, a summary.
+- Keep durable state in application-controlled storage; expect instructions to be lost after compaction.
+
+Watch out: treating caching as extra capacity, and assuming an instruction survives compaction.
+
+[Read 1.4 →](../../agent-architecture/context-memory/)
+
+## Domain 2 — Production Integration, Reliability, and Knowledge Grounding (20%)
+
+### 2.1 Reliability
+
+- Branch on `stop_reason`, not HTTP status: a `200` can be `max_tokens`, `model_context_window_exceeded`, `pause_turn`, or `refusal`.
+- A spend-cap `429` (`enforced_spend_limit_reached`, no `retry-after`) is not a rate or ramp `429`.
+- Check parity before failover; Bedrock, Google-managed Vertex AI, and Foundry lack server-side fallback.
+
+Watch out: outer retries stacked on SDK retries, retrying a refusal on the same model, failover as a URL swap.
+
+[Read 2.1 →](../../production-integration/reliability/)
+
+### 2.2 Scale and Throughput
+
+- Steady RPM, rising uncached prompt length, input-rate 429s: the constraint is ITPM.
+- Deadline-tolerant work favors batch at 50 percent of standard prices; a strict SLA or `expired` items change it.
+- A ramp 429 below ceilings means gradual growth; a spend-cap 429 means budget or tier remediation.
+
+Watch out: counting cache reads against ITPM — only `input_tokens` plus `cache_creation_input_tokens` count.
+
+[Read 2.2 →](../../production-integration/scale-throughput/)
+
+### 2.3 MCP and Change Management
+
+- A tool list that changed on upgrade fails long conversations with `400`: inspect prefix rules and tool definitions.
+- A Foundry or Bedrock fallback that rejects the request: check deployment IDs, provider parameters, beta headers.
+- A canary that helps the average but breaks one cohort: roll back the compatible bundle.
+
+Watch out: reverting only the model name, and reading a `401` as a broken tool.
+
+[Read 2.3 →](../../production-integration/mcp-change-management/)
+
+### 2.4 Retrieval and Grounding
+
+- Match corpus shape: direct context, indexed retrieval, just-in-time tools, or a hybrid.
+- Exact identifiers plus paraphrase: dense plus BM25, rank fusion, rerank after broad recall.
+- A wrong grounded claim: prove the evidence reached the prompt before touching the prompt.
+
+Watch out: "in the corpus" is not "received by Claude"; citations with `output_config.format` return a 400.
+
+[Read 2.4 →](../../production-integration/retrieval-grounding/)
+
+## Domain 3 — Observability and Production Monitoring (12%)
+
+### 3.1 Telemetry
+
+- Under ZDR choose structural telemetry; Batch, Files, the MCP connector, and cloud Managed Agents exit ZDR silently.
+- A 2x total is double counting: SDK `CLIENT` plus API `SERVER` spans, or cache attributes on `gen_ai.usage.input_tokens`.
+- Cache drop: `*_changed` is prefix drift, `diagnostics: null` with zero reads is expiry or a short prefix.
+
+Watch out: applying the Messages API token sum to OTel spans, and assuming ZDR covers your vendor.
+
+[Read 3.1 →](../../observability/telemetry/)
+
+### 3.2 Monitoring and Alerting
+
+- Zero `5xx` with empty answers: read `stop_reason` on `200`s and count `api_refusal`.
+- Noisy pages plus a missed slow leak: burn rates at `1h/5m` `14.4x` and `6h/30m` `6x`, ticket on `3d/6h` `1x`.
+- Page real-time spend on OTel or `/cost_report`, not the lagging Analytics API.
+
+Watch out: alerting only on HTTP 4xx and 5xx, and treating a dateless 4.6+ ID as a rolling alias.
+
+[Read 3.2 →](../../observability/monitoring-alerting/)
+
+### 3.3 Trace Analysis
+
+- Rare costly failures: explicit rare and failure coverage plus a known-probability baseline.
+- Lost or split traces: fix trace-affine routing, `decision_wait`, buffers, collector health first.
+- A changed failure rate: rebuild task-based denominators, then segment by model, prompt, tenant, route, tool.
+
+Watch out: reading the failure rate off the trace store, and treating a tool `ERROR` as a task failure.
+
+[Read 3.3 →](../../observability/trace-analysis/)
+
+## Domain 4 — Advanced Debugging and Incident Response (10%)
+
+### 4.1 Failure Diagnosis
+
+- A 400 after `tool_use` with a misplaced `tool_result` is transcript serialization; replay with correct block order.
+- Continue `pause_turn` as an assistant response with the same tools.
+- A refusal is a successful HTTP response; track it apart from HTTP errors.
+- In RAG, inspect retrieved evidence before blaming the model.
+
+Watch out: rebuilding the assistant turn from rendered text, and naming a policy or network fault a model error.
+
+[Read 4.1 →](../../debugging/failure-diagnosis/)
+
+### 4.2 Incident Response
+
+- Contain active unauthorized tool use (key `"inactive"`, interrupt plus archive, `deniedMcpServers`) without deleting evidence.
+- Separate an outage from your regression: per-component status, `529` versus `401`/`400`, pinned 4.6+ ID versus pre-4.6 alias.
+- A block that did not work: `allowManagedPermissionRulesOnly`, parenthesized `mcp__` rules, hourly settings polling.
+
+Watch out: deleting evidence during triage, and assuming a fleet kill switch is instant and total.
+
+[Read 4.2 →](../../debugging/incident-response/)
+
+## Domain 5 — Evaluation Engineering and Quality Assurance (12%)
+
+### 5.1 Evaluation Design
+
+- With per-trial `p` and `k` trials on a customer-facing agent, gate on `pass^k`, not `pass@k`.
+- Isolate a RAG drop on `Recall@k`, `Precision`, and `MRR` separately from groundedness.
+- A suspicious suite: read transcripts, verify solvability, block benchmark leaks, graduate saturated tasks.
+- A model upgrade is a contract migration: effort sweeps, re-baselined cost, replacing unsupported features such as prefill.
+
+Watch out: asserting an exact tool-call path, and charting partial or indicator-only runs.
+
+[Read 5.1 →](../../evaluation/evaluation-design/)
+
+### 5.2 LLM-as-Judge
+
+- A win-rate jump from slot order or a rubric change: swap order, re-measure, keep gating withheld until calibrated.
+- A judge that refuses after you add a `reasoning` field hit `reasoning_extraction`, which has no fallback model.
+- High agreement but low kappa means class imbalance; use Krippendorff's alpha for three or more raters.
+
+Watch out: trusting an unswapped win rate, and judging version over version with a moving alias.
+
+[Read 5.2 →](../../evaluation/llm-as-judge/)
+
+### 5.3 Online Quality
+
+- An offline winner whose live completion falls: check traffic mix, missing slices, tool and retrieval context.
+- Repeated users share agent state: assign by user or tenant and cluster the analysis.
+- Metric by task: field correctness for extraction, rubrics for generation, outcome plus tool health for agents.
+
+Watch out: reading an enriched sample as representative traffic, and stopping at the first significant p-value.
+
+[Read 5.3 →](../../evaluation/online-quality/)
+
+## Domain 6 — Cost and Latency Optimization at Scale (8%)
+
+### 6.1 Cost Architecture
+
+- Spend and ITPM `429`s at constant RPM mean cache invalidation: reads are ITPM-exempt, writes consume ITPM.
+- Before adding a model, check the `output_config.effort` sweep and truncation-driven retries.
+- Never retry a spend cap: a tier cap is a `429`, a user-set org or workspace cap is a `400`.
+
+Watch out: a varying block inside the cached prefix, and reading `input_tokens` as the whole prompt.
+
+[Read 6.1 →](../../cost-latency/cost-architecture/)
+
+### 6.2 Latency Engineering
+
+- Separate TTFT causes from output-throughput causes: streaming changes visibility, not the generation rate.
+- Independent `tool_use` blocks: run them concurrently, return all `tool_result` blocks in one user message.
+- Many sequential calls dominate total latency; a higher OTPS mode cannot remove dependencies.
+
+Watch out: reporting TTFT as task latency, executing partial tool input, checkpointing after volatile content.
+
+[Read 6.2 →](../../cost-latency/latency-engineering/)
+
+## Domain 7 — Runtime Guardrails and Production Security (11%)
+
+### 7.1 Runtime Guardrails
+
+- Private data, untrusted input, and an external sink need controls outside the model: proxy allowlists, `PreToolUse` `ask`/`defer`.
+- Hooks run first, `allow` never overrides `deny` or `ask`, and `canUseTool` runs last.
+- A sandbox covering only shell commands, or one left at the default `failIfUnavailable`, is the wrong answer.
+
+Watch out: a policy hook that fails open (exit `1` is non-blocking), and mandatory checks inside `canUseTool`.
+
+[Read 7.1 →](../../security/runtime-guardrails/)
+
+### 7.2 Threat Defense
+
+- Trifecta of private data, untrusted input, egress: allowlists, human approval, least-privilege tokens, or remove the channel.
+- Ask whether the action is a shell command, a built-in tool, or an MCP server, and enforce there.
+- Name the MCP failure: passthrough, confused deputy, SSRF, rug-pull.
+
+Watch out: prompts and memory files are not boundaries, and a 1% attack success rate is not solved.
+
+[Read 7.2 →](../../security/threat-defense/)
+
+### 7.3 Identity, Secrets, and Audit
+
+- WIF enabled but traffic still keyed: `ANTHROPIC_API_KEY` outranks the federation tiers.
+- An MCP server that forwards a token it received: reject passthrough, validate audience, mint a downstream token.
+- The Compliance Feed omits API-key and Console-key Claude Code sessions; use OTel and app logs.
+
+Watch out: federation configured while the key still wins, and reading the Feed as an execution trace.
+
+[Read 7.3 →](../../security/identity-secrets-audit/)
+
+## Domain 8 — Agent Fleet Operations for Software Delivery (10%)
+
+### 8.1 Parallel Agents
+
+- Teammates are not isolated in worktrees and `-p` does not spawn them: partition ownership or isolate.
+- Agents colliding on one blocker: task lock files, disjoint ownership, or a known-good oracle.
+- `attempt=11` errors or a silent halt: query `api_refusal` separately, since `api_error` misses refusals.
+- CI: `-p` skips exit cleanup, and repository-level OTel exporter variables are ignored.
+
+Watch out: assuming agent teams isolate files, and counting on `api_error` to see every stop.
+
+[Read 8.1 →](../../agent-fleets/parallel-agents/)
+
+### 8.2 Verification and Review
+
+- A new AI reviewer starts in shadow or `observe` mode, calibrated against human labels before any merge blocking.
+- Endless rounds: `REVIEW.md` exclusions and nit caps, diff-only re-review, a three-round cap.
+- A merge despite open `Important` findings: config read from the PR head, or a gate trusting `neutral`.
+
+Watch out: making the review check run required, and a missing severity line is not zero findings.
+
+[Read 8.2 →](../../agent-fleets/verification-review/)
+
+### 8.3 Unattended Operations
+
+- Goal loop for a completion condition, session schedule for periodic work, event trigger for first response.
+- After a crash, separate history, file rewind, sandbox checkpoints, and irreversible external effects.
+- A headless run ending on permission denied continued past it — mark it incomplete and escalate.
+
+Watch out: exit 0 or a Stop hook is not proof of success; `--allowedTools` is not a security boundary.
+
+[Read 8.3 →](../../agent-fleets/unattended-operations/)
+
+### 8.4 Organization-Wide Configuration
+
+- A violated rule usually lives in `CLAUDE.md`, not in managed `permissions.deny` and hook locks.
+- A policy that missed machines: an active `ANTHROPIC_BASE_URL`, then `first-wins` shadowing.
+- An unauthorized MCP server connected: `serverName` matching or missing `allowManagedMcpServersOnly: true`.
+- A shared Skill needs a security review and a 3–5 query eval showing positive `Δ`.
+
+Watch out: an unlocked name-matching allowlist, and gateway credentials conflicting with login locks.
+
+[Read 8.4 →](../../agent-fleets/org-configuration/)
