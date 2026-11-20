@@ -68,7 +68,9 @@ const path = Astro.props.path ?? (currentId ? pathTo(nodes, currentId) ?? [] : [
           data-kind={node.kind}
         >
           <div class="toc__row">
-            {badge ? <span class="toc__badge">{badge}</span> : null}
+            {badge ? (
+              <span class:list={['toc__badge', !/^\d+$/.test(badge) && 'toc__badge--letter']}>{badge}</span>
+            ) : null}
             <a
               class:list={['toc__link', { 'toc__link--pending': pending }]}
               href={node.href}

@@ -151,6 +151,14 @@ body.scroll-locked {
   padding: 0 12px;
   height: 32px;
   cursor: pointer;
+  /* Glyph-ink centred label: flex + line-height 1. Manrope 700 ink sits ~1px low in the 12px line
+     box for strings with descenders (measured with scripts/check-alignment.mjs), so keep 1px less
+     room under the text: ink lands ±0.5px of the chip's centre for both "Current" and "…ll". */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 1px;
+  line-height: 1;
 }
 
 @media (hover: hover) {
@@ -250,19 +258,31 @@ body.scroll-locked {
 
 /* --------------------------------------------------------------- badge + twisty */
 
+/* Domain badge: a number (or "?"/"R") centred in a 30px circle. Numbers are NEVER serif —
+   same type as the percentage labels (Manrope 700, tabular lining figures). Letters ("R", "?")
+   keep Young Serif by design (.toc__badge--letter). */
 .toc__badge {
   flex: none;
   width: 30px;
   height: 30px;
-  display: inline-grid;
-  place-items: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: var(--r-pill);
   background: var(--surface);
   color: var(--ink);
-  font-family: var(--font-serif);
-  font-weight: 400;
-  font-size: 14px;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums lining-nums;
   line-height: 1;
+}
+
+.toc__badge--letter {
+  font-family: var(--font-serif);
+  font-weight: 400; /* Young Serif ships weight 400 only */
+  font-size: 14px;
+  font-variant-numeric: normal;
 }
 
 .toc__item[data-depth='0'].is-ancestor > .toc__row > .toc__badge,
@@ -317,13 +337,15 @@ body.scroll-locked {
   min-width: 0;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   padding: 8px 10px;
   border-radius: var(--r-sm);
   color: var(--ink);
   text-decoration: none;
   font-size: 14.5px;
-  line-height: 1.3;
+  line-height: 1.3; /* labels may wrap: keep leading, the row centres the text block */
+  transition: background-color 120ms ease, color 120ms ease;
 }
 
 .toc__label {
@@ -348,13 +370,51 @@ body.scroll-locked {
   color: var(--ink);
 }
 
+/* Chapter + section links (depth ≥ 1) that are not the current chapter flip to the dark blue
+   hover state: --sky-ink fill, white text and icons (dark theme: --sky-title fill, --bg text).
+   Keyboard focus gets the same fill plus the global :focus-visible outline (base.css). */
+.toc__item:not([data-depth='0']) > .toc__row > .toc__link {
+  --toc-link-hover-bg: var(--sky-ink);
+  --toc-link-hover-ink: var(--surface);
+}
+
+:root[data-theme='dark'] .toc__item:not([data-depth='0']) > .toc__row > .toc__link {
+  --toc-link-hover-bg: var(--sky-title);
+  --toc-link-hover-ink: var(--bg);
+}
+
 @media (hover: hover) {
-  .toc__item[data-depth='1'] > .toc__row > .toc__link:hover,
-  .toc__item[data-depth='2'] > .toc__row > .toc__link:hover,
-  .toc__item[data-depth='3'] > .toc__row > .toc__link:hover,
-  .toc__item[data-depth='4'] > .toc__row > .toc__link:hover {
-    background: var(--bg-subtle);
+  .toc__item:not([data-depth='0']) > .toc__row > .toc__link:not([aria-current='page']):hover {
+    background: var(--toc-link-hover-bg);
+    color: var(--toc-link-hover-ink);
   }
+
+  .toc__item:not([data-depth='0']) > .toc__row > .toc__link:not([aria-current='page']):hover .toc__num,
+  .toc__item:not([data-depth='0']) > .toc__row > .toc__link:not([aria-current='page']):hover .toc__label,
+  .toc__item:not([data-depth='0']) > .toc__row > .toc__link:not([aria-current='page']):hover .toc__meta,
+  .toc__item:not([data-depth='0']) > .toc__row > .toc__link:not([aria-current='page']):hover .toc__pending-icon {
+    color: inherit;
+  }
+
+  .toc__item:not([data-depth='0']) > .toc__row > .toc__link:not([aria-current='page']):hover.is-active {
+    border-left-color: var(--toc-link-hover-ink);
+  }
+}
+
+.toc__item:not([data-depth='0']) > .toc__row > .toc__link:not([aria-current='page']):focus-visible {
+  background: var(--toc-link-hover-bg);
+  color: var(--toc-link-hover-ink);
+}
+
+.toc__item:not([data-depth='0']) > .toc__row > .toc__link:not([aria-current='page']):focus-visible .toc__num,
+.toc__item:not([data-depth='0']) > .toc__row > .toc__link:not([aria-current='page']):focus-visible .toc__label,
+.toc__item:not([data-depth='0']) > .toc__row > .toc__link:not([aria-current='page']):focus-visible .toc__meta,
+.toc__item:not([data-depth='0']) > .toc__row > .toc__link:not([aria-current='page']):focus-visible .toc__pending-icon {
+  color: inherit;
+}
+
+.toc__item:not([data-depth='0']) > .toc__row > .toc__link:not([aria-current='page']):focus-visible.is-active {
+  border-left-color: var(--toc-link-hover-ink);
 }
 
 /* Current chapter: pistachio pill */
@@ -376,19 +436,23 @@ body.scroll-locked {
   flex: none;
   min-width: 28px;
   font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums lining-nums;
   font-weight: 500;
   font-size: 12px;
   color: var(--ink-muted);
+  /* DM Mono ink sits ~0.8px high in its line box: 1px of top padding drops it onto the row centre
+     (check-alignment.mjs: -0.8px → -0.3px). */
+  padding-top: 1px;
 }
 
 .toc__meta {
   flex: none;
   margin-left: auto;
   font-family: var(--font-sans);
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums lining-nums;
   font-size: 12px;
   font-weight: 600;
+  line-height: 1;
   color: var(--ink-muted);
 }
 
@@ -446,6 +510,12 @@ body.scroll-locked {
   .toc-panel.is-dragging,
   .toc-backdrop,
   .toc__twisty svg {
+    transition: none;
+  }
+
+  .toc__link,
+  .toc__row,
+  .toc__twisty {
     transition: none;
   }
 }

@@ -186,6 +186,7 @@
   border-bottom: 0;
 }
 
+/* Row number circle: Manrope 700 tabular lining figures, glyph-ink centred (12px in 24px). */
 .exam-lens__body > :is(ul, ol) > li::before {
   content: counter(exam-lens-step);
   position: absolute;
@@ -202,6 +203,9 @@
   font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 700;
+  font-variant-numeric: tabular-nums lining-nums;
+  /* Manrope ink sits 0.5px high in the 24px circle: 1px of top padding recentres it. */
+  padding-top: 1px;
   line-height: 1;
 }
 
@@ -256,6 +260,7 @@
   margin-bottom: 0;
 }
 
+/* Q / A circles: letters keep Young Serif (only numbers are never serif), glyph-ink centred. */
 .self-check__badge {
   flex: none;
   display: flex;
@@ -267,17 +272,22 @@
   font-family: var(--font-serif);
   font-weight: 400;
   font-size: 17px;
+  font-variant-numeric: lining-nums;
   line-height: 1;
 }
 
 .self-check__badge--q {
   background: var(--butter, #fff0c2);
   color: var(--butter-ink, #7a5a00);
+  /* Young Serif "Q" carries a tail below the baseline: 1px less room underneath recentres the ink. */
+  padding-bottom: 1px;
 }
 
 .self-check__badge--a {
   background: var(--ink, #2b2330);
   color: var(--butter, #fff0c2);
+  /* "A" has no descender, so its ink sits 1px high: 1px of top padding recentres it. */
+  padding-top: 1px;
 }
 
 /* Reveal variant (practice pages): the answer stays inside a disclosure. */

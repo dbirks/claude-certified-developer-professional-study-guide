@@ -47,7 +47,8 @@
 .prose .home-head__stats {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  align-items: center;
+  gap: 6px;
   list-style: none;
   margin: var(--space-4) 0 0;
   padding: 0;
@@ -57,11 +58,19 @@
   background: var(--surface);
   color: var(--ink);
   border-radius: var(--r-pill);
-  padding: 6px 12px;
+  padding: 7.5px 10px 6.5px;
   font-size: 12.5px;
   font-weight: 700;
+  font-variant-numeric: tabular-nums lining-nums;
   letter-spacing: 0.01em;
   white-space: nowrap;
+  /* Centred glyph ink (12.5px Manrope ink sits ~0.75px high in a line-height:1 box); prose.css
+     list spacing must not stretch or offset the pills. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  line-height: 1;
 }
 
 /* resume pill (content filled by reading.ts; the arrow icon is drawn in CSS).
@@ -140,6 +149,7 @@
   gap: var(--space-3);
 }
 
+/* Domain number circle: numbers are never serif — same type as the percentage labels. */
 .domain-card__n {
   flex: 0 0 auto;
   width: 30px;
@@ -147,11 +157,13 @@
   border-radius: var(--r-pill);
   background: var(--bg);
   color: var(--ink);
-  display: grid;
-  place-items: center;
-  font-family: var(--font-serif);
-  font-weight: 400;
-  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums lining-nums;
   line-height: 1;
 }
 
@@ -177,10 +189,15 @@
   background: var(--butter);
   color: var(--butter-ink);
   border-radius: var(--r-pill);
-  padding: 4px 10px;
+  padding: 5px 10px;
+  font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 700;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums lining-nums;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 /* weight bar */
@@ -219,14 +236,23 @@
 }
 
 .domain-card__row a {
+  --row-hover-bg: var(--sky-ink);
+  --row-hover-ink: var(--surface);
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-3);
   min-height: 44px;
   padding: 10px 12px;
   border-radius: var(--r-sm);
   color: var(--ink);
   text-decoration: none;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+:root[data-theme='dark'] .domain-card__row a {
+  --row-hover-bg: var(--sky-title);
+  --row-hover-ink: var(--bg);
 }
 
 .domain-card__num {
@@ -235,7 +261,10 @@
   font-size: 12px;
   font-weight: 500;
   color: var(--ink-muted);
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums lining-nums;
+  /* DM Mono ink sits ~0.9px above the middle of its line box: 1px of top padding brings it back
+     onto the centre of the row (check-alignment.mjs: -0.9px → -0.4px). */
+  padding-top: 1px;
 }
 
 .domain-card__skill {
@@ -245,6 +274,7 @@
   font-size: 14.5px;
   font-weight: 600;
   line-height: 1.35;
+  color: inherit; /* follows the row, including the dark-blue hover fill */
   overflow-wrap: anywhere;
 }
 
@@ -264,14 +294,30 @@
   color: var(--butter-ink);
 }
 
+/* Skill row hover / keyboard focus: the whole row turns dark blue and every label and icon
+   in it turns white (dark theme: light-blue fill, --bg text). */
 @media (hover: hover) {
   .domain-card__row a:hover {
-    background: var(--bg-subtle);
+    background: var(--row-hover-bg);
+    color: var(--row-hover-ink);
   }
 
-  .domain-card__row a:hover .domain-card__skill {
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    text-decoration-thickness: 1px;
+  .domain-card__row a:hover :is(.domain-card__num, .domain-card__skill, .domain-card__status) {
+    color: inherit;
+  }
+}
+
+.domain-card__row a:focus-visible {
+  background: var(--row-hover-bg);
+  color: var(--row-hover-ink);
+}
+
+.domain-card__row a:focus-visible :is(.domain-card__num, .domain-card__skill, .domain-card__status) {
+  color: inherit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .domain-card__row a {
+    transition: none;
   }
 }
