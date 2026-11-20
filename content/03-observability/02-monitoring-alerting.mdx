@@ -8,6 +8,16 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
+<KeyPoints>
+
+- Refusals, `max_tokens`, and `model_context_window_exceeded` ride HTTP `200` with `stop_reason`, so classify terminations, not status codes alone; Claude Code logs refusals as `claude_code.api_refusal`.<Cite id="F11 F12 F19" />
+- Page on `1h/5m` at `14.4x` and `6h/30m` at `6x`, ticket `3d/6h` at `1x`, and widen windows or add synthetic traffic on quiet endpoints.<Cite id="F4 F5 F6" />
+- Page spend on OTel metrics or the legacy `/cost_report`; the Analytics API lags 4-to-24 hours and revises until about 7 days after month end.<Cite id="F14 F16 F18" />
+- Cost growth with ITPM `429`s on flat traffic warrants checking `usage.cache_read_input_tokens`: cache reads are excluded from default cache-aware ITPM limits.<Cite id="F23 F34" />
+- Spend failures differ: `429` with `enforced_spend_limit_reached` has no `retry-after`, while a limit you configured returns `400 invalid_request_error` (`429` in Claude Code workspaces).<Cite id="F30" />
+
+</KeyPoints>
+
 **Production monitoring** turns live responses into ratios and holds them against targets. A **service level indicator** (SLI) is a quantitative measure of some aspect of service level, aggregated as a rate, an average, or a percentile; a **service level objective** (SLO) sets the target value or range for it.<Cite id="F1" /> The **error budget** is the permitted fraction of unsuccessful events under an SLO. **Burn rate** measures how fast the service consumes that budget relative to the SLO window.<Cite id="F3" /> Monitor response outcomes as well as HTTP status: `stop_reason` reports why generation ended on a successful response.<Cite id="F11" />
 
 ## How it works: signals, budgets, and burn rate

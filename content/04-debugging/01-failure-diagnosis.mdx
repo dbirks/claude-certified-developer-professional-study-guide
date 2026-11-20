@@ -8,6 +8,16 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
+<KeyPoints>
+
+- Every successful Messages response carries `stop_reason`: HTTP 200 can still be truncated, refused, or stopped by the context window.<Cite id="F5 F11 F31" />
+- Replay what the API returned — one `tool_result` per `tool_use.id`, results first, parallel batches in one message<Cite id="F1 F2 F3" /> — and echo `pause_turn` content unchanged with the same `tools`.<Cite id="F4 F33" />
+- A refusal is a successful HTTP 200: count it apart from errors, reset the conversation context, and retry on a fallback model.<Cite id="F12 F34 F36" />
+- Measure retrieval and the end-to-end answer separately; if the evidence never reached the model, retrieval owns the failure.<Cite id="F14" />
+- `temperature=0` does not guarantee identical output and a pinned model ID does not freeze serving behavior — measure variation by repeated fixed-input replay.<Cite id="F9 F10" />
+
+</KeyPoints>
+
 **Complex failure diagnosis** means assigning an unexpected agent outcome to the first layer whose output diverged from expectation. The visible symptom may appear later. The model can finish cleanly while the harness serializes the transcript incorrectly, a tool can return an error inside a successful API response,<Cite id="F19 F20" /> and retrieval can omit the document the answer needed. The Messages API response includes `stop_reason`, `stop_sequence`, and `usage` fields.<Cite id="F7" /> Every API response also includes a `request-id` header you can correlate with your own trace ID.<Cite id="F22" />
 
 ## How it works: the evidence chain

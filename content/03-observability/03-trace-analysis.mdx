@@ -8,6 +8,16 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
+<KeyPoints>
+
+- Aggregates size a problem and retained traces explain it: take population rates from full-population counters, not an oversampled trace store.<Cite id="F2 F8" />
+- Head sampling cannot ensure every error is kept: a 10% head stage delivers about 10% of errors to the tail policy.<Cite id="F1 F2" />
+- Tail sampling needs every span of a trace on one collector instance; size `decision_wait` and buffers from measured arrival rates.<Cite id="F5 F7 F8" />
+- Keep exact tenant, session, and trace identifiers out of metric labels: an overflowed stream's total stays correct while grouped queries undercount.<Cite id="F10 F11" />
+- A task outcome is the final state in the environment, not what the final message claims; tool status is a separate measurement.<Cite id="F15 F20 F22" />
+
+</KeyPoints>
+
 **Trace analysis at scale** uses many traces and population measurements to identify and quantify patterns across attempts. A single trace shows one timeout, not a timeout rate that tripled after a prompt deploy. The skill combines **sampling** (which traces you keep), **aggregation** (what the population did), and **failure-cohort analysis** (what differs between groups of attempts). 
 
 ## How it works

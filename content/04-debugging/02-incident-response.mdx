@@ -8,6 +8,16 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
+<KeyPoints>
+
+- Declare incidents early, keep a working record, and let only the designated operations team change production during an active incident.<Cite id="F1 F3" />
+- Triage by per-component `status.claude.com` rows and the error class — `529` overload, `401` auth, or a `200` with `stop_reason: "refusal"` — since surfaces can diverge.<Cite id="F6 F7 F11 F12 F17" />
+- Contain with reversible moves: key `status: "inactive"`, `user.interrupt` then archive once `idle`; Console Delete is permanent.<Cite id="F18 F19 F20" />
+- A fleet switch is neither instant nor total: server-managed settings refresh hourly and `deniedMcpServers` misses `type: "sdk"` servers, so revoke the MCP credential server-side.<Cite id="F24 F25" />
+- Close the loop with a blameless, peer-reviewed postmortem and balanced positive-plus-negative regression evals in CI, not aggregate benchmarks.<Cite id="F10 F32 F33 F35 F37" />
+
+</KeyPoints>
+
 **Incident response** coordinates detection, containment, recovery, and learning. An outage can cause failed requests; a **quality regression** can degrade responses even when requests succeed. Declare incidents, assign roles, investigate vendor and local signals, and contain active harm. Turn findings into evaluations, monitoring, and a reviewed postmortem.
 
 ## Incident command: roles, record, and communication

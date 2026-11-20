@@ -8,6 +8,16 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
+<KeyPoints>
+
+- A 2x token total is double counting: SDK `CLIENT` plus API `SERVER` spans, or cache attributes added onto `gen_ai.usage.input_tokens`.<Cite id="F6 F7" />
+- Pick one source per question: Messages `usage` or API spans for live debugging, `model_usage` for Agent SDK totals, the Analytics API for billing.<Cite id="F22 F28" />
+- `cache_miss_reason.type` names the first prefix change; `diagnostics: null` after a valid comparison points to expiry or a prefix below the minimum cacheable length.<Cite id="F26 F50" />
+- Diagnose a broken trace at the hops: the `sampled` flag, `TRACEPARENT` in a non-interactive run, TypeScript `options.env`, MCP `params._meta`.<Cite id="F9 F10 F15 F19" />
+- Prefer `metadata_only` under privacy rules: ZDR governs what Anthropic retains, not your destination, and a non-eligible feature exits ZDR without an error.<Cite id="F4 F34" />
+
+</KeyPoints>
+
 **Telemetry and instrumentation** for Claude systems means emitting structured evidence from every model call, tool call, and agent loop, while keeping protected content out of storage your privacy regime does not permit. Production debugging and privacy pull in opposite directions: an engineer tracing a bad tool result wants the prompt and tool output, while under Zero Data Retention (ZDR), Anthropic does not store customer prompts or responses at rest after returning the API response.<Cite id="F36" /> Choose which identifiers and operational fields to collect under your privacy policy. Treat prompts, responses, tool arguments, and reasoning content as explicit per-environment opt-ins.
 
 ## How it works
