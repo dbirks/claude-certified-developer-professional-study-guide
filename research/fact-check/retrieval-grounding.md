@@ -21,3 +21,20 @@ Checked: 2026-11-19 · Reviewer: Gemini 4 Hydrogen (High)
 
 ## Remaining concerns
 - None: all 42 citations pass `verify-quotes.mjs` against live fetched sources on 2026-11-19, `check-citations.mjs` passes, the Python pseudocode parses cleanly with `ast.parse`, and `astro build` completes cleanly.
+
+## Second pass (GPT-6)
+
+### Summary
+- Independently reviewed all 86 citation placements against their packet quotes and source pages; all 43 citation entries pass quote verification. The pass found one uncited API-shape claim, which is now cited, and one omitted version detail, which is now covered by a new entry (`F44`). No factual claims were removed.
+- Code blocks checked: 1 Python pseudocode block. It parses with `ast.parse`; Voyage client construction and method calls were aligned with the current official Python SDK examples.
+- Coverage and exam lens: all four objective components have decision guidance; the ExamLens remains editorial decision patterns and does not conflict with the three official sample-item rationales.
+
+### Changes
+- Worked example (`Candidate retrieval and ranking`) — the statement about sending cited `search_result` blocks was factual but uncited → added `F14`, `F33`, and `F35`.
+- Retrieval pseudocode (`Candidate retrieval and ranking`) — `voyage.embed(...)` and `voyage.rerank(...)` did not show the official Python client interface → instantiate `voyageai.Client()` and call its documented `embed` and `rerank` methods; retain application-owned search/auth functions as explicit pseudocode.
+- Tool version note (`Grounding contracts`) — omitted `web_fetch_20260309`, which adds cache bypass, and conflated it with the versions adding dynamic filtering → stated the relevant version distinctions and added official source `F44`.
+- Uncited engineering statements (`Indexing and contextual retrieval`; `Uncertainty declaration`; `Failure modes`) — stated chunk-size effects and similarity-score limits as categorical facts → rewrote them as qualified recommendations; described uncertainty prompting as a risk control rather than a guarantee.
+
+### Remaining concerns
+- The worked example intentionally uses application-specific auth, BM25, vector-store, fusion, and index identifiers; it is labeled pseudocode and is not a runnable SDK sample.
+- Voyage model names and limits can change; the chapter flags these as version-sensitive and does not prescribe a model identifier.

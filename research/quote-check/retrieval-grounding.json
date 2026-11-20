@@ -208,5 +208,10 @@
     "id": "F43",
     "status": "ok",
     "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
+  },
+  {
+    "id": "F44",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool"
   }
 ]

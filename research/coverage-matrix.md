@@ -14,7 +14,7 @@ Columns: research packet exists · citation entries · quotes verified verbatim 
 | 2.1 | Reliability Engineering for Claude Services | 20% | yes | 46 | 46/46 | [fact-checked](../content/02-production-integration/01-reliability.mdx) · 2873 words · 46 cited | done |
 | 2.2 | Scale and Throughput Management | 20% | yes | 59 | 59/59 | [fact-checked](../content/02-production-integration/02-scale-throughput.mdx) · 2786 words · 59 cited | done |
 | 2.3 | Production MCP and Change Management | 20% | yes | 41 | 41/41 | [fact-checked](../content/02-production-integration/03-mcp-change-management.mdx) · 1871 words · 41 cited | done |
-| 2.4 | Retrieval and Knowledge Grounding at Scale | 20% | yes | 43 | 43/43 | [fact-checked](../content/02-production-integration/04-retrieval-grounding.mdx) · 2729 words · 43 cited | done |
+| 2.4 | Retrieval and Knowledge Grounding at Scale | 20% | yes | 43 | 43/43 | [fact-checked](../content/02-production-integration/04-retrieval-grounding.mdx) · 2733 words · 43 cited | done |
 | 3.1 | Telemetry and Instrumentation | 12% | yes | 69 | 69/69 | [fact-checked](../content/03-observability/01-telemetry.mdx) · 2783 words · 69 cited | done |
 | 3.2 | Production Monitoring and Alerting | 12% | yes | 35 | 35/35 | [fact-checked](../content/03-observability/02-monitoring-alerting.mdx) · 2543 words · 35 cited | done |
 | 3.3 | Trace Analysis at Scale | 12% | yes | 41 | 41/41 | [fact-checked](../content/03-observability/03-trace-analysis.mdx) · 2586 words · 41 cited | done |
@@ -28,9 +28,9 @@ Columns: research packet exists · citation entries · quotes verified verbatim 
 | 7.1 | Runtime Guardrail Systems | 11% | yes | 53 | 53/53 | [fact-checked](../content/07-security/01-runtime-guardrails.mdx) · 1979 words · 53 cited | done |
 | 7.2 | Threat Defense and Adversarial Testing for Agentic Systems | 11% | yes | 43 | 43/43 | [fact-checked](../content/07-security/02-threat-defense.mdx) · 1980 words · 43 cited | done |
 | 7.3 | Identity, Secrets, and Audit at Scale | 11% | yes | 52 | 52/52 | [fact-checked](../content/07-security/03-identity-secrets-audit.mdx) · 2204 words · 52 cited | done |
-| 8.1 | Parallel Agent Orchestration for Engineering Work | 10% | yes | 40 | 30/30 | [draft](../content/08-agent-fleets/01-parallel-agents.mdx) · 1763 words · 40 cited | — |
+| 8.1 | Parallel Agent Orchestration for Engineering Work | 10% | yes | 41 | 30/30 | [draft](../content/08-agent-fleets/01-parallel-agents.mdx) · 1763 words · 40 cited | — |
 | 8.2 | Verification and AI Code Review Operations | 10% | yes | 39 | 39/39 | [fact-checked](../content/08-agent-fleets/02-verification-review.mdx) · 2594 words · 39 cited | done |
 | 8.3 | Unattended and Event-Driven Agent Operations | 10% | yes | 40 | 40/40 | [fact-checked](../content/08-agent-fleets/03-unattended-operations.mdx) · 2489 words · 40 cited | done |
 | 8.4 | Organization-Wide Coding Agent Configuration | 10% | yes | 44 | 44/44 | [fact-checked](../content/08-agent-fleets/04-org-configuration.mdx) · 2556 words · 44 cited | done |
 
-Unique source URLs: 255 · citation entries: 1116
+Unique source URLs: 255 · citation entries: 1117
