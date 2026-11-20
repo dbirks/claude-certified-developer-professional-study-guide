@@ -160,6 +160,11 @@
     "url": "https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api"
   },
   {
+    "id": "F38",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api"
+  },
+  {
     "id": "F33",
     "status": "ok",
     "url": "https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api"
@@ -180,8 +185,28 @@
     "url": "https://platform.claude.com/docs/en/api/rate-limits"
   },
   {
-    "id": "F37",
-    "status": "ok-loose",
-    "url": "https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence"
+    "id": "F39",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/token-counting"
+  },
+  {
+    "id": "F40",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/workspaces"
+  },
+  {
+    "id": "F41",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F44",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing"
+  },
+  {
+    "id": "F46",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing"
   }
 ]

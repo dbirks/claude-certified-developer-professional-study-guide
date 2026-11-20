@@ -39,7 +39,7 @@
   version_note: "Applies to Claude 4.6 and later models except Haiku 5.5 as of 2026-11-19."
 
 - id: F5
-  claim: "Prompt caching charges 1.25x base input for 5-minute cache writes and 2x base input for 1-hour cache writes (saving money after 1 and 2 reads, respectively)."
+  claim: "Prompt caching charges 1.25x base input for 5-minute cache writes."
   tag: FACT
   url: https://platform.claude.com/docs/en/about-claude/pricing
   title: "Pricing"
@@ -78,7 +78,7 @@
   version_note: "Applies to Claude 4.6+ on first-party Claude API, Claude Platform on AWS, Anthropic-managed Google Cloud, and Azure US Data Zone Standard."
 
 - id: F9
-  claim: "Fast mode delivers up to 2.5x higher output speed at 2x standard token prices, stacks with caching and data residency, and is unavailable with the Batch API."
+  claim: "Fast mode delivers up to 2.5x higher output speed at premium prices."
   tag: VER
   url: https://platform.claude.com/docs/en/about-claude/pricing
   title: "Pricing"
@@ -98,7 +98,7 @@
   version_note: "Affects token-count comparisons across generations; compare models by cost per completed task."
 
 - id: F11
-  claim: "Prompt cache prefixes are evaluated in strict order—tools, system, then messages—up to 4 breakpoints, and breakpoints themselves add no fee."
+  claim: "Prompt cache prefixes are evaluated in strict order: tools, system, then messages."
   tag: FACT
   url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
   title: "Prompt caching"
@@ -107,7 +107,7 @@
   accessed: 2026-11-19
 
 - id: F12
-  claim: "Each cache breakpoint performs a backward lookback of at most 20 block positions for prior cache writes, and writes occur only at breakpoints."
+  claim: "Each cache breakpoint performs a backward lookback of at most 20 block positions for prior cache writes."
   tag: FACT
   url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
   title: "Prompt caching"
@@ -116,7 +116,7 @@
   accessed: 2026-11-19
 
 - id: F13
-  claim: "Automatic caching places a single top-level cache_control field that dynamically moves to the last cacheable block, consuming one of the 4 breakpoint slots."
+  claim: "Automatic caching places a single top-level cache_control field that dynamically moves to the last cacheable block."
   tag: FACT
   url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
   title: "Prompt caching"
@@ -135,7 +135,7 @@
   version_note: "512 tokens for Fable 5.2/5.1/5, Mythos 5.2/5.1/5, Opus 5.5/5, Sonnet 5.5, Haiku 5.5; 1,024 for Opus 4.8 and Sonnet 5/4.6/4.5; 2,048 for Opus 4.7 and Mythos Preview; 4,096 for Opus 4.6/4.5 and Haiku 4.5."
 
 - id: F15
-  claim: "When mixing 1-hour and 5-minute TTLs in one request, 1-hour cache breakpoints must precede any 5-minute breakpoints, and cache lifetime starts from request initiation."
+  claim: "When mixing 1-hour and 5-minute TTLs in one request, 1-hour cache breakpoints must precede any 5-minute breakpoints."
   tag: FACT
   url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
   title: "Prompt caching"
@@ -162,7 +162,7 @@
   accessed: 2026-11-19
 
 - id: F18
-  claim: "The Message Batches API cuts input and output token prices by 50% for async workloads finishing within 24 hours, supports up to 100,000 requests or 256 MB per batch, and leaves errored, canceled, and expired items unbilled."
+  claim: "The Message Batches API cuts input and output token prices by 50% for async workloads."
   tag: FACT
   url: https://platform.claude.com/docs/en/build-with-claude/batch-processing
   title: "Batch processing"
@@ -171,7 +171,7 @@
   accessed: 2026-11-19
 
 - id: F19
-  claim: "Batch processing discounts stack with prompt caching, but batched requests cannot use max_tokens: 0 pre-warming, stream: true, speed, or fallbacks, and can slightly overshoot workspace spend limits."
+  claim: "High throughput and concurrent processing can make batches slightly exceed a workspace's configured spend limit."
   tag: FACT
   url: https://platform.claude.com/docs/en/build-with-claude/batch-processing
   title: "Batch processing"
@@ -273,7 +273,7 @@
   accessed: 2026-11-19
 
 - id: F30
-  claim: "The token counting endpoint (POST /v1/messages/count_tokens) is free, has separate RPM limits (5k/10k/20k for Start/Build/Scale), counts under the specified model's tokenizer, and does not invoke prompt caching."
+  claim: "Token counting is free and its requests-per-minute limits depend on the usage tier."
   tag: FACT
   url: https://platform.claude.com/docs/en/build-with-claude/token-counting
   title: "Token counting"
@@ -282,7 +282,7 @@
   accessed: 2026-11-19
 
 - id: F31
-  claim: "The Usage and Cost Analytics API (GET /v1/organizations/analytics/usage and /cost, beta header analytics-usage-cost-2026-08-24) attributes usage and USD cents cost by workspace_id, api_key_id, actor, model, service_tier, cost_type, and token_type."
+  claim: "The Usage and Cost Analytics API is in beta and requires its beta header and an anthropic-version header."
   tag: VER
   url: https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api
   title: "Usage and Cost Analytics API"
@@ -292,12 +292,21 @@
   version_note: "Beta as of 2026-11-19; replaces legacy /v1/organizations/usage_report/messages and /cost_report for new integrations."
 
 - id: F32
-  claim: "Analytics API cost rows report USD cents as six-decimal strings (amount after discounts, list_amount at list rates); Priority Tier requests report zero token cost here because commitments are billed separately."
+  claim: "Analytics API cost rows report USD cents as six-decimal strings."
   tag: FACT
   url: https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api
   title: "Usage and Cost Analytics API"
   source: anthropic-docs
   quote: "Amounts are decimal strings in cents with six decimal places: \"41280.000000\" is $412.80 USD."
+  accessed: 2026-11-19
+
+- id: F38
+  claim: "Each Usage and Cost Analytics API query supports up to five group_by dimensions."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api
+  title: "Usage and Cost Analytics API"
+  source: anthropic-docs
+  quote: "group_by[] takes up to five dimensions."
   accessed: 2026-11-19
 
 - id: F33
@@ -310,16 +319,16 @@
   accessed: 2026-11-19
 
 - id: F34
-  claim: "Workspaces isolate API keys, batches, files, prompt caches, and monthly spend limits within an organization (up to 100 active workspaces by default), and responses echo anthropic-workspace-id."
+  claim: "Workspaces organize API usage within an organization."
   tag: FACT
   url: https://platform.claude.com/docs/en/manage-claude/workspaces
   title: "Workspaces"
   source: anthropic-docs
-  quote: "Workspace limits can keep a workspace below your organization’s limits, but they can’t raise those limits:"
+  quote: "Workspaces provide a way to organize your API usage within an organization."
   accessed: 2026-11-19
 
 - id: F35
-  claim: "Tier monthly spend caps ($500 Start, $1,000 Build, $200,000 Scale) return HTTP 429 rate_limit_error with error_code enforced_spend_limit_reached and no retry-after, whereas user-set org or workspace spend limits return HTTP 400 invalid_request_error."
+  claim: "User-set organization or workspace spend limits return HTTP 400 invalid_request_error."
   tag: VER
   url: https://platform.claude.com/docs/en/api/rate-limits
   title: "Rate limits"
@@ -337,12 +346,47 @@
   quote: "For rate limit purposes, only input_tokens + cache_creation_input_tokens count toward your ITPM limit, making prompt caching an effective way to increase your throughput."
   accessed: 2026-11-19
 
-- id: F37
-  claim: "Claude Managed Agents session budgets enforce a per-session list-cost ceiling that pauses execution with stop_reason: budget_reached, complemented by workspace spend limits as an org/tenant backstop."
-  tag: VER
-  url: https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence
-  title: "Optimizing for cost and intelligence"
+- id: F39
+  claim: "The token-counting endpoint does not use prompt caching."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/token-counting
+  title: "Token counting"
   source: anthropic-docs
-  quote: "At the cap, or a fraction past it, the session pauses with stop_reason: budget_reached; raising the budget resumes it."
+  quote: "No, token counting provides an estimate without using caching logic."
   accessed: 2026-11-19
-  version_note: "Applies to Claude Managed Agents sessions (beta) as of 2026-11-19."
+
+- id: F40
+  claim: "The default maximum is 100 workspaces per organization."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/workspaces
+  title: "Workspaces"
+  source: anthropic-docs
+  quote: "Maximum 100 workspaces for each organization by default (archived workspaces don’t count)."
+  accessed: 2026-11-19
+
+- id: F41
+  claim: "When an organization reaches its tier spend cap, API usage pauses until the next month and requests return HTTP 429."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "Once you reach your tier’s spend cap, API usage pauses until 00:00 UTC on the first day of the next month, unless you request a higher limit sooner. While usage is paused, API requests return HTTP 429:"
+  accessed: 2026-11-19
+
+- id: F44
+  claim: "Fast mode is unavailable with the Batch API."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/about-claude/pricing
+  title: "Pricing"
+  source: anthropic-docs
+  quote: "Fast mode is not available with the Batch API."
+  accessed: 2026-11-19
+
+- id: F46
+  claim: "A 1-hour cache write costs 2x base input price."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/about-claude/pricing
+  title: "Pricing"
+  source: anthropic-docs
+  quote: "1-hour cache write | 2x base input price | Cache valid for 1 hour"
+  accessed: 2026-11-19

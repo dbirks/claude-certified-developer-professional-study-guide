@@ -1,0 +1,204 @@
+---
+title: "Cost Architecture at Scale"
+summary: "Decide which cost lever to pull—caching, model routing, batch offload, or budget enforcement—from usage data and per-tenant economics."
+kind: skill
+skill: "6.1"
+slug: cost-architecture
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+**Cost architecture at scale** is the way an organization shapes, routes, and meters Claude requests to control cost while meeting quality and latency targets. Repeatedly sending a growing conversation can make input-token use rise faster than the number of turns; prompt caching can reduce that repeated input cost. In Anthropic's production data, agent loops read a median 84% of input tokens from cache, and the top 10% read at least 94%.<Cite id="F21" /> Model routing, effort tuning, batch processing, and per-tenant budgets are other cost levers. Output tokens cost five times base input tokens for the listed models.<Cite id="F1" />
+
+## How the cost model works
+
+Claude bills per token for input, cache writes, cache reads, and output. The listed models and their base input and output rates per million tokens (MTok) are below; output costs five times base input for these models.<Cite id="F1" /> **Claude Haiku 5.5** costs $0.10 per MTok for input and $0.50 per MTok for output when the prompt is 100,000 tokens or fewer. Above 100,000 prompt tokens, its per-token prices are five times higher across input, cache writes, cache reads, and output.<Cite id="F2 F3" /> Claude 4.6-and-later models, except Haiku 5.5, include the full 1M-token context window at standard rates.<Cite id="F4" />
+
+| Model (tier) | Input $/MTok | Output $/MTok | Cache read |
+| --- | --- | --- | --- |
+| `claude-fable-5-2` | $8 | $40 | 0.025x base<Cite id="F6" /> |
+| `claude-opus-5-5` | $4 | $20 | 0.05x base ($0.20)<Cite id="F7" /> |
+| `claude-sonnet-5-5` | $2 | $10 | 0.05x base ($0.10)<Cite id="F7" /> |
+| `claude-haiku-5-5` (100K or below) | $0.10 | $0.50 | 0.1x base ($0.01)<Cite id="F2 F6" /> |
+
+Cache writes carry a multiplier instead of a fixed rate: a 5-minute write costs 1.25x base input.<Cite id="F5" /> A 1-hour write costs 2x base input.<Cite id="F46" /> Forecast against the target model rather than a legacy count: Claude 4.7-and-later models use a newer tokenizer that produces roughly 30% more tokens for the same text, so re-count the prompt against the target model.<Cite id="F10" /> Token counting is free. Check the current tier-specific RPM limit before using it for high-volume estimates; counting does not invoke prompt caching.<Cite id="F30 F39" /> Judge every choice on **cost per successful task**, not the per-token rate, because a failed attempt still bills its tokens, its retry, and whatever the failure costs downstream.<Cite id="F23 F24" />
+
+<Callout type="version" title="Checked 2026-11-19">
+
+List prices, cache multipliers, rate-limit and spend-cap numbers, and beta headers (`advisor-tool-2026-03-01`, `analytics-usage-cost-2026-08-24`, and others) change between releases. Re-verify against current docs before relying on a figure in code.
+
+</Callout>
+
+Worked example (illustrative assumptions): price 100,000 multi-turn agent tasks per month, ten turns each, over a stable 10,000-token `tools` plus `system` prefix, with 1,000 new input tokens and 500 output tokens per turn. Summing each turn's prompt across the append-only history gives 177,500 input tokens per task. With a 5-minute cache, turn 1 writes 11,000 tokens; turns 2 through 10 each add 1,500 cache-write tokens. The remaining 153,000 input tokens are cache reads. Pass rates are illustrative assumptions; the cost estimates use the scenario token counts and cited list prices and cache rates.<Cite id="F1 F5 F7" />
+
+| Architecture | Cost / attempt | Pass rate | Cost / successful task | Monthly fleet (100k tasks) |
+| --- | ---: | ---: | ---: | ---: |
+| Uncached `claude-opus-5-5` (realtime, global)<Cite id="F1" /> | $0.8100 | 95% | $0.8526 | $81,000 |
+| Cached `claude-opus-5-5` (5m TTL, global)<Cite id="F5 F7" /> | $0.2531 | 95% | $0.2664 | $25,310 |
+| Cached `claude-opus-5-5` + `inference_geo: "us"` (1.1x)<Cite id="F8" /> | $0.2784 | 95% | $0.2931 | $27,841 |
+| Cached `claude-haiku-5-5` (100K or below) alone<Cite id="F2" /> | $0.0071 | 80% | $0.0089 | $709 |
+| Cascade: Haiku 5.5, then Opus 5.5 on 20% of failures<Cite id="F23 F25" /> | $0.0577 | 99% | $0.0583 | $5,771 |
+| Nightly eval/backfill: cached Opus 5.5 via Batch, 50% off, 100% cache hit after warm-up<Cite id="F18" /> | $0.1266 | 95% | $0.1332 | $12,655 |
+
+In this example, a changing timestamp in `system` that invalidates the cache each turn converts reads into 5-minute writes at $5.00/MTok. Input cost rises from $0.1531 to $0.8875 per task, about $73,440 more per month across 100,000 tasks.<Cite id="F5" /> For Haiku 5.5, a prompt over 100,000 tokens triggers five-times-higher prices. Keep prompts below the threshold when the savings justify the context-management work.<Cite id="F3" />
+
+## Caching strategy and cache diagnostics
+
+**Prompt caching** reuses the processed prefix of a prompt so repeated requests pay a cache-read rate instead of reprocessing input. The cache is a prefix match evaluated in strict order — `tools`, then `system`, then `messages`.<Cite id="F11" /> Each breakpoint looks back at most 20 block positions for a prior cache write.<Cite id="F12" />
+
+Choose the TTL by read pattern. A 5-minute write costs 1.25x base input and a 1-hour write costs 2x; read rates vary by model family.<Cite id="F5 F46 F6 F7" /> If a loop pauses for a person between turns, Anthropic recommends considering the 1-hour duration once about 1 turn in 20 follows a pause between 5 minutes and an hour, with few gaps longer than an hour.<Cite id="F22" />
+
+Set breakpoints explicitly with `"cache_control": {"type": "ephemeral", "ttl": "5m"}` (or `"1h"`) on a tool, `system`, or message content block. **Automatic caching** instead sets one top-level `"cache_control": {"type": "ephemeral"}`, which places a breakpoint on the last eligible cacheable block.<Cite id="F13" /> When you mix TTLs in one request, 1-hour breakpoints must precede any 5-minute breakpoints.<Cite id="F15" /> A prefix shorter than the model's minimum cacheable length is processed without caching and returns no error. The minimum varies by model; check the current prompt-caching table before relying on a threshold.<Cite id="F14" />
+
+Read effectiveness from the `usage` object, not from the request. `input_tokens` reports only the uncached tokens after the last breakpoint, so total input equals `cache_read_input_tokens + cache_creation_input_tokens + input_tokens`.<Cite id="F16" /> Cache diagnostics can compare a new request with the prior response and report the first point of divergence.<Cite id="F17" /> Caching also affects throughput: `cache_read_input_tokens` do not count against default input-token (ITPM) rate limits, whereas `input_tokens` and `cache_creation_input_tokens` do.<Cite id="F36" />
+
+## Model routing and cascades
+
+**Model routing** selects a model for each request and compares options by cost per completed task rather than per-token price.<Cite id="F23" /> The `output_config.effort` setting controls response token use. Current defaults vary by model: Opus 5.5 and Haiku 5.5 default to `medium`; most other models default to `high`.<Cite id="F26" /> Changing top-level effort mid-conversation can invalidate cached prefixes; hold it constant or use per-message effort where supported.<Cite id="F26" />
+
+Do not use `max_tokens` as a cost cap. It is invisible to Claude, so lowering it does not make the model economize; a response that reaches the ceiling can be discarded and still billed. Set an output ceiling that fits the task, then tune `output_config.effort` against quality and cost.<Cite id="F27" />
+
+A cascade concentrates higher-cost attempts on tasks that need them. When an outcome is verifiable, Anthropic recommends running every task at low effort and rerunning only failures at high effort.<Cite id="F25" /> The same reasoning can apply across models: route tasks to a cheaper model first, then escalate verifier failures. The economics depend on how often the cheaper attempt fails and the cost of those failures.<Cite id="F23 F24" />
+
+Add a second model only after tuning the first. Sweep `output_config.effort` on your current model and build a pairing only if it beats that single model's whole curve of score against spend.<Cite id="F29" /> Two patterns add a second model: an **orchestrator** fans out independent sub-contexts to cheaper workers, while the beta **Advisor tool** (`advisor_20260301`) lets an executor consult a stronger advisor mid-turn.<Cite id="F28" /> Top-level `usage` omits advisor tokens because they bill at a different rate; `usage.iterations[]` itemizes executor and advisor sub-inference tokens.<Cite id="F28" />
+
+<Figure caption="Cost-optimized multi-tenant Claude routing pipeline: application-layer quota enforcement, batch offload, cached tier-1 execution with verifier-gated escalation, and Analytics API reconciliation.">
+  <Flow direction="vertical" steps={[
+    { label: "Incoming request", note: "tenant ID, SLA, verifiable outcome?" },
+    { label: "Gateway budget check", note: "per-tenant ledger; over quota means reject 429 or degrade tier", tone: "bad" },
+    { label: "SLA and workload router", note: "async to Batch · checkable to Tier 1 · high stakes to Opus high / Advisor" },
+    { label: "Tier 1: cached Haiku 5.5 or Opus 5.5 low effort" },
+    { label: "Deterministic verifier", note: "fail escalates once to Opus high / Fable 5.2" },
+    { label: "Success ledger and usage telemetry" },
+    { label: "Nightly reconciliation", note: "Analytics /cost" }
+  ]} />
+</Figure>
+
+## Batch versus realtime economics
+
+The **Message Batches API** charges 50% of standard prices for async work.<Cite id="F18" /> High throughput and concurrent processing can make batches slightly overshoot a workspace spend limit.<Cite id="F19" />
+
+For shared context, compare batch savings against cache hit rates and latency tolerance.
+
+**Fast mode** (`speed: "fast"`) offers up to 2.5x output throughput at premium prices.<Cite id="F9" /> Fast mode is unavailable with the Batch API.<Cite id="F44" />
+
+Pinning `inference_geo: "us"` on Claude 4.6-and-later models adds a 1.1x multiplier to every token category.<Cite id="F8" /> **Priority Tier** capacity commitments are legacy and no longer sold; existing commitments remain usable through their contract end date.<Cite id="F20" />
+
+## Per-tenant budget enforcement
+
+**Workspaces** organize API usage within an organization.<Cite id="F34" /> The default limit is 100 workspaces per organization.<Cite id="F40" /> When an organization reaches its tier spend cap, API usage pauses until the next month and requests return HTTP 429.<Cite id="F41" /> A user-set organization or workspace spend limit returns HTTP 400 `invalid_request_error`.<Cite id="F35" /> These spend-limit errors persist until access resumes; do not retry them as ordinary transient rate limits.
+
+For attribution, the beta **Usage and Cost Analytics API** requires the `analytics-usage-cost-2026-08-24` header.<Cite id="F31" /> It supports up to five `group_by[]` dimensions per query.<Cite id="F38" /> Cost amounts are decimal strings in cents with six decimals (`"41280.000000"` is $412.80 USD).<Cite id="F32" /> The data typically refreshes within four hours and can take up to 24 hours. Late events may revise values until about seven days after month-end.<Cite id="F33" />
+
+Because Analytics data lags, do not gate live traffic on it. For more than 100 tenants or strict caps, use Workspaces for tier and environment isolation and for cache and batch boundaries, and enforce per-tenant quotas in an application gateway: pre-check request size with `count_tokens`,<Cite id="F30" /> meter `usage` and `usage.iterations[]` in real time,<Cite id="F28" /> and reconcile daily against the Analytics `/cost` endpoint within its refresh lag.<Cite id="F31 F33" /> Workspaces alone hit three limits: the 100-active-workspace default cap, coarse monthly stops that surface as `400 invalid_request_error`, and slight batch overshoots.<Cite id="F19 F34 F35" />
+
+The Python snippet below is illustrative pseudocode adapted from the verified API shapes; it logs per-request cache diagnostics and reconciles daily cost by workspace.
+
+```python
+import anthropic
+
+client = anthropic.Anthropic()
+
+# 1. Per-request cost + cache diagnostics (Messages API)
+resp = client.beta.messages.create(
+    model="claude-opus-5-5",
+    max_tokens=64000,
+    cache_control={"type": "ephemeral"},
+    output_config={"effort": "medium"},
+    system="Static system policy...",
+    messages=messages,
+    diagnostics={"previous_message_id": prev_msg_id},
+)
+
+u = resp.usage
+total_in = u.input_tokens + u.cache_creation_input_tokens + u.cache_read_input_tokens
+cache_hit_ratio = u.cache_read_input_tokens / total_in if total_in else 0.0
+if resp.diagnostics and resp.diagnostics.cache_miss_reason:
+    print("Cache miss cause:", resp.diagnostics.cache_miss_reason.type)
+
+# 2. Daily cost attribution by workspace and API key (Admin API key required)
+admin = anthropic.Anthropic(api_key=ADMIN_KEY)
+rows = admin.beta.organization.analytics.cost.list(
+    starting_at="2026-11-01T00:00:00Z",
+    ending_at="2026-11-19T00:00:00Z",
+    time_bucket_width="1d",
+    group_by=["workspace_id", "api_key_id", "model", "service_tier"],
+    limit=1000,
+)
+for row in rows:
+    usd = float(row.cost.amount) / 100.0  # amount is USD cents as a 6-decimal string
+    print(row.starting_at, row.group.workspace_id, row.group.api_key_id, f"${usd:.4f}")
+```
+
+## Decision criteria
+
+Take the free wins before trading quality, and pick each lever from usage evidence rather than intuition.
+
+1. Enable prompt caching and keep prefixes byte-stable in `tools` to `system` to `messages` order.<Cite id="F11" />
+2. Trim dead input tokens: defer unused MCP tools, keep a few hot tools loaded, hand large files to code execution instead of pasting them into prompts, and compact before `claude-haiku-5-5` reaches 100,000 tokens.<Cite id="F3" />
+3. Audit legacy prompts that force redundant verification steps on newer models.
+4. Move non-interactive workloads to the Message Batches API.<Cite id="F18" />
+5. Sweep single-model `output_config.effort` before adding a second model or a cascade.<Cite id="F26 F29" />
+
+| Lever | Use it when | Evidence to check |
+| --- | --- | --- |
+| Prompt caching | A prefix repeats across turns or requests | `cache_read_input_tokens` share (median 84%); `cache_miss_reason`<Cite id="F16 F17 F21" /> |
+| Effort tuning | One model over-spends on easy tasks | Cost-versus-score curve from an effort sweep<Cite id="F26 F29" /> |
+| Model / effort cascade | Verifiable outcomes, small hard tail | Cost per successful task and pass rate per tier<Cite id="F23 F24 F25" /> |
+| Batch API | Non-interactive, 24-hour tolerance | Discount versus SLA and post-warm-up cache hits<Cite id="F18 F19" /> |
+| Workspaces + gateway | Multi-tenant caps and attribution | `enforced_spend_limit_reached` versus `400`; Analytics `group_by[]`<Cite id="F31 F34 F35" /> |
+
+## Failure modes and recovery
+
+Most cost incidents come from a broken cache prefix, a misread `usage` field, or retrying a limit that will not lift. The three traps below carry the highest blast radius.
+
+<Callout type="mistake" title="A varying block inside the cached prefix">
+
+Writes happen only at breakpoints, so putting a timestamp or the live user query at or before the breakpointed block forces a 1.25x cache write every turn with zero reads.<Cite id="F5 F12 F13" /> Keep everything from `tools` through the last stable block byte-identical and place the breakpoint after it; use `diagnostics.previous_message_id` to find the first divergence.<Cite id="F17" />
+
+</Callout>
+
+<Callout type="mistake" title="Reading input_tokens as the whole prompt">
+
+`usage.input_tokens` counts only the uncached tokens after the last breakpoint, which hides total prompt length, the Haiku 5.5 100,000-token cliff, and cache-write cost.<Cite id="F3 F16" /> Compute total input as `cache_read_input_tokens + cache_creation_input_tokens + input_tokens` and alert on that sum.
+
+</Callout>
+
+<Callout type="mistake" title="Retrying a spend limit">
+
+A tier spend cap pauses requests with HTTP 429; a user-set org or workspace limit returns HTTP 400 `invalid_request_error`. Neither is a transient rate limit, so do not retry until access resumes.<Cite id="F35 F41" /> Do not retry them — abort, alert billing, and only then shift work.
+
+</Callout>
+
+Three further traps need explicit handling. `max_tokens` is a per-response output ceiling, not a complete task budget. Lowering it does not make Claude economize and can discard a response that still incurred token costs; tune effort and set an appropriate output ceiling.<Cite id="F27" /> With the Advisor tool, do not price from top-level `usage` alone; it omits advisor tokens itemized in `usage.iterations[]`.<Cite id="F28" />
+
+## Exam lens
+
+<ExamLens>
+
+- Simultaneous spend and ITPM `429`s at constant RPM point to **prompt cache invalidation**: reads are ITPM-exempt while writes pay 1.25x to 2x and consume ITPM, so inspect `usage.cache_read_input_tokens` and enable `diagnostics.previous_message_id`.<Cite id="F5 F46 F17 F36" />
+- Before adding a model, check whether a single-model `output_config.effort` sweep was done and whether output truncation is driving repeated attempts.<Cite id="F26 F27 F29" />
+- Separate retryable rate-limit responses from a tier spend cap (`429`) and a user-set org/workspace cap (`400`); never retry a spend cap.<Cite id="F35 F41" />
+- For over 100 tenants or strict caps, pair Workspace boundaries with an application gateway metering `usage` and `usage.iterations[]` live, reconciled by `/v1/organizations/analytics/cost` and its refresh lag.<Cite id="F28 F31 F33 F34" />
+
+</ExamLens>
+
+## Self-check
+
+<SelfCheck question="A multi-turn agent on claude-haiku-5-5 caches a 95,000-token codebase prefix and appends 8,000 tokens of new tool outputs, then sees a sudden 5x cost jump even on cache-hit turns. Why, and what is the fix?">
+
+Total prompt length (`cache_read_input_tokens + cache_creation_input_tokens + input_tokens` = 103,000) crossed Haiku 5.5's 100,000-token threshold, which multiplies every token category, including cache reads and output, by 5x.<Cite id="F3 F16" /> Configure automatic compaction with a trigger below 100,000 minus the maximum per-turn growth (for example, 90,000).
+
+</SelfCheck>
+
+<SelfCheck question="You switch a cached multi-turn coding workflow from claude-opus-4-6 to claude-opus-5-5 and also toggle top-level output_config.effort from medium to high mid-conversation. Name two distinct cost impacts.">
+
+First, Claude 4.7-and-later models use a newer tokenizer producing about 30% more tokens for the same text, so raw counts rise; compare on cost per completed task and re-count with `/v1/messages/count_tokens`.<Cite id="F10 F23 F30" /> Second, changing top-level `output_config.effort` mid-conversation can invalidate the prompt cache and re-bill the prefix as cache writes, so hold effort constant per session or set it per message where supported.<Cite id="F26" />
+
+</SelfCheck>
+
+<SelfCheck question="Why does a sudden drop in cache_read_input_tokens trigger HTTP 429 rate-limit errors even though requests-per-minute and total prompt sizes are unchanged?">
+
+Under cache-aware ITPM accounting, `cache_read_input_tokens` do not count toward ITPM, whereas `cache_creation_input_tokens` and uncached `input_tokens` do.<Cite id="F36" /> A cache break converts zero-ITPM reads into full-ITPM cache writes, exhausting the ITPM bucket.<Cite id="F36" />
+
+</SelfCheck>
