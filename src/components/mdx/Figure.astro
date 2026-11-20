@@ -9,7 +9,7 @@ const { caption } = Astro.props;
 ---
 
 <figure class="figure">
-  <div class="figure__body">
+  <div class="figure__body" tabindex="0" role="group" aria-label={caption}>
     <slot />
   </div>
   <figcaption class="figure__caption">{caption}</figcaption>

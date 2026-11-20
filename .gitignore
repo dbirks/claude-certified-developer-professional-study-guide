@@ -28,3 +28,4 @@ PROJECT_HANDOFF.md
 .ccdvp-e2e/
 test-results/
 playwright-report/
+core.*

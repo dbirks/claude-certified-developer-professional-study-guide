@@ -617,3 +617,9 @@
     clear: both;
   }
 }
+
+/* Figure bodies can scroll horizontally on phones; they are focusable so keyboard users can scroll them. */
+.figure__body:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}

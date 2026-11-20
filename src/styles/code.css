@@ -69,3 +69,9 @@ pre code {
   white-space: pre;
   overflow-wrap: normal;
 }
+
+/* WCAG AA: github-dark's comment colour (#6A737D) is only ~3.1:1 on the --code-block-bg slab.
+   Lift comments to #A3ADB8 (≥5.5:1 on both themes' slab). */
+.astro-code span[style*="#6A737D" i] {
+  color: #a3adb8 !important;
+}
