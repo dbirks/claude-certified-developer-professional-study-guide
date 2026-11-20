@@ -1,0 +1,74 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SourceList from '../components/SourceList.astro';
+import { DOMAINS, GUIDE, type Domain, type Skill } from '../data/syllabus';
+import { referencePath, skillOrder, skillPath, url } from '../lib/site';
+import { getCitations } from '../lib/citations';
+import { mdxComponents } from '../lib/mdx-components';
+
+type Entry = CollectionEntry<'chapters'>;
+interface Props { domain?: Domain; skill?: Skill; entry?: Entry }
+
+export async function getStaticPaths() {
+  const entries = await getCollection('chapters');
+  const paths = [];
+  for (const domain of DOMAINS) {
+    for (const skill of domain.skills) {
+      const entry = entries.find((e) => e.data.kind === 'skill' && e.data.skill === skill.id);
+      paths.push({ params: { path: skillPath(domain, skill).replace(/\/$/, '') }, props: { domain, skill, entry } });
+    }
+  }
+  for (const entry of entries.filter((e) => e.data.kind === 'reference')) {
+    paths.push({ params: { path: referencePath(entry.data.slug).replace(/\/$/, '') }, props: { entry } });
+  }
+  return paths;
+}
+
+const { domain, skill, entry } = Astro.props;
+const rendered = entry ? await render(entry) : undefined;
+const Content = rendered?.Content;
+const headings = rendered?.headings ?? [];
+const citations = entry ? getCitations(entry.data.citations ?? entry.data.slug) : [];
+
+const order = skillOrder();
+const i = skill ? order.findIndex((o) => o.skill.id === skill.id) : -1;
+const prevO = i > 0 ? order[i - 1] : undefined;
+const nextO = i >= 0 && i < order.length - 1 ? order[i + 1] : undefined;
+const prev = prevO && { href: url(skillPath(prevO.domain, prevO.skill)), label: `${prevO.skill.id} ${prevO.skill.title}` };
+const next = nextO && { href: url(skillPath(nextO.domain, nextO.skill)), label: `${nextO.skill.id} ${nextO.skill.title}` };
+
+const title = skill ? `${skill.id} ${skill.title}` : entry!.data.title;
+const currentId = `c-${skill ? skill.slug : entry!.data.slug}`;
+const onPage = [...headings.filter((h) => h.depth <= 3), ...(citations.length ? [{ depth: 2, slug: 'sources', text: 'Sources' }] : [])];
+---
+
+<BaseLayout title={title} description={entry?.data.summary ?? skill!.objective} currentId={currentId} onPage={onPage} prev={prev} next={next}>
+  <header class="chapter-head">
+    {domain && <p class="chapter-head__eyebrow">Domain {domain.n} · {domain.title} · {domain.weight}%</p>}
+    <h1 class="chapter-head__title">{skill ? <><span class="chapter-head__num">{skill.id}</span> {skill.title}</> : entry!.data.title}</h1>
+    {skill && (
+      <details class="objective">
+        <summary>Official objective</summary>
+        <p>{skill.objective}</p>
+        <p class="objective__src">{GUIDE.name} Exam Guide v{GUIDE.version} ({GUIDE.effective}), §5.</p>
+      </details>
+    )}
+    {entry && (
+      <p class="chapter-head__meta">
+        <span class:list={['status', `status--${entry.data.status}`]}>{entry.data.status === 'fact-checked' ? 'Fact-checked' : 'Draft'}</span>
+        <span>Last reviewed {entry.data.lastReviewed}</span>
+      </p>
+    )}
+  </header>
+
+  {Content ? (
+    <Content components={mdxComponents} />
+  ) : (
+    <div class="pending">
+      <p><strong>This chapter is being researched.</strong> It will appear here once its sources are verified.</p>
+    </div>
+  )}
+
+  <SourceList citations={citations} />
+</BaseLayout>

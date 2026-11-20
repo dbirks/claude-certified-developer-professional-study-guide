@@ -1,0 +1,40 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { DOMAINS, GUIDE } from '../data/syllabus';
+import { skillPath, url } from '../lib/site';
+import { mdxComponents } from '../lib/mdx-components';
+
+const entries = await getCollection('chapters');
+const intro = entries.find((e) => e.data.kind === 'intro');
+const Intro = intro ? (await render(intro)).Content : undefined;
+const done = new Map(entries.filter((e) => e.data.kind === 'skill').map((e) => [e.data.skill, e.data.status]));
+---
+
+<BaseLayout title="Home" description="A deeply researched, source-cited study guide for the Claude Certified Developer – Professional (CCDV-P) exam.">
+  <header class="home-head">
+    <p class="chapter-head__eyebrow">{GUIDE.code} · Exam Guide v{GUIDE.version} · {GUIDE.effective}</p>
+    <h1 class="home-head__title">Claude Certified Developer – Professional</h1>
+    <p class="home-head__lede">A source-cited handbook for the 8 domains and 25 skills in the official blueprint. Tap any bracketed number to see the exact upstream wording behind a claim.</p>
+    <p class="resume" id="resume-link" hidden></p>
+  </header>
+
+  {Intro && <Intro components={mdxComponents} />}
+
+  <h2 id="blueprint">Blueprint</h2>
+  <div class="domain-map">
+    {DOMAINS.map((d) => (
+      <section class="domain-card" aria-labelledby={`dm-${d.n}`}>
+        <h3 id={`dm-${d.n}`} class="domain-card__title"><span class="domain-card__n">{d.n}</span> {d.title} <span class="domain-card__w">{d.weight}%</span></h3>
+        <ul class="domain-card__skills">
+          {d.skills.map((s) => (
+            <li>
+              <a href={url(skillPath(d, s))}>{s.id} {s.title}</a>
+              <span class:list={['status', `status--${done.get(s.id) ?? 'pending'}`]}>{done.has(s.id) ? (done.get(s.id) === 'fact-checked' ? 'Fact-checked' : 'Draft') : 'In research'}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+  </div>
+</BaseLayout>

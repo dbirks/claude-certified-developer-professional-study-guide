@@ -1,0 +1,113 @@
+---
+title: Component demo
+summary: Development page that exercises every component and typographic element. Removed before launch.
+kind: reference
+slug: component-demo
+order: 99
+status: draft
+lastReviewed: "2026-11-19"
+---
+
+This page exercises every element a chapter can use. A **stop reason** is the field that says why Claude stopped generating.<Cite id="F1" /> Two citations look like this.<Cite id="F1 F2" />
+
+## Error handling basics
+
+Treat HTTP 429 as a rate-limit response and delay the next attempt. A `max_tokens` stop is different: the request succeeded, but the answer may be incomplete. Inline code such as `stop_reason` and `anthropic.RateLimitError` uses the monospace font.
+
+### Classification table
+
+| Signal | Layer | Retry? | Action |
+|---|---|---|---|
+| HTTP 429 `rate_limit_error` | Transport | Yes, with backoff | Honor `retry-after` header |
+| HTTP 529 `overloaded_error` | Transport | Yes, bounded | Back off; consider fallback model |
+| `stop_reason: "max_tokens"` | Response | No (same request) | Raise `max_tokens` or continue |
+| `stop_reason: "refusal"` | Response | No | Route to safety-handling path |
+
+#### A fourth-level heading
+
+Short paragraph under an H4 heading so the TOC shows depth 4.
+
+### Retry sketch
+
+```python
+import random, time
+import anthropic
+
+client = anthropic.Anthropic(max_retries=0)  # we own retries here
+
+def call_with_backoff(request: dict, attempts: int = 4) -> anthropic.types.Message:
+    for attempt in range(attempts):
+        try:
+            return client.messages.create(**request)
+        except anthropic.RateLimitError as err:
+            delay = float(err.response.headers.get("retry-after", 2 ** attempt))
+        except anthropic.InternalServerError:
+            delay = min(30, 2 ** attempt) * random.uniform(0.5, 1.5)
+        time.sleep(delay)
+    raise RuntimeError("retry budget exhausted")
+```
+
+A very long line to test horizontal scrolling inside a code block without page overflow:
+
+```text
+request_id=req_011CZabcdefghijklmnopqrstu model=claude-sonnet-5-5 stop_reason=max_tokens input_tokens=182734 output_tokens=4096 cache_read_input_tokens=150000 latency_ms=48211
+```
+
+## Diagrams
+
+<Figure caption="A retrieval pipeline. Each stage can drop the evidence the answer needs.">
+  <Flow steps={["User query", "ACL + metadata filter", "Hybrid retrieve (BM25 + vector)", { label: "Rerank", note: "top 150 → 20" }, "Context assembly", "Answer + citations", "Citation validation"]} />
+</Figure>
+
+<Figure caption="Crash between charge and step-log commit. The idempotency key makes the retry safe.">
+  <Sequence actors={["Agent", "Step log", "Payments API"]} messages={[
+    { from: 0, to: 1, label: "record intent key=k1" },
+    { from: 0, to: 2, label: "charge(amount, key=k1)" },
+    { from: 2, to: 0, label: "200 OK", dashed: true },
+    { at: 0, note: "process crashes before commit", tone: "bad" },
+    { from: 0, to: 1, label: "resume: read step log" },
+    { from: 0, to: 2, label: "charge(amount, key=k1)" },
+    { from: 2, to: 0, label: "200 OK (replayed, no new charge)", dashed: true },
+    { from: 0, to: 1, label: "commit result" }
+  ]} />
+</Figure>
+
+## Callouts and exam lens
+
+<Callout type="mistake" title="Retrying a refusal">
+Retrying a `refusal` repeats the refusal at extra cost. Route it to a safety-handling path instead.
+</Callout>
+
+<Callout type="version" title="Checked 2026-11-19">
+Rate-limit header names and SDK retry defaults change between releases. Re-check before you rely on them.
+</Callout>
+
+<Callout type="note" title="Note">
+A neutral note callout with a [link to the docs](https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons).
+</Callout>
+
+<ExamLens>
+When a scenario mixes several failure signals in one retry path, the better answer usually **branches on the signal**: back off on rate limits, change the request on length stops, and route refusals elsewhere.
+</ExamLens>
+
+## Lists and quotes
+
+1. The application sends the request.
+2. Claude returns `stop_reason: "tool_use"`.
+3. The application runs the tool and sends a `tool_result` block in a user message.
+
+- Unordered item one.
+- Unordered item two with a nested list:
+  - Nested item.
+
+> A blockquote for an important upstream statement.
+
+## Self-check
+
+<SelfCheck question="Why can an HTTP 200 response still be an application failure?">
+The request succeeded at the transport layer, but `stop_reason` may be `max_tokens` or `refusal`, so the content can be incomplete or absent.
+</SelfCheck>
+
+<SelfCheck question="Which signal should never be retried unchanged?">
+A length stop (`max_tokens`): the same request will truncate again.
+</SelfCheck>

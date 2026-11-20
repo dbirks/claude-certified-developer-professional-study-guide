@@ -1,0 +1,7 @@
+---
+// STUB — replaced by worker toc-drawer. See docs/ARCHITECTURE.md §TOC markup.
+import type { TocNode } from '../lib/toc';
+interface Props { nodes: TocNode[]; currentId?: string }
+const { nodes } = Astro.props;
+---
+<ul>{nodes.map((n) => <li><a href={n.href}>{n.label}</a></li>)}</ul>

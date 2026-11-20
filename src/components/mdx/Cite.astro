@@ -1,0 +1,6 @@
+---
+// STUB — replaced by worker citations.
+interface Props { id: string }
+const ids = Astro.props.id.split(/[\s,]+/).filter(Boolean);
+---
+<sup class="cite-group">{ids.map((id) => <a class="cite" href={`#src-${id}`} data-cite={id}>[{id.replace(/\D+/g, '')}]</a>)}</sup>

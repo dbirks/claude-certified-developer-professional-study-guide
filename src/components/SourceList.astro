@@ -1,0 +1,7 @@
+---
+// STUB — replaced by worker citations.
+import type { Citation } from '../lib/citations';
+interface Props { citations: Citation[] }
+const { citations } = Astro.props;
+---
+{citations.length > 0 && <section class="sources"><h2 id="sources">Sources</h2><ol>{citations.map((c) => <li id={`src-${c.id}`} value={c.n}><a href={c.url}>{c.title}</a><blockquote>{c.quote}</blockquote></li>)}</ol></section>}
