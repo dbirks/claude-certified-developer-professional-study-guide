@@ -531,3 +531,75 @@
   source: anthropic-docs
   quote: "gen_ai.request.model | string | The request’s model."
   accessed: 2026-11-19
+
+- id: F60
+  claim: "Citations return source passages that help verify claims."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/citations
+  title: "Citations"
+  source: anthropic-docs
+  quote: "Citations return the exact passages that support each claim, so you can verify answers and surface sources to your users."
+  accessed: 2026-11-19
+
+- id: F61
+  claim: "Thinking display can return a summary, but not raw chain of thought."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/thinking
+  title: "Thinking"
+  source: anthropic-docs
+  quote: "No display setting returns the raw chain of thought."
+  accessed: 2026-11-19
+
+- id: F62
+  claim: "Cache diagnostics must be enabled on the first request to compare its fingerprint on a later turn."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics
+  title: "Cache diagnostics"
+  source: anthropic-docs
+  quote: "On the first turn, pass \"previous_message_id\": null to opt in without a prior message to compare against. On subsequent turns, pass the id from the previous response."
+  accessed: 2026-11-19
+
+- id: F63
+  claim: "Cache diagnostics does not store raw prompt or output text."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics
+  title: "Cache diagnostics"
+  source: anthropic-docs
+  quote: "Anthropic does not store the raw text of your prompts or Claude’s outputs for this feature."
+  accessed: 2026-11-19
+
+- id: F64
+  claim: "Pending or unavailable cache comparisons do not produce a diagnosis."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics
+  title: "Cache diagnostics"
+  source: anthropic-docs
+  quote: "If diagnostic information is not available, the response returns unavailable, or cache_miss_reason: null when the comparison was still running."
+  accessed: 2026-11-19
+
+- id: F65
+  claim: "Anthropic describes retrying classifier refusals on a different model."
+  tag: REC
+  url: https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback
+  title: "Refusals and fallback"
+  source: anthropic-docs
+  quote: "Retry on a different model. Re-sending a refused request to the same model usually earns another refusal. Point the retry at the fallback model."
+  accessed: 2026-11-19
+
+- id: F66
+  claim: "Legacy usage and cost data typically appears within five minutes but can take longer."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/usage-cost-api
+  title: "Usage and Cost API"
+  source: anthropic-docs
+  quote: "Usage and cost data typically appears within 5 minutes of API request completion, though delays might occasionally be longer."
+  accessed: 2026-11-19
+
+- id: F67
+  claim: "Use an observed data refresh watermark as the end of a query for stable repeated reads."
+  tag: REC
+  url: https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api
+  title: "Usage and Cost Analytics API"
+  source: anthropic-docs
+  quote: "For stable results across repeated calls, set ending_at at or before a data_refreshed_at you have already seen; for final totals, query only months that ended at least 7 days ago."
+  accessed: 2026-11-19

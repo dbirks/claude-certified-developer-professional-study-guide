@@ -1,0 +1,188 @@
+---
+title: "Practice: Domain 3 — Observability and Production Monitoring"
+summary: "10 original scenario questions for Domain 3, with cited rationales."
+kind: reference
+slug: practice-domain-3
+order: 13
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+These original practice items are editorial exercises, not official exam content. Try each before opening the answer.
+
+**Grounding traceability** links an answer to its source passages. The Citations feature returns passages for checking claims.<Cite id="F60" /> **Reasoning traceability** records the reasoning summary the API exposes, when configured; no display setting returns raw chain of thought.<Cite id="F61" /> Store any captured material only under an appropriate retention policy. A citation or reasoning summary still needs outcome validation.
+
+A **service level indicator (SLI)** measures service behavior; a **service level objective (SLO)** sets a target for that indicator. Define the task outcome and denominator before setting an alert threshold.
+
+## Q1. ZDR-safe telemetry and SDK exporter stability (Skill 3.1)
+
+An engineering team runs a TypeScript Claude Agent SDK worker (`CLAUDE_CODE_ENABLE_TELEMETRY=1`) alongside Anthropic API OpenTelemetry export under a Zero Data Retention (ZDR) agreement. Their external OTLP observability vendor retains ingested span payloads for 30 days. While investigating intermittent `tool_use` failures, an engineer proposes changing the telemetry pipeline to capture failing inputs faster.
+
+**Which configuration best supports failure triage while preserving the ZDR privacy boundary and Agent SDK stability?**
+
+- **A.** Enable `Full content` API spans alongside `OTEL_LOG_USER_PROMPTS=1` and `OTEL_LOG_TOOL_CONTENT=1`, relying on Anthropic's ZDR in-memory handling to prevent third-party prompt retention.
+- **B.** Keep `metadata_only` and redacted Claude Code telemetry, review remaining metadata for sensitive values, correlate failures via `request-id` and `traceparent` over OTLP, and keep workloads on ZDR-eligible Messages API calls.
+- **C.** Switch `OTEL_TRACES_EXPORTER` to `console` with `CLAUDE_CODE_OTEL_DIAG_STDERR=1` so the worker streams raw span diagnostics over standard output without hitting an external backend.
+- **D.** Route failing multi-document jobs through the Batch API and rely on the API's ZDR enforcement to reject any feature that would retain prompt payloads at rest.
+
+<SelfCheck question="Answer to Q1">
+
+**B.** Anthropic OTel spans default to `metadata_only`.<Cite id="F1" /> Claude Code redacts prompt text and tool details and content by default.<Cite id="F10" /> Use the API `request-id` for request correlation and W3C `traceparent` to connect trace spans.<Cite id="F19 F6 F11" /> Review metadata as well, because it can contain user-chosen text.<Cite id="F1" /> Option A fails because even though Messages API `Full content` export is held only in memory by Anthropic under ZDR,<Cite id="F2 F5" /> as an engineering boundary sending full prompts and tool outputs exports them into the external OTLP vendor's 30-day storage. Option C fails because `console` writes telemetry to `stdout`, which corrupts the Agent SDK's message channel.<Cite id="F14" /> Option D fails because under ZDR the API does not block non-eligible stateful features such as Batch—invoking them silently steps outside ZDR for that data.<Cite id="F21" />
+
+</SelfCheck>
+
+## Q2. Reconciling OTel token inflation and subagent totals (Skill 3.1)
+
+A team enables both Anthropic SDK OpenTelemetry tracing and Claude API OpenTelemetry tracing on a prompt-cached service (`85%` cache-read ratio), and also runs a nested Agent SDK workflow that spawns two subagents. Over a 24-hour window, Finance flags two discrepancies against the Usage and Cost Analytics API: the OTel dashboard sums both copies of each request span, adds cache attributes to the input total, and reports `3.4x` more input tokens than billed, and the Agent SDK billing hook reading `ResultMessage.usage` logs `42,000` input tokens while the Analytics API bills `195,000`.
+
+**Which TWO changes address the identified telemetry accounting errors? Select TWO.**
+
+- **A.** Aggregate only `SERVER`-kind `anthropic.messages.create` spans and omit `cache_read` and `cache_write` attributes from the `gen_ai.usage.input_tokens` sum.
+- **B.** Switch the OTel sum to `CLIENT`-kind `anthropic.messages.create` spans and add `gen_ai.usage.cache_read.input_tokens` to match the Messages API JSON `usage` formula.
+- **C.** Query `/v1/organizations/analytics/usage` every 60 seconds with `ending_at` set to the current timestamp as the real-time per-request counter.
+- **D.** Read `ResultMessage.model_usage` (`modelUsage`) instead of `ResultMessage.usage` in the Agent SDK billing hook so nested subagent token consumption is included.
+- **E.** Enable `OTEL_METRICS_EXPORTER=console` in the subagent worker and parse token totals directly from the child process standard output.
+
+<SelfCheck question="Answer to Q2">
+
+**A, D.** When both SDK and API tracing emit `anthropic.messages.create`, sum only the `SERVER` API spans to avoid double-counting.<Cite id="F3" /> API spans report billed token counts even on failed or canceled calls.<Cite id="F8" /> Also, `gen_ai.usage.input_tokens` on Anthropic OTel spans already includes cache reads and writes, so adding cache attributes inflates the total.<Cite id="F4" /> In the Agent SDK, `ResultMessage.usage` undercounts whenever subagent nesting occurs, so whole-tree accounting must read `model_usage` (`modelUsage`).<Cite id="F15" /> Option B keeps the `gen_ai.usage.input_tokens` cache double-count,<Cite id="F4" /> and relies on `CLIENT` spans that can underreport failed or canceled requests;<Cite id="F8" /> Option C ignores the Analytics API's typical four-hour refresh, which can take up to 24 hours and up to 7-day post-month reconciliation;<Cite id="F30" /> and Option E breaks the Agent SDK `stdout` message pipe.<Cite id="F14" />
+
+</SelfCheck>
+
+## Q3. Broken trace continuity and silent OTLP failures in TypeScript Agent SDK (Skill 3.1)
+
+A TypeScript HTTP service handles requests inside an active OpenTelemetry trace (`TRACEPARENT` with sampled flag `01` is in `process.env`) and invokes the Claude Agent SDK with `options: { env: { CLAUDE_CODE_ENABLE_TELEMETRY: "1", CLAUDE_CODE_ENHANCED_TELEMETRY_BETA: "1", OTEL_TRACES_EXPORTER: "otlp", ANTHROPIC_API_KEY: apiKey, ANTHROPIC_BASE_URL: proxyUrl } }`. Requests complete via the internal `ANTHROPIC_BASE_URL` proxy, yet `claude_code.interaction` starts a new root `trace_id`, outbound proxy requests lack `traceparent`, and collector outages emit zero errors in application logs.
+
+**Which configuration change resolves all three observability failures?**
+
+- **A.** Pass `open_telemetry` with `propagation: True` on the Agent SDK `options` object and set `OTEL_TRACES_EXPORT_INTERVAL=60000`.
+- **B.** Run an interactive Claude Code CLI session instead of the Agent SDK so inbound `TRACEPARENT` values from the host environment are inherited automatically.
+- **C.** Spread `...process.env` into `options.env`, set `CLAUDE_CODE_PROPAGATE_TRACEPARENT=1`, and enable `CLAUDE_CODE_OTEL_DIAG_STDERR=1` with the SDK `stderr` option.
+- **D.** Clear the sampled flag to `00` in the gateway `traceparent` header and add `OTEL_LOG_USER_PROMPTS=1` to force child span emission.
+
+<SelfCheck question="Answer to Q3">
+
+**C.** In the TypeScript Agent SDK, `options.env` replaces the inherited environment entirely, stripping `TRACEPARENT` unless `...process.env` is spread,<Cite id="F13" /> so the child runtime can read inbound `TRACEPARENT` and `TRACESTATE`;<Cite id="F11" /> setting `CLAUDE_CODE_PROPAGATE_TRACEPARENT=1` forces trace propagation when `ANTHROPIC_BASE_URL` points to a custom proxy;<Cite id="F23" /> and `CLAUDE_CODE_OTEL_DIAG_STDERR=1` surfaces otherwise-silent OTel export errors through the `stderr` option.<Cite id="F24" /> Option A misapplies the Messages SDK `open_telemetry` parameter (which also overrides env vars as a whole);<Cite id="F7" /> Option B fails because interactive sessions explicitly ignore inbound `TRACEPARENT`;<Cite id="F12" /> and Option D prevents API span emission entirely, because API server spans drop requests whose `traceparent` sampled flag is off.<Cite id="F6" />
+
+</SelfCheck>
+
+## Q4. Isolating sudden Turn 2 cache misses on `/v1/messages` (Skill 3.1)
+
+A multi-turn document Q&A backend using `/v1/messages` with `cache_control: {"type": "ephemeral"}` and the default 5-minute TTL typically records `cache_read_input_tokens: 22,400`, `cache_creation_input_tokens: 0`, and `input_tokens: 95` on Turn 2. After a deployment, Turn 2 requests—sent `12 seconds` after Turn 1 in the same workspace, with cache diagnostics enabled on Turn 1—suddenly log `cache_read_input_tokens: 0`, `cache_creation_input_tokens: 22,400`, and `input_tokens: 110`, causing ITPM `429` bursts. Because `usage.input_tokens` increased by only `15` tokens, an engineer concludes the cached prefix stayed identical and attributes the misses to cache TTL expiration.
+
+**Which diagnostic step best investigates the cause of the cache misses?**
+
+- **A.** Opt in on Turn 1 with `diagnostics: {"previous_message_id": null}`, then pass the Turn 1 response ID on Turn 2 and inspect `diagnostics.cache_miss_reason` alongside `usage.cache_read_input_tokens`.
+- **B.** Switch the cache breakpoint from the 5-minute TTL to the 1-hour TTL and retry `429` responses immediately to warm the cache across turns.
+- **C.** Enable `citations: {"enabled": true}` on the document blocks together with `output_config.format` JSON schema to log exact prefix differences per turn.
+- **D.** Query `GET /v1/organizations/analytics/usage` every minute and add `cache_creation_input_tokens` onto OTel `gen_ai.usage.input_tokens` to track prefix growth.
+
+<SelfCheck question="Answer to Q4">
+
+**A.** In Messages API responses, `usage.input_tokens` counts only uncached tokens after the last cache breakpoint,<Cite id="F16" /> so a mutation inside the cached system prompt or tool definitions leaves `input_tokens` largely unchanged while invalidating the prefix; the first request must opt in before the next request can compare its ID.<Cite id="F62" /> Diagnostics stores fingerprints without raw prompt text and can report the first divergence.<Cite id="F17 F22 F63" /> Compare the result with `cache_read_input_tokens` to investigate prefix changes, expiry, or minimum length; pending and unavailable comparisons are inconclusive.<Cite id="F18 F64" /> Option B overlooks that `12 seconds` is well inside a 5-minute TTL and rewriting `22,400` tokens points to prefix invalidation rather than expiry, and immediate retries can add load before the limit recovers.<Cite id="F34" /> Option C returns HTTP `400` because document `citations` cannot be combined with `output_config.format`.<Cite id="F20" /> Option D fails due to the Analytics API's typical four-hour refresh, which can take up to 24 hours,<Cite id="F30" /> and double-counts cached tokens on OTel spans.<Cite id="F4" />
+
+</SelfCheck>
+
+## Q5. Silent HTTP 200 failures and pinned-model drift (Skill 3.2)
+
+A production compliance assistant pinned to `claude-sonnet-5-5` shows `99.98%` HTTP `200` responses and `0.02%` HTTP `5xx` errors on its API gateway dashboard. Over 48 hours with no application or prompt deployment, customer escalations spike: `4.1%` of replies either cut off mid-sentence or return short refusal boilerplate. A Claude Code worker running the same workload logs rising `claude_code.api_refusal` events while `claude_code.api_error` stays flat. The team insists `claude-sonnet-5-5` cannot drift because its model ID is pinned.
+
+**Which monitoring change best detects and diagnoses this regression?**
+
+- **A.** Replace `claude-sonnet-5-5` with a dated snapshot ID because dateless Claude 5 model IDs are rolling aliases whose weights update silently.
+- **B.** Page at `14.4x` burn rate on `claude_code.api_error` and HTTP `5xx` rates, and configure the client to retry `stop_reason: "refusal"` three times with backoff.
+- **C.** Switch the endpoint to `claude-opus-5-5` with `output_config.effort` set to `"low"` to eliminate safety-classifier interruptions.
+- **D.** Alert on HTTP `200` `stop_reason` distributions (`end_turn` vs. `refusal`, `max_tokens`, and `model_context_window_exceeded`) and inspect `stop_details.category` plus sampled transcripts and compare quality across model versions and deployment periods, including possible serving-infrastructure shifts.
+
+<SelfCheck question="Answer to Q5">
+
+**D.** A successful Messages response includes `stop_reason`; an `end_turn` means generation ended, not that the task succeeded.<Cite id="F28" /> On this model, classifier refusals return `stop_reason: "refusal"` and `stop_details.category`.<Cite id="F29" /> Claude Code records refusals separately from API errors.<Cite id="F33" /> Although `claude-sonnet-5-5` weights are frozen,<Cite id="F35" /> serving infrastructure such as request routers, safety classifiers, and sampling logic can still change over time.<Cite id="F36" /> Option A is false because dateless IDs for Claude 4.6 and later releases are pinned snapshots rather than rolling aliases.<Cite id="F35" /> Option B misses HTTP `200` refusals on error-only alerts,<Cite id="F33" /> and repeats the same request without investigating the refusal. A supported fallback model may be appropriate when policy and feature compatibility permit it.<Cite id="F65" /> Option C changes model and latency tuning without fixing unmonitored `stop_reason` blind spots.
+
+</SelfCheck>
+
+## Q6. Burn-rate alerting, low-traffic noise, and dual-speed spend monitoring (Skill 3.2)
+
+An organization enforces a 30-day `99.9%` completion-availability SLO on a high-volume chat service (`120,000 req/day`) and a low-volume overnight compliance job (`15 req/hour`). Currently, one failed overnight request pages on-call immediately, while on the chat service a `for: 60m` single-window alert stays active for 55 minutes after rollback. Separately, a leaked API key in a dev workspace burns `$4,200` in 3 hours before an hourly job polling `GET /v1/organizations/analytics/cost` detects it, only noticing once requests fail with HTTP `400` and `429`.
+
+**Which TWO alerting and telemetry changes fix both the noisy/sticky SLO pages and the delayed spend-anomaly detection? Select TWO.**
+
+- **A.** Use multi-window, multi-burn-rate pairs (`1h`/`5m` at `14.4x` and `6h`/`30m` at `6x` to page; `3d`/`6h` at `1x` to ticket) on the chat service, and apply synthetic probe traffic, service aggregation, or widened windows to the low-traffic endpoint.
+- **B.** Replace burn-rate pairs with a single `6h` rolling error-rate window across both endpoints so single overnight failures do not page and alerts settle over 6 hours.
+- **C.** Detect spend spikes using OTel estimated cost metrics (`claude_code.cost.usage`), priced API OTel token counts, or legacy `/v1/organizations/cost_report` (`~5m` freshness) plus immediate alerts on `400` and `429` spend-limit errors, reserving `/v1/organizations/analytics/cost` (pinned to `ending_at <= data_refreshed_at`) for reconciled FinOps reporting.
+- **D.** Poll `GET /v1/organizations/analytics/cost` with `time_bucket_width=1m` every 60 seconds and page on-call whenever hourly spend exceeds baseline.
+- **E.** Use the Spend Limits API on the Claude Platform (Console) organization to page on `ramp_limit_exceeded` and raise tier spend caps automatically.
+
+<SelfCheck question="Answer to Q6">
+
+**A, C.** Google SRE multi-window, multi-burn-rate rules pair `1h`/`5m` (`14.4x`) and `6h`/`30m` (`6x`) for paging and `3d`/`6h` (`1x`) for tickets so the short windows help alerts clear after recovery,<Cite id="F25 F26" /> while low-traffic endpoints can use synthetic traffic, service aggregation, or widened windows to avoid single-request burn spikes.<Cite id="F27" /> For spend anomalies, monitor estimated OTel cost and alert on spend-limit errors.<Cite id="F32 F37 F41" /> The legacy `/v1/organizations/cost_report` typically reports data within five minutes, though delays can be longer.<Cite id="F66" /> The `/v1/organizations/analytics/cost` data typically refreshes within four hours, can take up to 24 hours, and can be revised for about seven days after month-end.<Cite id="F30" /> For stable repeated reads, set `ending_at` at or before an observed `data_refreshed_at`.<Cite id="F67" /> Option B keeps alerts stuck firing long after rollback without a `1/12` short window;<Cite id="F25" /> Option D fails because `1m` bucket width does not bypass the Analytics API's typical four-hour refresh, which can take up to 24 hours;<Cite id="F30" /> and Option E fails because the Spend Limits API is exclusive to Claude Enterprise organizations, not Console orgs.<Cite id="F40" />
+
+</SelfCheck>
+
+## Q7. Classifying 429 ramp limits, tier caps, and 400 workspace limits (Skill 3.2)
+
+A production app in workspace `wrkspc_prod_01` jumps from `8,000` to `45,000` input tokens/minute in 90 seconds—still far below its `200,000` nominal ITPM limit—and starts receiving `HTTP 429 rate_limit_error` with `error.details.error_code: "ramp_limit_exceeded"`. Simultaneously, a staging workspace `wrkspc_stg_02` starts receiving `HTTP 400 invalid_request_error` with `"You have reached your specified workspace API usage limits"`. The team's monitoring groups all non-200 responses under one `"Upstream Outage"` retry policy.
+
+**Which dashboard and alerting classification best handles these signals?**
+
+- **A.** Treat staging `400 invalid_request_error` as malformed caller input excluded from SLIs, and increase `output_config.effort` on production calls to smooth token rate.
+- **B.** Route `429 ramp_limit_exceeded` as traffic-ramp throttling (pace traffic growth and honor `retry-after`), `429 enforced_spend_limit_reached` as a hard tier cap (no `retry-after`; halt retries and page), and `400` workspace spend-limit errors to workspace-owner alerts keyed by `anthropic-workspace-id`.
+- **C.** Consolidate production and staging API keys into the Default Workspace and group `/v1/organizations/usage_report/messages` alerts by `workspace_id`.
+- **D.** Suppress `429 ramp_limit_exceeded` alerts unless nominal ITPM utilization reaches `100%`, and retry `enforced_spend_limit_reached` every 5 seconds until quota clears.
+
+<SelfCheck question="Answer to Q7">
+
+**B.** Ramp limits trigger `429` (`error.details.error_code: "ramp_limit_exceeded"`) on sudden token-rate spikes even below nominal ITPM/OTPM limits,<Cite id="F38 F42" /> tier monthly caps return `429` (`enforced_spend_limit_reached`) with no `retry-after` and keep failing until access resumes,<Cite id="F41 F43" /> and user-set workspace spend limits return `HTTP 400 invalid_request_error` isolated per workspace (`anthropic-workspace-id`).<Cite id="F37 F39" /> Option A misclassifies a staging quota outage as caller schema error and uses an unrelated latency/reasoning parameter. Option C removes the existing workspace separation, making independent limits and attribution harder.<Cite id="F39" /> Option D ignores active ramp-limit rejections below nominal ITPM,<Cite id="F38" /> and wastes retries on a hard tier cap without `retry-after`.<Cite id="F41" />
+
+</SelfCheck>
+
+## Q8. Tail-sampling trace loss and biased failure rates (Skill 3.3)
+
+A high-volume agent platform runs a `5%` uniform head sampler in application SDKs feeding a 3-replica OpenTelemetry Collector tier configured with `tail_sampling` (retain `status_code: ERROR` traces or a 5% probabilistic sample, `decision_wait: 30s`, `num_traces: 50,000`) behind a round-robin load balancer. Agent tasks routinely run `45–90 seconds`. During an incident, full-population counters record a `3.8%` task failure rate, yet `62%` of traces in the trace store contain errors, `otelcol_processor_tail_sampling_sampling_trace_dropped_too_early` spikes, and many failed agent runs are either fragmented or missing entirely.
+
+**Which diagnosis best explains both the missing error spans and the 62% trace-store failure figure?**
+
+- **A.** Upstream `5%` head sampling already discarded ~`95%` of error traces, round-robin routing and the `30s`/`50,000`-trace collector limits split or evict `45–90s` traces before late errors arrive, and the `62%` figure reflects tail-oversampled retention rather than the true population failure rate.
+- **B.** The `5%` head sampler forwards all error spans intact, so `otelcol_processor_tail_sampling_sampling_trace_dropped_too_early` proves agent tool processes are crashing before emitting spans.
+- **C.** Adding a second `tail_sampling` `status_code: ERROR` policy at the collector tier recovers the `95%` of failed traces dropped by the SDK's `5%` head sampler.
+- **D.** Summing the `status_code: ERROR` percentage and a `5%` probabilistic policy percentage reweights the `62%` trace-store fraction into an exact population failure rate without full-population counters.
+
+<SelfCheck question="Answer to Q8">
+
+**A.** Head sampling decides before inspecting the whole trace and cannot ensure capture of all error traces;<Cite id="F44 F45" /> downstream tail sampling requires trace-affine routing so all spans of a trace reach the same collector,<Cite id="F48" /> a `decision_wait` long enough for expected late spans (default `30s`),<Cite id="F49" /> and sufficient `num_traces` capacity to reduce early drops.<Cite id="F50" /> Late spans can also get inconsistent decisions.<Cite id="F51" /> Preferentially retaining error traces can skew the stored error fraction (`62%`) above the population rate (`3.8%`).<Cite id="F46" /> Option B is false because head sampling cannot selectively preserve unknown future errors,<Cite id="F44 F45" /> and `num_traces` drops reflect collector memory capacity rather than app crashes.<Cite id="F50" /> Option C fails because downstream tail sampling cannot recover traces discarded upstream.<Cite id="F44 F45" /> Option D is analytically invalid because overlapping sampling policies do not add linearly and unmeasured collector capacity drops invalidate naive reweighting.<Cite id="F50" />
+
+</SelfCheck>
+
+## Q9. Metric cardinality overflow and tool-event join blind spots (Skill 3.3)
+
+An engineering team attaches `tenant_id`, `prompt.id`, and `trace_id` as attributes on OpenTelemetry metrics exported from an Agent SDK fleet (`CLAUDE_CODE_ENABLE_TELEMETRY=1`). When a major enterprise tenant reports frequent tool failures, the global tool-error metric looks healthy while filtering by that `tenant_id` shows near-zero errors. Separately, an analyst joins `claude_code.tool_result` events to count all attempted tool calls and compares `claude_code.tool.execution` `duration_ms` directly against the parent tool span's duration, concluding no tool calls are blocked or waiting on permissions.
+
+**Which TWO instrumentation and analysis flaws invalidate the team's conclusions? Select TWO.**
+
+- **A.** `prompt.id` is a low-cardinality prompt-template version label, so grouping metrics by `prompt.id` safely isolates regressions without causing metric stream overflow.
+- **B.** Unbounded attributes (`tenant_id`, `prompt.id`, `trace_id`) cause metric stream overflow where the global total remains accurate while filtered or grouped queries undercount; use bounded labels in metrics and keep exact IDs in governed trace/warehouse stores.
+- **C.** Enabling `OTEL_LOG_USER_PROMPTS=1` and `OTEL_LOG_TOOL_CONTENT=1` resolves metric stream overflow by relocating high-cardinality IDs into event payloads.
+- **D.** `claude_code.tool_result` is omitted when a tool call is rejected (requiring tool-decision events to observe rejections) and `claude_code.tool.execution` `duration_ms` measures only tool-body execution excluding permission wait.
+- **E.** Joining `claude_code.tool_result` by `prompt.id` automatically includes rejected calls and guarantees total ordering across multi-process agent runs.
+
+<SelfCheck question="Answer to Q9">
+
+**B, D.** OTel SDKs aggregate metrics by every unique combination of attribute values,<Cite id="F53" /> and high-cardinality identifiers such as `tenant_id` and `trace_id` can trigger overflow. `prompt.id` identifies the submitted prompt, not a template version.<Cite id="F54" /> When a stream overflows, its total remains correct while filtered or grouped queries can undercount.<Cite id="F52" /> In Claude Code telemetry, `claude_code.tool_result` is only emitted upon completion and excludes rejected tool calls (which appear in tool decision events),<Cite id="F55" /> and `duration_ms` on tool execution measures only running the tool body rather than permission wait.<Cite id="F56" /> Option A mischaracterizes `prompt.id`;<Cite id="F54" /> Option C turns on raw prompt/tool content export,<Cite id="F10" /> without fixing metric cardinality;<Cite id="F52" /> and Option E contradicts the documented omission of rejected calls from `tool_result`.<Cite id="F55" />
+
+</SelfCheck>
+
+## Q10. Failure-cohort attribution, task denominators, and outcome validation (Skill 3.3)
+
+After deploying prompt `v2`, an agent's global failure rate rises from `2.0%` to `4.67%`. Five manually inspected failed traces from Tenant A show an MCP lookup tool timing out at `4.8s–5.1s`. Full pre-sampling task aggregation over the hour reports: Tenant A/`v1` (`1,000` attempts, `20` failures = `2%`, `50` lookups `>= 4s` with `10/50` failing); Tenant A/`v2` (`1,000` attempts, `100` failures = `10%`, `200` lookups `>= 4s` with `80/200` failing); Tenant B/`v2` (`1,000` attempts, `20` failures = `2%`, `50` lookups `>= 4s` with `10/50` failing). Meanwhile, the automated task grader marks an attempt successful whenever the agent's final response text sounds confident.
+
+**Which analytical step best isolates the cause and validates true task failure rates before changing timeouts or rolling back?**
+
+- **A.** Compute failures over total `claude_code.api_request` and tool-call spans in the five retained traces and immediately roll back `v2` across both Tenant A and Tenant B.
+- **B.** Exclude timed-out and incomplete attempts from the cohort denominator and judge task success using `gen_ai.request.model` and `stop_reason: "end_turn"` alone.
+- **C.** Grade one independently verified final environment outcome per task attempt (inspecting both failed and successful slow-lookup transcripts across cohorts), and run a controlled `v1`/`v2` split within Tenant A logging OAuth, timeout, and task-mix covariates.
+- **D.** Raise the MCP lookup timeout from `4s` to `30s` across all tenants and monitor only the global aggregate failure rate over the next 24 hours.
+
+<SelfCheck question="Answer to Q10">
+
+**C.** A task's true outcome is the final state in the environment rather than transcript claims,<Cite id="F58" /> and reading transcripts and grades across trials is necessary to verify that the grader is accurate.<Cite id="F57" /> Analytically, Tenant B/`v2` stayed at `2%` while Tenant A/`v2` jumped to `10%` (`71.4%` of all failures), so inspecting both failed and recovering slow traces and running a controlled within-Tenant-A `v1`/`v2` split helps distinguish a prompt effect from tenant-specific confounding (such as task mix or OAuth/MCP contention); the observed association alone does not prove the cause. Option A conflates API/tool-span counts with task attempts and draws global conclusions from five non-representative traces. Option B hides failures by dropping timed-out attempts and mistakes `gen_ai.request.model` or `end_turn` for verified environment outcomes.<Cite id="F59 F28 F58" /> Option D masks potential prompt-triggered retry storms or tenant-specific bottlenecks behind a global average without validating the grader or establishing causality.
+
+</SelfCheck>

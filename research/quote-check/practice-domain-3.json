@@ -293,5 +293,45 @@
     "id": "F59",
     "status": "ok-loose",
     "url": "https://platform.claude.com/docs/en/api/opentelemetry/spans"
+  },
+  {
+    "id": "F60",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
+  },
+  {
+    "id": "F61",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/thinking"
+  },
+  {
+    "id": "F62",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics"
+  },
+  {
+    "id": "F63",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics"
+  },
+  {
+    "id": "F64",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics"
+  },
+  {
+    "id": "F65",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback"
+  },
+  {
+    "id": "F66",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/manage-claude/usage-cost-api"
+  },
+  {
+    "id": "F67",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api"
   }
 ]
