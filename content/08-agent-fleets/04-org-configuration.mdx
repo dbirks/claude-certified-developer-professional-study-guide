@@ -1,0 +1,229 @@
+---
+title: "Organization-Wide Coding Agent Configuration"
+summary: "Decide which Claude Code policy layer enforces permissions, MCP servers, telemetry, gateway routing, and shared Skills across a fleet."
+kind: skill
+skill: "8.4"
+slug: org-configuration
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+**Organization-wide coding-agent configuration** is the centrally managed policy that controls Claude Code sessions across an organization. It can set permissions, MCP access, plugin policy, routing, and telemetry. **Managed settings** are the organization’s policy tier and usually have the highest precedence; administrators can deliver them through files, OS policy, or server-managed settings.<Cite id="F1" /> These controls do not all behave alike. `CLAUDE.md` instructions guide behavior but do not enforce it.<Cite id="F30" /> MCP allowlists can be widened by lower scopes unless managed-only enforcement is enabled.<Cite id="F15" /> Server-managed settings are skipped for some authentication and routing configurations.<Cite id="F7" />
+
+## How the settings stack resolves
+
+Claude Code reads five scopes and applies the highest-precedence value for most keys: managed settings, then the command-line `--settings` flag, then project local `.claude/settings.local.json`, then shared project `.claude/settings.json`, then user `~/.claude/settings.json`.<Cite id="F1" /> Two merge rules explain most surprises.
+
+Array keys such as `permissions.allow` merge across ordinary settings scopes instead of overriding, so each file can add entries without removing another file's.<Cite id="F2" /> Most scalar settings use the highest-precedence value. `fallbackModel` is taken whole from the highest-precedence file that defines it.<Cite id="F2" /> A managed `availableModels` list acts as an allowlist and is not widened by lower-level settings.<Cite id="F38" /> A user who adds a tool to `permissions.allow` can therefore widen the effective rule set unless a managed lock restricts the source of permission rules.
+
+### Managed delivery mechanisms
+
+File-based managed policy is `managed-settings.json` plus optional `managed-settings.d/*.json` drop-ins, with `managed-mcp.json` in the same system directory: `/Library/Application Support/ClaudeCode/` on macOS, `/etc/claude-code/` on Linux and WSL, and `C:\Program Files\ClaudeCode\` on Windows.<Cite id="F3" /> Native OS policy works too — the macOS `com.anthropic.claudecode` managed preferences domain and the Windows `HKLM` or `HKCU` registry keys use the same top-level keys.<Cite id="F4" />
+
+Inside the managed tier, Claude Code ranks sources: remote server-managed settings first, then MDM and OS policies, then `managed-settings.json` and its drop-ins, then user-writable Windows `HKCU`.<Cite id="F5" /> The default behavior, `managedSourcesBehavior: "first-wins"`, uses the highest-ranked source that delivers at least one policy key and ignores the rest, except for cross-source lock keys and per-variable `env` merging.<Cite id="F5" /> Set `managedSourcesBehavior: "merge"` in the highest-ranked source to compose all admin sources instead: lists union, lock values take the strictest setting, and restriction allowlists are taken whole from the highest-ranked setter.<Cite id="F5" />
+
+Under `first-wins`, one policy key in a higher-ranked source can cause lower-ranked sources to be skipped for most keys. Some security locks and `env` entries are read from every admin source, so this is not an unconditional shadow of every setting.<Cite id="F5" /> Prefer one managed source per fleet. When multiple administrator-controlled sources must contribute, configure `managedSourcesBehavior: "merge"` in the highest-ranked source and check `/status` for the effective policy.
+
+### Server-managed settings and their skip rule
+
+**Server-managed settings** are configured in the claude.ai admin console for Team and Enterprise plans and fetched from Anthropic's servers at startup, then polled hourly during active sessions.<Cite id="F6" /> They are skipped when `apiKeyHelper` or Workload Identity Federation supplies authentication, or when a cloud-provider configuration or custom `ANTHROPIC_BASE_URL` is active.<Cite id="F7" /> Set `forceRemoteSettingsRefresh: true` when a session must not start without freshly fetched server-managed settings; the client blocks startup and exits if the fetch fails.<Cite id="F8" />
+
+Server-managed delivery is one option for direct Anthropic deployments on supported Team and Enterprise plans. For gateway or cloud-provider deployments, use an applicable endpoint-managed source or a gateway policy when server-managed settings are skipped.
+
+<Figure caption="Managed sources resolve into one effective policy that gates permissions, MCP and plugins, inference routing, and telemetry, while the CLAUDE.md hierarchy feeds model context separately.">
+  <Flow direction="vertical" steps={[
+    { label: "Admin sources", note: "Server-managed console | MDM plist or HKLM | managed-settings.json + drop-ins" },
+    { label: "Managed tier resolver", note: "first-wins by default; merge composes all admin sources" },
+    { label: "Lower scopes", note: "--settings | .claude/settings.local.json | .claude/settings.json | ~/.claude/settings.json (merged beneath managed; blocked by allowManaged*Only locks)" },
+    { label: "Effective policy", note: "Keys set by the winning managed source plus merged arrays" },
+    { label: "Enforced controls", note: "deny then ask then allow + OS sandbox | MCP and plugin gates | gateway route | OTel pipeline" },
+    { label: "Model context", note: "CLAUDE.md hierarchy: advisory guidance, not enforcement", tone: "bad" }
+  ]} />
+</Figure>
+
+## Enforcing permissions and hooks
+
+Permission rules evaluate in this order: `deny`, then `ask`, then `allow`. The first matching rule in that order determines the outcome.<Cite id="F9" /> A bare tool deny such as `"Bash"` or `"mcp__*"` removes the tool from model context, while a scoped deny such as `"Bash(curl *)"` or `"Read(./.env)"` blocks only matching calls.<Cite id="F9" />
+
+Four lock keys turn shared rules into enforced policy:
+
+| Key | Effect |
+|---|---|
+| `allowManagedPermissionRulesOnly: true` | Managed settings become the only settings source of permission rules: user, project, local, and `--settings` rules are ignored, as is `--allowedTools`; always-allow choices are hidden.<Cite id="F10" /> |
+| `permissions.disableBypassPermissionsMode: "disable"` | Blocks `--dangerously-skip-permissions` and `bypassPermissions` mode.<Cite id="F11" /> |
+| `permissions.disableAutoMode: "disable"` | Blocks `auto` mode; both locks are most useful in managed settings, where users cannot override them.<Cite id="F11" /> |
+| `allowManagedHooksOnly: true` | Restricts which hooks run. User, project, local, and plugin hooks are blocked, except hooks in plugins force-enabled by managed `enabledPlugins`.<Cite id="F29" /> |
+
+Scope timing also matters. Project-committed `permissions.allow` rules and `additionalDirectories` entries in `.claude/settings.json` take effect only after the developer accepts the workspace trust dialog for that folder, whereas `deny` and `ask` rules apply immediately.<Cite id="F12" /> A rule that grants something is therefore not comparable to a rule that refuses something.
+
+Permission rules do not replace sandboxing. A text-matching Bash rule can miss a wrapped command, so pair permission policy with the OS sandbox and managed network-domain restrictions. Review plugin and hook controls as separate code-execution paths. A common approach is to combine `strictKnownMarketplaces`, `disableSideloadFlags`, and `allowManagedHooksOnly`.
+
+## MCP server governance
+
+MCP governance answers two separate questions: which servers exist, and which of them may connect. Claude Code offers three mechanisms, and the exam-visible differences are in what each one blocks.
+
+| Mechanism | Deployed in | Blocks | Notes |
+|---|---|---|---|
+| `managed-mcp.json` | OS system directory | Other MCP servers under exclusive control; an empty `mcpServers` map blocks servers except separately allowed or provided servers.<Cite id="F13" /> |  |
+| `managedMcpServers` | Any managed source | Nothing user-side | Provides HTTP or SSE servers in addition to the servers users add themselves; wins over same-name user entries.<Cite id="F14" /> |
+| `allowedMcpServers` + `allowManagedMcpServersOnly: true` | Managed source | Servers outside the catalog | The lock makes user, project, and local allowlists ignored.<Cite id="F15" /> |
+
+Matching semantics carry the real traps. Entries match on `serverUrl` patterns such as `https://*.internal.example.com/*`, on an exact `serverCommand` array such as `["npx", "-y", "@scope/pkg"]`, or on `serverName`.<Cite id="F17" /> `serverName` is a label a user assigns with `claude mcp add`, so it is not a security control: a user can name any server `github`.<Cite id="F16" /> Once the allowlist holds any `serverUrl` entry, remote servers ignore `serverName` entries and must match a URL; once it holds any `serverCommand` entry, stdio servers ignore `serverName` entries and must match a command. `deniedMcpServers` merges across every scope and overrides the allowlist, `managed-mcp.json`, and `managedMcpServers` — nothing overrides a denylist match.<Cite id="F16 F17" /> An unset `allowedMcpServers` allows all servers that pass the denylist. An empty array blocks servers that must pass the allowlist; organization-provided, built-in, and in-process SDK servers follow documented exceptions.<Cite id="F15 F17" /><Cite id="F15" /> Do not hardcode secrets in `managed-mcp.json`: use `${VAR}` expansion, OAuth, or a header helper.<Cite id="F13" />
+
+Before approving an MCP server for shared use, review its source, authentication, requested permissions, and update process. Prefer a narrow URL or exact command allowlist entry, and test the server using the intended user identity.
+
+Set `CLAUDE_CODE_ENABLE_TELEMETRY=1` in the managed `env` block to export OpenTelemetry metrics and log events from Claude Code.<Cite id="F18" /> Distributed traces are off by default; enabling them also requires `CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1` and an `OTEL_TRACES_EXPORTER` choice.<Cite id="F39" /> Destinations and protocols come from the standard exporter variables — `OTEL_METRICS_EXPORTER`, `OTEL_LOGS_EXPORTER`, `OTEL_TRACES_EXPORTER`, `OTEL_EXPORTER_OTLP_PROTOCOL`, `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_EXPORTER_OTLP_HEADERS` — with dynamic HTTP authentication available through `otelHeadersHelper`.<Cite id="F18 F37" />
+
+Claude Code ignores OpenTelemetry exporter variables in a repository's `.claude/settings.json` and `.claude/settings.local.json`, so a repository cannot use them to enable telemetry, choose its destination, or capture content.<Cite id="F19" /> A managed generic endpoint or protocol removes conflicting developer-set per-signal values. Managed credentials also remove developer-set endpoints. Set per-signal routes in managed settings when needed; developers can still turn off a signal through an exporter selector unless the selector is also managed or set at launch.<Cite id="F19" />
+
+Sensitive trace content is redacted by default. Prompt text, tool input details, and tool content require explicit opt-ins such as `OTEL_LOG_USER_PROMPTS=1`, `OTEL_LOG_TOOL_DETAILS=1`, and `OTEL_LOG_TOOL_CONTENT=1`; raw API body capture uses `OTEL_LOG_RAW_API_BODIES`.<Cite id="F20" /> Keep content capture off unless the collector is approved to receive it. Metrics and event telemetry can still provide operational signals without enabling these content fields.
+
+Separately, `DISABLE_TELEMETRY=1` in managed `env` turns off Anthropic operational telemetry for every developer. Claude Code sends it by default on sessions using the Anthropic API, directly or through a custom `ANTHROPIC_BASE_URL`.<Cite id="F21" /> Decide whether to disable it based on the organization’s telemetry and data-handling requirements.
+
+<Callout type="version" title="Checked 2026-11-19">
+
+Environment variable names, exporter values, beta trace behavior, and the managed-source options above are version-sensitive. Re-verify against the current CLI before relying on any of them in a rollout.
+
+</Callout>
+
+## Gateway routing and cloud providers
+
+Routing the fleet through an LLM gateway means pointing `ANTHROPIC_BASE_URL` at the proxy and choosing the credential variable that sets the right header: `ANTHROPIC_AUTH_TOKEN` sends `Authorization: Bearer`, `ANTHROPIC_API_KEY` sends `x-api-key`, and `apiKeyHelper` sends both.<Cite id="F22" /> Do not combine gateway credentials with `forceLoginMethod` or `forceLoginOrgUUID`: those settings block `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN`, and `apiKeyHelper` at startup.<Cite id="F24" /> To restrict routing to a custom endpoint, set `allowedProviders: ["customEndpoint"]` with `ANTHROPIC_BASE_URL` pinned in managed `env`.<Cite id="F36" />
+
+Two gateway implementations matter for this decision. LiteLLM serves the Anthropic Messages format at `/v1/messages`, so `ANTHROPIC_BASE_URL` plus a per-developer virtual key in `ANTHROPIC_AUTH_TOKEN` is enough to route Claude Code through it.<Cite id="F23" /> **Claude apps gateway** is Anthropic's self-hosted service built into the `claude` binary: developers sign in with the corporate OIDC identity provider instead of holding keys, the gateway holds the upstream credential, enforces model access and managed settings per IdP group, and emits OTLP telemetry to your own stack, translating to Bedrock, Vertex AI, Foundry, or the Anthropic API.<Cite id="F25" />
+
+For direct cloud-provider deployments, pin the model using the provider’s `ANTHROPIC_DEFAULT_*_MODEL` setting when rollout timing matters. Otherwise, aliases resolve to Claude Code’s built-in provider default, which may lag a new release or may not be enabled in the account.<Cite id="F26" />
+
+### Worked example: gateway-pinned fleet
+
+A 400-engineer organization runs Claude Code on macOS and Linux laptops plus CI, routes inference through an internal LiteLLM gateway backed by Amazon Bedrock, and delivers policy by MDM because `ANTHROPIC_BASE_URL` disables server-managed settings.<Cite id="F7 F23" /> The following is an illustrative `managed-settings.json`, trimmed to the keys that matter; verify them against your CLI version.
+
+```json
+{
+  "allowedProviders": ["customEndpoint"],
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://litellm.internal.corp",
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+    "OTEL_METRICS_EXPORTER": "otlp",
+    "OTEL_LOGS_EXPORTER": "otlp",
+    "OTEL_EXPORTER_OTLP_PROTOCOL": "http/protobuf",
+    "OTEL_EXPORTER_OTLP_ENDPOINT": "https://otel-collector.internal.corp:4318"
+  },
+  "apiKeyHelper": "/usr/local/bin/get-litellm-virtual-key",
+  "allowManagedPermissionRulesOnly": true,
+  "permissions": {
+    "disableBypassPermissionsMode": "disable",
+    "disableAutoMode": "disable",
+    "deny": ["Read(**/.env*)", "Read(~/.ssh/**)", "Bash(git push --force *)"]
+  },
+  "allowManagedMcpServersOnly": true,
+  "allowedMcpServers": [
+    { "serverUrl": "https://mcp-jira.internal.corp/*" },
+    { "serverCommand": ["python", "/usr/local/bin/internal-db-mcp.py"] }
+  ],
+  "allowManagedHooksOnly": true,
+  "strictKnownMarketplaces": [
+    { "source": "github", "repo": "corp-eng/claude-plugins" }
+  ],
+  "enabledPlugins": { "corp-sec-hooks@corp-plugins": true },
+  "disableSideloadFlags": true,
+  "syncClaudeAiSkills": false,
+  "syncClaudeAiPlugins": false
+}
+```
+
+The combination is the point. `allowedProviders: ["customEndpoint"]` with `ANTHROPIC_BASE_URL` pins clients to the managed endpoint.<Cite id="F36" /> `apiKeyHelper` can provide a rotating credential.<Cite id="F22" /> The permission and hook locks restrict these controls to managed rules.<Cite id="F10 F29" /> The MCP catalog matches URLs and commands rather than labels.<Cite id="F16" /> Telemetry exports metrics and events without enabling content fields.<Cite id="F18 F20" />
+
+A CI gate for shared plugins can validate the manifest and run the behavioral evaluation suite. `claude plugin eval` requires Claude Code v2.1.269 or later.<Cite id="F43" />
+
+```bash
+claude plugin validate ./plugins/corp-deploy-skill
+claude plugin eval ./plugins/corp-deploy-skill --threshold 0.9 --json results.json --trust-plugin
+```
+
+## Governance for plugins, Skills, and shared prompts
+
+Plugins can start processes such as hooks, monitors, MCP servers, LSP servers, and processes started by mods outside the sandbox.<Cite id="F28" /> Organizations can control marketplace sources and installs with settings such as `strictKnownMarketplaces`, `blockedMarketplaces`, `extraKnownMarketplaces`, `enabledPlugins`, and `disableSideloadFlags`.<Cite id="F27" /> Marketplace allow and block lists match marketplace sources, not individual plugin entries within a marketplace.<Cite id="F27" />
+
+Skills and prompts need review before sharing. Custom Skills do not sync across surfaces: a Skill uploaded to the API is not available on claude.ai or Claude Code, and each surface requires separate uploads and management.<Cite id="F31" /> For production API use, pin a Skill version; omitting `version` uses the latest version.<Cite id="F35" /> Keep source files in Git as the source of truth, and require a reviewer different from the author.<Cite id="F40 F44" />
+
+The documented quality and safety bar has four parts:
+
+1. Review for scripts, instruction manipulation, MCP references, network access, and hardcoded credentials.
+2. Use a structured review with a reviewer other than the author. Enable automated Skill security scanning where the plan supports it.<Cite id="F40 F42" />
+3. Validate manifests with `claude plugin validate` before distribution.<Cite id="F33" />
+4. Require the author to submit an evaluation suite of 3–5 representative queries — should-trigger, should-not-trigger, and ambiguous edge cases — tested across the models the organization uses, and run `claude plugin eval` so each case reports `WITH` and `W/OUT` scores against a no-plugin baseline, where the difference `Δ` is what the plugin contributed.<Cite id="F32 F34" />
+
+### `CLAUDE.md` is context, not enforcement
+
+`CLAUDE.md` instructions shape Claude's behavior but are not a hard enforcement layer. Settings rules are enforced by the client regardless of what Claude decides to do.<Cite id="F30" /> Use managed permission rules, sandbox policy, and managed hooks for controls that must be enforced.
+
+## Decision criteria
+
+Pick the delivery tier, then the lock keys, then the catalog entries:
+
+| Situation | Choice | Evidence to check |
+|---|---|---|
+| claude.ai Team or Enterprise fleet, no MDM, direct Anthropic | Server-managed settings | `/status` shows remote settings; hourly poll is live.<Cite id="F6" /> |
+| Fleet uses a gateway or a cloud provider | MDM or `managed-settings.json`, or Claude apps gateway | Server-managed settings are skipped under `ANTHROPIC_BASE_URL` or `CLAUDE_CODE_USE_*`.<Cite id="F7" /> |
+| Two admin tiers must coexist | `managedSourcesBehavior: "merge"` in the top source | Otherwise first-wins drops the lower tier apart from lock keys and `env`.<Cite id="F5" /> |
+| Startup must require fresh server-managed policy | `forceRemoteSettingsRefresh: true` | Startup blocks until settings are freshly fetched and exits on failure.<Cite id="F8" /> |
+| Users must not widen permission rules | `allowManagedPermissionRulesOnly: true` | Arrays merge across scopes by default.<Cite id="F2 F10" /> |
+| Only approved MCP servers, users keep adding their own | `managedMcpServers` plus `allowedMcpServers` with the lock | Without the lock, user allowlists merge.<Cite id="F14 F15" /> |
+| Only organization-approved MCP servers | `managed-mcp.json` or a managed allowlist | Exclusive control blocks other servers.<Cite id="F13" /> |
+| Cloud-provider-only fleet | Pin `ANTHROPIC_DEFAULT_*_MODEL` | Aliases otherwise resolve to built-in defaults.<Cite id="F26" /> |
+| Sharing a Skill or plugin across teams | Validate, review with separated duties, and eval with positive `Δ` | A high absolute score does not prove the artifact helped.<Cite id="F33" /> |
+
+## Failure modes and recovery
+
+<Callout type="mistake" title="Security rules placed in CLAUDE.md or project settings">
+
+`CLAUDE.md` is advisory context, and `.claude/settings.json` allow rules wait for workspace trust and can be widened by local or user settings.<Cite id="F12 F30" /> Recovery: move the restriction to `permissions.deny`, the sandbox, and `allowManagedHooksOnly` in managed settings, and set `allowManagedPermissionRulesOnly: true`.<Cite id="F10" />
+
+</Callout>
+
+<Callout type="mistake" title="An MCP allowlist that is not locked and matches on names">
+
+Without `allowManagedMcpServersOnly: true`, user and project allowlists merge with the managed list, and a `serverName` entry can be matched by any server the user labels that way.<Cite id="F15 F16" /> Recovery: lock the list and specify `serverUrl` patterns or exact `serverCommand` arrays, keeping `deniedMcpServers` entries for known-bad hosts.<Cite id="F17" />
+
+</Callout>
+
+<Callout type="mistake" title="Gateway credentials conflict with login locks">
+
+Adding `forceLoginMethod` or `forceLoginOrgUUID` beside a gateway credential blocks startup for every developer.<Cite id="F24" /> Recovery: remove the login locks from managed settings.<Cite id="F24" /> Set `DISABLE_TELEMETRY=1` in managed `env` if the organization wants to turn off Anthropic operational telemetry.<Cite id="F21" />
+
+</Callout>
+
+Also check the assumptions that precede these failures: whether the intended policy was pushed to a tier that server-managed settings cannot reach, whether `managed-mcp.json` was expected to arrive via the console (it cannot), and whether telemetry content toggles were switched on for a pipeline that was never approved for prompt or tool content.<Cite id="F13 F20" />
+
+## Exam lens
+
+<ExamLens>
+
+- **A leak or forbidden action happened despite a written rule.** Ask whether the rule lives in `CLAUDE.md` or project settings instead of managed settings; enforcement requires `permissions.deny`, sandbox keys, and hook locks.<Cite id="F30" />
+- **A managed policy did not reach some machines.** Test the two silent-skip rules in order: server-managed settings skipped because `ANTHROPIC_BASE_URL` or a cloud-provider variable is active, and managed-tier shadowing under `first-wins`.<Cite id="F5 F7" />
+- **An unauthorized MCP server connected.** Look for `serverName` matching or a missing `allowManagedMcpServersOnly: true` lock, and prefer `serverUrl` / `serverCommand` entries.<Cite id="F15 F16" />
+- **Gateway or provider rollout breaks.** Suspect login locks paired with gateway credentials, a missing `allowedProviders: ["customEndpoint"]` restriction, or unpinned provider model aliases.<Cite id="F24 F26 F36" />
+- **A shared Skill is promoted after one manual test.** The bar is a security review with separation of duties, manifest validation, and a 3–5 query eval showing positive `Δ` over the no-plugin baseline.<Cite id="F33 F34 F40 F41" />
+
+</ExamLens>
+
+## Self-check
+
+<SelfCheck question="Your managed allowedMcpServers list holds one serverUrl pattern plus one serverName entry for github. Why does a stdio server named github load, while an HTTP server named github at api.github.com/mcp is rejected?">
+
+Remote and stdio servers are evaluated separately. Once any `serverUrl` entry exists, remote servers ignore `serverName` entries and must match a URL, so the `https://api.github.com/mcp` server fails the pattern.<Cite id="F16 F17" /> With no `serverCommand` entry present, stdio servers still fall back to matching `serverName` — which is a user-chosen label, not identity.<Cite id="F16" />
+
+</SelfCheck>
+
+<SelfCheck question="MDM sets CLAUDE_CODE_USE_BEDROCK=1 and ANTHROPIC_BASE_URL, and the claude.ai console sets strictKnownMarketplaces. Which managed settings apply, and what should the team change?">
+
+Only the MDM-delivered settings apply, because a cloud-provider variable or a custom `ANTHROPIC_BASE_URL` skips the server-managed fetch entirely.<Cite id="F7" /> Deliver `strictKnownMarketplaces` through MDM or `managed-settings.json`, or run Claude apps gateway as the policy point for those machines.<Cite id="F5 F25" />
+
+</SelfCheck>
+
+<SelfCheck question="A developer tests a new Skill in ~/.claude/skills/deploy/ with one prompt. What is the minimum bar before it becomes an organization-wide plugin?">
+
+A security audit against the risk checklist (executed scripts, network calls, MCP references, hardcoded credentials, instruction manipulation) reviewed by someone other than the author, schema validation with `claude plugin validate`, and a 3–5 query evaluation suite covering trigger, non-trigger, and edge cases across the models in use, with `claude plugin eval` showing positive `Δ` against the no-plugin baseline.<Cite id="F32 F33 F34 F35 F40 F41" />
+
+</SelfCheck>

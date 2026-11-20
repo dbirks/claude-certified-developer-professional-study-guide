@@ -8,12 +8,12 @@
   accessed: 2026-11-19
 
 - id: F2
-  claim: "Array settings such as permissions.allow merge across settings scopes instead of overriding, whereas fallbackModel, availableModels, and modelPicker follow scope replacement rules."
+  claim: "Lists such as permissions.allow merge across settings scopes; fallbackModel and modelPicker replace as whole values, and managed availableModels restricts the allowed model list."
   tag: FACT
   url: https://code.claude.com/docs/en/settings#lists-merge-instead-of-overriding
   title: "Settings files and precedence"
   source: claude-code-docs
-  quote: "When you set the same list key, such as permissions.allow, in more than one file, Claude Code combines the lists instead of picking one, so each file can add entries without removing another file's."
+  quote: "When you set the same list key, such as permissions.allow, in more than one file, Claude Code combines the lists instead of picking one, so each file can add entries without removing another file’s. Four keys that hold model lists or per-model entries follow their own rules: fallbackModel is an ordered chain where position carries meaning, so Claude Code takes the whole value from the highest-precedence file that defines it."
   accessed: 2026-11-19
 
 - id: F3
@@ -62,9 +62,9 @@
   accessed: 2026-11-19
 
 - id: F8
-  claim: "Server-managed settings use a 24-hour fail-open cache by default, while forceRemoteSettingsRefresh: true blocks CLI startup until fresh settings are fetched and exits on failure."
+  claim: "forceRemoteSettingsRefresh blocks startup until fresh server-managed settings are fetched and exits on fetch failure."
   tag: FACT
-  url: https://code.claude.com/docs/en/server-managed-settings#enforce-fail-closed-startup
+  url: https://code.claude.com/docs/en/server-managed-settings
   title: "Configure server-managed settings"
   source: claude-code-docs
   quote: "To stop clients from starting on cached or absent server-managed settings, set forceRemoteSettingsRefresh: true in your managed settings."
@@ -80,7 +80,7 @@
   accessed: 2026-11-19
 
 - id: F10
-  claim: "allowManagedPermissionRulesOnly makes managed settings the sole settings source of permission rules, ignoring user, project, local, --settings, --allowedTools, and skill allowed-tools frontmatter."
+  claim: "allowManagedPermissionRulesOnly makes managed settings the only settings source of permission rules and ignores lower-scope permission rules and --allowedTools."
   tag: FACT
   url: https://code.claude.com/docs/en/settings-reference#allowmanagedpermissionrulesonly
   title: "All settings"
@@ -107,7 +107,7 @@
   accessed: 2026-11-19
 
 - id: F13
-  claim: "Deploying managed-mcp.json places MCP servers under exclusive control, blocking user-added, project, plugin, and --mcp-config servers; an empty server map disables MCP entirely."
+  claim: "Deploying managed-mcp.json places MCP servers under exclusive control; an empty server map blocks all servers except separately allowed or provided servers."
   tag: FACT
   url: https://code.claude.com/docs/en/managed-mcp#exclusive-control-with-managed-mcp-json
   title: "Control MCP server access for your organization"
@@ -152,7 +152,7 @@
   accessed: 2026-11-19
 
 - id: F18
-  claim: "Claude Code exports OpenTelemetry metrics, log events, and beta distributed traces when CLAUDE_CODE_ENABLE_TELEMETRY=1 is configured."
+  claim: "Claude Code exports OpenTelemetry metrics and log events when telemetry is enabled; distributed traces are optional."
   tag: FACT
   url: https://code.claude.com/docs/en/monitoring-usage
   title: "Monitoring"
@@ -179,7 +179,7 @@
   accessed: 2026-11-19
 
 - id: F21
-  claim: "Setting DISABLE_TELEMETRY=1 in managed settings turns off Anthropic-bound operational telemetry across the organization, which is required when CMEK is enabled behind a custom gateway."
+  claim: "Setting DISABLE_TELEMETRY in managed settings turns off Anthropic operational telemetry for every developer."
   tag: FACT
   url: https://code.claude.com/docs/en/managed-settings#turn-telemetry-off-for-your-organization
   title: "Deploy managed settings"
@@ -224,7 +224,7 @@
   accessed: 2026-11-19
 
 - id: F26
-  claim: "Organizations deploying on Amazon Bedrock, Google Cloud's Agent Platform, or Microsoft Foundry should pin model versions via ANTHROPIC_DEFAULT_*_MODEL and must note that claude.ai Analytics and server-managed settings are unavailable on these providers."
+  claim: "For cloud-provider deployments, pin model aliases through ANTHROPIC_DEFAULT_*_MODEL when rollout timing matters because built-in aliases may lag a release or may not be enabled in the account."
   tag: REC
   url: https://code.claude.com/docs/en/third-party-integrations#pin-model-versions-for-cloud-providers
   title: "Enterprise deployment overview"
@@ -251,7 +251,7 @@
   accessed: 2026-11-19
 
 - id: F29
-  claim: "allowManagedHooksOnly: true restricts hook execution to managed hooks, Agent SDK hooks, and hooks in plugins force-enabled via managed enabledPlugins, while narrowing statusLine and fileSuggestion to managed settings."
+  claim: "allowManagedHooksOnly restricts hooks to managed hooks and hooks from plugins force-enabled in managed enabledPlugins."
   tag: FACT
   url: https://code.claude.com/docs/en/hooks#configure-hooks-in-settings
   title: "Hooks reference"
@@ -269,7 +269,7 @@
   accessed: 2026-11-19
 
 - id: F31
-  claim: "Custom Skills do not sync across surfaces—API-uploaded Skills are unavailable in claude.ai and Claude Code—so enterprises should store Skill source directories in Git, pin production API versions, and apply a security review checklist with separation of duties."
+  claim: "Custom Skills do not sync across surfaces: API-uploaded Skills are unavailable in claude.ai and Claude Code, so each surface requires separate uploads and management."
   tag: FACT
   url: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/enterprise#cross-surface-considerations
   title: "Skills for enterprise"
@@ -278,7 +278,7 @@
   accessed: 2026-11-19
 
 - id: F32
-  claim: "Enterprise Skills governance requires security review, automated scanning in claude.ai/Cowork where eligible, and pre-deployment evaluations of 3-5 queries across models measuring triggering accuracy, isolation, and coexistence."
+  claim: "Require 3–5 representative Skill evaluation queries covering expected triggers, non-triggers, and ambiguous edge cases, tested across the organization’s models."
   tag: REC
   url: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/enterprise#evaluation-requirements
   title: "Skills for enterprise"
@@ -287,10 +287,111 @@
   accessed: 2026-11-19
 
 - id: F33
-  claim: "Before releasing or distributing Claude Code plugins internally, teams should validate manifests with claude plugin validate --strict and run regression evals against a no-plugin baseline with claude plugin eval."
+  claim: "The plugin validator checks plugin files for syntax and schema errors."
   tag: REC
   url: https://code.claude.com/docs/en/plugin-evals#the-no-plugin-baseline
   title: "Test plugins with evals"
   source: claude-code-docs
-  quote: "A high score on its own doesn't tell you the plugin helped, because Claude might do as well without it. To separate the two, a case's runs are repeated with no plugin loaded, and you get two scores, WITH and W/OUT. Their difference, Δ, is what the plugin contributed."
+  quote: "To check a plugin’s files for syntax and schema errors rather than its behavior, use claude plugin validate."
+  accessed: 2026-11-19
+
+- id: F34
+  claim: "Plugin evaluation compares runs with and without the plugin to measure its contribution against a baseline."
+  tag: FACT
+  url: https://code.claude.com/docs/en/plugin-evals#the-no-plugin-baseline
+  title: "Plugin commands reference"
+  source: claude-code-docs
+  quote: "A high score on its own doesn’t tell you the plugin helped, because Claude might do as well without it. To separate the two, a case’s runs are repeated with no plugin loaded, and you get two scores, WITH and W/OUT. Their difference, Δ, is what the plugin contributed."
+  accessed: 2026-11-19
+
+- id: F35
+  claim: "The official Skill governance guidance recommends Git as the source of truth, version pinning, checksums or signed commits, and author-reviewer separation."
+  tag: REC
+  url: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/enterprise#cross-surface-considerations
+  title: "Skills for enterprise"
+  source: anthropic-docs
+  quote: "Production: Pin Skills to specific versions. If you omit version, requests use the latest version, so a new version uploaded by anyone in the workspace immediately changes what production agents run."
+  accessed: 2026-11-19
+
+- id: F36
+  claim: "allowedProviders can restrict a machine to the customEndpoint provider, which admits only the exact endpoint value pinned in managed env."
+  tag: FACT
+  url: https://code.claude.com/docs/en/settings-reference#allowmanagedpermissionrulesonly
+  title: "All settings"
+  source: claude-code-docs
+  quote: "customEndpoint: the Anthropic API or a cloud provider’s API sent to another host, such as an LLM gateway named by ANTHROPIC_BASE_URL or by a provider’s endpoint variable such as ANTHROPIC_BEDROCK_BASE_URL. Claude Code admits it only for the exact value a managed env block pins."
+  accessed: 2026-11-19
+
+- id: F37
+  claim: "otelHeadersHelper generates rotating OpenTelemetry headers for a telemetry backend."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "For enterprise environments that require dynamic authentication, you can configure a script to generate headers dynamically."
+  accessed: 2026-11-19
+
+- id: F38
+  claim: "When managed settings define availableModels, lower-level entries do not widen the list."
+  tag: FACT
+  url: https://code.claude.com/docs/en/settings#lists-merge-instead-of-overriding
+  title: "Settings files and precedence"
+  source: claude-code-docs
+  quote: "when the managed settings Claude Code applies define it, Claude Code applies that list as-is and ignores entries you add in user, project, or local settings"
+  accessed: 2026-11-19
+
+- id: F39
+  claim: "Distributed tracing is off by default and requires CLAUDE_CODE_ENABLE_TELEMETRY, CLAUDE_CODE_ENHANCED_TELEMETRY_BETA, and OTEL_TRACES_EXPORTER."
+  tag: VER
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "Tracing is off by default. To enable it, set both CLAUDE_CODE_ENABLE_TELEMETRY=1 and CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1, then set OTEL_TRACES_EXPORTER to choose where spans are sent."
+  accessed: 2026-11-19
+  version_note: "Claude Code documentation checked 2026-11-19."
+
+- id: F40
+  claim: "The enterprise Skills review process requires authors not to review their own Skills."
+  tag: REC
+  url: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/enterprise#cross-surface-considerations
+  title: "Skills for enterprise"
+  source: anthropic-docs
+  quote: "Establish separation of duties: Skill authors should not be their own reviewers."
+  accessed: 2026-11-19
+
+- id: F41
+  claim: "Enterprise Skills review should check scripts, instruction manipulation, MCP references, network access, and hardcoded credentials as high-risk indicators."
+  tag: REC
+  url: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/enterprise#cross-surface-considerations
+  title: "Skills for enterprise"
+  source: anthropic-docs
+  quote: "Code execution | Scripts in the Skill directory (*.py, *.sh, *.js) | High: scripts run with full environment access"
+  accessed: 2026-11-19
+
+- id: F42
+  claim: "Claude Enterprise organizations can enable automated security scanning for custom Skills in claude.ai and Claude Cowork."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/enterprise#cross-surface-considerations
+  title: "Skills for enterprise"
+  source: anthropic-docs
+  quote: "Claude Enterprise organizations can turn on automated security scanning for custom Skills in claude.ai and Claude Cowork."
+  accessed: 2026-11-19
+
+- id: F43
+  claim: "claude plugin eval requires Claude Code v2.1.269 or later."
+  tag: VER
+  url: https://code.claude.com/docs/en/plugin-evals#the-no-plugin-baseline
+  title: "Test plugins with evals"
+  source: claude-code-docs
+  quote: "Claude Code v2.1.269 or later. Run claude --version to check and claude update to upgrade."
+  accessed: 2026-11-19
+  version_note: "Claude Code requirement documented 2026-11-19."
+
+- id: F44
+  claim: "Maintain Agent Skill source files in Git as the source of truth."
+  tag: REC
+  url: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/enterprise#cross-surface-considerations
+  title: "Skills for enterprise"
+  source: anthropic-docs
+  quote: "Maintain Skill source files in Git as the single source of truth."
   accessed: 2026-11-19

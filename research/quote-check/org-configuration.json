@@ -37,7 +37,7 @@
   {
     "id": "F8",
     "status": "ok",
-    "url": "https://code.claude.com/docs/en/server-managed-settings#enforce-fail-closed-startup"
+    "url": "https://code.claude.com/docs/en/server-managed-settings"
   },
   {
     "id": "F9",
@@ -163,5 +163,60 @@
     "id": "F33",
     "status": "ok",
     "url": "https://code.claude.com/docs/en/plugin-evals#the-no-plugin-baseline"
+  },
+  {
+    "id": "F34",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/plugin-evals#the-no-plugin-baseline"
+  },
+  {
+    "id": "F35",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/enterprise#cross-surface-considerations"
+  },
+  {
+    "id": "F36",
+    "status": "ok-loose",
+    "url": "https://code.claude.com/docs/en/settings-reference#allowmanagedpermissionrulesonly"
+  },
+  {
+    "id": "F37",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F38",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/settings#lists-merge-instead-of-overriding"
+  },
+  {
+    "id": "F39",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F40",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/enterprise#cross-surface-considerations"
+  },
+  {
+    "id": "F41",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/enterprise#cross-surface-considerations"
+  },
+  {
+    "id": "F42",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/enterprise#cross-surface-considerations"
+  },
+  {
+    "id": "F43",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/plugin-evals#the-no-plugin-baseline"
+  },
+  {
+    "id": "F44",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/agent-skills/enterprise#cross-surface-considerations"
   }
 ]
