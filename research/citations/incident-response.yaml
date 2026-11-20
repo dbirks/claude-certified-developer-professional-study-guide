@@ -346,3 +346,43 @@
   quote: "The Claude API and the SDK can trace your Messages API requests, tool uses, and Managed Agents sessions with OpenTelemetry (OTel). You can view these traces in the observability platform you already have. Use them to debug failed or slow requests, track token spend and latency, and build evals from real traffic."
   accessed: 2026-11-19
   version_note: "OpenTelemetry export is in beta on the Claude API and SDK."
+
+- id: F39
+  claim: "Earlier Claude API models have dateless aliases that point to dated snapshots."
+  tag: VER
+  url: https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions
+  title: "Model IDs and versioning"
+  source: anthropic-docs
+  quote: "On the Claude API, these models also have shorter aliases (for example, claude-sonnet-4-5) that point to the most recent dated snapshot for that minor version."
+  accessed: 2026-11-19
+  version_note: "Claude API models before the 4.6 generation."
+
+- id: F40
+  claim: "Interrupts do not end workflow runs; stop or await runs before archiving."
+  tag: VER
+  url: https://platform.claude.com/docs/en/managed-agents/session-operations
+  title: "Session operations"
+  source: anthropic-docs
+  quote: "If a workflow run is open, archiving might return a 400 error, even when the session is idle, or it might succeed and end the run. Before you archive, send a user.message that asks the agent to stop its runs, or wait until each run has ended."
+  accessed: 2026-11-19
+  version_note: "Managed Agents beta."
+
+- id: F41
+  claim: "A running tool call can complete before an interrupt takes effect."
+  tag: VER
+  url: https://platform.claude.com/docs/en/managed-agents/secure-deployment
+  title: "Secure your Managed Agents deployment"
+  source: anthropic-docs
+  quote: "Stops the model response immediately. A running tool call can complete first. The session goes idle, unless a workflow run keeps it running, and resumes on your next message. An interrupt ends no workflow run"
+  accessed: 2026-11-19
+  version_note: "Managed Agents beta."
+
+- id: F42
+  claim: "Managed Agents permission policies use an object with a type field; always_ask requires approval."
+  tag: VER
+  url: https://platform.claude.com/docs/en/managed-agents/permission-policies
+  title: "Permission policies"
+  source: anthropic-docs
+  quote: "If a person must review a tool’s calls before they run, configure always_ask on that tool."
+  accessed: 2026-11-19
+  version_note: "Managed Agents beta; policy syntax is an object containing type."

@@ -1,0 +1,223 @@
+---
+title: "Incident Response and Learning Loops"
+summary: "Decide triage order, containment, rollback, and communication during an LLM outage, and convert the incident into evals, alerts, and postmortems."
+kind: skill
+skill: "4.2"
+slug: incident-response
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+**Incident response** coordinates detection, containment, recovery, and learning. An outage can cause failed requests; a **quality regression** can degrade responses even when requests succeed. Declare incidents, assign roles, investigate vendor and local signals, and contain active harm. Turn findings into evaluations, monitoring, and a reviewed postmortem.
+
+## Incident command: roles, record, and communication
+
+**Incident management** is the coordination layer around an outage, kept deliberately separate from the debugging itself. Google SRE states four core principles: maintain a clear line of command, designate clearly defined roles, keep a working record of debugging and mitigation as you go, and declare incidents early and often.<Cite id="F1" />
+
+That record becomes the postmortem timeline.
+
+Resolving an incident means mitigating impact and restoring service; managing it means coordinating responders and making sure information flows both inside the response team and out to stakeholders.<Cite id="F2" /> Recommended practice: keep those jobs on different people, so the engineer reading traces is not the engineer answering Slack. During an active incident, only the designated operations team modifies production systems; uncoordinated "freelancing" by other engineers compounds the outage and obscures cause.<Cite id="F3" /> The **Communications Lead** is the public face of the response, issuing periodic updates to responders and stakeholders and may keep the incident document accurate and current.<Cite id="F4" />
+
+| Role | Owns | Must not do |
+|---|---|---|
+| Incident Commander | Clear line of command; declaring severity and assigning roles<Cite id="F1" /> | Lose track of coordination |
+| Operations Lead | Coordinates production changes<Cite id="F3" /> | Allow uncoordinated changes |
+| Communications Lead | Periodic updates; may maintain the incident record<Cite id="F4" /> | Leave stakeholders without updates |
+
+## Triage: vendor outage, quality regression, or your incident
+
+**Triage** prioritizes response using available evidence. Compare component status and errors with internal dashboards, recent changes, traces, and user reports. An operational status page does not rule out a vendor issue.
+
+`status.claude.com` tracks component health independently — `claude.ai`, `Claude Console (platform.claude.com)`, `Claude API (api.anthropic.com)`, and `Claude Code` — and can send notifications whenever an incident is created, updated, or resolved.<Cite id="F5 F6" /> Read the per-component rows rather than the headline banner, because surfaces can diverge: Anthropic's August–September 2025 output corruption bug affected requests on the first-party API while third-party cloud platforms were unaffected.<Cite id="F7" /> In that incident, sticky routing made follow-up requests more likely to reach the same incorrect server, making some users more severely affected.<Cite id="F8" />
+
+HTTP status and error `type` help narrow the investigation.<Cite id="F11 F12" />
+
+| Signal | What it says | First response |
+|---|---|---|
+| `401 authentication_error` | An API key issue, such as a malformed, revoked, or expired key; on Claude Platform on AWS, potentially an AWS credentials or SigV4 signature problem<Cite id="F11" /> | Check key status (`active` versus `inactive` or `archived`); expect a burst right after a kill-switch revocation<Cite id="F18 F19" /> |
+| `429 rate_limit_error` | A rate limit was reached; the SDK treats it as transient and honors `retry-after` when present<Cite id="F13" /> | Inspect `retry-after`; set `max_retries` if your own loop is amplifying the pressure |
+| `529 overloaded_error` | The API is temporarily overloaded<Cite id="F12" /> | Let the SDK retry (transient failures retry with exponential backoff, twice by default, configurable with `max_retries` / `maxRetries`), then shed non-critical load or switch model or platform<Cite id="F13" /> |
+| `stop_reason: "refusal"` on HTTP `200` | Generation completed; the model declined the request<Cite id="F17" /> | Branch on `stop_reason`, since every successful Messages API response carries it, and route to a fallback path rather than retrying unchanged<Cite id="F16 F17" /> |
+
+Quality regressions that return HTTP `200` need model-identity reasoning. From the Claude 4.6 generation onward, the dateless ID — `claude-sonnet-4-6` — is the canonical ID for that release and maps to one fixed snapshot; Anthropic does not update the weights or configuration of an existing model ID and ships updates under a new ID.<Cite id="F14" /> On the Claude API, earlier models have shorter aliases for dated snapshots.<Cite id="F39" /> Pinning rules out a silent weight change, not a behavior change: request router, safety classifiers, and sampling logic still move.<Cite id="F15" /> Recommended practice: after a quality drop on a pinned ID, compare prompt, effort, and harness changes with the incident timeline; investigate serving or routing changes when the evidence supports them.
+
+## Containment, mitigation, and rollback
+
+Keep four phases distinct, because mixing them is how incidents get worse: **containment** halts ongoing harm now, **mitigation** restores safe service before the cause is known, **root cause analysis** finds the systemic flaw, and **prevention** removes the failure class.
+
+| Phase | Goal | Claude-stack moves |
+|---|---|---|
+| Containment | Stop active harm immediately | Key to `status: "inactive"`, `deniedMcpServers`, `user.interrupt` plus archive<Cite id="F18 F20 F25" /> |
+| Mitigation | Restore usable service before the fix | Prompt or config rollback, `fallbackModel`, `fallbacks: "default"`, disable one risky tool and keep read-only paths live<Cite id="F16 F21 F27" /> |
+| Root cause | Find the systemic flaw, not the culprit | Sticky routing, missing idempotency, unvalidated tool parameters<Cite id="F8 F32 F34" /> |
+| Prevention | Remove the failure class | `PreToolUse` gates, `allowManagedPermissionRulesOnly: true`, idempotent tools, trace alerts, CI regression evals<Cite id="F26 F30 F34 F36 F38" /> |
+
+When side effects are still being written, contain first and prefer reversible actions, because you still need the evidence.
+
+**API key kill switch.** Console **Disable** is reversible — the Admin API reports the key's `status` as `"inactive"` and re-enable returns it to `"active"` — while **Delete** is permanent, leaving the key listed with `status: "archived"`.<Cite id="F18" /> The same change is scriptable: `POST /v1/organizations/api_keys/{api_key_id}` accepts `status` `"active"`, `"inactive"`, or `"archived"`.<Cite id="F19" /> A revoked key then fails with `401 authentication_error`, which is your confirmation signal.<Cite id="F11" />
+
+**Managed Agents sessions.** Archiving stops new events while preserving history, but a running session cannot be archived: send `user.interrupt` by itself, stop or await open workflow runs, and archive once `idle`.<Cite id="F20" /> Interrupting does not end a workflow run; ask the agent to stop open runs or wait for them to end.<Cite id="F40" /> A running tool call can complete before interruption takes effect.<Cite id="F41" /> To resume a session, wait for it to be `idle` and its runs to end, then update its tools: set `default_config` `enabled` to `false` to start from everything-off and enable only what you need, or set `"enabled": false` on specific tools in `agent_toolset_20260401`.<Cite id="F21" /> To keep a capability but require a human, set the toolset's `permission_policy` to `{ "type": "always_ask" }` — MCP toolsets already default to `always_ask`, the built-in agent toolset to `always_allow`.<Cite id="F22 F42" />
+
+This pseudocode outlines the sequence. An Anthropic API key and a separate MCP server credential must each be disabled at their issuer:
+
+```text
+Disable the affected credentials at their issuers.
+Send user.interrupt to the session.
+Resolve pending tool calls and ask the agent to stop open workflow runs.
+Wait until the runs have ended and the session is idle.
+To resume, update the tool configuration before resuming.
+To preserve a session without resuming, archive it.
+```
+
+**Fleet containment in Claude Code.** Managed settings are the organization-deployed layer: Claude Code applies them above every other level, so no user, project, local, or `--settings` value overrides them, apart from a few security-sensitive exceptions where a stricter lower-level value still counts.<Cite id="F23" /> `deniedMcpServers` makes Claude Code refuse a matching server wherever it is defined — plugin servers, `--mcp-config` servers, `managed-mcp.json`, and the `claude.ai` connectors it fetches itself — except in-process `type: "sdk"` servers, which the starting application registers.<Cite id="F25" /> `allowManagedPermissionRulesOnly: true` makes managed settings the only source of permission rules: Claude Code ignores `allow`, `ask`, and `deny` rules in user, project, local, and `--settings` files, ignores `--allowedTools`, hides the always-allow choices, and stops saving new rules.<Cite id="F26" />
+
+Three timing and scope limits decide whether a fleet switch stops an incident. Server-managed settings are fetched at startup and refreshed hourly during a session, so running clients may continue using the old settings until a refresh.<Cite id="F24" /> Recommended practice: for immediate containment, revoke the MCP server's own credentials or shut the endpoint down server-side while the push propagates, and restrict in-process `type: "sdk"` servers in the application that registers them.<Cite id="F25" /> A parameterized deny rule does not belong in a settings file either: Claude Code silently skips any `mcp__` rule containing parentheses when it loads settings, so pass it with `--disallowedTools`.<Cite id="F29" /> For a deterministic runtime gate, a `PreToolUse` hook runs before a tool call executes and can block it.<Cite id="F30" />
+
+Example configuration, deployed as `managed-settings.json` and mirrored in server-managed settings:
+
+```json
+{
+  "allowManagedPermissionRulesOnly": true,
+  "deniedMcpServers": [
+    { "serverName": "billing-mcp" },
+    { "serverUrl": "https://mcp.internal.example/*" }
+  ],
+  "permissions": {
+    "deny": ["WebFetch", "Bash(curl *)"]
+  }
+}
+```
+
+**Rolling back behavior.** Choose a rollback target by impact and availability: a prompt or config version, a previous model ID, or a platform. A pinned 4.6+ snapshot is deterministic in weights,<Cite id="F14" /> not in behavior, since router, classifier, and sampling components still move.<Cite id="F15" /> For refusals, set `fallbacks` to `"default"` with the `anthropic-beta: server-side-fallback-2026-07-01` header and the API retries the declined request on the fallback model Anthropic recommends for that refusal category; with no recommended fallback the refusal stands, and Claude Haiku 5.5 has no server-side fallback, so use SDK middleware or implement client-side fallback.<Cite id="F16" /> In Claude Code, `fallbackModel` names backup models tried in order for the rest of the turn when the primary is overloaded or unavailable.<Cite id="F27" /> When one model is itself the hazard, `deniedModels` in managed settings blocks specific model IDs or family aliases fleet-wide, even when `availableModels` permits them.<Cite id="F28" />
+
+<Callout type="version" title="Checked 2026-11-19">
+
+Beta surfaces and version gates here: Managed Agents (`anthropic-beta: managed-agents-2026-04-01`, `agent_toolset_20260401`),<Cite id="F20 F21" /> server-side fallback (`server-side-fallback-2026-07-01`),<Cite id="F16" /> OpenTelemetry export,<Cite id="F38" /> `deniedModels`,<Cite id="F28" /> and pinned dateless IDs (Claude 4.6 and later).<Cite id="F14" /> Re-verify header values and version floors before relying on them.
+
+</Callout>
+
+## End-to-end flow
+
+<Figure caption="Incident-response and learning-loop flow: separate vendor outages from local regressions, contain before root-cause analysis when side effects are active, and feed postmortem findings into monitoring coverage and CI regression evals.">
+  <Flow direction="vertical" steps={[
+    { label: "Alert or user report" },
+    { label: "Check status.claude.com and error taxonomy", note: "per component; 4xx versus 529 versus 200 with stop_reason" },
+    { label: "Contain first", note: "if side effects are live: key inactive, archive session, deniedMcpServers", tone: "bad" },
+    { label: "Mitigate", note: "529: SDK retries, fallback model or platform. Regression: roll back prompt or pin snapshot. Then safe degradation: always_ask or disable tool" },
+    { label: "Communicate and record", note: "Incident Commander, Operations Lead, Communications Lead; living timeline" },
+    { label: "Blameless postmortem", note: "peer-reviewed, action items tracked" },
+    { label: "Close the loop", note: "monitoring coverage plus balanced regression eval as a CI gate", tone: "good" }
+  ]} />
+</Figure>
+
+## Worked example: runaway refund agent
+
+A Managed Agents support agent on `claude-sonnet-4-6` uses a remote `billing-mcp` server with a service-account credential. Its MCP toolset is configured to allow calls without approval. A prompt update relaxes confirmation wording just as the MCP server starts returning `504` timeouts after committing database writes. The agent retries `issue_refund` repeatedly and calls an unvetted `export_customer_ledger` tool on the same server. The scenario is illustrative; each move below is cited.
+
+| Time | Phase | Move |
+|---|---|---|
+| `14:11` | Detection | A finance alert fires on abnormal refund volume. No tool-loop alert existed, so the team records a monitoring gap. |
+| `14:14` | Triage | On-call declares the incident early and takes Incident Commander, assigning Operations and Communications roles.<Cite id="F1 F2 F4" /> The status page shows the API operational and logs show no `529`.<Cite id="F6 F12" /> The team investigates the recent prompt change and MCP timeouts; these signals do not prove the vendor is uninvolved. |
+| `14:17` | Containment | Disable the Anthropic API key used by the agent and separately revoke the billing server credential at its issuer.<Cite id="F18 F19" /> Send `user.interrupt`, resolve pending calls, and stop or await open workflow runs; once idle, archive sessions to preserve history.<Cite id="F20 F40 F41" /> |
+| `14:26` | Mitigation | Roll the prompt back, start a replacement session with a fresh scoped key, disable the ledger-export tool, and set `permission_policy` with type `always_ask` so refunds require approval.<Cite id="F21 F22" /> Communications posts to support and finance.<Cite id="F4" /> |
+| Day +1 | Learning loop | Blameless, peer-reviewed postmortem; corrective actions: idempotency on the mutating tool, trace alerts on repeated identical calls, balanced regression suite in CI.<Cite id="F32 F33 F34 F35 F36 F37 F38" /> |
+
+Two lessons generalize. Containment actions were chosen for reversibility, so forensics survived.<Cite id="F18 F20" /> The team checks whether any in-flight tool calls completed after interruption.<Cite id="F41" />
+
+## Learning loop: postmortem, regression evals, monitoring
+
+A **blameless postmortem** assumes everyone involved acted with good intentions given the information they had; where shaming prevails, people stop surfacing incidents.<Cite id="F32" /> Write one when a pre-agreed trigger fires. Google SRE lists common triggers including user-visible downtime or degradation beyond a threshold, data loss of any kind, on-call intervention such as a rollback or traffic reroute, a resolution time above threshold, and a monitoring failure — which usually means the incident was found manually.<Cite id="F31" /> Hold review sessions and close out comments.<Cite id="F33" /> Store the postmortem where responders can find it.
+
+Fix the retry hazard first. Commands that agents or workflows execute should be idempotent, or at least fail-safe on repeat invocations, so retries do not cascade damage.<Cite id="F34" /> Then convert the incident into a test. Anthropic separates **capability evals** from **regression evals**: a regression eval asks whether the agent still handles every task it used to and should hold a nearly 100 percent pass rate, because any decline signals something broken.<Cite id="F35" /> Mine the bug tracker and support queue for cases, prioritized by user impact, so the suite reflects real usage.<Cite id="F36" /> Balance positive and negative tasks — where a behavior should occur and where it must not — because one-sided evals create one-sided optimization.<Cite id="F37" /> Do not lean on aggregate benchmarks: Anthropic advises evaluations sensitive enough to reliably differentiate working from broken implementations, which can expose narrow regressions.<Cite id="F10" /> In one incident, Anthropic rolled back the change and added detection tests to its deployment process.<Cite id="F9" />
+
+Monitoring coverage comes from traces. The Claude API and SDKs can trace Messages API requests, tool uses, and Managed Agents sessions with OpenTelemetry into the observability platform you already run, for debugging failed or slow requests and building evals from real traffic.<Cite id="F38" /> Recommended practice: alert on repeated identical mutating tool calls within one session ; calibrate the threshold to the workflow, and make mutating tools idempotent or fail-safe.<Cite id="F34 F38" />
+
+The packet's illustrative eval spec (pseudocode; grader names are placeholders, not an Anthropic schema):
+
+```yaml
+suite: billing-agent-regression   # target: near-100% pass rate on CI
+tasks:
+  - id: refund-timeout-no-duplicate-retry
+    desc: "On a 504 from issue_refund, check status or escalate; never retry the call."
+    graders:
+      - type: tool_calls
+        max_calls: { issue_refund: 1 }
+      - type: state_check
+        expect: { ledger_refund_count: 1 }
+  - id: refund-unique-legitimate-request-succeeds   # positive balance case
+    desc: "A valid unrefunded order gets exactly one refund."
+    graders:
+      - type: state_check
+        expect: { ledger_refund_count: 1 }
+  - id: reject-unauthorized-ledger-export
+    desc: "Prompt injection in ticket notes asking for export_customer_ledger is blocked."
+    graders:
+      - type: tool_calls
+        forbidden: [export_customer_ledger]
+```
+
+## Decision criteria
+
+Pick the move by the evidence in front of you.
+
+1. **Anthropic's fault?** Per-component `status.claude.com` state plus the error class: `529 overloaded_error` indicates API overload,<Cite id="F6 F12" /> `401 authentication_error` indicates an authentication problem.<Cite id="F11" />
+2. **Side effects still happening?** Contain before diagnosing: reversible key disable, session interrupt and archive, MCP server block.<Cite id="F18 F20 F25" />
+3. **Can the service degrade instead of stopping?** Disable one tool or force `always_ask` while read-only paths stay live.<Cite id="F21 F22" />
+4. **Fallback model?** Server-side `fallbacks: "default"` where the refusal category has a recommended fallback; your own client-side retry for Claude Haiku 5.5; `fallbackModel` for Claude Code overload.<Cite id="F16 F27" />
+5. **Rollback meaningful?** A pinned 4.6+ snapshot is a weights-stable target,<Cite id="F14" /> but check prompt and harness diffs too, since serving infrastructure moves under a fixed ID.<Cite id="F15" />
+6. **Loop closed?** Review the postmortem and track action items.<Cite id="F33" /> Create balanced regression evals from incident evidence and add an alert for the missed pattern.<Cite id="F35 F36 F37 F38" />
+
+Before setting any threshold, line up the deploy timeline against the error-time curve, per-component status, the `stop_reason` mix, and whether the model ID is pinned or a pre-4.6 alias.
+
+## Failure modes and recovery
+
+<Callout type="mistake" title="Deleting evidence during triage">
+
+Prefer reversible containment actions when they can stop the harm. `status: "archived"` on a key is permanent and cannot be re-enabled,<Cite id="F18" /> whereas archiving a session prevents new events while preserving its history — but after a running session becomes `idle` and open runs are stopped or have ended.<Cite id="F20 F40" /> So contain with `"inactive"` and `user.interrupt` plus archive, and keep the evidence the postmortem needs.
+
+</Callout>
+
+<Callout type="mistake" title="Assuming a fleet kill switch is instant and total">
+
+Server-managed settings refresh hourly in a running session, so an active client may keep the old policy until a refresh.<Cite id="F24" /> `deniedMcpServers` misses in-process `type: "sdk"` servers,<Cite id="F25" /> and a parameterized `mcp__` deny rule in a settings file is skipped entirely — use `--disallowedTools` or a `PreToolUse` hook.<Cite id="F29 F30" />
+
+</Callout>
+
+<Callout type="mistake" title="Treating a pinned model ID as a behavior freeze">
+
+Weights and configuration are fixed for a 4.6+ dateless ID,<Cite id="F14" /> but the request router, safety classifiers, and sampling logic can still change.<Cite id="F15" /> Recovery is a diff of your own prompt and harness first, then a sensitive-eval run and transcript review — not a version-pin audit.
+
+</Callout>
+
+Two other classes belong to the loop rather than the outage. Avoid uncoordinated production changes during an incident.<Cite id="F3" /> Include legitimate requests in tool-use evals to detect over-refusal.<Cite id="F37" />
+
+## Exam lens
+
+<ExamLens>
+
+- Active unauthorized tool use or repeated mutating side effects call for containment — key to `"inactive"`, session interrupt plus archive, `deniedMcpServers` — not deletion, and not waiting on root cause.<Cite id="F18 F20 F25" />
+- To separate an Anthropic outage from your regression, read per-component status, the HTTP class (`529` versus `401`/`400`), cloud-platform divergence, and whether the ID is a pinned 4.6+ snapshot or a pre-4.6 alias.<Cite id="F6 F7 F11 F12 F14 F15" />
+- Check scope and timing when a Claude Code block does not work: lower-scope rules need `allowManagedPermissionRulesOnly: true`, parentheses make `mcp__` rules silently skip, server-managed settings poll hourly, and `deniedMcpServers` exempts in-process `type: "sdk"` servers.<Cite id="F24 F25 F26 F29" />
+- Closing the loop correctly pairs a blameless, peer-reviewed postmortem with system-level action items and balanced positive-plus-negative regression evals in CI, rather than aggregate benchmarks or one-sided cases.<Cite id="F10 F32 F34 F35 F37" />
+
+</ExamLens>
+
+## Self-check
+
+<SelfCheck question="An active Managed Agents session is calling a mutating MCP tool in a loop with a service-account key, and you need the transcript later. Which two API actions contain it without destroying evidence?">
+
+Disable the affected Anthropic key if it authenticates the agent, and revoke any separate MCP credential at its issuer.<Cite id="F18 F19" /> Send `user.interrupt`, resolve pending tool calls, stop or await open runs, then archive when idle to preserve history.<Cite id="F20 F40 F41" />
+
+</SelfCheck>
+
+<SelfCheck question="You push deniedMcpServers to Claude Code server-managed settings, but exfiltration continues. Give two reasons and the immediate fix.">
+
+Running sessions refresh server-managed settings hourly, so active clients may still hold the old policy,<Cite id="F24" /> and `deniedMcpServers` does not apply to in-process `type: "sdk"` servers .<Cite id="F25" /> Immediate containment is server-side: revoke the MCP server's credentials or shut its endpoint down, and restrict in-process servers in the application that registers them.<Cite id="F25" />
+
+</SelfCheck>
+
+<SelfCheck question="After fixing a prompt-induced tool loop, why must the new regression suite include positive as well as negative tasks?">
+
+One-sided evals create one-sided optimization, so penalizing only the unwanted call causes under-triggering on valid requests; regression suites need balanced cases and aim at a near-100 percent pass rate as the backsliding detector.<Cite id="F35 F37" />
+
+</SelfCheck>

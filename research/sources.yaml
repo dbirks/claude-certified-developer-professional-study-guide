@@ -23,7 +23,7 @@
     - llm-as-judge:F31
     - llm-as-judge:F32
     - llm-as-judge:F40
-    - llm-as-judge:F45
+    - llm-as-judge:F43
 - url: https://blog.modelcontextprotocol.io/posts/2026-07-28/
   title: The 2026-07-28 Specification
   source: mcp-spec
@@ -733,7 +733,7 @@
   accessed: 2026-11-19
   cited_by:
     - llm-as-judge:F33
-    - llm-as-judge:F43
+    - llm-as-judge:F42
 - url: https://en.wikipedia.org/wiki/Krippendorff%27s_alpha
   title: Krippendorff's alpha
   source: standard
@@ -960,6 +960,7 @@
     - failure-diagnosis:F10
     - incident-response:F14
     - incident-response:F15
+    - incident-response:F39
     - llm-as-judge:F17
     - llm-as-judge:F18
     - llm-as-judge:F19
@@ -1395,6 +1396,7 @@
   accessed: 2026-11-19
   cited_by:
     - llm-as-judge:F25
+    - llm-as-judge:F45
     - cost-architecture:F26
     - latency-engineering:F15
     - latency-engineering:F16
@@ -1529,6 +1531,7 @@
     - llm-as-judge:F20
     - llm-as-judge:F21
     - llm-as-judge:F38
+    - llm-as-judge:F44
 - url: https://platform.claude.com/docs/en/build-with-claude/thinking
   title: Thinking
   source: anthropic-docs
@@ -1541,7 +1544,6 @@
     - telemetry:F60
     - failure-diagnosis:F30
     - llm-as-judge:F24
-    - llm-as-judge:F42
 - url: https://platform.claude.com/docs/en/build-with-claude/thinking-troubleshooting
   title: Troubleshooting thinking
   source: anthropic-docs
@@ -1776,12 +1778,14 @@
   cited_by:
     - failure-diagnosis:F20
     - incident-response:F22
+    - incident-response:F42
     - runtime-guardrails:F16
 - url: https://platform.claude.com/docs/en/managed-agents/secure-deployment
   title: Secure your Managed Agents deployment
   source: anthropic-docs
   accessed: 2026-11-19
   cited_by:
+    - incident-response:F41
     - unattended-operations:F30
 - url: https://platform.claude.com/docs/en/managed-agents/session-observability
   title: Inspect sessions and track usage
@@ -1799,6 +1803,7 @@
     - durable-execution:F17
     - durable-execution:F42
     - incident-response:F20
+    - incident-response:F40
     - unattended-operations:F14
     - unattended-operations:F31
 - url: https://platform.claude.com/docs/en/managed-agents/session-threads
@@ -1838,12 +1843,6 @@
     - mcp-change-management:F31
     - mcp-change-management:F32
     - evaluation-design:F34
-- url: https://platform.claude.com/docs/en/models/opus-5-5/overview
-  title: Claude Opus 5.5
-  source: anthropic-docs
-  accessed: 2026-11-19
-  cited_by:
-    - llm-as-judge:F44
 - url: https://platform.claude.com/docs/en/models/overview
   title: Models overview
   source: anthropic-docs

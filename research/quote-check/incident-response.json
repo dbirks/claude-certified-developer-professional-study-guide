@@ -188,5 +188,25 @@
     "id": "F38",
     "status": "ok",
     "url": "https://platform.claude.com/docs/en/manage-claude/opentelemetry"
+  },
+  {
+    "id": "F39",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions"
+  },
+  {
+    "id": "F40",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/managed-agents/session-operations"
+  },
+  {
+    "id": "F41",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/managed-agents/secure-deployment"
+  },
+  {
+    "id": "F42",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/managed-agents/permission-policies"
   }
 ]
