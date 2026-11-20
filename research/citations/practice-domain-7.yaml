@@ -116,7 +116,7 @@
   accessed: 2026-11-19
 
 - id: F14
-  claim: "Claude Code OTel has a claude_code.tool_decision event for accepted or rejected tool permission decisions, with tool_use_id for correlation."
+  claim: "Claude Code OTel has a claude_code.tool_decision event for accepted or rejected tool permission decisions."
   tag: FACT
   url: https://code.claude.com/docs/en/monitoring-usage
   title: "Monitoring"
@@ -125,7 +125,7 @@
   accessed: 2026-11-19
 
 - id: F15
-  claim: "Claude Code OTel correlates tool decisions/results to user prompts and sessions, but direct API key and cloud-provider sessions require customer-supplied end-user identity attributes."
+  claim: "Direct API key and cloud-provider sessions have no Claude account and populate only user.id and session.id by default."
   tag: FACT
   url: https://code.claude.com/docs/en/monitoring-usage
   title: "Monitoring"
@@ -139,7 +139,7 @@
   url: https://platform.claude.com/docs/en/manage-claude/compliance-integration-patterns
   title: "Design your compliance integration"
   source: anthropic-docs
-  quote: "Claude Code usage authenticated with a Claude Console API key, run through any cloud platform, or run in a Claude Code cloud session."
+  quote: "The Compliance API does not include:"
   accessed: 2026-11-19
 
 - id: F17
@@ -149,4 +149,277 @@
   title: "Authentication"
   source: anthropic-docs
   quote: "Store API keys in a secrets manager, rotate them periodically, and disable or delete any key you suspect has leaked."
+  accessed: 2026-11-19
+
+- id: F18
+  claim: "In Claude Code command hooks, exit code 1 without valid JSON output is a non-blocking error; policy hooks must use exit 2 (or JSON deny) to block."
+  tag: FACT
+  url: https://code.claude.com/docs/en/hooks#other-exit-codes
+  title: "Hooks reference"
+  source: claude-code-docs
+  quote: "Exit code 1 without valid JSON output is a non-blocking error unless the hook is one whose failure blocks the action, even though 1 is the conventional Unix failure code. If your hook is meant to enforce a policy, use exit 2."
+  accessed: 2026-11-19
+
+- id: F19
+  claim: "Setting onFailure to block on a command, http, or mcp_tool hook makes crashes, wrong script paths, and failures fail closed."
+  tag: VER
+  url: https://code.claude.com/docs/en/hooks#block-the-action-when-a-hook-fails
+  title: "Hooks reference"
+  source: claude-code-docs
+  quote: "A policy hook with a wrong path or a crashing script then lets everything through. To block the action instead, set \"onFailure\": \"block\" on a command, http, or mcp_tool hook."
+  accessed: 2026-11-19
+  version_note: "onFailure: block requires Claude Code v2.1.295+ (command/http) or v2.1.328+ (mcp_tool)."
+
+- id: F20
+  claim: "Bash permission rules match the command text Claude writes after splitting compound commands and wrappers, so they miss alternate invocations and are not a security boundary."
+  tag: FACT
+  url: https://code.claude.com/docs/en/permissions#what-a-bash-rule-doesnt-match
+  title: "Configure permissions"
+  source: claude-code-docs
+  quote: "A Bash rule matches the command text Claude writes, after Claude Code splits compound commands and strips wrappers. It doesn't match the same program invoked in a different form, so a deny or ask rule covers the invocation Claude usually produces and isn't a security boundary around the program."
+  accessed: 2026-11-19
+
+- id: F21
+  claim: "Prompt instructions and CLAUDE.md shape what Claude attempts, whereas permission rules are enforced by Claude Code outside the model."
+  tag: FACT
+  url: https://code.claude.com/docs/en/permissions#manage-permissions
+  title: "Configure permissions"
+  source: claude-code-docs
+  quote: "Permission rules are enforced by Claude Code, not by the model. Instructions in your prompt or CLAUDE.md shape what Claude tries to do, but they don't change these rules."
+  accessed: 2026-11-19
+
+- id: F22
+  claim: "Blocking a prompt in UserPromptSubmit stops Claude from processing it, but the prompt can still persist in local transcript and prompt history files."
+  tag: FACT
+  url: https://code.claude.com/docs/en/hooks#what-a-blocked-prompt-leaves-behind
+  title: "Hooks reference"
+  source: claude-code-docs
+  quote: "Either way, the prompt can still appear in local files such as the session transcript and your prompt history. A blocking hook isn't a way to keep a secret off disk."
+  accessed: 2026-11-19
+
+- id: F23
+  claim: "MessageDisplay hooks change only on-screen display; transcripts and model context retain the original unredacted text."
+  tag: FACT
+  url: https://code.claude.com/docs/en/hooks#messagedisplay
+  title: "Hooks reference"
+  source: claude-code-docs
+  quote: "MessageDisplay is display-only: the replacement text changes only what is rendered on screen. The transcript and what Claude sees keep the original text, so Claude never sees the replacement, and verbose mode shows the original."
+  accessed: 2026-11-19
+
+- id: F24
+  claim: "Claude Code's built-in pattern redaction covers internal error reports before leaving the machine."
+  tag: FACT
+  url: https://code.claude.com/docs/en/data-usage#telemetry-services
+  title: "Data usage"
+  source: claude-code-docs
+  quote: "Claude Code redacts known patterns of secrets, file paths, email addresses, and other personal information before anything leaves your machine."
+  accessed: 2026-11-19
+
+- id: F25
+  claim: "The @anthropic-ai/sandbox-runtime (srt) package wraps the entire Claude Code process—including file tools, hooks, and MCP servers—in OS-level isolation."
+  tag: FACT
+  url: https://code.claude.com/docs/en/sandbox-environments#sandbox-runtime
+  title: "Choose a sandbox environment"
+  source: claude-code-docs
+  quote: "The @anthropic-ai/sandbox-runtime package wraps an entire process in the same Seatbelt or bubblewrap isolation that the built-in Bash sandbox uses. Running Claude Code through the runtime constrains the session's tools, hooks, and MCP servers as well as shell commands."
+  accessed: 2026-11-19
+
+- id: F26
+  claim: "Built-in sandbox denyRead rules do not stop Claude's Read tool, and allowedDomains does not limit WebFetch."
+  tag: FACT
+  url: https://code.claude.com/docs/en/sandboxing#what-runs-outside-the-sandbox
+  title: "Configure the sandboxed Bash tool"
+  source: claude-code-docs
+  quote: "A denyRead entry doesn't stop the Read tool, and allowedDomains doesn't limit WebFetch"
+  accessed: 2026-11-19
+
+- id: F27
+  claim: "Running Claude Code with --dangerously-skip-permissions inside a dev container does not stop a malicious repo from exfiltrating accessible credentials such as ~/.claude."
+  tag: REC
+  url: https://code.claude.com/docs/en/devcontainer
+  title: "Development containers"
+  source: claude-code-docs
+  quote: "When executed with --dangerously-skip-permissions, dev containers do not prevent a malicious project from exfiltrating anything accessible inside the container, including the Claude Code credentials stored in ~/.claude. Only use dev containers when developing with trusted repositories, and monitor Claude's activities."
+  accessed: 2026-11-19
+
+- id: F28
+  claim: "When pre-screening input with Claude Haiku 5.5, treat a classifier response with stop_reason refusal as a harmful verdict."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks#jailbreaks-and-direct-prompt-injection
+  title: "Mitigate jailbreaks and prompt injections"
+  source: anthropic-docs
+  quote: "Claude Haiku 5.5 runs safety classifiers that can decline the screening request itself, so treat a response with stop_reason: \"refusal\" as a harmful verdict."
+  accessed: 2026-11-19
+
+- id: F29
+  claim: "Claude Haiku 5.5 has no server-side refusal fallback; fallbacks default leaves declined requests declined."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback#server-side-fallback
+  title: "Refusals and fallback"
+  source: anthropic-docs
+  quote: "Claude Haiku 5.5 has no server-side fallback: with fallbacks: \"default\", a declined request stays declined, and a list of fallback models returns a 400 error."
+  accessed: 2026-11-19
+  version_note: "Server-side fallback excludes Claude Haiku 5.5 and Message Batches."
+
+- id: F30
+  claim: "Claude Code ignores autoMode configuration in repository .claude/settings.json and .claude/settings.local.json files."
+  tag: FACT
+  url: https://code.claude.com/docs/en/auto-mode-config#where-the-classifier-reads-configuration
+  title: "Configure auto mode"
+  source: claude-code-docs
+  quote: "The classifier doesn't read autoMode from project settings in .claude/settings.json or .claude/settings.local.json. Both files live in the repo directory, so a checked-in repo or a build step could otherwise inject its own allow rules."
+  accessed: 2026-11-19
+
+- id: F31
+  claim: "Anthropic's two-stage auto-mode classifier reduces false positives from 8.5% to 0.4% while retaining a 17% false-negative rate on real overeager actions."
+  tag: FACT
+  url: https://www.anthropic.com/engineering/claude-code-auto-mode
+  title: "How we built Claude Code auto mode: a safer way to skip permissions"
+  source: anthropic-engineering
+  quote: "FPR drops from 8.5% to 0.4%, at the cost of some recall. The 17% false-negative rate on real overeager actions is the honest number."
+  accessed: 2026-11-19
+
+- id: F32
+  claim: "In Claude Managed Agents, auto permission policy is not a human checkpoint; irreversible tools requiring review must use always_ask."
+  tag: REC
+  url: https://platform.claude.com/docs/en/managed-agents/permission-policies
+  title: "Permission policies"
+  source: anthropic-docs
+  quote: "auto is not a human checkpoint. If the server determines that a call is safe, the call runs before anyone sees it, and its effects might not be reversible. If a person must review a tool’s calls before they run, configure always_ask on that tool."
+  accessed: 2026-11-19
+
+- id: F33
+  claim: "Third-party untrusted content should be delivered exclusively in tool_result blocks, never in system prompts or plain user text blocks."
+  tag: REC
+  url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks#indirect-prompt-injection
+  title: "Mitigate jailbreaks and prompt injections"
+  source: anthropic-docs
+  quote: "Deliver third-party content to Claude inside tool_result blocks, never in system prompts or plain user text blocks. Claude is trained to treat instructions that appear inside tool results with appropriate skepticism."
+  accessed: 2026-11-19
+
+- id: F34
+  claim: "Setting web_fetch url_sources.client_tool_results to none stops client-side tool results from counting as URL sources."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool#url-sources
+  title: "Web fetch tool"
+  source: anthropic-docs
+  quote: "To exclude all client-side tool results, set client_tool_results to {\"type\": \"none\"}."
+  accessed: 2026-11-19
+
+- id: F35
+  claim: "Claude Code treats CLAUDE.md and auto memory files as context rather than enforced configuration."
+  tag: FACT
+  url: https://code.claude.com/docs/en/memory
+  title: "How Claude remembers your project"
+  source: claude-code-docs
+  quote: "Claude treats them as context, not enforced configuration. To block an action regardless of what Claude decides, use a PreToolUse hook instead."
+  accessed: 2026-11-19
+
+- id: F36
+  claim: "An MCP server must not accept or transit unrelated client tokens; downstream APIs require separately issued tokens."
+  tag: STD
+  url: https://modelcontextprotocol.io/specification/2025-06-18/basic/authorization
+  title: "Authorization"
+  source: mcp-spec
+  quote: "MCP servers MUST NOT accept or transit any other tokens."
+  accessed: 2026-11-19
+
+- id: F37
+  claim: "The mcp-client-2026-09-15 beta header pins an MCP server's tool list so mid-conversation tool changes do not reach Claude."
+  tag: VER
+  url: https://platform.claude.com/docs/en/agents-and-tools/mcp-connector
+  title: "MCP connector"
+  source: anthropic-docs
+  quote: "An MCP server can change its tools at any time. With the mcp-client-2026-09-15 beta header, the API records the tool list each server returns, and you can pin that list. That way, a change to a server’s tools doesn’t change what Claude receives partway through a conversation."
+  accessed: 2026-11-19
+  version_note: "Requires beta header mcp-client-2026-09-15."
+
+- id: F38
+  claim: "In MCP proxy deployments, combining a static client ID, dynamic client registration, and consent cookies enables confused-deputy authorization-code theft."
+  tag: STD
+  url: https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices
+  title: "Security Best Practices - Model Context Protocol"
+  source: mcp-spec
+  quote: "This attack allows malicious clients to obtain authorization codes without proper user consent by exploiting the combination of static client IDs, dynamic client registration, and consent cookies."
+  accessed: 2026-11-19
+
+- id: F39
+  claim: "Even a 1% attack success rate in browser-use prompt injection evaluations still represents meaningful risk."
+  tag: FACT
+  url: https://www.anthropic.com/research/prompt-injection-defenses
+  title: "Mitigating prompt injections in browser use"
+  source: anthropic-research
+  quote: "A 1% attack success rate—while a significant improvement—still represents meaningful risk. No browser agent is immune to prompt injection, and we share these findings to demonstrate progress, not to claim the problem is solved."
+  accessed: 2026-11-19
+
+- id: F40
+  claim: "The NIST AI RMF 1.0 Core consists of Govern, Map, Measure, and Manage, and NIST AI 600-1 is its companion Generative AI Profile."
+  tag: STD
+  url: https://airc.nist.gov/airmf-resources/airmf/5-sec-core/
+  title: "AI RMF Core - AIRC"
+  source: standard
+  quote: "As illustrated in Figure 5, the Core is composed of four functions: govern, map, measure, and manage. Each of these high-level functions is broken down into categories and subcategories."
+  accessed: 2026-11-19
+
+- id: F41
+  claim: "In direct API-key or cloud-provider Claude Code deployments, attach operator identity with OTEL_RESOURCE_ATTRIBUTES."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "In these deployments, attach user identity yourself with OTEL_RESOURCE_ATTRIBUTES, set per user through the managed settings file or a launch wrapper."
+  accessed: 2026-11-19
+
+- id: F42
+  claim: "tool_use_id uniquely identifies a tool invocation and correlates OTel events with hook-captured records."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "tool_use_id: Unique identifier for this tool invocation. Matches the tool_use_id passed to hooks, allowing correlation between OTel events and hook-captured data."
+  accessed: 2026-11-19
+
+- id: F43
+  claim: "OTEL_LOG_TOOL_DETAILS=1 adds command strings, MCP server and tool names, and tool input to telemetry events, increasing content sensitivity."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring"
+  source: claude-code-docs
+  quote: "OTEL_LOG_TOOL_DETAILS=1 adds command strings, server and tool names, and tool input to these events."
+  accessed: 2026-11-19
+
+- id: F44
+  claim: "Compliance API specifically excludes Claude Code usage authenticated with a Claude Console API key, run through any cloud platform, or run in a cloud session."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/compliance-integration-patterns
+  title: "Design your compliance integration"
+  source: anthropic-docs
+  quote: "Claude Code usage authenticated with a Claude Console API key, run through any cloud platform, or run in a Claude Code cloud session."
+  accessed: 2026-11-19
+
+- id: F45
+  claim: "Admin API keys unlock the Compliance Activity Feed only; broader Compliance API endpoints require Compliance Access Keys."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/compliance-api-access
+  title: "Set up the Compliance API"
+  source: anthropic-docs
+  quote: "Organization admins create Admin API keys in Claude Console; these keys unlock the Activity Feed only."
+  accessed: 2026-11-19
+
+- id: F46
+  claim: "Compliance Access Key scopes cannot be edited after creation; changing scopes requires creating a new key and deleting the old one."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/manage-claude/compliance-api-access
+  title: "Set up the Compliance API"
+  source: anthropic-docs
+  quote: "Compliance Access Key scopes are immutable after creation. To change scopes, create a new key with the scopes you want, then delete the old one."
+  accessed: 2026-11-19
+
+- id: F47
+  claim: "Claude Code supports an awsAuthRefresh command for refreshing Bedrock AWS credentials when STS validation fails."
+  tag: FACT
+  url: https://code.claude.com/docs/en/settings-reference
+  title: "All settings"
+  source: claude-code-docs
+  quote: "Claude Code checks the current credentials against STS first and runs the command only when that check fails, then reads the refreshed .aws directory."
   accessed: 2026-11-19

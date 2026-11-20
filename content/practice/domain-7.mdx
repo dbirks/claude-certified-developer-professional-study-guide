@@ -1,0 +1,186 @@
+---
+title: "Practice: Domain 7 — Runtime Guardrails and Production Security"
+summary: "10 original scenario questions for Domain 7, with cited rationales."
+kind: reference
+slug: practice-domain-7
+order: 17
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+These are original practice items written for this guide in the style of the official sample items. They are not official exam content. Try each before opening the answer.
+
+## Q1. Hook enforcement and `canUseTool` shadowing (Skill 7.1)
+
+An Agent SDK service configures `permissionMode: "acceptEdits"` and `allowedTools: ["Bash(git *)"]`, and checks operator approval inside `canUseTool` before allowing force-pushes. Meanwhile, a `PreToolUse` command hook runs a validation script that crashes with `ModuleNotFoundError` (exit code `1`). In production, `git push --force` executes without operator approval.
+
+**Which change best closes both gaps?**
+
+- **A.** Remove the broad `allowedTools` rule, enforce the check in a `PreToolUse` hook returning `deny` or `ask`, and set `"onFailure": "block"`.
+- **B.** Add a `permissions.deny` rule for `Bash(git push --force)` while leaving `canUseTool` and the existing `PreToolUse` hook configuration unchanged.
+- **C.** Add a second `PreToolUse` hook returning `"allow"` for read-only git commands and instruct the agent in `CLAUDE.md` never to pass `--force`.
+- **D.** Change the `PreToolUse` script to print a rejection message to `stderr` while still exiting `1`, and keep `allowedTools` unchanged.
+
+<SelfCheck question="Answer to Q1">
+
+**A.** Allow rules such as `allowedTools: ["Bash(git *)"]` auto-approve matching calls before they reach `canUseTool`, and a crashing `PreToolUse` command hook fails open on exit code `1` unless `"onFailure": "block"` is set.<Cite id="F1 F18 F19" /> Moving the policy gate into `PreToolUse` with `"onFailure": "block"` (and removing the broad auto-approval rule) enforces the check before permission rules and fails closed on script errors.<Cite id="F1 F19" /> Option B fails because `Bash(...)` rules match only the command form Claude writes (missing alternate invocations such as `git -C . push --force` or `sh -c`), while `canUseTool` remains bypassed and the crashing hook still fails open.<Cite id="F1 F19 F20" /> Option C fails because `CLAUDE.md` shapes model intent rather than enforcing rules, and Option D fails because exit code `1` without valid JSON remains non-blocking even when writing to `stderr`.<Cite id="F18 F21" />
+
+</SelfCheck>
+
+## Q2. PII redaction placement across hooks and telemetry (Skill 7.1)
+
+A support agent in Claude Code blocks prompts containing customer SSNs using a `UserPromptSubmit` hook and masks account numbers returned by a local lookup script using a `PostToolUse` hook with `updatedToolOutput`. An audit later finds blocked prompts on disk in local session transcripts and unmasked account numbers inside OpenTelemetry tool spans.
+
+**Which TWO changes best eliminate both exposures? (Select TWO.)**
+
+- **A.** Scrub SSNs deterministically at the client or gateway before submitting prompts to Claude Code so raw secrets never enter local transcripts.
+- **B.** Redact account numbers inside the lookup script or pre-telemetry wrapper before returning tool output to the harness.
+- **C.** Add a `MessageDisplay` hook returning `displayContent` to redact SSNs and account numbers before they reach transcripts and OpenTelemetry.
+- **D.** Rely on Claude Code's built-in telemetry redaction, and change `PostToolUse` to return `decision: "block"` instead of `updatedToolOutput`.
+- **E.** Enable `suppressOriginalPrompt: true` in the `UserPromptSubmit` hook so blocked prompts are stripped from local session history files.
+
+<SelfCheck question="Answer to Q2">
+
+**A and B.** Blocking a prompt in `UserPromptSubmit` stops Claude from processing it, but the prompt can still persist in local session transcripts and prompt history; likewise, `PostToolUse` `updatedToolOutput` modifies only what Claude sees after execution and after OpenTelemetry tool spans capture the original output.<Cite id="F2 F22" /> Scrubbing PII before prompt submission and redacting inside the tool wrapper before returning results prevents both exposures. Option C fails because `MessageDisplay` alters only on-screen rendering and leaves transcripts, model context, and telemetry untouched.<Cite id="F23" /> Option D fails because built-in redaction applies to internal error reports rather than scrubbing OTel tool spans, and `PostToolUse` `decision: "block"` still fires after execution and telemetry capture.<Cite id="F2 F24" /> Option E fails because `suppressOriginalPrompt` only omits the prompt from the user-facing block message, not from disk.<Cite id="F22" />
+
+</SelfCheck>
+
+## Q3. Sandbox boundaries and failover behavior (Skill 7.1)
+
+A coding agent runs in CI with Claude Code's built-in Bash sandbox enabled (`sandbox.enabled: true`) and an external credential-injecting proxy. Testing reveals two gaps: on hosts missing `bubblewrap`, shell commands run unsandboxed, and a local MCP server plus Claude's built-in `Read` tool can still read `~/.ssh`.
+
+**Which TWO changes best close these gaps? (Select TWO.)**
+
+- **A.** Set `sandbox.failIfUnavailable` to `true` (and disable unsandboxed fallbacks) so missing sandbox dependencies fail closed at startup.
+- **B.** Wrap the full Claude Code process—including file tools, hooks, and MCP servers—in `@anthropic-ai/sandbox-runtime` (`srt`) or a hardened container, paired with read-path deny rules.
+- **C.** Add `~/.ssh` to `sandbox.filesystem.denyRead` in settings so the built-in sandbox blocks both the `Read` tool and local MCP servers.
+- **D.** Run the agent inside a dev container with `--dangerously-skip-permissions` and bind-mount the host `~/.claude` directory into the container.
+- **E.** Add `Bash(cat ~/.ssh/*)` to `permissions.deny` and mask SSH keys using `sandbox.credentials` inside the built-in sandbox.
+
+<SelfCheck question="Answer to Q3">
+
+**A and B.** By default, Claude Code falls back to unsandboxed execution when sandbox dependencies fail at startup unless `sandbox.failIfUnavailable` is `true`, and the built-in sandbox covers shell commands only—leaving file tools, MCP servers, and hooks outside its boundary.<Cite id="F3 F4" /> Wrapping the entire process in `@anthropic-ai/sandbox-runtime` (`srt`) constrains shell commands, file tools, hooks, and MCP servers together.<Cite id="F25" /> Option C fails because `sandbox.filesystem.denyRead` does not stop Claude's `Read` tool or MCP servers.<Cite id="F3 F26" /> Option D fails because dev containers with `--dangerously-skip-permissions` do not prevent a malicious project from exfiltrating accessible files such as `~/.claude`.<Cite id="F27" /> Option E fails because `Bash(...)` rules miss alternate commands and neither rule constrains `Read` or MCP servers.<Cite id="F3 F20" />
+
+</SelfCheck>
+
+## Q4. Classifier calibration, refusal handling, and irreversible-action gating (Skill 7.1)
+
+A customer-facing agent pre-screens inputs with `claude-haiku-5-5` structured outputs and routes requests through a four-tier risk classifier (`0–3`). On `1,000` labeled requests, a single binary cutoff blocks `90` benign requests and misses `8` harmful ones. In addition, `2%` of hostile inputs cause the Haiku screener itself to return `stop_reason: "refusal"`, which the wrapper currently treats as non-harmful.
+
+**Which change best fixes both the classifier calibration and the screener refusal bug?**
+
+- **A.** Route medium-risk requests to human review while auto-blocking high-risk requests, gate irreversible tools deterministically, and treat classifier `stop_reason: "refusal"` as a blocked verdict.
+- **B.** Enable `fallbacks: "default"` on the `claude-haiku-5-5` screener so declined checks automatically fall back, and lower the binary cutoff until false negatives reach zero.
+- **C.** Move the four-tier policy into the repository's `.claude/settings.json` `autoMode` block, and let `auto` mode approve irreversible actions whenever Stage 2 passes.
+- **D.** Retry refused `claude-haiku-5-5` screener calls with exponential backoff, and calibrate the single threshold using only confirmed user complaints.
+
+<SelfCheck question="Answer to Q4">
+
+**A.** Multi-level risk tiers let guardrails auto-block high-risk inputs while routing medium-risk cases to human review, and a `claude-haiku-5-5` pre-screener returning `stop_reason: "refusal"` must be treated as a harmful verdict.<Cite id="F5 F28" /> Even Anthropic's two-stage `auto` classifier carries a `17%` false-negative rate on real overeager actions, and `auto` is not a human checkpoint for irreversible tools.<Cite id="F31 F32" /> Option B fails because `claude-haiku-5-5` has no server-side fallback (`fallbacks: "default"` leaves declined requests declined), and lowering a single binary cutoff drives false positives higher.<Cite id="F5 F29" /> Option C fails because Claude Code ignores `autoMode` in repository `.claude/settings.json` and `auto` cannot replace deterministic approval gates.<Cite id="F30 F32" /> Option D fails because retrying a screener refusal leaves the underlying prompt unchanged and complaint-only sampling misses silent failures.<Cite id="F28" />
+
+</SelfCheck>
+
+## Q5. Indirect prompt injection, memory traversal, and `web_fetch` provenance (Skill 7.2)
+
+A research agent summarizes untrusted web pages via `web_fetch`, runs a custom client tool `format_note`, and saves notes through the client-side Anthropic memory tool. During testing, an injected page causes the agent to request a memory write to `/memories/../../secrets.env`, and another page causes `format_note` to echo a synthesized attacker URL that `web_fetch` subsequently fetches. The team already added an anti-injection directive to the system prompt.
+
+**Which TWO changes best close these attack paths? (Select TWO.)**
+
+- **A.** Validate and canonicalize every path in the memory tool handler, rejecting any path resolving outside `/memories`.
+- **B.** Set `web_fetch` `url_sources.client_tool_results` to `{"type": "none"}` (or exclude `format_note`) and restrict `allowed_domains`.
+- **C.** Place fetched page text inside `<untrusted>` XML tags in the system prompt so Claude separates instructions from data.
+- **D.** Keep `url_sources` at its default setting and rely on `web_fetch`'s built-in block against URLs written only by Claude.
+- **E.** Check `path.startswith("/memories")` in the memory handler and add anti-injection rules to `CLAUDE.md`.
+
+<SelfCheck question="Answer to Q5">
+
+**A and B.** Memory tool handlers must validate and canonicalize every path to prevent directory traversal such as `/memories/../../secrets.env`, and setting `web_fetch` `url_sources.client_tool_results` to `{"type": "none"}` stops client tools like `format_note` from laundering synthesized URLs into allowed prior-context sources.<Cite id="F6 F34" /> Option C fails because third-party untrusted content belongs in `tool_result` blocks rather than system prompts or plain user text.<Cite id="F33" /> Option D fails because default `url_sources` includes `client_tool_results`, allowing echoed URLs from `format_note` to pass provenance validation.<Cite id="F34" /> Option E fails because `startswith("/memories")` still matches `/memories/../../secrets.env` without canonicalization, and `CLAUDE.md` is context rather than enforced policy.<Cite id="F6 F35" />
+
+</SelfCheck>
+
+## Q6. Secure MCP configuration and authorization boundaries (Skill 7.2)
+
+A stateless MCP server (MCP `2026-07-28`) proxies requests to an internal billing API. It currently accepts any valid-signature OAuth token regardless of audience, forwards that client token directly to the billing API, and accepts a `workflow_handle` header alone as proof that follow-up requests are authorized.
+
+**Which TWO changes best fix the server's authorization architecture? (Select TWO.)**
+
+- **A.** Validate that every incoming token's `aud` claim targets this MCP server, and acquire a separate downstream token for the billing API.
+- **B.** Verify authorization on every inbound request rather than treating possession of `workflow_handle` as authentication.
+- **C.** Verify the token's cryptographic signature and issuer before forwarding the same client bearer token to the billing API.
+- **D.** Pin the MCP server's tool definitions with `mcp-client-2026-09-15` so downstream handlers cannot mutate tool schemas mid-session.
+- **E.** Enable dynamic client registration with a shared upstream `client_id` and browser consent cookies so callers skip repeated prompts.
+
+<SelfCheck question="Answer to Q6">
+
+**A and B.** MCP servers must reject tokens not explicitly issued for the MCP server (never transiting client tokens to downstream APIs), and stateless servers must verify authorization on every inbound request rather than treating a state handle as authentication.<Cite id="F7 F8 F36" /> Option C fails because forwarding a client token downstream breaks audience boundaries even when its signature is valid.<Cite id="F7 F36" /> Option D fails because `mcp-client-2026-09-15` tool pinning prevents mid-session tool-list rug-pulls rather than inbound token passthrough or state-handle bypasses.<Cite id="F37" /> Option E fails because combining a static `client_id`, dynamic client registration, and consent cookies creates a confused-deputy authorization-code theft vulnerability.<Cite id="F38" />
+
+</SelfCheck>
+
+## Q7. Adversarial evaluation design and unsafe autonomy (Skill 7.2)
+
+Under the NIST AI RMF 1.0 **Measure** function and Generative AI Profile (AI 600-1), a security team plans `10,000` automated attacker-versus-defender trials on a tool-using browser agent. Some trials deliberately relax model safeguards to probe multi-turn exfiltration and unsafe autonomy. The proposed staging environment retains test-tenant credentials and unrestricted internet egress, and the test suite uses only single-turn static prompts.
+
+**Which change best aligns this evaluation with recommended adversarial-testing practice?**
+
+- **A.** Move the trials into an internet-isolated sandbox with real-time monitoring and no real credentials, and include adaptive multi-turn attack loops.
+- **B.** Retain staging internet access behind a `CLAUDE.md` egress restriction and expand the static single-turn prompt suite to `100` variants.
+- **C.** Enable Claude Code's built-in Bash sandbox on the staging runner and review aggregated logs after all `10,000` trials finish.
+- **D.** Remove relaxed-safeguard trials and treat a `1%` attack success rate in browser evaluations as safe to ship without deterministic gates.
+
+<SelfCheck question="Answer to Q7">
+
+**A.** NIST AI RMF 1.0 organizes risk management around Govern, Map, Measure, and Manage, and automated red-team/blue-team evaluations with relaxed safeguards require an internet-isolated sandbox with real-time monitoring so runs can be halted immediately.<Cite id="F9 F10 F40" /> Removing real credentials limits blast radius, and adaptive multi-turn loops expose attacks that static single-turn prompts miss. Option B fails because `CLAUDE.md` is not an enforced network boundary.<Cite id="F35" /> Option C fails because the built-in Bash sandbox does not isolate browser, file, or MCP tools, and post-run log review lacks real-time intervention.<Cite id="F3 F9" /> Option D fails because even a `1%` attack success rate in browser-use evaluations represents meaningful risk.<Cite id="F39" />
+
+</SelfCheck>
+
+## Q8. Workload Identity Federation migration and credential precedence (Skill 7.3)
+
+A team migrates a Kubernetes workload from a static `ANTHROPIC_API_KEY` secret to Workload Identity Federation (WIF). The pod already sets `ANTHROPIC_FEDERATION_RULE_ID`, `ANTHROPIC_ORGANIZATION_ID`, and `ANTHROPIC_IDENTITY_TOKEN_FILE` pointing to a rotating projected service-account JWT, yet traces show requests still authenticate with the static key. The team wants short-lived WIF tokens that continue rotating without pod restarts.
+
+**Which TWO actions best complete the migration? (Select TWO.)**
+
+- **A.** Remove `ANTHROPIC_API_KEY` (and any `ANTHROPIC_AUTH_TOKEN`) from the workload environment so SDK credential resolution reaches WIF.
+- **B.** Keep `ANTHROPIC_IDENTITY_TOKEN_FILE` bound to the rotating projected token file so the SDK rereads updated JWTs on each exchange.
+- **C.** Export the initial projected JWT once at container startup into `ANTHROPIC_IDENTITY_TOKEN` so the SDK avoids repeated disk reads.
+- **D.** Configure `awsAuthRefresh` in `.claude/settings.json` so federation exchanges execute ahead of `ANTHROPIC_API_KEY`.
+- **E.** Scope the leftover `ANTHROPIC_API_KEY` to a single workspace so WIF takes precedence for production calls.
+
+<SelfCheck question="Answer to Q8">
+
+**A and B.** WIF exchanges an upstream JWT for a short-lived Anthropic token bound to a service account, but `ANTHROPIC_API_KEY` sits above the federation tiers in SDK credential precedence and silently overrides WIF.<Cite id="F11 F12" /> Keeping `ANTHROPIC_IDENTITY_TOKEN_FILE` allows the SDK to reread the file on every exchange and pick up rotated projected tokens.<Cite id="F13" /> Option C fails because copying a single JWT into `ANTHROPIC_IDENTITY_TOKEN` freezes a static token and defeats rotation.<Cite id="F13" /> Option D fails because `awsAuthRefresh` refreshes AWS Bedrock STS credentials in Claude Code rather than changing Claude API WIF precedence.<Cite id="F47" /> Option E fails because `ANTHROPIC_API_KEY` overrides federation regardless of workspace scope.<Cite id="F12" />
+
+</SelfCheck>
+
+## Q9. Audit attribution, OTel correlation, and payload sensitivity (Skill 7.3)
+
+During an incident review, engineers inspect Claude Code OpenTelemetry logs from a headless service authenticating with a direct API key. They see a rejected tool call and a later executed call, but cannot identify which human triggered the session or which MCP server and arguments the rejected call targeted.
+
+**Which configuration change best provides both operator attribution and full MCP call detail for future investigations?**
+
+- **A.** Supply operator identity via `OTEL_RESOURCE_ATTRIBUTES`, correlate `claude_code.tool_decision` and `claude_code.tool_result` by `tool_use_id`, and set `OTEL_LOG_TOOL_DETAILS=1` if the collector is approved for sensitive arguments.
+- **B.** Query the Compliance API Activity Feed for `claude_code.tool_decision` records and join them to the shared `api_key_id`.
+- **C.** Join `claude_code.tool_result` events by `user.id` alone, because `tool_result` records rejected calls and `user.id` identifies the operator on API-key sessions.
+- **D.** Enable `OTEL_LOG_TOOL_DETAILS=1` without `OTEL_RESOURCE_ATTRIBUTES`, because `tool_parameters` carries the authenticated human identity on API-key sessions.
+
+<SelfCheck question="Answer to Q9">
+
+**A.** On direct API-key or cloud-provider sessions, Claude Code has no Claude account and populates only `user.id` and `session.id`, so teams must attach operator identity via `OTEL_RESOURCE_ATTRIBUTES`.<Cite id="F15 F41" /> Permission decisions emit `claude_code.tool_decision`, `tool_use_id` correlates OTel events with hook records, and `OTEL_LOG_TOOL_DETAILS=1` adds command strings, MCP server/tool names, and tool input (requiring an approved collector due to sensitivity).<Cite id="F14 F42 F43" /> Option B fails because the Compliance API excludes Claude Code usage authenticated with a Claude Console API key.<Cite id="F44" /> Option C fails because `tool_result` reflects executed calls rather than rejected decisions and `user.id` lacks human attribution on direct-key sessions.<Cite id="F14 F15" /> Option D fails because `OTEL_LOG_TOOL_DETAILS=1` logs tool details rather than operator identity.<Cite id="F15 F43" />
+
+</SelfCheck>
+
+## Q10. Compliance API exclusions and credential lifecycle (Skill 7.3)
+
+An organization runs Claude Code on Amazon Bedrock for developers and uses direct Claude API keys for backend automation. An auditor reports that the past week's Bedrock coding sessions are missing from the Compliance API export, and security discovers a suspected leaked API key alongside an overly broad Compliance Access Key.
+
+**Which response best addresses the audit gap and both credential risks?**
+
+- **A.** Capture Bedrock coding-session audit data via Claude Code OTel and application logs, disable or delete the leaked key, and create a new narrowly scoped Compliance Access Key before deleting the old one.
+- **B.** Re-run the Compliance API export using an Admin API key to pull Bedrock transcripts, rotate the leaked key at the next scheduled window, and edit the Compliance Access Key's scopes in place.
+- **C.** Switch developers from Bedrock to a Claude Console API key so the Compliance API records their Claude Code sessions, and downgrade the leaked key's workspace permissions.
+- **D.** Query `/v1/compliance/activities` for `claude_code.tool_decision` events covering the missing week, and keep the leaked key active in monitoring-only mode for forensics.
+
+<SelfCheck question="Answer to Q10">
+
+**A.** The Compliance API excludes Claude Code usage run through any cloud platform or authenticated with a Claude Console API key, so Bedrock sessions require customer-side telemetry such as Claude Code OTel.<Cite id="F41 F44" /> Anthropic recommends disabling or deleting suspected leaked keys immediately, and because Compliance Access Key scopes are immutable after creation, narrowing scopes requires creating a new key and deleting the old one.<Cite id="F17 F46" /> Option B fails because Admin API keys unlock only the Activity Feed, Compliance Access Key scopes cannot be edited in place, and leaked keys should not wait for a scheduled rotation.<Cite id="F17 F45 F46" /> Option C fails because the Compliance API also excludes Claude Console API-key Claude Code usage and leaves a leaked key active.<Cite id="F17 F44" /> Option D fails because the Activity Feed does not replace missing cloud-provider session telemetry and retaining a leaked key leaves credentials exposed.<Cite id="F17 F44" />
+
+</SelfCheck>
