@@ -1,0 +1,230 @@
+---
+title: "Scale and Throughput Management"
+summary: "Decide whether requests, input tokens, output tokens, queueing, tenant caps, or batch economics constrain a Claude workload, and pick the matching remedy."
+kind: skill
+skill: "2.2"
+slug: scale-throughput
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+The Claude API caps throughput in three independent dimensions, and only the tightest binds. Messages limits measure **RPM** (requests per minute), **ITPM** (input tokens per minute), and **OTPM** (output tokens per minute) per model class, so tracking requests alone misses token bottlenecks.<Cite id="F4" /> Service-configured limits apply at the organization level on continuously replenished **token buckets**, so a comfortable per-minute average does not make a burst safe.<Cite id="F1 F2 F3" /> Workspaces, shared model-family buckets, and **Message Batches** add separate ceilings that remain subject to shared pools rather than reserving dedicated capacity.<Cite id="F11 F15 F19" /> Scaling means finding the binding constraint — rate limits, token throughput, or batch economics — and changing that one.
+
+## How Claude meters throughput
+
+The Messages API enforces three rate-limit dimensions per model class, and exceeding any one returns HTTP 429 naming the exceeded limit.<Cite id="F4" />
+
+| Dimension | What the API counts |
+|---|---|
+| **RPM** (requests per minute) | Each request against the model's bucket. |
+| **ITPM** (input tokens per minute) | `input_tokens` plus `cache_creation_input_tokens`; `cache_read_input_tokens` are excluded. |
+| **OTPM** (output tokens per minute) | Tokens actually generated in real time; `max_tokens` does not factor into OTPM. |
+
+The API estimates ITPM at the start of each request and adjusts that estimate during the request to reflect actual input tokens used.<Cite id="F6" /> Because OTPM counts only tokens actually produced, setting a higher `max_tokens` value incurs no rate-limit penalty.<Cite id="F7" />
+
+Prompt caching raises effective input throughput as well as cutting cost: a request that reads 7,000 cached tokens, writes 2,000, and sends 1,000 uncached tokens consumes 3,000 ITPM rather than 10,000.<Cite id="F5" /> A cache-miss surge therefore raises charged ITPM even when prompt length and request rate stay constant.<Cite id="F5" />
+
+Buckets do not map one-to-one onto model names. Sonnet 4.6 and Sonnet 4.5 share one combined Sonnet 4.x bucket, while Sonnet 5.5 and Sonnet 5 each have a separate bucket.<Cite id="F11" /> Inspect the current model and tier table and your own account limits before estimating capacity.
+
+## Read limits from the response headers
+
+Responses report the enforced limit, current usage, and the next reset, so a gateway can name the constraining dimension.<Cite id="F24" /> The four families are `anthropic-ratelimit-requests-{limit,remaining,reset}`, `anthropic-ratelimit-input-tokens-{limit,remaining,reset}`, `anthropic-ratelimit-output-tokens-{limit,remaining,reset}`, and `anthropic-ratelimit-tokens-{limit,remaining,reset}`, with RFC 3339 reset timestamps and remaining token counts rounded to the nearest thousand.<Cite id="F36 F37 F38 F39" />
+
+The aggregate family is easy to misread: `anthropic-ratelimit-tokens-*` reports the most restrictive limit currently in effect, not an extra budget on top of input and output.<Cite id="F25" /> Use headers to name the binding limit and pace traffic, and reconcile them against your own usage accounting rather than treating rounded values as a precise ledger.
+
+## Rate-limit strategy
+
+### Tiers, model buckets, and version drift
+
+Published limits vary by **usage tier** and model class. New organizations may start in the Evaluation tier with lower limits while establishing account history, then advance through Start, Build, Scale, and Custom.<Cite id="F47" /> The Claude Sonnet 5.5 row of the standard tier table illustrates Start, Build, and Scale limits as documented on 2026-11-19.<Cite id="F8 F9 F10" />
+
+| Usage tier | RPM | ITPM | OTPM |
+|---|---:|---:|---:|
+| Start | 4,000 | 2,000,000 | 400,000 |
+| Build | 10,000 | 5,000,000 | 1,000,000 |
+| Scale | 13,000 | 10,000,000 | 2,000,000 |
+
+These are examples, not your account's limits. Legacy Priority Tier is a different service arrangement: its capacity commitments are closed to new purchases, and organizations holding one can keep using it through their contract end date.<Cite id="F35" /> Do not confuse it with the Start, Build, and Scale usage tiers, which are rate-limit levels rather than purchased capacity.
+
+<Callout type="version" title="Checked 2026-11-19">
+
+Per-tier numbers for Claude Sonnet 5.5, batch ceilings, model buckets, and ramp limits change. Re-verify them in the current documentation and your Console before sizing a system or a contract.
+
+</Callout>
+
+### Bursts and ramp limits
+
+Token buckets replenish capacity continuously rather than resetting on a fixed schedule, and the API can enforce limits over windows shorter than a minute.<Cite id="F2 F3" /> A rate of 60 RPM can be enforced as 1 request per second, so a short burst triggers 429s below the minute allowance.<Cite id="F3" />
+
+A **ramp limit** caps how fast your organization's token usage on a model can grow. After a sharp increase in usage — a burst of requests within a few seconds can qualify — requests return 429 while ITPM and OTPM headroom remain.<Cite id="F12" /> The permitted level is your highest per-minute usage in the recent past plus a step: each minute you may rise one step above that peak, and the ceiling stops at your rate limit.<Cite id="F13" /> A ramp error is a `rate_limit_error` whose Messages API `error.details.error_code` is `ramp_limit_exceeded`.<Cite id="F14" /> Message Batches are not subject to ramp limits.<Cite id="F40" />
+
+Ramp limits meter input and output tokens separately, exclude cache reads, and use a step and starting amount that vary by model and can change.<Cite id="F41 F42 F52" /> Increase traffic gradually after a deployment, cache cold start, or scheduled job rather than launching at full concurrency.
+
+### Spend caps and other 429s
+
+A 429 is not one condition. Reaching the monthly tier **spend cap** also returns HTTP 429 with type `rate_limit_error` and `error.details.error_code` set to `enforced_spend_limit_reached`, with no `retry-after` header; SDK and application retries keep failing until access resumes.<Cite id="F22 F43" /> A spend limit you configure yourself returns HTTP 400 with `invalid_request_error`, except on the Claude Code workspace where over-limit requests can return 429 with `retry-after`.<Cite id="F23 F44" />
+
+| Response | Identifying signal | Cause | Action |
+|---|---|---|---|
+| 429 rate limit | Body names the exceeded limit; `retry-after` in seconds when present | RPM, ITPM, or OTPM exhausted | Wait the indicated seconds, add jitter, reduce admitted work |
+| 429 ramp limit | `error.details.error_code` is `ramp_limit_exceeded` | Growth rate, below steady-state ceilings | Ramp up gradually; do not treat as a permanent ceiling |
+| 429 tier spend cap | `rate_limit_error`, `enforced_spend_limit_reached`, no `retry-after` | Monthly spend cap reached | Stop retrying; fix budget or tier |
+| 400 spend limit | `invalid_request_error` with a spend-limit message | A limit you configured | Raise it or route the work elsewhere |
+
+## Queueing and backpressure
+
+Queues decide what reaches those counters, and an unbounded queue turns a rate limit into a latency collapse. Run a distributed **admission controller** — a gateway component that meters and gates outbound calls — per organization, model bucket, and workspace. Have it track request count, estimated uncached input including likely cache writes, and projected output; reserve against each budget atomically, reconcile with observed usage, and bound in-flight output.<Cite id="F5 F6" /> Because Claude produces output over time, an output reservation is your safety policy, not the API's OTPM accounting rule.<Cite id="F7" /> Count retries too: a retry storm consumes the budget you were waiting for.
+
+Bound both queue length and queue age, then shed load upstream: when demand exceeds the sustainable drain rate, reject, drop, or return a retryable overload response. Measure queue wait separately from API latency, or a backlog looks like a slow model.
+
+Prevent **head-of-line blocking**, where an oversized job at the front of a queue stalls smaller admissible jobs for unrelated tenants. Use size classes or bounded look-ahead, and let large jobs accumulate credit so they do not starve. Separate interactive and bulk classes, with aging or a reserved share so bulk work cannot starve interactive requests.
+
+<Figure caption="One shared admission layer protects organization capacity while isolating tenants and separating deadline-sensitive work from asynchronous throughput.">
+  <Flow direction="vertical" steps={[
+    { label: "Tenant clients", note: "per-tenant API keys, size classes" },
+    { label: "Per-tenant bounded queues", note: "bound length and age" },
+    { label: "Fair token-aware scheduler", note: "weighted fair or deficit round robin" },
+    { label: "Admission budgets", note: "organization/model plus workspace" },
+    { label: "Interactive Messages API", note: "429 feeds back, not a retry storm" },
+    { label: "Batch manifest and sharder", note: "eligible offline work" },
+    { label: "Batches API", note: "separate limits, no ramp limit" },
+    { label: "Result reconciliation and durable store", note: "join by custom_id" },
+    { label: "Metrics and feedback", note: "usage, 429 reason, queue age" }
+  ]} />
+</Figure>
+
+## Multi-tenant quota and isolation
+
+The API enforces service-configured limits at the organization level, and you can add user-configurable spend and rate limits per workspace.<Cite id="F1 F21" /> The rule that breaks most multi-tenant designs: organization-wide limits always apply, even when workspace limits add up to more than the organization has.<Cite id="F19" /> A workspace cap is a ceiling on one tenant, not a reservation against the others.
+
+API keys can be scoped to a single workspace, limiting access to resources in that workspace, while unscoped keys select a workspace per request via the `anthropic-workspace-id` header.<Cite id="F20 F48" /> A workspace-scoped key ties requests to that workspace for attribution and revocation, but creates no throughput the organization lacks.<Cite id="F19 F20" />
+
+| Isolation mechanism | What it gives you | What it does not give you |
+|---|---|---|
+| Workspace custom rate and spend limits | A per-tenant ceiling | Capacity reserved against the organization |
+| Workspace-scoped API key | Attribution, blast-radius control | A per-key throughput guarantee |
+| Several keys in one workspace | Independent revocation | Per-tenant caps — add gateway accounting or separate workspaces |
+| Weighted fair scheduling in your gateway | Enforced tenant shares at your layer | Any protection at the API when the organization bucket is full |
+
+Charge scheduling to both the tenant cap and the aggregate organization or model constraint, and let tenants borrow unused shares while billing estimated token work.
+
+## Batch pipeline design
+
+Asynchronous Message Batches trade latency for price: batches bill all usage at 50 percent of standard API prices.<Cite id="F29" /> Batches carry their own rate limits, shared across all models: a requests-per-minute limit on the API endpoints and a ceiling on how many batch requests sit in the processing queue at once.<Cite id="F15" /> Standard Start, Build, and Scale limits illustrate how endpoint RPM and queue depth scale separately.<Cite id="F16 F17 F18" />
+
+| Usage tier | Batches API RPM | Queued batch requests | Requests per batch |
+|---|---:|---:|---:|
+| Start | 1,000 | 200,000 | 100,000 |
+| Build | 2,000 | 300,000 | 100,000 |
+| Scale | 4,000 | 500,000 | 100,000 |
+
+These are two budgets: polling consumes API RPM, while every queued item consumes queue capacity.<Cite id="F15" /> A single batch is capped at 100,000 requests or 256 MB, whichever binds first.<Cite id="F26" />
+
+Submit with `POST /v1/messages/batches`, passing `requests` as objects of `custom_id` and `params`, where `params` holds the individual Messages request.<Cite id="F45 F53" /> Each `custom_id` must be unique within the batch and matches results to requests, because results may come back out of order.<Cite id="F33" /> Nearly any Messages API request can be batched,<Cite id="F30" /> but `stream`, `speed`, `fallbacks`, and `max_tokens: 0` are not supported, so `max_tokens` must be at least 1.<Cite id="F31 F50" /> Results stream as JSONL with a per-item `custom_id` and one of four `result.type` values — `succeeded`, `errored`, `canceled`, or `expired` — and errored or expired items are not billed.<Cite id="F46 F51 F54 F55" />
+
+Two clocks govern the pipeline. Results are readable when all messages complete or after 24 hours, whichever comes first, and a batch expires if processing has not finished within 24 hours.<Cite id="F27" /> Results stay downloadable for 29 days after creation; after that the batch remains visible but its results do not.<Cite id="F28" /> Cache hits are best-effort because batch requests run asynchronously and concurrently, so do not plan around cached prefixes as you would interactively.<Cite id="F32" /> Most batches finish within an hour, but the API guarantees no completion window shorter than the 24-hour expiry.<Cite id="F27 F49" />
+
+A batch pipeline that survives restarts keeps durable state of its own:
+
+1. Persist a manifest per job with a stable job ID, its `custom_id`, an input fingerprint, submission state, and the batch ID once known, so an ambiguous submission gets reconciled rather than blindly resent.
+2. Shard work by encoded byte size and request count, and submit inside both queue and endpoint headroom.<Cite id="F15 F26" />
+3. Poll with backoff, then persist results well before the 29-day retention window closes.<Cite id="F28" />
+4. Join results by `custom_id`, never by position.<Cite id="F33" />
+5. Reconcile every item, repair invalid inputs, and resubmit only retryable or expired work, after checking whether the first attempt already caused external side effects for tool-enabled jobs.<Cite id="F46 F55" />
+
+Make downstream writes idempotent: resubmission and partial success are normal outcomes.
+
+## Capacity planning and the binding constraint
+
+Plan against the smallest of three ceilings. Compare peak short-window demand, not minute averages, to RPM, ITPM divided by charged input per request, and OTPM divided by actual output per request, then hold headroom for variance, growth, cache misses, and retries.
+
+The arithmetic below is hypothetical planning, not a runnable example. Assume one model bucket at 1,000 RPM, 2,000,000 ITPM, and 400,000 OTPM, a steady 400 requests per minute offered, and no workspace sublimits, ramping, retries, or burstiness.
+
+| Condition | Charged input/request | Actual output/request | RPM load | ITPM load | OTPM load | Tightest |
+|---|---:|---:|---:|---:|---:|---|
+| Before growth | 2,000 | 400 | 40% | 40% | 40% | Three-way tie |
+| After growth | 6,000 | 400 | 40% | 120% | 40% | ITPM binds |
+| After stable-prefix reuse | 3,000 charged + 3,000 cache-read | 400 | 40% | 60% | 40% | ITPM still tightest |
+
+At 6,000 charged tokens per request the input bound is 2,000,000 divided by 6,000, about 333 requests per minute, while RPM and OTPM each allow 1,000.<Cite id="F5" /> If all 400 requests arrive and the system holds that simplified bound, the backlog grows by roughly 67 requests per minute.<Cite id="F2" /> Halving charged input by serving half the prompt from cache lifts the bound to about 667 requests per minute, but only if those tokens are genuine reads: first-time writes count, and a cold or invalidated cache undoes the gain.<Cite id="F5" /> Real scheduling must still leave burst and ramp headroom beneath the ceiling.<Cite id="F3 F12" />
+
+Batch economics are a different kind of ceiling. If 100,000 of those tasks have no interactive deadline and cost a hypothetical $0.02 each at standard prices, the simplified token bill is $2,000, and 50 percent batch pricing makes it $1,000.<Cite id="F29" /> That count exactly reaches the 100,000-request ceiling, so encoded size may force multiple batches,<Cite id="F26" /> and the comparison ignores best-effort cache hit rates, failures, retries, and pipeline labor.<Cite id="F32" /> Test the business deadline and your real rates before assuming the discount outweighs the delay.
+
+<Figure caption="Batch path for deadline-tolerant work: shard, submit, poll, reconcile, and store before retention expires.">
+  <Flow steps={[
+    { label: "Offline queue", note: "no hard deadline" },
+    { label: "Manifest and sharder", note: "bytes and count" },
+    { label: "Batches API", note: "50% of standard price" },
+    { label: "Poll with backoff", note: "within API RPM" },
+    { label: "Reconcile by custom_id", note: "succeeded, errored, canceled, expired" },
+    { label: "Durable store", note: "before 29 days elapse" }
+  ]} />
+</Figure>
+
+## Decision criteria
+
+Choose the remedy from the counter that binds, the interval that rejects, and the deadline you must meet.
+
+1. **Reduce request count or burst shape** when RPM binds: batch calls, coalesce, and spread retries instead of releasing synchronized fan-out.<Cite id="F3 F4" />
+2. **Cut charged input tokens** when ITPM binds: cache stable prefixes so reads stop counting, and prune what stays uncached.<Cite id="F5 F6" />
+3. **Reduce generated output** when OTPM binds: the counter tracks tokens actually produced, and `max_tokens` itself charges nothing.<Cite id="F7" />
+4. **Ramp instead of scaling out** when 429s appear below steady-state ceilings and `ramp_limit_exceeded` is present.<Cite id="F12 F13 F14" />
+5. **Move to batch** when work is offline-tolerant and the 50 percent reduction beats the value of waiting.<Cite id="F29" />
+6. **Isolate at the tenant layer** when one workload consumes shared capacity: workspace limits, scoped keys, and gateway-side accounting.<Cite id="F1 F19 F20 F21" />
+
+Collect per-bucket telemetry: RPM, ITPM split into uncached and cache-creation, OTPM, cache-read share, queue age and wait, in-flight work, the reason behind every 429, spend, and per-item batch outcomes.<Cite id="F4 F5 F7 F15 F24 F54" /> Reserve headroom above the busiest short window you measured, not above the average.
+
+## Failure modes and recovery
+
+Miscounted tokens, assumed reservations, and blanket retries cause most throughput incidents.
+
+<Callout type="mistake" title="Counting cache reads against ITPM, or trusting a minute average">
+
+Only `input_tokens` plus `cache_creation_input_tokens` count toward ITPM, so cache reads do not consume ITPM while cache writes do.<Cite id="F5" /> Size against reads and you under-provision the moment a cache goes cold. Separately, `max_tokens` never charges OTPM,<Cite id="F7" /> and a per-minute average is not burst protection: a 60 RPM allowance can be enforced as 1 request per second.<Cite id="F3" />
+
+</Callout>
+
+<Callout type="mistake" title="Assuming a workspace cap reserves capacity">
+
+Workspace limits are configurable ceilings, while organization-wide limits always apply even if workspace allocations sum to more.<Cite id="F1 F19" /> Several keys inside one workspace do not create per-tenant caps either. Recover by adding gateway-level accounting, or by splitting tenants into separate workspaces where isolation is required.
+
+</Callout>
+
+<Callout type="mistake" title="Running a retry loop against every 429">
+
+A tier spend cap returns 429 with `enforced_spend_limit_reached` and no `retry-after`, and retries — including SDK-automatic ones — keep failing until access resumes.<Cite id="F22 F43" /> Classify first: rate and ramp 429s recover with pacing and time, while a cap 429 needs budget or tier remediation, and a configured spend limit arrives as 400 with `invalid_request_error` outside the Claude Code workspace exception.<Cite id="F4 F14 F23 F44" />
+
+</Callout>
+
+Two further traps. Assuming a batch finishes within an hour is wrong: results become available when all messages complete or after 24 hours, unfinished work expires at 24 hours, and downloads stop after 29 days.<Cite id="F27 F28 F49" /> Assuming output mirrors submission order loses results too, since they may return out of order and must be joined by `custom_id`.<Cite id="F33" /> Batches can also overshoot a configured workspace spend limit slightly because processing is concurrent, so keep stricter local budgets.<Cite id="F34" />
+
+## Exam lens
+
+<ExamLens>
+
+- Steady RPM, rising uncached prompt length, input-rate 429s: the constraint is ITPM, and smoothing request bursts alone will not fix a sustained input deficit.<Cite id="F4 F5" />
+- A tenant-specific workspace cap contains that tenant, but organization limits and other tenants' traffic still bound what is available.<Cite id="F19" />
+- Deadline-tolerant offline work favors batch economics at 50 percent of standard prices; a strict synchronous SLA, or items coming back `expired`, changes the answer.<Cite id="F27 F29 F33" />
+- A ramp 429 below steady-state ceilings calls for gradual growth; a monthly spend-cap 429 calls for budget or tier remediation, not retries.<Cite id="F12 F14 F22 F43" />
+
+</ExamLens>
+
+## Self-check
+
+<SelfCheck question="A request uses 1,000 uncached, 2,000 cache-write, and 7,000 cache-read input tokens. How much counts against default ITPM?">
+
+3,000 tokens: `input_tokens` plus `cache_creation_input_tokens` count, and the 7,000 cache reads are excluded.<Cite id="F5" />
+
+</SelfCheck>
+
+<SelfCheck question="A workspace caps ITPM at 50,000 while the organization has 10,000 ITPM of remaining capacity. Can that workspace use 50,000 immediately?">
+
+No. Organization-wide limits always apply, even when workspace limits add up to more,<Cite id="F19" /> and short-window enforcement plus ramp growth constraints can admit even less than the organization's per-minute figure suggests.<Cite id="F3 F12" />
+
+</SelfCheck>
+
+<SelfCheck question="A batch returns `expired` for some IDs and `succeeded` for others. What should the pipeline do?">
+
+Persist and deduplicate the successes, then selectively reconcile and resubmit only the eligible expired items, checking remaining queue capacity, the 24-hour deadline, and whether the first attempt already caused external side effects.<Cite id="F15 F27 F33 F55" />
+
+</SelfCheck>

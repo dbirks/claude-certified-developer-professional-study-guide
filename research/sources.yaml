@@ -90,6 +90,9 @@
   accessed: 2026-11-19
   cited_by:
     - durable-execution:F13
+    - durable-execution:F39
+    - durable-execution:F40
+    - durable-execution:F49
     - unattended-operations:F11
     - unattended-operations:F12
 - url: https://code.claude.com/docs/en/agent-sdk/hooks
@@ -132,6 +135,9 @@
     - multi-agent-orchestration:F19
     - durable-execution:F8
     - durable-execution:F14
+    - durable-execution:F35
+    - durable-execution:F36
+    - durable-execution:F48
 - url: https://code.claude.com/docs/en/agent-sdk/secure-deployment
   title: Securely deploying AI agents
   source: claude-code-docs
@@ -145,6 +151,7 @@
   cited_by:
     - durable-execution:F6
     - durable-execution:F7
+    - durable-execution:F37
 - url: https://code.claude.com/docs/en/agent-sdk/sessions
   title: Work with sessions
   source: claude-code-docs
@@ -238,6 +245,7 @@
   cited_by:
     - durable-execution:F11
     - durable-execution:F12
+    - durable-execution:F38
 - url: https://code.claude.com/docs/en/claude-apps-gateway
   title: Claude apps gateway for Amazon Bedrock, Claude Platform on AWS, Google Cloud, and Microsoft Foundry
   source: claude-code-docs
@@ -1013,6 +1021,7 @@
   accessed: 2026-11-19
   cited_by:
     - durable-execution:F28
+    - durable-execution:F43
     - context-memory:F20
     - context-memory:F21
     - threat-defense:F16
@@ -1081,6 +1090,7 @@
   accessed: 2026-11-19
   cited_by:
     - durable-execution:F32
+    - durable-execution:F46
     - reliability:F1
     - reliability:F2
     - reliability:F3
@@ -1381,6 +1391,12 @@
   accessed: 2026-11-19
   cited_by:
     - durable-execution:F26
+- url: https://platform.claude.com/docs/en/build-with-claude/preserved-thinking/prefix-checks
+  title: Prefix checks on thinking blocks
+  source: anthropic-docs
+  accessed: 2026-11-19
+  cited_by:
+    - durable-execution:F45
 - url: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
   title: Prompt caching
   source: anthropic-docs
@@ -1657,6 +1673,8 @@
   accessed: 2026-11-19
   cited_by:
     - durable-execution:F30
+    - durable-execution:F44
+    - durable-execution:F47
 - url: https://platform.claude.com/docs/en/managed-agents/multiagent-orchestration
   title: Multiagent orchestration - Claude Platform Docs
   source: anthropic-docs
@@ -1669,6 +1687,7 @@
   accessed: 2026-11-19
   cited_by:
     - durable-execution:F15
+    - durable-execution:F41
     - architecture-selection:F13
     - architecture-selection:F14
     - architecture-selection:F28
@@ -1701,6 +1720,7 @@
   cited_by:
     - durable-execution:F16
     - durable-execution:F17
+    - durable-execution:F42
     - incident-response:F20
     - unattended-operations:F14
     - unattended-operations:F31

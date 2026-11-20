@@ -173,5 +173,105 @@
     "id": "F35",
     "status": "ok",
     "url": "https://platform.claude.com/docs/en/api/service-tiers"
+  },
+  {
+    "id": "F36",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F37",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F38",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F39",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F40",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F41",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F42",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F43",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F44",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F45",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/messages/batches/create"
+  },
+  {
+    "id": "F46",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/batch-processing"
+  },
+  {
+    "id": "F47",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F48",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/manage-claude/workspaces"
+  },
+  {
+    "id": "F49",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/batch-processing"
+  },
+  {
+    "id": "F50",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/batch-processing"
+  },
+  {
+    "id": "F51",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/batch-processing"
+  },
+  {
+    "id": "F52",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F53",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/messages/batches/create"
+  },
+  {
+    "id": "F54",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/batch-processing"
+  },
+  {
+    "id": "F55",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/batch-processing"
   }
 ]
