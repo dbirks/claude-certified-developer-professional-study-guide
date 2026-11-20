@@ -1,0 +1,220 @@
+---
+title: "Parallel Agent Orchestration for Engineering Work"
+summary: "Choose a parallel topology, isolate and merge agent edits safely, size task decomposition, and diagnose fleet failures from Claude Code telemetry."
+kind: skill
+skill: "8.1"
+slug: parallel-agents
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+**Parallel agent orchestration** means coordinating multiple Claude Code workers on one engineering task while keeping edits, verification, and integration under control. A **git worktree** is a separate checkout on its own branch, giving a session its own files to edit.<Cite id="F2" /> Claude Code has five parallel approaches: **subagents**, **agent view**, **agent teams**, **dynamic workflows**, and **Projects**. They differ in how involved you stay and whether the work runs on your machine or in the cloud.<Cite id="F1" /> Every extra worker adds token spend: for agent teams, token usage scales with the number of active teammates and how long each one runs.<Cite id="F18" />
+
+## Five execution models
+
+A **parallel topology** is how workers are coordinated, where they edit, and how their results are integrated. Choose based on task dependencies, file ownership, and how much workers need to communicate.
+
+| Model | How you steer it | Isolation and limits |
+|---|---|---|
+| **Subagents** | Delegate side tasks from one session; workers do the task in their own context and return a summary.<Cite id="F78" /> | Set `isolation: worktree` to give a subagent a temporary worktree.<Cite id="F9" /> |
+| **Agent view** | Dispatch and monitor background sessions with `claude agents`. It is a research preview.<Cite id="F1 F56" /> | Sessions move into an isolated worktree before editing unless `worktree.bgIsolation` is `"none"`.<Cite id="F10" /> |
+| **Agent teams** | A lead coordinates teammates that message each other directly and can share a task list. Experimental and disabled by default.<Cite id="F31 F15" /> | Teammates are not isolated in worktrees. Partition file ownership; start with 3 to 5 teammates.<Cite id="F12 F14" /> |
+| **Projects** | One ongoing conversation starts parallel threads in the cloud or, when you ask, on your computer.<Cite id="F62" /> | — |
+| **Dynamic workflows** | A script, not Claude's turn-by-turn judgment, holds the plan and runs subagents.<Cite id="F77" /> | Up to 16 concurrent agents by default (fewer on CPU-limited hosts), 4,096 items per `parallel()` or `pipeline()` call, and 1,000 agents per run.<Cite id="F46 F17 F61" /> |
+
+Worktrees give each session you run yourself a separate checkout. Cross-session messaging passes findings between sessions you run yourself.<Cite id="F1" /> The bundled `/batch` skill researches a large change, divides it into 5 to 30 independent units, presents a plan, and after approval spawns one background subagent per unit in an isolated worktree.<Cite id="F11" />
+
+## Worktree isolation
+
+The repository needs at least one commit before Git can create a worktree.<Cite id="F2" /> Worktrees have their own files and branch but share the `.git` directory, project plugins, permission approvals, and untracked skills, agents, and commands with the main checkout.<Cite id="F7" />
+
+`claude --worktree <name>` (or `-w`) creates `.claude/worktrees/<name>/` at the repository root on a new branch named `worktree-<name>`.<Cite id="F3" /> Claude generates a name when you omit one.<Cite id="F44" />
+
+| Setting or flag | Value | Effect |
+|---|---|---|
+| `worktree.baseRef` | `"fresh"` (default) | Branch from the repository's default branch on the remote.<Cite id="F4" /> |
+| `worktree.baseRef` | `"head"` | Branch from the current local `HEAD`, carrying unpushed commits.<Cite id="F4" /> |
+| `--worktree "#1234"` | PR number, GitHub PR URL, or GitLab MR URL | Fetches that change's head commit from `origin` into a worktree.<Cite id="F4" /> |
+| `worktree.bgIsolation` | `"none"` | Lets background sessions edit the working copy directly.<Cite id="F10" /> |
+| `isolation` (subagent frontmatter) | `worktree` | Gives each subagent a temporary worktree; a clean one is removed when the subagent finishes, and one with changes stays on disk.<Cite id="F9" /> |
+| `.worktreeinclude` (project root) | `.gitignore` syntax | Copies matching untracked files such as `.env` into new worktrees.<Cite id="F5" /> |
+
+Claude Code applies four isolation checks: file edit paths, command working directories, git redirects, and command shape. None of them tracks which files a shell command writes. A `cp` or shell redirect into the main checkout falls under permissions and sandboxing instead.<Cite id="F6" />
+
+Non-interactive `-p` runs have no exit prompt, so Claude does not clean up their worktrees, and the creation lock stays until a later stale-lock sweep. Remove one with `git worktree remove`; if Git refuses because it is locked, run `git worktree unlock` first.<Cite id="F8" />
+
+<Figure caption="Parallel Claude sessions edit disjoint modules in isolated worktrees that share one .git directory, then serialize merges through full integration testing, an independent reviewer, and explicit worktree unlock and removal.">
+  <Flow direction="vertical" steps={[
+    { label: "Main repository", note: "origin/main, shared .git, .worktreeinclude" },
+    { label: "Worktrees", note: ".claude/worktrees/mod-a, mod-b, mod-c on branches worktree-mod-a, worktree-mod-b, worktree-mod-c" },
+    { label: "Parallel workers", note: "claude -p --worktree or isolation: worktree subagents, disjoint file ownership, local test gate" },
+    { label: "Integration queue", note: "integrate branch, one worker branch merged at a time against the moving tip" },
+    { label: "Merge gate", note: "full integration suite plus fresh read-only reviewer with Read, Grep, Glob" },
+    { label: "Cleanup", note: "git worktree unlock and remove, then open the pull request" }
+  ]} />
+</Figure>
+
+## Task decomposition
+
+**Task decomposition** splits a project into independent units before parallel work begins. In Anthropic's C compiler experiment, compiling the Linux kernel was one giant task: all 16 agents hit the same bug and overwrote each other's fixes.<Cite id="F21" /> The fix used GCC as a known-good oracle. A harness compiled most of the kernel with GCC and a random remainder with Claude's compiler, so each agent could fix bugs in different files.<Cite id="F52" /> Delta debugging then found pairs of files that failed only together.<Cite id="F64" />
+
+The same harness had agents claim work by writing lock files under `current_tasks/`. If two agents claimed the same task, Git synchronization forced the second to pick another.<Cite id="F20" /> Over nearly 2,000 Claude Code sessions and $20,000 in API costs, the team produced a 100,000-line compiler.<Cite id="F53" />
+
+Three decomposition rules follow:
+
+1. Give each worker disjoint file or module ownership. Split a monolithic test with an oracle before spawning workers.<Cite id="F12 F52" />
+2. Size the team to the work. Anthropic recommends 3 to 5 teammates for most workflows; 15 independent tasks can start with three teammates.<Cite id="F14" />
+3. Keep sequential, same-file, or heavily dependent work in one session or subagents. A fresh subagent must first gather context the main conversation already has, which can make it slower.<Cite id="F48 F19" />
+
+Harness output matters for autonomous workers. Write errors as one-line `ERROR` entries so grep finds them.<Cite id="F51" /> The compiler harness printed progress infrequently and used a default `--fast` option that ran a 1% or 10% random sample, deterministic per agent but random across VMs.<Cite id="F22" /> When agents began breaking existing features, a CI pipeline blocked commits that broke existing code.<Cite id="F50" /> For work across sessions, an initializer agent sets up the environment, and coding agents make incremental progress and leave clear artifacts for the next session.<Cite id="F23" />
+
+## Merge and conflict strategy
+
+**Merge strategy** controls how isolated changes meet. Workers can pass their own tests and still fail together. The recommendations below are engineering practice, not documented product behavior:
+
+- Integrate one branch at a time and rerun the full integration suite after each merge (a serialized merge queue).
+- On a merge conflict, abort the merge and redispatch that unit against the current integration tip. Do not let a worker resolve conflicts in files it does not own.
+- Gate merges with CI or branch protection, and add an independent reviewer.
+
+Claude Code itself does not merge for you. A background session in a worktree commits and pushes its own branch but never pushes to `main` or `master`, force-pushes, or merges.<Cite id="F63" />
+
+The script below fans out four workers and serializes integration. It is an original example; the flags are documented. `acceptEdits` approves file edits and common filesystem commands only, so the test and git commands each worker needs go in `--allowedTools`.<Cite id="F3 F33 F54 F55" />
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+export CLAUDE_CODE_ENABLE_TELEMETRY=1 OTEL_METRICS_EXPORTER=otlp OTEL_LOGS_EXPORTER=otlp
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://collector.internal:4317
+export OTEL_METRICS_INCLUDE_REPOSITORY=true OTEL_RESOURCE_INCLUDE_HOST=1
+
+MODULES=("auth" "billing" "webhooks" "search")
+PIDS=()
+mkdir -p logs
+for mod in "${MODULES[@]}"; do
+  claude -p "Migrate src/${mod}/ to ESM. Edit ONLY src/${mod}/ and tests/${mod}/. Run pnpm test -- tests/${mod}/ and commit." \
+    --worktree "mig-${mod}" --permission-mode acceptEdits --max-budget-usd 5.00 \
+    --allowedTools "Bash(pnpm test *)" "Bash(git add *)" "Bash(git commit *)" \
+    > "logs/mig-${mod}.log" 2>&1 &
+  PIDS+=($!)
+done
+
+FAILED=0
+for pid in "${PIDS[@]}"; do wait "$pid" || FAILED=1; done
+
+git checkout -b integrate/esm-migration origin/main
+for mod in "${MODULES[@]}"; do
+  BRANCH="worktree-mig-${mod}" WT=".claude/worktrees/mig-${mod}"
+  if git rev-parse --verify "$BRANCH" >/dev/null 2>&1; then
+    if git merge --no-ff "$BRANCH" -m "Merge ${BRANCH}"; then
+      pnpm test || FAILED=1
+    else
+      git merge --abort; FAILED=1   # redispatch this unit against the new tip
+    fi
+  fi
+  if [ -d "$WT" ]; then
+    git worktree unlock "$WT" 2>/dev/null || true
+    git worktree remove "$WT" || FAILED=1
+  fi
+done
+exit "$FAILED"
+```
+
+Require verification before a task can close. A `TaskCompleted` hook that exits with code `2` keeps the task open and feeds its stderr back to the model.<Cite id="F16 F58" /> A `TaskCreated` hook can block task creation the same way, and a `TeammateIdle` hook that exits `2` keeps a teammate working.<Cite id="F59 F60" /> For the independent reviewer, a custom subagent limited to `Read`, `Grep`, and `Glob` cannot edit, and Claude Code enforces that limit.<Cite id="F49" />
+
+## Fleet telemetry
+
+**Fleet telemetry** is the OpenTelemetry (OTel) data Claude Code exports: metrics, events, and optional traces.<Cite id="F40" /> Enable it with `CLAUDE_CODE_ENABLE_TELEMETRY=1`. Claude Code ignores OTel exporter variables in a repository's `.claude/settings.json` and `.claude/settings.local.json`.<Cite id="F24" />
+
+Use attributes to segment the fleet:
+
+- `claude_code.session.count` has `start_type="agents_view"` for the `claude agents` dashboard process. Filter it out when counting conversational sessions.<Cite id="F25" />
+- `OTEL_METRICS_INCLUDE_REPOSITORY=true` tags metrics and events with the session's repository.<Cite id="F26" /> `OTEL_RESOURCE_INCLUDE_HOST=1` records which machine each session ran on.<Cite id="F35" />
+- `prompt.id` links a prompt to every event until the next prompt.<Cite id="F36" />
+- `agent_id`, `parent_agent_id`, and `workflow.run_id` connect subagent events to their parent and to a workflow run.<Cite id="F37 F38 F39" /> In-process teammate events carry no `agent_id`.<Cite id="F37" />
+
+Claude Code emits one `api_error` event only after it stops retrying; intermediate attempts are not logged separately.<Cite id="F27" /> `CLAUDE_CODE_MAX_RETRIES` defaults to 10, so `attempt` reaches at most 11 by default on a transient error.<Cite id="F67 F68" /> To tell recovery from a stall, group by `session.id` and look for a later `api_request` event.<Cite id="F66" /> A `stop_reason: "refusal"` arrives on a successful response stream and emits `api_refusal`, not `api_error`.<Cite id="F28" />
+
+Per-model commit counts are approximations. Join commit metrics to token or cost metrics on `session.id`, and filter that side to `query_source` `"main"`.<Cite id="F65" /> `claude_code.pull_request.count` counts pull or merge requests Claude Code creates through a shell command or an MCP tool.<Cite id="F45" />
+
+Claude for Teams and Enterprise analytics adds GitHub contribution metrics, currently a public beta.<Cite id="F57" /> Attribution considers sessions from 21 days before to 2 days after a merge.<Cite id="F32" /> It does not attribute code that developers rewrote by more than 20%.<Cite id="F41" /> Contribution metrics are unavailable with Zero Data Retention enabled.<Cite id="F34" /> The Claude Console dashboard for API customers shows usage and spend metrics only.<Cite id="F30" />
+
+For span-level debugging, tracing is off by default. Set `CLAUDE_CODE_ENABLE_TELEMETRY=1` and `CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1`, then choose an `OTEL_TRACES_EXPORTER`.<Cite id="F69" /> A subagent's API and tool spans nest under the parent's `claude_code.tool` span.<Cite id="F29" /> Bash and PowerShell subprocesses inherit `TRACEPARENT` while tracing is active.<Cite id="F70" />
+
+<Callout type="version" title="Checked 2026-11-19">
+Agent view is a research preview, agent teams are experimental and need an interactive session, workflow limits and enhanced tracing can change between releases, and contribution metrics are a plan-gated public beta. Recheck current docs before wiring alerts to these details.<Cite id="F56 F13 F46 F69 F57" />
+</Callout>
+
+## Decision criteria
+
+Choose the topology by how much the workers must talk to each other and how many units of work exist.
+
+| Situation | Choose | Why |
+|---|---|---|
+| Changes are sequential, touch the same files, or share heavy context | One session | A fresh subagent must gather context the main conversation already has and can be slower.<Cite id="F19 F48" /> |
+| 5 to 30 independent, well-bounded code changes | `/batch`, or `isolation: worktree` subagents | `/batch` plans the units and spawns worktree-isolated subagents after approval.<Cite id="F9 F11" /> |
+| A few independent tasks you inspect and merge yourself | `claude --worktree` sessions, or background sessions via `claude agents` | Each worktree has a separate checkout and branch.<Cite id="F2 F3 F10" /> |
+| Workers must message each other (competing hypotheses, cross-layer contracts) | Agent teams, 3 to 5 teammates | Teammates message each other, but they are not isolated in worktrees, so partition ownership.<Cite id="F12 F14 F31" /> |
+| Dozens to hundreds of items need scripted orchestration | Dynamic workflows | The script holds the plan; limits include 4,096 items per call and 1,000 agents per run.<Cite id="F77 F17 F61" /> |
+
+Before scaling, measure token spend per deliverable and confirm a merge path with integration tests. When a workflow fan-out starts matching agents together, Claude Code holds all but the first until its response begins, so the rest read its cached prompt prefix. The hold is capped at 5,000 ms by default.<Cite id="F47" /> Concurrency is configurable from 1 to 256 agents.<Cite id="F46" />
+
+## Failure modes and recovery
+
+Diagnose fleet failures from telemetry plus task state, not from worker chat logs.
+
+| Failure mode | Root cause | Detection signal | Recovery |
+|---|---|---|---|
+| Retry exhaustion | Requests fail after Claude Code retries. | `api_error` with a high `attempt`; no later `api_request` in the same `session.id`.<Cite id="F66 F68" /> | Inspect session and task state; lower workflow concurrency if the fleet exceeds capacity.<Cite id="F46" /> |
+| Herd collision | All agents work the same blocker without ownership boundaries.<Cite id="F21" /> | Rising lines-of-code counts with few commits (inference from OTel counters).<Cite id="F42 F43" /> | Assign disjoint ownership or `current_tasks/` lock files; split a monolith with an oracle.<Cite id="F12 F20 F52" /> |
+| Locked worktree leak | `-p` runs have no exit cleanup prompt. | Worktrees remain after automation exits.<Cite id="F8" /> | `git worktree unlock` if needed, then `git worktree remove` in a CI cleanup step.<Cite id="F8" /> |
+| Cache and idle waste | Prefix hold disabled, or teammates left running (inference). | Token and cost per worker climb without new commits (inference). | Keep the default prefix hold and shut down finished teammates.<Cite id="F47 F71" /> |
+| Premature completion | Smoke checks treated as full verification (inference). | Telemetry alone does not establish correctness; review test results and task status. | Gate `TaskCompleted` with a hook, plus CI and a read-only reviewer.<Cite id="F58 F49" /> |
+| Stalled team task | A teammate does not mark its task completed, blocking dependents.<Cite id="F72" /> | Task stays open; per-teammate telemetry is thin because in-process teammate events lack `agent_id`.<Cite id="F37" /> | Check whether the work is done, then update the status or have the lead nudge the teammate.<Cite id="F72" /> |
+| Refusal invisible as error | A refusal arrives on a successful stream. | `api_refusal` rises while `api_error` stays flat.<Cite id="F28" /> | Alert on both event types (recommendation). |
+| Misleading fleet KPIs | Dashboard launches counted as workers; contribution metrics expected where unavailable. | `start_type="agents_view"` counted, or contribution metrics expected for API Console or ZDR organizations.<Cite id="F25 F30 F34" /> | Filter `agents_view`; use the OTel pull-request counter.<Cite id="F25 F45" /> |
+
+Agent teams also have limits that telemetry will not show. A session has exactly one team, teammates cannot spawn their own teammates, and `/resume` and `/rewind` do not restore in-process teammates.<Cite id="F74 F75 F73" /> In `-p` mode, including Agent SDK sessions, Claude does not spawn teammates.<Cite id="F13" />
+
+<Callout type="mistake" title="Assuming agent teams isolate files">
+Agent teams do not put teammates in separate worktrees, so parallel edits to the same file collide. Partition file ownership explicitly, or move the work to worktree-isolated sessions or subagents.<Cite id="F12" />
+</Callout>
+
+<Callout type="mistake" title="Counting on api_error to see every stop">
+`api_error` is the terminal signal for one request after retries run out, and refusals never reach it. A fleet stopped by refusals shows zero `api_error` events.<Cite id="F27 F28" />
+</Callout>
+
+<Callout type="mistake" title="Setting OTel exporters in repo settings">
+A repository's `.claude/settings.json` cannot turn telemetry on or choose where it goes. Set exporter variables in managed settings, or in each developer's shell or `~/.claude/settings.json`.<Cite id="F24 F76" />
+</Callout>
+
+## Exam lens
+
+<ExamLens>
+
+- Same-file overwrites in an agent team, or a team expected inside a `-p` run: teammates are not isolated in worktrees, and `-p` does not spawn teammates. Choose worktree isolation with partitioned ownership.<Cite id="F12 F13" />
+- Many agents fixing the same blocker and overwriting each other: add task lock files, disjoint ownership, or a known-good oracle that splits the monolith.<Cite id="F20 F21 F52" />
+- `attempt=11` errors, or work halted with zero errors: check for a later `api_request` per `session.id`, query `api_refusal` separately, exclude `start_type="agents_view"`, and join commits on `query_source` `"main"`.<Cite id="F66 F25 F28 F65" />
+- CI leaves locked worktrees and relies on repository settings for telemetry: `-p` skips exit cleanup, and repository-level OTel exporter variables are ignored.<Cite id="F8 F24" />
+
+</ExamLens>
+
+## Self-check
+
+<SelfCheck question="You launch 20 `claude -p --worktree` workers in CI and set `OTEL_METRICS_EXPORTER=otlp` in the repo's `.claude/settings.json`. Name two operational failures.">
+
+Repository `.claude/settings.json` OTel exporter variables are ignored, so they cannot turn telemetry on or choose its destination.<Cite id="F24" /> And `-p` runs have no exit prompt, so their worktrees and creation locks remain until you run `git worktree unlock` and `git worktree remove`, or a later stale-lock sweep releases the lock.<Cite id="F8" />
+
+</SelfCheck>
+
+<SelfCheck question="`api_error` count is zero, yet half your parallel agents stopped opening PRs after touching sensitive authentication code. What do you inspect?">
+
+The `api_refusal` events. A `stop_reason: "refusal"` arrives on a successful response stream, so `api_error` does not fire for it.<Cite id="F28" />
+
+</SelfCheck>
+
+<SelfCheck question={'When do you change worktree.baseRef from "fresh" to "head", and why?'}>
+
+When isolated subagents or worktree sessions must start from unpushed commits on your current feature branch. `"head"` branches from local `HEAD`; `"fresh"` branches from the remote default branch.<Cite id="F4" />
+
+</SelfCheck>

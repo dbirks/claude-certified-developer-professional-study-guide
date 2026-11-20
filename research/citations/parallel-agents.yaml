@@ -80,7 +80,7 @@
   accessed: 2026-11-19
 
 - id: F10
-  claim: "Background sessions started via claude agents or claude --bg isolate edits in .claude/worktrees/ unless worktree.bgIsolation is 'none', and commit, push their own branch, and open a draft PR while never pushing to main/master, force-pushing, or merging."
+  claim: "Background sessions move into an isolated worktree under .claude/worktrees/ before editing files."
   tag: FACT
   url: https://code.claude.com/docs/en/agent-view#how-file-edits-are-isolated
   title: "Manage multiple agents with agent view - Claude Code Docs"
@@ -135,7 +135,7 @@
   accessed: 2026-11-19
 
 - id: F16
-  claim: "TeammateIdle, TaskCreated, and TaskCompleted hooks provide deterministic quality gates by exiting with code 2 to reject premature completion or idle transitions and send feedback."
+  claim: "The TaskCompleted hook runs when a task is marked completed and can enforce completion criteria such as passing tests."
   tag: FACT
   url: https://code.claude.com/docs/en/hooks#taskcompleted
   title: "Hooks reference - Claude Code Docs"
@@ -144,7 +144,7 @@
   accessed: 2026-11-19
 
 - id: F17
-  claim: "Dynamic workflows coordinate parallel() and pipeline() fan-outs in plain JS outside context, bounded by 16 concurrent agents by default (1-256 via CLAUDE_CODE_WORKFLOW_MAX_CONCURRENT_AGENTS), 4,096 items per call, 1,000 agents per run, and a 5,000 ms prefix stagger for prompt caching."
+  claim: "A dynamic workflow rejects a parallel() or pipeline() call with more than 4,096 items."
   tag: FACT
   url: https://code.claude.com/docs/en/workflows#behavior-and-limits
   title: "Orchestrate dynamic workflows - Claude Code Docs"
@@ -267,4 +267,443 @@
   title: "Track team usage with analytics - Claude Code Docs"
   source: claude-code-docs
   quote: "Contribution metrics with GitHub integration are not currently available for API customers. The Console dashboard shows usage and spend metrics only."
+  accessed: 2026-11-19
+
+- id: F31
+  claim: "Agent team teammates message each other directly and, when they have the Task tools, share a task list."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agents#choose-an-approach
+  title: "Run agents in parallel - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Teammates in an agent team message each other directly and, when they have the Task tools, share a task list."
+  accessed: 2026-11-19
+
+- id: F32
+  claim: "Analytics attribution considers sessions from 21 days before to 2 days after a pull request merge."
+  tag: FACT
+  url: https://code.claude.com/docs/en/analytics
+  title: "Track team usage with analytics - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Sessions from 21 days before to 2 days after the PR merge date are considered for attribution matching."
+  accessed: 2026-11-19
+
+- id: F33
+  claim: "--max-budget-usd stops a print-mode run once estimated API spend reaches the given amount."
+  tag: FACT
+  url: https://code.claude.com/docs/en/cli-reference
+  title: "CLI reference - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Stop the run once estimated spend on API calls reaches this amount (print mode only)."
+  accessed: 2026-11-19
+
+- id: F34
+  claim: "Contribution metrics are unavailable for organizations with Zero Data Retention enabled."
+  tag: FACT
+  url: https://code.claude.com/docs/en/analytics
+  title: "Track team usage with analytics - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Contribution metrics are not available for organizations with Zero Data Retention enabled."
+  accessed: 2026-11-19
+
+- id: F35
+  claim: "OTEL_RESOURCE_INCLUDE_HOST=1 records which machine each session ran on (v2.1.326 or later)."
+  tag: VER
+  url: https://code.claude.com/docs/en/monitoring-usage#identify-the-machine-a-session-ran-on
+  title: "Monitoring - Claude Code Docs"
+  source: claude-code-docs
+  quote: "To see which machine each session ran on, set OTEL_RESOURCE_INCLUDE_HOST=1 on Claude Code v2.1.326 or later."
+  accessed: 2026-11-19
+  version_note: "Claude Code v2.1.326 or later."
+
+- id: F36
+  claim: "The prompt.id event attribute correlates a user prompt with all subsequent events until the next prompt."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage#event-correlation-attributes
+  title: "Monitoring - Claude Code Docs"
+  source: claude-code-docs
+  quote: "prompt.id: UUID correlating a user prompt with all subsequent events until the next prompt."
+  accessed: 2026-11-19
+
+- id: F37
+  claim: "The agent_id event attribute marks subagent API and tool events; it is absent on main-session and in-process teammate events."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage#event-correlation-attributes
+  title: "Monitoring - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Events that carry it include a subagent's API and tool events, its assistant_response events, and subagent_completed for the finished subagent. Absent on main-session and in-process teammate events."
+  accessed: 2026-11-19
+
+- id: F38
+  claim: "parent_agent_id holds the agent_id of the agent that spawned or last resumed the subagent."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage#event-correlation-attributes
+  title: "Monitoring - Claude Code Docs"
+  source: claude-code-docs
+  quote: "parent_agent_id: the agent_id of the agent that spawned or last resumed the subagent that raised the event."
+  accessed: 2026-11-19
+
+- id: F39
+  claim: "Filtering events by workflow.run_id reconstructs one workflow run's API requests and tool results."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage#event-correlation-attributes
+  title: "Monitoring - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Filtering events by one workflow.run_id reconstructs that run's API requests and tool results."
+  accessed: 2026-11-19
+
+- id: F40
+  claim: "Claude Code exports OpenTelemetry metrics and events, and optionally traces."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage
+  title: "Monitoring - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Claude Code exports metrics as time series data via the standard metrics protocol, events via the logs/events protocol, and optionally distributed traces via OpenTelemetry."
+  accessed: 2026-11-19
+
+- id: F41
+  claim: "Code rewritten by developers by more than 20% is not attributed to Claude Code."
+  tag: FACT
+  url: https://code.claude.com/docs/en/analytics
+  title: "Track team usage with analytics - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Code substantially rewritten by developers, with more than 20% difference, is not attributed to Claude Code"
+  accessed: 2026-11-19
+
+- id: F42
+  claim: "claude_code.lines_of_code.count increments when code is added or removed."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage#lines-of-code-counter
+  title: "Monitoring - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Incremented when code is added or removed."
+  accessed: 2026-11-19
+
+- id: F43
+  claim: "claude_code.commit.count increments when Claude Code creates git commits."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage#commit-counter
+  title: "Monitoring - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Incremented when creating git commits via Claude Code."
+  accessed: 2026-11-19
+
+- id: F44
+  claim: "If you omit the --worktree name, Claude generates one."
+  tag: FACT
+  url: https://code.claude.com/docs/en/worktrees#start-claude-in-a-worktree
+  title: "Run parallel sessions with worktrees - Claude Code Docs"
+  source: claude-code-docs
+  quote: "If you omit the name, Claude generates one such as bright-running-fox."
+  accessed: 2026-11-19
+
+- id: F45
+  claim: "claude_code.pull_request.count increments when Claude Code creates a pull or merge request through a shell command or an MCP tool."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage#pull-request-counter
+  title: "Monitoring - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Incremented when Claude Code creates a pull request or merge request through a shell command or an MCP tool."
+  accessed: 2026-11-19
+
+- id: F46
+  claim: "Dynamic workflows run up to 16 concurrent agents by default, fewer on CPU-limited hosts; CLAUDE_CODE_WORKFLOW_MAX_CONCURRENT_AGENTS accepts 1 to 256."
+  tag: VER
+  url: https://code.claude.com/docs/en/workflows#behavior-and-limits
+  title: "Orchestrate dynamic workflows - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Up to 16 concurrent agents by default, fewer when Claude Code has fewer CPUs available, including inside a CPU-limited container."
+  accessed: 2026-11-19
+  version_note: "Configurable limit requires Claude Code v2.1.269 or later."
+
+- id: F47
+  claim: "A workflow fan-out holds matching agents until the first agent's response begins, so they read its cached prefix; the hold is capped at 5000 ms by default."
+  tag: FACT
+  url: https://code.claude.com/docs/en/workflows#prompt-caching-in-a-fan-out
+  title: "Orchestrate dynamic workflows - Claude Code Docs"
+  source: claude-code-docs
+  quote: "When a fan-out starts several matching agents at once, Claude Code holds all but the first until the first agent's response begins, then releases the held agents together so their first requests read the shared prefix instead of each processing it uncached."
+  accessed: 2026-11-19
+
+- id: F48
+  claim: "For sequential tasks, same-file edits, or heavily dependent work, a single session or subagents beat agent teams."
+  tag: REC
+  url: https://code.claude.com/docs/en/agent-teams
+  title: "Orchestrate teams of Claude Code sessions - Claude Code Docs"
+  source: claude-code-docs
+  quote: "For sequential tasks, same-file edits, or work with many dependencies, a single session or subagents are more effective."
+  accessed: 2026-11-19
+
+- id: F49
+  claim: "A custom subagent limited to Read, Grep, and Glob is a reviewer that cannot edit, enforced by Claude Code."
+  tag: REC
+  url: https://code.claude.com/docs/en/best-practices
+  title: "Best practices for Claude Code - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Give a custom subagent in .claude/agents/ only tools: Read, Grep, Glob. Now it's a reviewer that can't edit anything, and that limit is enforced by Claude Code rather than requested in a prompt."
+  accessed: 2026-11-19
+
+- id: F50
+  claim: "The C compiler project added a CI pipeline so new commits could not break existing code."
+  tag: FACT
+  url: https://www.anthropic.com/research/building-c-compiler
+  title: "Building a C compiler with a team of parallel Claudes \\ Anthropic"
+  source: anthropic-research
+  quote: "To address this, I built a continuous integration pipeline and implemented stricter enforcement that allowed Claude to better test its work so that new commits can’t break existing code."
+  accessed: 2026-11-19
+
+- id: F51
+  claim: "Harness logs should put ERROR and its reason on one line so grep finds it."
+  tag: REC
+  url: https://www.anthropic.com/research/building-c-compiler
+  title: "Building a C compiler with a team of parallel Claudes \\ Anthropic"
+  source: anthropic-research
+  quote: "Logfiles should be easy to process automatically: if there are errors, Claude should write ERROR and put the reason on the same line so grep will find it."
+  accessed: 2026-11-19
+
+- id: F52
+  claim: "GCC served as a known-good oracle: a harness compiled most of the kernel with GCC and the remaining random files with Claude's compiler."
+  tag: FACT
+  url: https://www.anthropic.com/research/building-c-compiler
+  title: "Building a C compiler with a team of parallel Claudes \\ Anthropic"
+  source: anthropic-research
+  quote: "The fix was to use GCC as an online known-good compiler oracle to compare against. I wrote a new test harness that randomly compiled most of the kernel using GCC, and only the remaining files with Claude's C Compiler."
+  accessed: 2026-11-19
+
+- id: F53
+  claim: "Over nearly 2,000 sessions and $20,000 in API costs, the agent team produced a 100,000-line compiler."
+  tag: FACT
+  url: https://www.anthropic.com/research/building-c-compiler
+  title: "Building a C compiler with a team of parallel Claudes \\ Anthropic"
+  source: anthropic-research
+  quote: "Over nearly 2,000 Claude Code sessions and $20,000 in API costs, the agent team produced a 100,000-line compiler that can build Linux 6.9 on x86, ARM, and RISC-V."
+  accessed: 2026-11-19
+
+- id: F54
+  claim: "acceptEdits auto-approves file edits and only common filesystem Bash commands, so test and git commands still need permission."
+  tag: FACT
+  url: https://code.claude.com/docs/en/permission-modes#auto-approve-file-edits-with-acceptedits-mode
+  title: "Choose a permission mode - Claude Code Docs"
+  source: claude-code-docs
+  quote: "In addition to file edits, acceptEdits mode auto-approves common filesystem Bash commands: mkdir, touch, rm, rmdir, mv, cp, and sed."
+  accessed: 2026-11-19
+
+- id: F55
+  claim: "--allowedTools lists tools that execute without a permission prompt."
+  tag: FACT
+  url: https://code.claude.com/docs/en/cli-reference
+  title: "CLI reference - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Tools that execute without prompting for permission, apart from reads from network paths."
+  accessed: 2026-11-19
+
+- id: F56
+  claim: "Agent view is a research preview."
+  tag: VER
+  url: https://code.claude.com/docs/en/agent-view
+  title: "Manage multiple agents with agent view - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Agent view is in research preview. The interface and keyboard shortcuts may change as the feature evolves."
+  accessed: 2026-11-19
+  version_note: "Research preview as of 2026-11-19."
+
+- id: F57
+  claim: "Contribution metrics are a public beta on Claude for Teams and Enterprise plans."
+  tag: VER
+  url: https://code.claude.com/docs/en/analytics
+  title: "Track team usage with analytics - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Contribution metrics are in public beta and available on Claude for Teams and Claude for Enterprise plans."
+  accessed: 2026-11-19
+  version_note: "Public beta as of 2026-11-19."
+
+- id: F58
+  claim: "A TaskCompleted hook exiting with code 2 keeps the task open and feeds stderr back to the model."
+  tag: FACT
+  url: https://code.claude.com/docs/en/hooks#taskcompleted
+  title: "Hooks reference - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Exit code 2: the task is not marked as completed and the stderr message is fed back to the model as feedback."
+  accessed: 2026-11-19
+
+- id: F59
+  claim: "A TaskCreated hook can block task creation with exit code 2 or a JSON decision."
+  tag: FACT
+  url: https://code.claude.com/docs/en/hooks#taskcreated
+  title: "Hooks reference - Claude Code Docs"
+  source: claude-code-docs
+  quote: "A TaskCreated hook can block the creation with exit code 2 or with a JSON decision."
+  accessed: 2026-11-19
+
+- id: F60
+  claim: "A TeammateIdle hook exiting with code 2 sends feedback and keeps the teammate working."
+  tag: FACT
+  url: https://code.claude.com/docs/en/hooks#teammateidle
+  title: "Hooks reference - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Exit code 2: the teammate receives the stderr message as feedback and continues working."
+  accessed: 2026-11-19
+
+- id: F61
+  claim: "A dynamic workflow run is capped at 1,000 agents."
+  tag: VER
+  url: https://code.claude.com/docs/en/workflows#behavior-and-limits
+  title: "Orchestrate dynamic workflows - Claude Code Docs"
+  source: claude-code-docs
+  quote: "1,000 agents total per run"
+  accessed: 2026-11-19
+  version_note: "Limit as documented 2026-11-19."
+
+- id: F62
+  claim: "A project starts parallel threads in the cloud or, on request, on your computer through Remote Control."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agents
+  title: "Run agents in parallel - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Claude starts parallel sessions called threads, in the cloud or, when you ask, on your computer through Remote Control."
+  accessed: 2026-11-19
+
+- id: F63
+  claim: "Background sessions in a worktree commit and push their branch but never push to main or master, force-push, or merge."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-view#how-file-edits-are-isolated
+  title: "Manage multiple agents with agent view - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Never: pushing to main or master, force-pushing, and merging."
+  accessed: 2026-11-19
+
+- id: F64
+  claim: "Delta debugging found pairs of files that failed together but worked independently."
+  tag: FACT
+  url: https://www.anthropic.com/research/building-c-compiler
+  title: "Building a C compiler with a team of parallel Claudes \\ Anthropic"
+  source: anthropic-research
+  quote: "(After this worked, it was still necessary to apply delta debugging techniques to find pairs of files that failed together but worked independently.)"
+  accessed: 2026-11-19
+
+- id: F65
+  claim: "Per-model commit counts can only be approximated by joining commits to token or cost metrics on session.id."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage#metrics
+  title: "Monitoring - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Per-model breakdowns of commits can only be approximated by joining against the token or cost metrics on session.id, since one session can span multiple models. Filter the token or cost side to rows where query_source is \"main\" so auxiliary and subagent requests don't attribute the session's commits to a model that didn't make them."
+  accessed: 2026-11-19
+
+- id: F66
+  claim: "A later api_request in the same session.id distinguishes a session that recovered from one that stalled."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage#detect-retry-exhaustion
+  title: "Monitoring - Claude Code Docs"
+  source: claude-code-docs
+  quote: "To distinguish a session that recovered from one that stalled, group events by session.id and check whether a later api_request event exists after the error."
+  accessed: 2026-11-19
+
+- id: F67
+  claim: "CLAUDE_CODE_MAX_RETRIES defaults to 10 and is capped at 15."
+  tag: VER
+  url: https://code.claude.com/docs/en/monitoring-usage#detect-retry-exhaustion
+  title: "Monitoring - Claude Code Docs"
+  source: claude-code-docs
+  quote: "The attempt attribute on the event records the number of attempts. CLAUDE_CODE_MAX_RETRIES defaults to 10 and is capped at 15; with CLAUDE_CODE_RETRY_WATCHDOG set, the default is higher and there is no cap."
+  accessed: 2026-11-19
+  version_note: "As documented 2026-11-19."
+
+- id: F68
+  claim: "On transient-error retry exhaustion, attempt is at most 11 by default."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage#detect-retry-exhaustion
+  title: "Monitoring - Claude Code Docs"
+  source: claude-code-docs
+  quote: "When the request exhausts all retries on a transient error, attempt is at most one more than that effective limit: 11 by default."
+  accessed: 2026-11-19
+
+- id: F69
+  claim: "Tracing is off by default and needs CLAUDE_CODE_ENABLE_TELEMETRY=1, CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1, and OTEL_TRACES_EXPORTER."
+  tag: VER
+  url: https://code.claude.com/docs/en/monitoring-usage#traces-beta
+  title: "Monitoring - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Tracing is off by default. To enable it, set both CLAUDE_CODE_ENABLE_TELEMETRY=1 and CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1, then set OTEL_TRACES_EXPORTER to choose where spans are sent."
+  accessed: 2026-11-19
+  version_note: "As documented 2026-11-19."
+
+- id: F70
+  claim: "While tracing is active, Bash and PowerShell subprocesses inherit TRACEPARENT."
+  tag: FACT
+  url: https://code.claude.com/docs/en/monitoring-usage#traces-beta
+  title: "Monitoring - Claude Code Docs"
+  source: claude-code-docs
+  quote: "When tracing is active, Bash and PowerShell subprocesses automatically inherit a TRACEPARENT environment variable containing the W3C trace context of the active tool execution span."
+  accessed: 2026-11-19
+
+- id: F71
+  claim: "Shut down teammates when their work is done because each active teammate keeps consuming tokens."
+  tag: REC
+  url: https://code.claude.com/docs/en/costs#agent-team-token-costs
+  title: "Manage costs effectively - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Shut down teammates when their work is done. Each active teammate continues consuming tokens until it exits or the session ends."
+  accessed: 2026-11-19
+
+- id: F72
+  claim: "Teammates sometimes fail to mark tasks completed, which blocks dependent tasks."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-teams#limitations
+  title: "Orchestrate teams of Claude Code sessions - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Task status can lag: teammates sometimes fail to mark tasks as completed, which blocks dependent tasks. If a task appears stuck, check whether the work is actually done and update the task status manually or tell the lead to nudge the teammate."
+  accessed: 2026-11-19
+
+- id: F73
+  claim: "/resume and /rewind do not restore in-process teammates."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-teams#limitations
+  title: "Orchestrate teams of Claude Code sessions - Claude Code Docs"
+  source: claude-code-docs
+  quote: "No session resumption with in-process teammates: /resume and /rewind do not restore in-process teammates."
+  accessed: 2026-11-19
+
+- id: F74
+  claim: "A session has exactly one team."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-teams#limitations
+  title: "Orchestrate teams of Claude Code sessions - Claude Code Docs"
+  source: claude-code-docs
+  quote: "One team per session: a session has exactly one team, scoped to that session."
+  accessed: 2026-11-19
+
+- id: F75
+  claim: "Teammates cannot spawn their own teammates."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-teams#limitations
+  title: "Orchestrate teams of Claude Code sessions - Claude Code Docs"
+  source: claude-code-docs
+  quote: "No nested teams: teammates cannot spawn their own teammates."
+  accessed: 2026-11-19
+
+- id: F76
+  claim: "Set OTel exporter variables in managed settings, a developer's shell, or ~/.claude/settings.json."
+  tag: REC
+  url: https://code.claude.com/docs/en/monitoring-usage#administrator-configuration
+  title: "Monitoring - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Set them in managed settings, or have each developer set them in their shell or ~/.claude/settings.json."
+  accessed: 2026-11-19
+
+- id: F77
+  claim: "In a dynamic workflow, a script holds the plan instead of Claude's turn-by-turn judgment."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agents#choose-an-approach
+  title: "Run agents in parallel - Claude Code Docs"
+  source: claude-code-docs
+  quote: "A script holds the plan instead of Claude's turn-by-turn judgment"
+  accessed: 2026-11-19
+
+- id: F78
+  claim: "Subagents are delegated workers in one session that do a side task in their own context and return a summary."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agents
+  title: "Run agents in parallel - Claude Code Docs"
+  source: claude-code-docs
+  quote: "Delegated workers inside one session that do a side task in their own context and return a summary"
   accessed: 2026-11-19

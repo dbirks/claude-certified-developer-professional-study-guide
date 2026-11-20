@@ -226,7 +226,19 @@
     - parallel-agents:F13
     - parallel-agents:F14
     - parallel-agents:F15
-    - parallel-agents:F16
+    - parallel-agents:F48
+    - parallel-agents:F72
+    - parallel-agents:F73
+    - parallel-agents:F74
+    - parallel-agents:F75
+- url: https://code.claude.com/docs/en/agent-view
+  title: Manage multiple agents with agent view - Claude Code Docs
+  source: claude-code-docs
+  accessed: 2026-11-19
+  cited_by:
+    - parallel-agents:F10
+    - parallel-agents:F56
+    - parallel-agents:F63
 - url: https://code.claude.com/docs/en/agents
   title: Run agents in parallel - Claude Code Docs
   source: claude-code-docs
@@ -235,6 +247,9 @@
     - parallel-agents:F1
     - parallel-agents:F12
     - parallel-agents:F31
+    - parallel-agents:F62
+    - parallel-agents:F77
+    - parallel-agents:F78
 - url: https://code.claude.com/docs/en/amazon-bedrock
   title: Claude Code on Amazon Bedrock
   source: claude-code-docs
@@ -250,6 +265,7 @@
     - parallel-agents:F32
     - parallel-agents:F34
     - parallel-agents:F41
+    - parallel-agents:F57
 - url: https://code.claude.com/docs/en/auto-mode-config
   title: Configure auto mode
   source: claude-code-docs
@@ -263,6 +279,7 @@
   accessed: 2026-11-19
   cited_by:
     - parallel-agents:F19
+    - parallel-agents:F49
     - verification-review:F6
 - url: https://code.claude.com/docs/en/checkpointing
   title: Checkpointing
@@ -284,6 +301,7 @@
   accessed: 2026-11-19
   cited_by:
     - parallel-agents:F33
+    - parallel-agents:F55
     - unattended-operations:F4
     - unattended-operations:F5
     - unattended-operations:F6
@@ -343,13 +361,13 @@
   accessed: 2026-11-19
   cited_by:
     - context-memory:F32
-    - context-memory:F47
 - url: https://code.claude.com/docs/en/costs
   title: Manage costs effectively - Claude Code Docs
   source: claude-code-docs
   accessed: 2026-11-19
   cited_by:
     - parallel-agents:F18
+    - parallel-agents:F71
 - url: https://code.claude.com/docs/en/data-usage
   title: Data usage
   source: claude-code-docs
@@ -426,6 +444,10 @@
     - runtime-guardrails:F42
     - runtime-guardrails:F47
     - runtime-guardrails:F54
+    - parallel-agents:F16
+    - parallel-agents:F58
+    - parallel-agents:F59
+    - parallel-agents:F60
     - verification-review:F7
     - unattended-operations:F26
     - unattended-operations:F27
@@ -554,11 +576,25 @@
     - parallel-agents:F40
     - parallel-agents:F42
     - parallel-agents:F43
+    - parallel-agents:F45
+    - parallel-agents:F65
+    - parallel-agents:F66
+    - parallel-agents:F67
+    - parallel-agents:F68
+    - parallel-agents:F69
+    - parallel-agents:F70
+    - parallel-agents:F76
     - org-configuration:F18
     - org-configuration:F19
     - org-configuration:F20
     - org-configuration:F37
     - org-configuration:F39
+- url: https://code.claude.com/docs/en/permission-modes
+  title: Choose a permission mode - Claude Code Docs
+  source: claude-code-docs
+  accessed: 2026-11-19
+  cited_by:
+    - parallel-agents:F54
 - url: https://code.claude.com/docs/en/permissions
   title: Configure permissions
   source: claude-code-docs
@@ -736,6 +772,9 @@
   cited_by:
     - multi-agent-orchestration:F31
     - parallel-agents:F17
+    - parallel-agents:F46
+    - parallel-agents:F47
+    - parallel-agents:F61
 - url: https://code.claude.com/docs/en/worktrees
   title: Run parallel sessions with worktrees - Claude Code Docs
   source: claude-code-docs
@@ -748,7 +787,6 @@
     - parallel-agents:F7
     - parallel-agents:F8
     - parallel-agents:F9
-    - parallel-agents:F10
     - parallel-agents:F44
 - url: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows
   title: Events that trigger workflows
@@ -1440,12 +1478,6 @@
   accessed: 2026-11-19
   cited_by:
     - context-memory:F15
-- url: https://platform.claude.com/docs/en/build-with-claude/compaction-keep-recent-turns
-  title: Compaction that keeps recent turns
-  source: anthropic-docs
-  accessed: 2026-11-19
-  cited_by:
-    - context-memory:F39
 - url: https://platform.claude.com/docs/en/build-with-claude/compaction-on-demand
   title: Compaction on demand
   source: anthropic-docs
@@ -1455,6 +1487,7 @@
     - context-memory:F17
     - context-memory:F37
     - context-memory:F38
+    - context-memory:F39
 - url: https://platform.claude.com/docs/en/build-with-claude/compaction-threshold
   title: Compaction at a token threshold
   source: anthropic-docs
@@ -1485,7 +1518,6 @@
     - context-memory:F5
     - context-memory:F6
     - context-memory:F7
-    - context-memory:F46
 - url: https://platform.claude.com/docs/en/build-with-claude/effort
   title: Effort
   source: anthropic-docs
@@ -2226,6 +2258,11 @@
     - parallel-agents:F20
     - parallel-agents:F21
     - parallel-agents:F22
+    - parallel-agents:F50
+    - parallel-agents:F51
+    - parallel-agents:F52
+    - parallel-agents:F53
+    - parallel-agents:F64
 - url: https://www.anthropic.com/research/building-effective-agents
   title: Building effective AI agents
   source: anthropic-research

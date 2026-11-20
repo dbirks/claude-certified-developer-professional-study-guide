@@ -118,6 +118,12 @@ Log: [fact-check/org-configuration.md](fact-check/org-configuration.md) · passe
 
 - 33 original citation claims checked against current official docs; 17 supported as written and 16 fixed or narrowed. Removed 3 unsupported or overstated claims. Added 11 citation entries (F34–F44). Checked 2 code blocks; JSON parses and CLI commands/options match current documentation.
 
+### 8.1 Parallel Agent Orchestration for Engineering Work
+
+Log: [fact-check/parallel-agents.md](fact-check/parallel-agents.md) · passes: 1 · reviewer(s): Claude (Opus 5.5 subagent)
+
+- About 95 cited claims checked against current code.claude.com docs (agents, worktrees, agent-view, agent-teams, workflows, monitoring-usage, analytics, costs, best-practices, commands, hooks, cli-reference, permission-modes) and the Anthropic C compiler article. 64 supported as written, 29 fixed (reworded or re-cited), 2 removed. The chapter cited 14 ids (F31–F44) that did not exist in the yaml, so `check-citations` failed. I recreated them with verbatim quotes and added 34 more (F45–F78), for 48 new entries in total. Checked 1 bash code block (`bash -n` passes; no Python). `check-citations`: OK. `verify-quotes`: 78/78 ok. Build: complete.
+
 ### Reference Practice Domain 1
 
 Log: [fact-check/practice-domain-1.md](fact-check/practice-domain-1.md) · passes: 1 · reviewer(s): Gemini 4 Hydrogen (High)

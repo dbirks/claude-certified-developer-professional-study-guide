@@ -148,5 +148,245 @@
     "id": "F30",
     "status": "ok",
     "url": "https://code.claude.com/docs/en/analytics"
+  },
+  {
+    "id": "F31",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agents#choose-an-approach"
+  },
+  {
+    "id": "F32",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/analytics"
+  },
+  {
+    "id": "F33",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/cli-reference"
+  },
+  {
+    "id": "F34",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/analytics"
+  },
+  {
+    "id": "F35",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage#identify-the-machine-a-session-ran-on"
+  },
+  {
+    "id": "F36",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage#event-correlation-attributes"
+  },
+  {
+    "id": "F37",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage#event-correlation-attributes"
+  },
+  {
+    "id": "F38",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage#event-correlation-attributes"
+  },
+  {
+    "id": "F39",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage#event-correlation-attributes"
+  },
+  {
+    "id": "F40",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage"
+  },
+  {
+    "id": "F41",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/analytics"
+  },
+  {
+    "id": "F42",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage#lines-of-code-counter"
+  },
+  {
+    "id": "F43",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage#commit-counter"
+  },
+  {
+    "id": "F44",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/worktrees#start-claude-in-a-worktree"
+  },
+  {
+    "id": "F45",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage#pull-request-counter"
+  },
+  {
+    "id": "F46",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/workflows#behavior-and-limits"
+  },
+  {
+    "id": "F47",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/workflows#prompt-caching-in-a-fan-out"
+  },
+  {
+    "id": "F48",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-teams"
+  },
+  {
+    "id": "F49",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/best-practices"
+  },
+  {
+    "id": "F50",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/building-c-compiler"
+  },
+  {
+    "id": "F51",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/building-c-compiler"
+  },
+  {
+    "id": "F52",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/building-c-compiler"
+  },
+  {
+    "id": "F53",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/building-c-compiler"
+  },
+  {
+    "id": "F54",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/permission-modes#auto-approve-file-edits-with-acceptedits-mode"
+  },
+  {
+    "id": "F55",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/cli-reference"
+  },
+  {
+    "id": "F56",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-view"
+  },
+  {
+    "id": "F57",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/analytics"
+  },
+  {
+    "id": "F58",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/hooks#taskcompleted"
+  },
+  {
+    "id": "F59",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/hooks#taskcreated"
+  },
+  {
+    "id": "F60",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/hooks#teammateidle"
+  },
+  {
+    "id": "F61",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/workflows#behavior-and-limits"
+  },
+  {
+    "id": "F62",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agents"
+  },
+  {
+    "id": "F63",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-view#how-file-edits-are-isolated"
+  },
+  {
+    "id": "F64",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/building-c-compiler"
+  },
+  {
+    "id": "F65",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage#metrics"
+  },
+  {
+    "id": "F66",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage#detect-retry-exhaustion"
+  },
+  {
+    "id": "F67",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage#detect-retry-exhaustion"
+  },
+  {
+    "id": "F68",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage#detect-retry-exhaustion"
+  },
+  {
+    "id": "F69",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage#traces-beta"
+  },
+  {
+    "id": "F70",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage#traces-beta"
+  },
+  {
+    "id": "F71",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/costs#agent-team-token-costs"
+  },
+  {
+    "id": "F72",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-teams#limitations"
+  },
+  {
+    "id": "F73",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-teams#limitations"
+  },
+  {
+    "id": "F74",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-teams#limitations"
+  },
+  {
+    "id": "F75",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-teams#limitations"
+  },
+  {
+    "id": "F76",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/monitoring-usage#administrator-configuration"
+  },
+  {
+    "id": "F77",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agents#choose-an-approach"
+  },
+  {
+    "id": "F78",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agents"
   }
 ]
