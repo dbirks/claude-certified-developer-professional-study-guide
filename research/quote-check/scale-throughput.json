@@ -273,5 +273,25 @@
     "id": "F55",
     "status": "ok-loose",
     "url": "https://platform.claude.com/docs/en/build-with-claude/batch-processing"
+  },
+  {
+    "id": "F56",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F57",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F58",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F59",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
   }
 ]

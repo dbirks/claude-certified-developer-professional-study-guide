@@ -239,6 +239,7 @@
   cited_by:
     - parallel-agents:F1
     - parallel-agents:F12
+    - parallel-agents:F31
 - url: https://code.claude.com/docs/en/amazon-bedrock
   title: Claude Code on Amazon Bedrock
   source: claude-code-docs
@@ -251,6 +252,8 @@
   accessed: 2026-11-19
   cited_by:
     - parallel-agents:F30
+    - parallel-agents:F32
+    - parallel-agents:F34
 - url: https://code.claude.com/docs/en/auto-mode-config
   title: Configure auto mode
   source: claude-code-docs
@@ -280,10 +283,11 @@
   cited_by:
     - org-configuration:F25
 - url: https://code.claude.com/docs/en/cli-reference
-  title: CLI reference
+  title: CLI reference - Claude Code Docs
   source: claude-code-docs
   accessed: 2026-11-19
   cited_by:
+    - parallel-agents:F33
     - unattended-operations:F4
     - unattended-operations:F5
     - unattended-operations:F6
@@ -544,6 +548,12 @@
     - parallel-agents:F27
     - parallel-agents:F28
     - parallel-agents:F29
+    - parallel-agents:F35
+    - parallel-agents:F36
+    - parallel-agents:F37
+    - parallel-agents:F38
+    - parallel-agents:F39
+    - parallel-agents:F40
     - org-configuration:F18
     - org-configuration:F19
     - org-configuration:F20
@@ -1168,6 +1178,7 @@
   cited_by:
     - retrieval-grounding:F17
     - retrieval-grounding:F29
+    - retrieval-grounding:F44
     - threat-defense:F13
     - threat-defense:F14
     - threat-defense:F15

@@ -177,7 +177,7 @@ Log: [fact-check/reliability.md](fact-check/reliability.md) · passes: 2 · revi
 
 ### 2.4 Retrieval and Knowledge Grounding at Scale
 
-Log: [fact-check/retrieval-grounding.md](fact-check/retrieval-grounding.md) · passes: 1 · reviewer(s): Gemini 4 Hydrogen (High)
+Log: [fact-check/retrieval-grounding.md](fact-check/retrieval-grounding.md) · passes: 2 · reviewer(s): Gemini 4 Hydrogen (High)
 
 - Claims checked: 86 `<Cite>` claim spans across 35 original citations (plus 1 uncited claim newly cited); 77 supported as written, 9 partial/overstated or mis-scoped fixed, 0 unsupported removed.
 - Citations added: 7 (`F37`–`F43`).
@@ -191,7 +191,7 @@ Log: [fact-check/runtime-guardrails.md](fact-check/runtime-guardrails.md) · pas
 
 ### 2.2 Scale and Throughput Management
 
-Log: [fact-check/scale-throughput.md](fact-check/scale-throughput.md) · passes: 1 · reviewer(s): Gemini 4 Hydrogen
+Log: [fact-check/scale-throughput.md](fact-check/scale-throughput.md) · passes: 2 · reviewer(s): Gemini 4 Hydrogen
 
 - **Claims checked:** 53 (45 originally cited claims + 8 uncited factual/API-specific claims swept)
 - **Supported:** 40

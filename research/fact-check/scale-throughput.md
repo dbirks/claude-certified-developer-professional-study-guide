@@ -26,3 +26,28 @@ Checked: 2026-11-19 · Reviewer: Gemini 4 Hydrogen
 
 ## Remaining concerns
 - None. All 55 citations in `research/citations/scale-throughput.yaml` passed `scripts/verify-quotes.mjs` (`ok 36 · ok-loose 19 · not-found 0`), `scripts/check-citations.mjs` printed `OK`, and `pnpm astro build` completed with 27 pages built. Per-tier limits (`F8`–`F10`, `F16`–`F18`) and ramp step parameters (`F41`) remain version-sensitive and subject to change.
+
+## Second pass (GPT-6)
+
+### Summary
+- **Claims checked:** 59 cited entries, plus uncited factual/API-specific statements and the full objective coverage.
+- **Supported:** 50 cited claims.
+- **Fixed / reworded:** 9 claims or statements.
+- **Removed:** 1 unsupported cost-savings clause.
+- **Citations added:** 4 (`F56`–`F59`).
+- **Code blocks checked:** 0 fenced blocks; inline API identifiers, headers, parameters, and error values checked against current official Anthropic docs.
+
+### Changes
+- **Cache throughput** — `F5` established the ITPM benefit, but not the adjacent assertion that caching cuts cost → Removed the cost claim; retained the supported cache-read/write throughput arithmetic (`F5`).
+- **Usage tiers** — The first pass described Custom as a normal next step after Scale → Replaced that progression with the documented rule that tiers depend on usage history and account standing (`F47`, new `F59`).
+- **Rate-limit headers** — The sentence applied RFC 3339 reset formatting to four header families while its citations directly supported only the request reset → Added the exact token, input-token, and output-token reset rows (`F56`–`F58`); retained the remaining-count evidence (`F36`–`F39`).
+- **Workspace isolation** — A workspace was treated as synonymous with one tenant, and scoped keys were credited with attribution/revocation behavior beyond the cited access rule → Reworded around workspace-level limits and scoped resource access (`F19`–`F21`); framed tenant mapping as an application design choice.
+- **Queueing** — “An unbounded queue turns a rate limit into a latency collapse” read as a universal sourced fact → Recast as a specific queue-length and queue-age recommendation.
+- **Batch timing** — “No completion window shorter than the 24-hour expiry” overstated what the docs guarantee → Stated that most batches finish within an hour, processing can take up to 24 hours, and unfinished work may expire (`F27`, `F49`).
+- **Output limits** — “`max_tokens` itself charges nothing” could imply no billing → Clarified that the parameter does not count against OTPM; generated output does (`F7`).
+- **Multi-key isolation** — Replaced the uncited assertion that keys create independent per-tenant caps with the recommendation to add gateway accounting or map tenants to separate workspaces (`F20`, `F21`).
+- **MDX/editorial** — Defined Message Batches at first use, split a comma-attached citation into punctuated sentences, and explicitly labeled the ExamLens bullets as decision patterns rather than exam questions.
+
+### Remaining concerns
+- No unresolved source or identifier mismatches found. Model/tier limits and ramp parameters remain time-sensitive; verify account-specific values before using them for production sizing.
+- `check-citations.mjs` printed `OK`; `verify-quotes.mjs` reported 59 citations (`ok 37 · ok-loose 22 · not-found 0 · fetch-failed 0`); the requested Astro build completed with 26 pages, and the review output directory was removed.
