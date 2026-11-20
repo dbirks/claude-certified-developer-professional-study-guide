@@ -5,6 +5,7 @@ import { initToc } from './toc';
 import { initReading } from './reading';
 import { initSearch } from './search';
 import { initCitations } from './cite';
+import { initStudy } from './study';
 
 initTheme();
 initDrawer();
@@ -12,3 +13,4 @@ initToc();
 initReading();
 initSearch();
 initCitations();
+initStudy();

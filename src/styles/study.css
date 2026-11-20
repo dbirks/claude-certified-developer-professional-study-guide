@@ -1,0 +1,150 @@
+/* "Mark as studied" progress tracking: chapter toggle pill, TOC + blueprint studied dots, hero line.
+   Markup: src/pages/[...path].astro (.study-toggle), src/pages/index.astro (.study-progress);
+   behaviour: src/scripts/study.ts. Colors/fonts come from tokens.css only. */
+
+/* --------------------------------------------------------------- chapter pill */
+
+.study-toggle {
+  display: flex;
+  justify-content: center;
+  /* Fixed height: the label swap ("Mark as studied" → "Studied") never moves the page. */
+  min-height: 48px;
+  margin: var(--space-6) 0 0;
+}
+
+.study-toggle__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 48px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-pill);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+/* Reserving the wider label's width keeps the centred pill from sliding when it changes. */
+@media (min-width: 640px) {
+  .study-toggle__btn {
+    min-width: 208px;
+  }
+}
+
+.study-toggle__btn .icon {
+  flex: none;
+}
+
+/* Hover previews the pistachio fill; the [aria-pressed] rule below is equal in specificity and
+   later in the cascade, so a studied pill keeps its own colours. */
+@media (hover: hover) {
+  .study-toggle__btn:hover {
+    background: var(--pistachio);
+    color: var(--pistachio-ink);
+  }
+}
+
+.study-toggle__btn:focus-visible {
+  border-radius: var(--r-pill);
+}
+
+/* Pressed (studied): the pistachio "ok" fill, same pair the current TOC chapter uses. */
+.study-toggle__btn[aria-pressed='true'] {
+  background: var(--pistachio);
+  color: var(--pistachio-ink);
+}
+
+@media (max-width: 639.98px) {
+  /* One action per screen on a phone: the pill spans the column. */
+  .study-toggle__btn {
+    width: 100%;
+  }
+}
+
+/* ------------------------------------------------------- studied marker dots */
+/* A small pistachio dot after the label; the label box is flex:1 so nothing else shifts. */
+
+.toc__item.is-studied > .toc__row .toc__label::after,
+.domain-card__row.is-studied .domain-card__skill::after {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-left: var(--space-2);
+  border-radius: var(--r-pill);
+  background: var(--pistachio-ink);
+  /* Baseline-aligned: the dot sits like a period after the label. */
+}
+
+/* On the dark-blue row hover/fill the dot follows the row's ink (study.css owns these two rules only). */
+.domain-card__row.is-studied a:hover .domain-card__skill::after,
+.domain-card__row.is-studied a:focus-visible .domain-card__skill::after {
+  background: currentColor;
+}
+
+/* ------------------------------------------------------------ home hero line */
+
+.home-head .study-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  /* Space is reserved even while [hidden] so the hero never jumps when the count is filled in. */
+  min-height: 20px;
+  margin: var(--space-4) 0 0;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums lining-nums;
+  color: var(--sky-ink);
+}
+
+.home-head .study-progress[hidden] {
+  display: flex !important;
+  visibility: hidden;
+}
+
+.home-head .study-progress__text {
+  flex: 0 0 auto;
+}
+
+.home-head .study-progress__bar {
+  flex: 0 0 120px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.6);
+  overflow: hidden;
+}
+
+.home-head .study-progress__fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 3px;
+  background: var(--pistachio-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .study-toggle__btn {
+    transition: none;
+  }
+}
+
+@media (max-width: 639.98px) {
+  .home-head .study-progress {
+    flex-wrap: wrap;
+  }
+
+  .home-head .study-progress__bar {
+    flex: 1 1 100%;
+  }
+}

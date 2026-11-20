@@ -77,5 +77,15 @@ const onPage = [...headings.filter((h) => h.depth <= 3), ...(citations.length ? 
     </div>
   )}
 
+  {skill && (
+    /* "Mark as studied" toggle (study.ts + study.css); persisted in localStorage `ccdvp:studied:v1`. */
+    <div class="study-toggle" data-skill={skill.id}>
+      <button type="button" class="study-toggle__btn" aria-pressed="false">
+        <Icon name="circle-check" size={18} stroke={2.5} />
+        <span class="study-toggle__label">Mark as studied</span>
+      </button>
+    </div>
+  )}
+
   <SourceList citations={citations} />
 </BaseLayout>

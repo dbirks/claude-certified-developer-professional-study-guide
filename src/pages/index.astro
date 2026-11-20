@@ -34,6 +34,8 @@ const statusOf = (id: string) => STATUS_ICON[done.get(id) ?? 'pending'] ?? STATU
       <li class="home-head__stat">70 items · 120 min</li>
     </ul>
     <p class="resume" id="resume-link" hidden></p>
+    {/* Studied progress (study.ts fills it from localStorage `ccdvp:studied:v1`). */}
+    <p class="study-progress" hidden></p>
   </header>
 
   {Intro && <Intro components={mdxComponents} />}
@@ -54,7 +56,7 @@ const statusOf = (id: string) => STATUS_ICON[done.get(id) ?? 'pending'] ?? STATU
           {d.skills.map((s) => {
             const st = statusOf(s.id);
             return (
-              <li class="domain-card__row">
+              <li class="domain-card__row" data-skill={s.id}>
                 <a href={url(skillPath(d, s))}>
                   <span class="domain-card__num">{s.id}</span>
                   <span class="domain-card__skill">{s.short}</span>
