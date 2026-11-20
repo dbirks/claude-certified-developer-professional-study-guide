@@ -173,5 +173,55 @@
     "id": "F35",
     "status": "ok",
     "url": "https://code.claude.com/docs/en/prompt-caching#how-the-cache-is-organized"
+  },
+  {
+    "id": "F36",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/context-editing#context-editing-occurs-server-side"
+  },
+  {
+    "id": "F37",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/compaction-on-demand#request-a-summary"
+  },
+  {
+    "id": "F38",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/compaction-on-demand#request-a-summary"
+  },
+  {
+    "id": "F39",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/compaction-on-demand#request-a-summary"
+  },
+  {
+    "id": "F40",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool"
+  },
+  {
+    "id": "F41",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool"
+  },
+  {
+    "id": "F42",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/mid-conversation-system-messages"
+  },
+  {
+    "id": "F43",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool"
+  },
+  {
+    "id": "F44",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool"
+  },
+  {
+    "id": "F45",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/manage-tool-context#combining-approaches"
   }
 ]

@@ -22,6 +22,12 @@
     - llm-as-judge:F30
     - llm-as-judge:F31
     - llm-as-judge:F32
+- url: https://blog.modelcontextprotocol.io/posts/2025-11-25-first-mcp-anniversary/
+  title: "One Year of MCP: November 2025 Spec Release"
+  source: mcp-spec
+  accessed: 2026-11-19
+  cited_by:
+    - mcp-change-management:F40
 - url: https://blog.modelcontextprotocol.io/posts/2026-07-28/
   title: The 2026-07-28 Specification
   source: mcp-spec
@@ -802,12 +808,6 @@
   accessed: 2026-11-19
   cited_by:
     - threat-defense:F32
-- url: https://modelcontextprotocol.io/docs/2026-07-28/getting-started/intro
-  title: What is the Model Context Protocol (MCP)?
-  source: mcp-spec
-  accessed: 2026-11-19
-  cited_by:
-    - mcp-change-management:F40
 - url: https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices
   title: Security Best Practices - Model Context Protocol
   source: mcp-spec
@@ -1002,6 +1002,7 @@
     - mcp-change-management:F17
     - mcp-change-management:F38
     - mcp-change-management:F39
+    - mcp-change-management:F41
     - threat-defense:F17
     - identity-secrets-audit:F21
 - url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool
@@ -1035,6 +1036,7 @@
   accessed: 2026-11-19
   cited_by:
     - context-memory:F31
+    - context-memory:F45
 - url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool
   title: Memory tool
   source: anthropic-docs
@@ -1044,6 +1046,8 @@
     - durable-execution:F43
     - context-memory:F20
     - context-memory:F21
+    - context-memory:F40
+    - context-memory:F41
     - threat-defense:F16
 - url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use
   title: Parallel tool use
@@ -1076,6 +1080,8 @@
   accessed: 2026-11-19
   cited_by:
     - context-memory:F28
+    - context-memory:F43
+    - context-memory:F44
 - url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-use-with-prompt-caching
   title: Tool use with prompt caching
   source: anthropic-docs
@@ -1334,6 +1340,9 @@
   cited_by:
     - context-memory:F16
     - context-memory:F17
+    - context-memory:F37
+    - context-memory:F38
+    - context-memory:F39
 - url: https://platform.claude.com/docs/en/build-with-claude/compaction-threshold
   title: Compaction at a token threshold
   source: anthropic-docs
@@ -1351,6 +1360,7 @@
     - context-memory:F12
     - context-memory:F13
     - context-memory:F14
+    - context-memory:F36
 - url: https://platform.claude.com/docs/en/build-with-claude/context-windows
   title: Context windows
   source: anthropic-docs
@@ -1402,6 +1412,7 @@
     - context-memory:F25
     - context-memory:F26
     - context-memory:F27
+    - context-memory:F42
 - url: https://platform.claude.com/docs/en/build-with-claude/preserved-thinking
   title: Preserved thinking
   source: anthropic-docs

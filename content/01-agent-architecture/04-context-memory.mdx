@@ -1,0 +1,152 @@
+---
+title: "Context and Memory Architecture"
+summary: "Choose context, memory, tool-loading, and cache policies for a long-running agent."
+kind: skill
+skill: "1.4"
+slug: context-memory
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+A **context policy** decides what an agent sends to the model on each request. A **context window** is the space available for the request and generated output. As token count grows, accuracy and recall can degrade; Anthropic calls this **context rot**.<Cite id="F1" /> A long-running agent must manage both window occupancy and cost while retaining the facts and instructions needed to finish its task.
+
+## How context policy works
+
+A **cache prefix** is the reusable beginning of a prompt. Prompt caching builds prefixes in the order `tools`, `system`, then `messages`; each level depends on the preceding levels.<Cite id="F22" /> A **cache breakpoint** marks a prefix to cache. Each breakpoint checks at most 20 positions for an existing write, counting itself first.<Cite id="F23" /> Keep stable instructions and tool definitions early; append changing content after the stable prefix.
+
+Caching reduces the cost of repeated input, but cached tokens still occupy the context window.<Cite id="F4" /> Input occupancy includes `input_tokens`, `cache_read_input_tokens`, and `cache_creation_input_tokens`.<Cite id="F2" /> A prefix below the model's minimum cacheable length is processed without caching or an error.<Cite id="F24" /> Thus a cost fix alone does not resolve a window limit or guarantee better recall.
+
+<Figure caption="Choose a policy based on the source of context pressure and the state the agent must retain.">
+  <Flow direction="vertical" steps={[
+    "Measure input, output, cache use, and task quality",
+    { label: "Large tool catalog", note: "Defer definitions and search on demand" },
+    { label: "Large intermediate results", note: "Use programmatic tool calling for suitable chains" },
+    { label: "Stale history", note: "Clear selected content or compact it into a summary" },
+    { label: "Facts and constraints needed later", note: "Persist, retrieve, and validate durable state", tone: "good" },
+  ]} />
+</Figure>
+
+## Limits, overflow, and cost ceilings
+
+If input alone exceeds the model's context window, the API returns HTTP 400 `invalid_request_error`.<Cite id="F5" /> On Claude 4.5 and newer, a request whose input plus `max_tokens` exceeds the window is accepted; generation stops with `model_context_window_exceeded` if it reaches the boundary.<Cite id="F6" /> Compact before the input itself exceeds the limit.
+
+Token counting is free but subject to tier-based request limits.<Cite id="F9" /> Count with the target model: Claude 4.7 and later and Claude Mythos Preview use a newer tokenizer that produces approximately 30% more tokens for the same text than earlier models.<Cite id="F10" /> Track cache reads and writes as well as total input and output. On Claude Haiku 5.5, prompt length includes cache reads and writes when determining whether the higher rate for prompts over 100,000 tokens applies.<Cite id="F8" />
+
+<Callout type="version" title="Checked 2026-11-19">
+
+Model support, beta headers, cache minimums, and prices change. Check current platform documentation for the model and platform in use.
+
+</Callout>
+
+## Context editing: pruning that leaves history intact
+
+**Context editing** selectively clears content from the prompt. The API applies edits server-side before Claude sees the prompt; the client retains its unmodified history.<Cite id="F11" /> Tool-result clearing suits old results the agent no longer needs. Thinking-block clearing controls retained prior thinking; when combining strategies, list `clear_thinking_20251015` first in the edits array.<Cite id="F13 F36" />
+
+Clearing tool results invalidates cached prefixes at the changed content. Set `clear_at_least` to avoid clearing too little to justify a cache rebuild.<Cite id="F12" /> Before pruning, preserve evidence needed for later decisions. A cleared result may be absent from Claude's next prompt even though it remains in the application's transcript.
+
+## Compaction: summarizing the prefix
+
+**Compaction** replaces older conversation content with a summary, reducing context while sacrificing some detail. Anthropic recommends on-demand compaction wherever available.<Cite id="F15" /> Choose what the summary must retain, such as decisions, unresolved work, identifiers, and constraints. Tune the summary for recall first, then remove unnecessary content.<Cite id="F34" />
+
+### On-demand compaction
+
+On-demand compaction is a separate request. Send the `compact-2026-09-04` beta header on that request and every subsequent request carrying the signed block.<Cite id="F16" /> The returned block replaces the messages it summarizes; preserve it exactly, including its signature, and place it first in later history.<Cite id="F37" /> Check the response before replacing history, and keep the original transcript for recovery. Finish pending tool calls before compacting.<Cite id="F38" />
+
+To keep recent turns verbatim, omit them from the summary request and append them after the returned block.<Cite id="F39" /> Choose a boundary that keeps each tool call with its result. Reapply instructions that were inside the summarized range: mid-conversation system messages there stop applying when the block replaces them.<Cite id="F17" />
+
+### Threshold compaction and client defaults
+
+**Threshold compaction** triggers summarization based on context size.<Cite id="F19" /> With tools present, the internal summarization step can call a tool instead of producing a summary, yielding a compaction block with null content.<Cite id="F19" /> Inspect the result and handle a missing summary. To audit compaction cost, aggregate `usage.iterations` instead of relying only on top-level input and output usage.<Cite id="F18" />
+
+Claude Code automatically compacts native 1M-window models before the window fills, at about 967K tokens by default.<Cite id="F33" /> This is a product default, not a substitute for checking whether the resulting summary retains task-critical information.
+
+## Persistent memory: state that outlives the window
+
+**Persistent memory** stores selected state outside the current window for later retrieval. The memory tool operates client-side: Claude requests file operations, and the application executes them against its own storage.<Cite id="F20" /> A later conversation can use the same store when the application serves it again; storage alone does not put every fact into the prompt.<Cite id="F40" /> Design retrieval and review for stale or conflicting entries.
+
+Validate and canonicalize every memory path and confine operations to the memory directory. A traversal path can otherwise reach files outside it.<Cite id="F41" /> Pair memory with compaction: the summary carries working context, while the store holds information that must survive summarization.<Cite id="F21" /> Verify a write actually succeeded and retrieve the needed record before relying on it.
+
+In Claude Code, path-scoped rules and nested `CLAUDE.md` files enter message history and are summarized during compaction. Move rules that must persist to the project-root `CLAUDE.md` or remove their `paths:` restriction.<Cite id="F32" /> This behavior is specific to Claude Code; an API application's memory lifecycle is its own responsibility.
+
+## Cache-safe instruction changes mid-conversation
+
+On supported models, append a `role: "system"` message when a new instruction becomes relevant. It has system authority and preserves the earlier cached prefix; editing the top-level `system` field changes that prefix.<Cite id="F25" /> Place the message after a user turn and observe the model's placement rules.<Cite id="F42" /> Reapply the instruction after compaction if it was summarized away.<Cite id="F17" />
+
+For supported mid-conversation tool changes, declare the full tool set up front, then use `tool_addition` and `tool_removal` to change availability without changing the `tools` array.<Cite id="F26" /> Check model and beta support before adopting this pattern. Do not put raw tool output, retrieved documents, or web content directly in a system message: that gives external text operator-level authority.<Cite id="F27" />
+
+## Keeping large tool catalogs out of the window
+
+**Tool search** loads relevant tool definitions on demand. Anthropic reports that tool selection degrades beyond roughly 30–50 available tools.<Cite id="F28" /> Mark catalog tools with `defer_loading: true`, keep the search tool available, and still send complete definitions in `tools` on each request.<Cite id="F43" /> Discovered definitions enter the conversation through `tool_reference` blocks, leaving the cached prefix intact.<Cite id="F29" /> A deferred tool cannot itself carry a `cache_control` breakpoint; place it on a non-deferred tool.<Cite id="F44" />
+
+**Programmatic tool calling** lets Claude write code that calls a sequence of tools in a sandbox, so intermediate results need not enter conversation history.<Cite id="F45" /> It suits filtering or aggregation across many calls; evaluate execution time, compatibility, and whether the model needs to inspect each result. Tool search, caching, and context editing can address different sources of cost and context pressure together.<Cite id="F31" />
+
+## Worked example: a deferred catalog and a mid-run escalation
+
+Consider a triage agent with 85 tool definitions and a long conversation. The counts are illustrative. It keeps frequently used tools available and defers the rest. It records verified ticket IDs, decisions, and pending actions in an application-owned store, checking each write. When a trusted operator adds a redaction instruction, the agent appends it as a system message on a supported model. It compacts completed history before reaching the limit, checks the returned summary, and restates the instruction if it was in the summarized range. It retrieves the stored state when needed.
+
+This design reduces initial catalog occupancy, preserves an earlier cache prefix when appending the instruction, and gives the application a recovery record.<Cite id="F29 F25 F21" /> It does not guarantee that the summary retained every detail or that a memory write occurred; the application must verify both.
+
+## Decision criteria
+
+| Symptom | Candidate | Trade-off |
+|---|---|---|
+| Repeated stable input is expensive | Prompt caching | Reduces repeated input cost, not occupancy.<Cite id="F4" /> |
+| Many unused tool definitions | Tool search | Discover definitions on demand; retain full definitions in the request.<Cite id="F43" /> |
+| Many intermediate results | Programmatic tool calling | Keep intermediate results in the sandbox; assess whether the task needs them in context.<Cite id="F45" /> |
+| Old results or thinking consume space | Context editing | Clear selectively, accepting cache invalidation when content changes.<Cite id="F12 F36" /> |
+| History is too long | Compaction | Reduce history to a lossy summary; check retained constraints.<Cite id="F17 F37" /> |
+| State must survive sessions or summaries | Persistent memory | Implement storage, retrieval, access control, and freshness checks.<Cite id="F20 F21" /> |
+| A trusted instruction changes mid-run | Append a system message on supported models | Preserve the earlier prefix, but restate the instruction if it is later summarized.<Cite id="F25 F17" /> |
+
+## Failure modes and recovery
+
+<Callout type="mistake" title="Treating caching as extra capacity">
+
+Cached tokens still count against the window. Use pruning, compaction, or deferred loading when occupancy is the constraint.<Cite id="F4 F11 F29" />
+
+</Callout>
+
+<Callout type="mistake" title="Assuming an instruction survives compaction">
+
+A summarized mid-conversation system instruction stops applying. Reapply it when needed and check that the agent retains the relevant constraint.<Cite id="F17" />
+
+</Callout>
+
+<Callout type="mistake" title="Trusting a memory path or external text">
+
+Validate memory paths in the application, and keep untrusted retrieved text out of system messages.<Cite id="F41 F27" />
+
+</Callout>
+
+## Exam lens
+
+<ExamLens>
+
+These are editorial decision patterns, not exam questions:
+
+- Distinguish a cost ceiling from a context-window limit. Caching addresses repeated input cost; it does not remove cached tokens from the window.<Cite id="F4" />
+- Match the source of bloat to the intervention: deferred definitions, programmatic intermediate results, selective clearing, or a summary.<Cite id="F31 F45" />
+- When an instruction changes, preserve the prefix where supported and plan for the instruction's lifecycle after compaction.<Cite id="F25 F17" />
+- Keep durable state in application-controlled storage, and validate the controls around retrieval and writes.<Cite id="F20 F41" />
+
+</ExamLens>
+
+## Self-check
+
+<SelfCheck question="A cached conversation is near its context limit. Will another cache hit create more room?">
+
+No. Cached input still occupies the window. Clear stale content, compact history, or reduce loaded definitions as appropriate.<Cite id="F4 F11 F29" />
+
+</SelfCheck>
+
+<SelfCheck question="A trusted instruction is appended mid-conversation. What happens when that turn is compacted?">
+
+If the message falls inside the summarized range, its text stops applying as a system instruction. Restate it after the next user turn when it still matters.<Cite id="F17 F42" />
+
+</SelfCheck>
+
+<SelfCheck question="Why does a memory file not guarantee the agent will remember a fact?">
+
+The application must execute the write successfully and later serve the store. The relevant content must also be retrieved into context when needed.<Cite id="F20 F40" />
+
+</SelfCheck>

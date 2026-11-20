@@ -322,3 +322,93 @@
   source: claude-code-docs
   quote: "Plan mode and skill loading, for example, append their instructions as conversation messages, so the cached prefix stays intact."
   accessed: 2026-11-19
+
+- id: F36
+  claim: "Thinking-block clearing manages prior thinking."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/context-editing#context-editing-occurs-server-side
+  title: "Context editing"
+  source: anthropic-docs
+  quote: "The clear_thinking_20251015 strategy manages thinking blocks from earlier assistant turns. This strategy gives you control over thinking preservation: you can choose to keep more thinking blocks to maintain reasoning continuity, or clear them more aggressively to save context space."
+  accessed: 2026-11-19
+
+- id: F37
+  claim: "A returned compaction block replaces summarized messages and must be preserved."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/compaction-on-demand#request-a-summary
+  title: "Compaction on demand"
+  source: anthropic-docs
+  quote: "In your history, replace the messages you sent with the returned assistant message. Keep the compaction block exactly as the API returned it, including its signature."
+  accessed: 2026-11-19
+
+- id: F38
+  claim: "Complete pending tool calls before on-demand compaction."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/compaction-on-demand#request-a-summary
+  title: "Compaction on demand"
+  source: anthropic-docs
+  quote: "If the last assistant turn ends in a tool call with no result yet, the API rejects the request. Send that turn’s tool results first."
+  accessed: 2026-11-19
+
+- id: F39
+  claim: "Keep recent turns outside the summary request and choose a clean tool-call boundary."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/compaction-on-demand#request-a-summary
+  title: "Compaction on demand"
+  source: anthropic-docs
+  quote: "Compaction that keeps recent turns keeps the last turns word for word, and Compaction in the background lets the conversation continue while the summary is written."
+  accessed: 2026-11-19
+
+- id: F40
+  claim: "A later conversation can use the same application-owned memory store."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool
+  title: "Memory tool"
+  source: anthropic-docs
+  quote: "A later conversation continues from the same memory when it sends the same tools entry and your handler serves the same store."
+  accessed: 2026-11-19
+
+- id: F41
+  claim: "Validate memory paths to prevent traversal."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool
+  title: "Memory tool"
+  source: anthropic-docs
+  quote: "A malicious path such as /memories/../../secrets.env can reach files outside the /memories directory. Your implementation must validate every path in every command to prevent directory traversal attacks."
+  accessed: 2026-11-19
+
+- id: F42
+  claim: "A mid-conversation system message can follow a user turn."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/mid-conversation-system-messages
+  title: "Using the Messages API"
+  source: anthropic-docs
+  quote: "A system message that carries content (text, tool_addition, or tool_removal blocks) must immediately follow a user turn or an assistant turn ending in a server tool result."
+  accessed: 2026-11-19
+
+- id: F43
+  claim: "Deferred tools still need full definitions on each request."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool
+  title: "Tool search tool"
+  source: anthropic-docs
+  quote: "You still send every tool’s full definition in the tools array on every request, including the deferred ones. The API needs them server-side to run the search and expand tool_reference blocks."
+  accessed: 2026-11-19
+
+- id: F44
+  claim: "Deferred tools cannot carry cache breakpoints."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool
+  title: "Tool search tool"
+  source: anthropic-docs
+  quote: "A tool with defer_loading: true can’t also carry cache_control: the API returns a 400. Put the cache breakpoint on a non-deferred tool."
+  accessed: 2026-11-19
+
+- id: F45
+  claim: "Programmatic tool calling keeps intermediate results out of conversation history."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/manage-tool-context#combining-approaches
+  title: "Manage tool context"
+  source: anthropic-docs
+  quote: "Programmatic tool calling collapses a sequence of tool calls into a single code block that Claude writes and Anthropic’s code execution sandbox runs. Rather than five roundtrips of tool_use and tool_result, Claude emits one script that calls all five functions from within the sandbox. The intermediate results never enter the conversation history."
+  accessed: 2026-11-19
