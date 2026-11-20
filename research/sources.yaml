@@ -1020,6 +1020,7 @@
     - cost-architecture:F9
     - cost-architecture:F10
     - cost-architecture:F44
+    - cost-architecture:F46
 - url: https://platform.claude.com/docs/en/about-claude/use-case-guides/content-moderation
   title: Content moderation
   source: anthropic-docs
@@ -1318,8 +1319,6 @@
     - llm-as-judge:F26
     - cost-architecture:F18
     - cost-architecture:F19
-    - cost-architecture:F42
-    - cost-architecture:F43
 - url: https://platform.claude.com/docs/en/build-with-claude/cache-diagnostics
   title: Cache diagnostics
   source: anthropic-docs

@@ -1,0 +1,243 @@
+---
+title: "Runtime Guardrail Systems"
+summary: "Decide which layer — hook, permission rule, sandbox, approval gate, classifier, or refusal branch — must enforce each production risk."
+kind: skill
+skill: "7.1"
+slug: runtime-guardrails
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+**Runtime guardrails** are checks enforced outside the model: hooks, permission rules, permission modes, OS sandboxes, egress proxies, approval gates, and refusal handling. Prompt text and `CLAUDE.md` shape what Claude tries to do, but permission rules are enforced by Claude Code, not by the model.<Cite id="F11" /> Keep irreversible controls deterministic. Use probabilistic screens for abuse patterns that a rule expression cannot describe. Every layer leaves something unguarded, so match the controls to the agent's tools, inputs, and sinks.
+
+## How the layers fit together
+
+A layered stack puts seven gates between an untrusted prompt and an irreversible side effect. The last column is the one to read first: it names what each layer does not cover.
+
+| Layer | Mechanism | Enforcement | Bypass to check |
+|---|---|---|---|
+| Prompt gate | `UserPromptSubmit` hook plus a lightweight model screen | Deterministic block plus probabilistic score | A blocked prompt can still reach local transcript and history files.<Cite id="F4" /> |
+| Tool and rule gate | `permissions.deny` then `ask` then `allow`, `PreToolUse` hook | Deterministic, pre-execution | `Bash(...)` rules match command text, so `/usr/bin/curl` or `sh -c` slips past.<Cite id="F12" /> |
+| Mode and classifier gate | permission mode, `auto`-mode two-stage classifier | Policy mode plus probabilistic review | The classifier strips assistant messages and tool outputs, so it never sees the model's reasoning.<Cite id="F32" /> |
+| Human approval gate | `canUseTool`, `PreToolUse` `ask` or `defer`, Managed Agents `always_ask` | Deterministic pause | Auto-approved calls never reach `canUseTool`.<Cite id="F9" /> |
+| OS and network boundary | Bash sandbox, `srt`, container, credential proxy | Deterministic kernel and network limit | The built-in sandbox covers shell commands only.<Cite id="F18" /> |
+| Post-tool and output filter | `PostToolUse` `updatedToolOutput`, injection screen on tool results | Deterministic rewrite plus probabilistic screen | The tool already ran and telemetry already captured its raw output.<Cite id="F5" /> |
+| Response and refusal handling | branch on `stop_reason: "refusal"`, fallback model | Deterministic branch | Server-side fallback is unavailable on Claude Haiku 5.5 and Message Batches.<Cite id="F30" /> |
+
+<Figure caption="End-to-end layered runtime guardrail flow: prompt screening, deterministic hook and rule precedence, human approval gates, OS and proxy sandboxing, post-tool filtering, and refusal fallback handling.">
+
+<Flow
+  direction="vertical"
+  steps={[
+    { label: "Prompt gate", note: "UserPromptSubmit hook + Haiku 5.5 screen" },
+    { label: "Model turn", note: "untrusted data kept in tool_result blocks" },
+    { label: "PreToolUse hook", note: "deny > defer > ask > allow; onFailure: block" },
+    { label: "Rules and mode", note: "deny, ask, allow plus auto-mode classifier" },
+    { label: "Approval gate", note: "defer or always_ask for irreversible sinks" },
+    { label: "Sandbox and proxy", note: "srt, container, egress allowlist", tone: "good" },
+    { label: "Post-tool filter", note: "updatedToolOutput, MessageDisplay" },
+  ]}
+/>
+
+</Figure>
+
+## Hook-based policy enforcement
+
+A **hook** is a program or callback the runtime invokes on a lifecycle event. For structured control, a command hook exits with `0` and prints valid JSON to `stdout`.<Cite id="F42" /> Exit `2` blocks blockable events.<Cite id="F47" /> Exit `1` without valid JSON is a non-blocking error, so the action proceeds by default.<Cite id="F1" /> For most events, Agent SDK callback hooks also fail open when they throw or return invalid output. Set `onFailure: "block"` in TypeScript or `on_failure="block"` in Python to fail closed on callback errors.<Cite id="F7" />
+
+Two `PreToolUse` output fields decide the rest. `permissionDecision` from concurrent hooks resolves as `deny > defer > ask > allow`.<Cite id="F2" /> `updatedInput` replaces the entire `tool_input` object before permission rules are re-checked and the tool runs, so a rewrite must carry the unchanged fields along with the modified ones.<Cite id="F3" />
+
+The settings entry runs a policy script before shell calls and blocks if the hook fails. The Python example denies selected command patterns and asks for confirmation on pushes. Treat the patterns as an example policy, not a complete security boundary.
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/guard_shell.py"],
+            "timeout": 10,
+            "onFailure": "block"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+```python
+#!/usr/bin/env python3
+import json, re, sys
+
+BLOCKED_PATTERNS = [
+    r"\bcurl\b.*\|\s*(ba)?sh\b",
+    r"\bterraform\s+destroy\b",
+    r"169\.254\.169\.254",
+]
+
+def main() -> None:
+    payload = json.load(sys.stdin)
+    tool_input = payload.get("tool_input", {})
+    cmd = tool_input.get("command", "")
+
+    for pattern in BLOCKED_PATTERNS:
+        if re.search(pattern, cmd, re.IGNORECASE):
+            json.dump({"hookSpecificOutput": {
+                "hookEventName": "PreToolUse",
+                "permissionDecision": "deny",
+                "permissionDecisionReason": f"Blocked by security policy: matched {pattern}",
+            }}, sys.stdout)
+            return
+
+    if re.search(r"\bgit\s+push\b", cmd):
+        json.dump({"hookSpecificOutput": {
+            "hookEventName": "PreToolUse",
+            "permissionDecision": "ask",
+            "permissionDecisionReason": "Confirm external git push target and diff.",
+            "updatedInput": {**tool_input, "command": cmd},
+        }}, sys.stdout)
+        return
+
+    print("{}")  # no opinion: normal rules and permission mode decide
+
+if __name__ == "__main__":
+    main()
+```
+
+## The permission pipeline and rule order
+
+Every tool call walks six gates in a fixed order: hooks, deny rules, ask rules, permission mode, allow rules, then `canUseTool`.<Cite id="F8 F9" />
+
+| Step | Gate | Behavior that matters |
+|---|---|---|
+| 1 | `PreToolUse` hooks | Runs for every call; an `allow` verdict does not skip the deny or ask steps.<Cite id="F8" /> |
+| 2 | Deny rules | Evaluated first; first match wins.<Cite id="F10" /> |
+| 3 | Ask rules | Evaluated before allow rules, so a narrow allow cannot carve out an exception.<Cite id="F10" /> |
+| 4 | Permission mode | `acceptEdits` and `bypassPermissions` resolve calls early; `auto` adds the two-stage classifier.<Cite id="F9 F32" /> |
+| 5 | Allow rules | Auto-approval: a matching call never reaches step 6.<Cite id="F9" /> |
+| 6 | `canUseTool` | Runs last, only for calls no earlier step resolved.<Cite id="F9" /> |
+
+Specificity never reorders the rule check: rules evaluate `deny`, then `ask`, then `allow`, and the first match decides the outcome.<Cite id="F10" /> A `PreToolUse` `allow` cannot skip deny or ask rules.<Cite id="F8" /> When Claude Code's critical-path check applies, a `PreToolUse` hook returning `allow` cannot approve a recognized critical-path `rm` or `rmdir` target.<Cite id="F14" /> Rule sources resolve by scope, highest first: managed settings, then `--settings`, then `.claude/settings.local.json`, then `.claude/settings.json`, then user settings.<Cite id="F13" /> List keys such as `permissions.allow` merge across settings files.<Cite id="F43" /> Bash rules match command text, not the underlying program, so they are not a security boundary around commands such as `curl`.<Cite id="F12" />
+
+## Input filtering, output filtering, and PII redaction
+
+Pre-screen untrusted input with a lightweight model such as Claude Haiku 5.5 before it reaches the main conversation. Use structured output for a parseable classification. If the screening model returns `stop_reason: "refusal"`, treat that as a harmful verdict because the classifier declined the screening request.<Cite id="F24" /> Deliver third-party content inside `tool_result` blocks, not in system prompts or plain user text. Claude is trained to treat instructions in tool results with skepticism.<Cite id="F25" /> Keep secrets out of prompts when the task does not need them. Overly complex anti-leak prompts can make the task harder and degrade performance.<Cite id="F26" /> For documents over 20k tokens, ask Claude to extract exact quotes before analysis to ground the answer in the source text.<Cite id="F27" />
+
+Screen tool outputs before returning them to Claude.<Cite id="F55" /> As a policy, withhold a result when the screen suspects injection. This filters model context, but it cannot undo a tool side effect that already happened.<Cite id="F5" />
+
+**Personally identifiable information (PII)** needs a redaction point that matches the data path. Where you redact determines what may still retain the original value.
+
+| Redaction point | Mechanism | What still holds the raw value |
+|---|---|---|
+| Before the API call | deterministic scrub upstream (regex, NER, or gateway proxy) | If the scrub catches it, the original value does not enter model context. |
+| On a blocked prompt | `UserPromptSubmit` block | the session transcript and prompt history files on local disk.<Cite id="F4" /> |
+| After a local tool | `PostToolUse` `updatedToolOutput` | the executed side effect and OpenTelemetry spans, which capture the original output.<Cite id="F5" /> |
+| On screen | `MessageDisplay` display text | the transcript and everything Claude sees, which keep the original text.<Cite id="F6" /> |
+| Claude Code error reports | automatic redaction | known patterns are redacted from internal error reports before they leave the machine.<Cite id="F35" /> |
+
+Treat `UserPromptSubmit`, `PostToolUse`, and `MessageDisplay` as context or display masking, not data-loss prevention. Error-report redaction is limited to that reporting path. Put input redaction ahead of the API call and output redaction ahead of any sink.
+
+## Sandboxing and credential isolation
+
+**Sandboxing** limits what a process can read, write, or reach over the network. Anthropic reported that its internal use of OS-level sandboxing reduced permission prompts by 84 percent.<Cite id="F17" /> The options differ in what they enclose.
+
+| Option | Boundary | Not enclosed |
+|---|---|---|
+| Built-in Bash sandbox | Shell commands, using Seatbelt or `bubblewrap`.<Cite id="F18 F21" /> | File tools, web tools, MCP servers, and hooks run outside it.<Cite id="F18 F38" /> |
+| `@anthropic-ai/sandbox-runtime` (`srt`) | The whole Claude Code process in Seatbelt or `bubblewrap` isolation | Tools, hooks, and MCP servers are constrained with the process.<Cite id="F21" /> |
+| Dev container | Container filesystem and workspace | Bind mounts and `~/.claude`, which a malicious repo can read under `--dangerously-skip-permissions`.<Cite id="F22" /> |
+| Credential-injecting proxy | Adds credentials to outbound requests outside the agent boundary | Requires the agent to run without secrets of its own.<Cite id="F23" /> |
+
+For shell access, allow only the external domains the task needs. Set `network.strictAllowlist` when the boundary must deny hosts outside the allowlist instead of prompting. The built-in sandbox routes shell network traffic through its allowlist proxy. Built-in web tools follow permission rules separately, and `network.allowedDomains` does not restrict `WebFetch`.<Cite id="F37 F38 F49" /> For production access, keep credentials and mounts outside the agent where possible. Expose only scoped proxy calls, and set separate narrow permissions for WebFetch and MCP tools.<Cite id="F23 F38" />
+
+If the platform lacks sandbox support or its dependency check fails at startup, Claude Code runs commands unsandboxed unless `sandbox.failIfUnavailable: true` stops startup.<Cite id="F19" /> Do not give the agent raw credentials when possible. For Claude Code shell commands that need a credential, masking exposes a per-session sentinel and the sandbox proxy substitutes the real value only for allowed hosts.<Cite id="F20" /> For Agent SDK deployments, Anthropic recommends a proxy outside the agent's security boundary to inject outbound credentials.<Cite id="F23" />
+
+## Approval gates and irreversible actions
+
+An **approval gate** pauses execution until a person answers. Pause inside the process with `canUseTool`, or use `defer` from a `PreToolUse` hook when approval may outlast the process. The defer pattern is for integrations that run `claude -p`; the turn ends with `stop_reason: "tool_deferred"` and can resume later from the persisted session.<Cite id="F15 F54 F53" /> In Managed Agents, `auto` is not a human checkpoint: a call the server deems safe runs before anyone sees it and may be irreversible, so tools a person must review need `always_ask`.<Cite id="F16" />
+
+Determinism matters most for the combination of private data access, untrusted input, and an external sink. Recommended practice: strip secrets from the agent's environment and inject them only at an external proxy, enforce an egress domain allowlist with strict mode on, require human confirmation before external sends or destructive mutations, and isolate untrusted inputs in JSON-encoded tool results behind a lightweight screen.
+
+## Refusal handling and safety fallbacks
+
+A refusal is a successful HTTP `200` response with `stop_reason: "refusal"` and a `stop_details` object whose `category` and `explanation` fields may be null. Branch on `stop_reason`, not the HTTP status.<Cite id="F28 F41" /> A retry on the same model usually produces another refusal, so retry on a different model. A `reasoning_extraction` refusal has no recommended fallback model; revise the prompt instead.<Cite id="F36 F29" /> The default server-side fallback route is in beta on the Claude API and Claude Models on Google Cloud (Anthropic managed).<Cite id="F30" /> Claude Haiku 5.5 has no server-side fallback. Use SDK middleware or a client retry for Haiku 5.5.<Cite id="F39" /> Message Batches do not support server-side fallback. Inspect refused batch items and resubmit them as a new batch or direct request on a fallback model.<Cite id="F40 F52" />
+
+<Callout type="version" title="Checked 2026-11-19">
+
+`onFailure: "block"` requires Claude Code v2.1.295+ or TypeScript Agent SDK v0.3.317+ (Python v0.2.177+). The default server-side fallback requires the `server-side-fallback-2026-07-01` beta header; it is unavailable on Haiku 5.5 and Message Batches.<Cite id="F7 F30 F39 F40 F48" />
+
+</Callout>
+
+## Tuning false positives and false negatives
+
+Anthropic's `auto`-mode classifier uses two stages. Stage 1 is tuned for recall at the cost of more false positives; Stage 2 reviews only calls Stage 1 flags.<Cite id="F50" /> In Anthropic's evaluation, the full pipeline reduced the false-positive rate from 8.5 percent to 0.4 percent, with a 17 percent false-negative rate on real overeager actions.<Cite id="F31" /> As a rough illustration for 10,000 otherwise benign calls, those rates correspond to about 850 Stage 1 false positives and 40 full-pipeline false positives.<Cite id="F31" /> The actual number of Stage 2 reviews depends on how many risky calls Stage 1 flags.<Cite id="F50" />
+
+Tune false positives with trusted environment context and tune false negatives by keeping high-impact actions behind deterministic controls. Claude Code lets you add trusted repositories, buckets, and domains to the auto-mode classifier context.<Cite id="F51" /> Keep `autoMode` configuration out of repository settings: Claude Code ignores the key in `.claude/settings.json` and `.claude/settings.local.json` so a checked-in repo cannot inject classifier allow rules.<Cite id="F33" /> A multi-level risk score can route high-risk cases to an automatic block and medium-risk cases to human review instead of forcing every result into a binary decision.<Cite id="F34" /> Do not rely on the classifier alone where its measured miss rate is unacceptable; gate irreversible tools with deny or ask rules, or `always_ask` in Managed Agents.<Cite id="F16 F31" />
+
+## Decision criteria
+
+| Situation | Choose | Evidence to check |
+|---|---|---|
+| Violation is irreversible (delete, send, deploy) | `permissions.deny`, `PreToolUse` hook with `onFailure: "block"`, or `always_ask` | Can an earlier permission decision or mode bypass the check? Keep it in a layer that still enforces the decision.<Cite id="F8 F9 F16" /> |
+| Approval may outlive the process | `PreToolUse` `defer` | Turn ends with `stop_reason: "tool_deferred"`; session persists.<Cite id="F15" /> |
+| Shell-heavy agent on a developer laptop | Built-in Bash sandbox plus `srt` | Are file tools, MCP servers, and hooks inside the boundary?<Cite id="F18 F21" /> |
+| Agent reads untrusted web, mail, or issue text | Tool-result isolation plus a lightweight model screen | Is any third-party text in a user or system block?<Cite id="F24 F25" /> |
+| Classifier blocks too much | Two-stage review plus environment context | Are you trading recall away, given the residual false-negative rate?<Cite id="F31 F33" /> |
+| Refusals appear in traffic | Branch on `stop_reason`, then choose middleware or server-side fallback | Does the serving platform support the fallback path you selected?<Cite id="F28 F30 F39 F40" /> |
+
+## Failure modes and recovery
+
+<Callout type="mistake" title="A policy hook that fails open">
+
+A `PreToolUse` command hook exiting `1` is a non-blocking error, so the dangerous call proceeds; policy scripts need exit `2` or exit `0` with a JSON `"deny"`, plus `onFailure: "block"` so a missing script or crash blocks instead of allowing.<Cite id="F1 F7" />
+
+</Callout>
+
+<Callout type="mistake" title="Mandatory checks inside `canUseTool`">
+
+`canUseTool` is the last step and only sees unresolved calls: anything matched by an allow rule, `acceptEdits`, or `bypassPermissions` is approved before your callback runs.<Cite id="F9" /> Move the check to a `PreToolUse` hook or a deny rule, which are evaluated for every call.<Cite id="F8 F10" />
+
+</Callout>
+
+<Callout type="mistake" title="Treating the built-in sandbox as total isolation">
+
+The built-in sandbox wraps shell commands only; file tools, MCP servers, and hooks run outside it, and by default a missing dependency falls back to unsandboxed execution.<Cite id="F18 F19" /> Lock the configuration or move to `srt`, a container, or a hardened proxy boundary.<Cite id="F21 F23" />
+
+</Callout>
+
+## Exam lens
+
+<ExamLens>
+
+- Private data plus untrusted input plus an external sink calls for controls outside the model: recipient or domain allowlists at a proxy, `PreToolUse` `ask`/`defer` or `always_ask` on the sink, and credential injection outside the agent boundary.<Cite id="F11 F16 F23" />
+- In the six-step pipeline, hooks run first, `allow` never overrides `deny` or `ask`, and `canUseTool` runs last, so a check planted there is skipped by `acceptEdits`, `bypassPermissions`, or an allow rule.<Cite id="F8 F9 F10" />
+- A sandbox answer is wrong when it covers only shell commands while file tools, MCP servers, and hooks stay outside, or when `failIfUnavailable` is left at its default.<Cite id="F18 F19" />
+- Refusal handling branches on `stop_reason: "refusal"`; retry on a different model, and check platform support before choosing server-side fallback, client middleware, or batch retry.<Cite id="F28 F30 F36 F39 F40 F41" />
+- Fix classifier false positives with environment context and two-stage review, not by disabling checks; the classifier is reasoning-blind and ignores repo-level `autoMode` config.<Cite id="F31 F32 F33" />
+
+</ExamLens>
+
+## Self-check
+
+<SelfCheck question="An Agent SDK agent runs in acceptEdits mode with an allow rule for Bash(git *). You add a regex check in canUseTool to block git push --force. Does it fire?">
+
+No. The `Bash(git *)` allow entry auto-approves the call at step 5, so `can_use_tool` at step 6 is never invoked.<Cite id="F9" /> Put the check in a `PreToolUse` hook with `on_failure="block"`, or in a deny rule, remembering that Bash rules match command text and miss alternate spellings.<Cite id="F1 F7 F12" />
+
+</SelfCheck>
+
+<SelfCheck question="A PreToolUse command hook crashes with ModuleNotFoundError and exit code 1. What happens to the tool call, and how do you make it fail closed?">
+
+By default exit `1` without valid JSON is a non-blocking error, so the call proceeds.<Cite id="F1" /> Set `onFailure: "block"` on the hook entry (TypeScript) or `on_failure="block"` in the Python SDK `HookMatcher` so crashes and timeouts block the action.<Cite id="F7" />
+
+</SelfCheck>
+
+<SelfCheck question="A streaming call to claude-haiku-5-5 with fallbacks='default' returns 200 with stop_reason='refusal' and stop_details.category='cyber'. Why was there no fallback, and what should the client do?">
+
+Claude Haiku 5.5 has no server-side fallback, so use a client-side retry.<Cite id="F39" /> Discard any partial output because a refusal makes it incomplete. If retrying, use a different model and the SDK fallback middleware.<Cite id="F36 F45 F39" />
+
+</SelfCheck>

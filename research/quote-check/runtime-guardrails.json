@@ -67,7 +67,7 @@
   {
     "id": "F14",
     "status": "ok",
-    "url": "https://code.claude.com/docs/en/permission-modes#critical-paths"
+    "url": "https://code.claude.com/docs/en/agent-sdk/permissions#how-permissions-are-evaluated"
   },
   {
     "id": "F15",
@@ -173,5 +173,95 @@
     "id": "F35",
     "status": "ok",
     "url": "https://code.claude.com/docs/en/data-usage#telemetry-services"
+  },
+  {
+    "id": "F36",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback#common-pitfalls"
+  },
+  {
+    "id": "F37",
+    "status": "ok-loose",
+    "url": "https://code.claude.com/docs/en/sandboxing#what-runs-outside-the-sandbox"
+  },
+  {
+    "id": "F38",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/sandboxing#what-runs-outside-the-sandbox"
+  },
+  {
+    "id": "F39",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback#server-side-fallback"
+  },
+  {
+    "id": "F40",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback#server-side-fallback"
+  },
+  {
+    "id": "F41",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback#server-side-fallback"
+  },
+  {
+    "id": "F42",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/hooks#other-exit-codes"
+  },
+  {
+    "id": "F43",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/settings#lists-merge-instead-of-overriding"
+  },
+  {
+    "id": "F45",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback#server-side-fallback"
+  },
+  {
+    "id": "F47",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/hooks#other-exit-codes"
+  },
+  {
+    "id": "F48",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback#server-side-fallback"
+  },
+  {
+    "id": "F49",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/sandboxing#what-runs-outside-the-sandbox"
+  },
+  {
+    "id": "F50",
+    "status": "ok",
+    "url": "https://www.anthropic.com/engineering/claude-code-auto-mode"
+  },
+  {
+    "id": "F51",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/auto-mode-config#where-the-classifier-reads-configuration"
+  },
+  {
+    "id": "F52",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback#server-side-fallback"
+  },
+  {
+    "id": "F53",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/hooks#block-the-action-when-a-callback-fails"
+  },
+  {
+    "id": "F54",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/hooks#other-exit-codes"
+  },
+  {
+    "id": "F55",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks#jailbreaks-and-direct-prompt-injection"
   }
 ]
