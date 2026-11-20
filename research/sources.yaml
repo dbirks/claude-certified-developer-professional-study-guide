@@ -142,6 +142,7 @@
     - multi-agent-orchestration:F19
     - multi-agent-orchestration:F39
     - multi-agent-orchestration:F55
+    - multi-agent-orchestration:F60
     - durable-execution:F8
     - durable-execution:F14
     - durable-execution:F35
@@ -1421,6 +1422,9 @@
     - failure-diagnosis:F5
     - failure-diagnosis:F8
     - failure-diagnosis:F24
+    - failure-diagnosis:F31
+    - failure-diagnosis:F32
+    - failure-diagnosis:F33
     - incident-response:F17
 - url: https://platform.claude.com/docs/en/build-with-claude/mid-conversation-system-messages
   title: Mid-conversation system messages and tool changes
@@ -1760,6 +1764,7 @@
   cited_by:
     - multi-agent-orchestration:F32
     - multi-agent-orchestration:F42
+    - multi-agent-orchestration:F61
 - url: https://platform.claude.com/docs/en/managed-agents/overview
   title: Claude Managed Agents overview
   source: anthropic-docs
@@ -1895,6 +1900,8 @@
     - failure-diagnosis:F11
     - failure-diagnosis:F12
     - failure-diagnosis:F27
+    - failure-diagnosis:F34
+    - failure-diagnosis:F35
 - url: https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/increase-consistency
   title: Increase output consistency
   source: anthropic-docs

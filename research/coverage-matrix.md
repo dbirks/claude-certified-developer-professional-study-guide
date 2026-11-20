@@ -7,7 +7,7 @@ Columns: research packet exists · citation entries · quotes verified verbatim 
 
 | ID | Skill | Domain weight | Packet | Citations | Quotes verified | Chapter | Fact-check |
 |---|---|---|---|---|---|---|---|
-| 1.1 | Multi-Agent Orchestration | 17% | yes | 56 | 56/56 | [draft](../content/01-agent-architecture/01-multi-agent-orchestration.mdx) · 2152 words · 56 cited | — |
+| 1.1 | Multi-Agent Orchestration | 17% | yes | 58 | 58/58 | [draft](../content/01-agent-architecture/01-multi-agent-orchestration.mdx) · 2162 words · 58 cited | — |
 | 1.2 | Durable Execution and State Management | 17% | yes | 53 | 53/53 | [fact-checked](../content/01-agent-architecture/02-durable-execution.mdx) · 2957 words · 53 cited | done |
 | 1.3 | Architecture Selection at Scale | 17% | yes | 31 | 31/31 | [fact-checked](../content/01-agent-architecture/03-architecture-selection.mdx) · 1940 words · 31 cited | done |
 | 1.4 | Context and Memory Architecture | 17% | yes | 45 | 45/45 | [fact-checked](../content/01-agent-architecture/04-context-memory.mdx) · 1668 words · 40 cited | done |
@@ -17,13 +17,13 @@ Columns: research packet exists · citation entries · quotes verified verbatim 
 | 2.4 | Retrieval and Knowledge Grounding at Scale | 20% | yes | 42 | 42/42 | [fact-checked](../content/02-production-integration/04-retrieval-grounding.mdx) · 2721 words · 42 cited | done |
 | 3.1 | Telemetry and Instrumentation | 12% | yes | 69 | 69/69 | [fact-checked](../content/03-observability/01-telemetry.mdx) · 2783 words · 69 cited | done |
 | 3.2 | Production Monitoring and Alerting | 12% | yes | 35 | 35/35 | [fact-checked](../content/03-observability/02-monitoring-alerting.mdx) · 2543 words · 35 cited | done |
-| 3.3 | Trace Analysis at Scale | 12% | yes | 29 | 29/29 | [draft](../content/03-observability/03-trace-analysis.mdx) · 2593 words · 29 cited | — |
-| 4.1 | Complex Failure Diagnosis | 10% | yes | 30 | 30/30 | [draft](../content/04-debugging/01-failure-diagnosis.mdx) · 2535 words · 30 cited | — |
+| 3.3 | Trace Analysis at Scale | 12% | yes | 29 | 29/29 | [draft](../content/03-observability/03-trace-analysis.mdx) · 2595 words · 29 cited | — |
+| 4.1 | Complex Failure Diagnosis | 10% | yes | 35 | 33/35 | [draft](../content/04-debugging/01-failure-diagnosis.mdx) · 2497 words · 35 cited | — |
 | 4.2 | Incident Response and Learning Loops | 10% | yes | 42 | 42/42 | [fact-checked](../content/04-debugging/02-incident-response.mdx) · 2499 words · 42 cited | done |
 | 5.1 | Evaluation System Design | 12% | yes | 42 | 42/42 | [fact-checked](../content/05-evaluation/01-evaluation-design.mdx) · 2414 words · 41 cited | done |
-| 5.2 | LLM-as-Judge Engineering | 12% | yes | 45 | 44/44 | [draft](../content/05-evaluation/02-llm-as-judge.mdx) · 2615 words · 46 cited | — |
+| 5.2 | LLM-as-Judge Engineering | 12% | yes | 45 | 45/45 | [fact-checked](../content/05-evaluation/02-llm-as-judge.mdx) · 2591 words · 45 cited | done |
 | 5.3 | Online Quality Measurement | 12% | yes | 31 | 31/31 | — | — |
-| 6.1 | Cost Architecture at Scale | 8% | yes | 37 | 37/37 | — | — |
+| 6.1 | Cost Architecture at Scale | 8% | yes | 37 | 37/37 | [draft](../content/06-cost-latency/01-cost-architecture.mdx) · 2634 words · 37 cited | — |
 | 6.2 | Latency Engineering | 8% | yes | 27 | 27/27 | — | — |
 | 7.1 | Runtime Guardrail Systems | 11% | yes | 35 | 35/35 | [draft](../content/07-security/01-runtime-guardrails.mdx) · 1853 words · 35 cited | — |
 | 7.2 | Threat Defense and Adversarial Testing for Agentic Systems | 11% | yes | 36 | 36/36 | [draft](../content/07-security/02-threat-defense.mdx) · 1865 words · 36 cited | — |
@@ -33,4 +33,4 @@ Columns: research packet exists · citation entries · quotes verified verbatim 
 | 8.3 | Unattended and Event-Driven Agent Operations | 10% | yes | 35 | 35/35 | — | — |
 | 8.4 | Organization-Wide Coding Agent Configuration | 10% | yes | 33 | 33/33 | — | — |
 
-Unique source URLs: 254 · citation entries: 991
+Unique source URLs: 254 · citation entries: 998

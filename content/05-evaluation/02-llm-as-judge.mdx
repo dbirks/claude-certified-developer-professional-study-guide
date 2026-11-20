@@ -1,0 +1,237 @@
+---
+title: "LLM-as-Judge Engineering"
+summary: "Decide whether a Claude judge is calibrated enough to gate releases: rubric design, order swapping, inter-rater reliability, and drift control."
+kind: skill
+skill: "5.2"
+slug: llm-as-judge
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+An **LLM-as-judge** is a model that grades another model's output against a rubric, standing in for human review at evaluation scale. Anthropic recommends careful iteration and close calibration against human experts until human and model scores show little divergence.<Cite id="F9" /> Once a grading system is robust, Anthropic says occasional human review is sufficient.<Cite id="F11" /> The decision this chapter supports is narrow: does this judge deserve authority to block a release?
+
+## Choosing the grading method
+
+Anthropic compares code-based checks, LLM-based grading, and human grading by speed, reliability, and scalability, and advises choosing the fastest, most reliable, most scalable method that fits the judgment.<Cite id="F1 F2 F3" />
+
+| Grader | Strength | Weakness | Use it for |
+|---|---|---|---|
+| Code-based | Fastest and most reliable, extremely scalable<Cite id="F1" /> | Lacks nuance for complex judgments that need less rule-based rigidity<Cite id="F1" /> | Schema checks, required fields, exact values |
+| LLM-based | Fast, flexible, scalable, suitable for complex judgment<Cite id="F2" /> | Reliability is unproven until you test it<Cite id="F2" /> | Groundedness, policy compliance, synthesis, preference |
+| Human | Most flexible and high quality<Cite id="F3" /> | Slow and expensive; Anthropic advises avoiding it if possible<Cite id="F3" /> | Judge calibration and subjective outputs, where human consensus is the reference standard<Cite id="F15" /> |
+
+Grading recurs on every evaluation run, which makes per-run grader speed and price a central design constraint.<Cite id="F7" /> Anthropic accordingly conditions LLM grading on testing for reliability before scaling,<Cite id="F2" /> and on trying the grader against real samples to see whether the task suits it.<Cite id="F8" />
+
+## Rubric design
+
+A **rubric** is the explicit criteria list the judge applies to each item. Anthropic recommends detailed, clear rubrics and notes that one use case or criterion may need several rubrics for holistic evaluation.<Cite id="F4" /> Make the rubric observable: replace subjective adjectives with conditions a reviewer can check. Two domain experts should independently reach the same pass/fail verdict on a good task, because ambiguity in task specifications becomes noise in metrics and vague grader criteria produce inconsistent judgments.<Cite id="F12" />
+
+Three mechanics carry most of the accuracy:
+
+- **Empirical outputs.** Instruct the judge to output only `correct` or `incorrect`, or to judge on a scale of 1–5; purely qualitative evaluations are hard to assess quickly and at scale.<Cite id="F5" />
+- **Isolated dimensions.** Write a structured rubric per dimension and grade each with an isolated judge rather than one judge for all dimensions, so a strong aspect cannot mask a failing one; move rule-shaped checks to code graders.<Cite id="F10 F1" />
+- **An escape hatch.** Let the judge return `Unknown` when it lacks enough information, which avoids hallucinated verdicts on truncated or ambiguous transcripts.<Cite id="F10" />
+
+Enable thinking in the grader so it reasons before producing a score, which Anthropic reports improves evaluation performance on tasks requiring complex judgment.<Cite id="F6" /> Balance the dataset across cases where a behavior should occur and where it should not, because one-sided evals create one-sided optimization.<Cite id="F14" />
+
+## Grading mode: pointwise, pairwise, and reference-guided
+
+The grading mode sets the judge's cost curve and its sensitivity. Zheng et al. (2023) contrast **pairwise comparison**, where possible pairs grow quadratically as candidates increase, with **single-answer pointwise grading**, which may fail to discern subtle differences between specific pairs and whose absolute scores may fluctuate more when the judge model changes.<Cite id="F27" />
+
+| Mode | Cost shape | Use it for | Main risk |
+|---|---|---|---|
+| Pointwise | Linear in items | CI/CD regression gates, SLA tracking, rates compared across builds | Absolute scores drift when the judge changes<Cite id="F27" /> |
+| Pairwise | Quadratic in candidates<Cite id="F27" /> | Subtle A/B preference tests, scoped to targeted pairs | Cost blowup at scale, plus slot bias (below) |
+| Reference-guided | Pointwise plus golden answers | Math, reasoning, factual checks | Judge falls back on parametric memory without a reference |
+
+Compare pointwise scores across builds only when the judge snapshot is pinned, run pairwise judgments on targeted pairs rather than a full matrix, and give reference-guided runs a golden answer.<Cite id="F17 F40" />
+
+## Bias and position effects
+
+**Position bias** is an LLM judge's propensity to favor answers in specific prompt positions over others.<Cite id="F28" /> **Verbosity bias** makes a judge favor longer, verbose responses even when they are not as clear, high-quality, or accurate as shorter alternatives,<Cite id="F30" /> and **self-enhancement bias** is the possibility that a judge favors answers generated by itself.<Cite id="F31" /> Zheng et al. said their data could not determine whether judges exhibit this bias.<Cite id="F43" /> In their study, strong judges such as GPT-4 reached over 80% agreement with human preferences on MT-Bench and Chatbot Arena, matching human-human agreement.<Cite id="F32" />
+
+The standard mitigation is **conservative order swapping**: call the judge twice with the answers swapped, declare a win only when an answer is preferred in both orders, and score inconsistent results as a tie.<Cite id="F29" /> Swapping uses two judge calls per pair; the Message Batches API offers a 50 percent discount on eligible batch usage.<Cite id="F26" /> For large sweeps, randomly assign which candidate occupies Slot 1; retain bidirectional swaps on a calibration subset to measure flip rate.<Cite id="F29" /> Counter verbosity bias with an explicit conciseness requirement and length-adversarial cases. Treat self-enhancement as a possible bias to measure against human labels, not an established universal effect.<Cite id="F30 F31" />
+
+Consider this illustrative decision pattern, aligned with Official Sample Item 2 in the exam guide: a team compares two answers with an uncalibrated pairwise judge and always puts Candidate B in Slot 1. The initial win rate appears favorable, but the team has not separated position effects from answer quality. It should rerun the same items with answer order swapped and compare judge labels with human labels before deciding whether the judge is reliable enough to gate a release.<Cite id="F9 F28 F29" /> A swap flip is evidence of position sensitivity; count it as a tie or send it for human review.<Cite id="F29" /> If disagreement analysis finds unclear criteria, split the rubric into observable dimensions, enable thinking for complex judgments, and allow an `Unknown` verdict when evidence is insufficient.<Cite id="F4 F6 F10" /> Treat any subsequent improvement as something to measure on held-out human-labeled items, not an assumed outcome.
+
+## Calibrating the judge against human labels
+
+Calibration measures judge agreement with human labels on a held-out slice before the judge touches a pipeline. Run it in this order:
+
+1. Curate a stratified, balanced set spanning positive, negative or trap, and edge cases.<Cite id="F14" />
+2. Have at least two SMEs label it independently and reconcile disagreements; if their agreement is poor, fix the rubric and task spec before tuning the judge.<Cite id="F12" />
+3. Run the pinned judge; compute judge-versus-human agreement plus a confusion matrix of false passes and false fails.
+4. Read every disagreement transcript to separate rubric gaps from harness truncation from bias, then re-measure on a held-out slice.<Cite id="F13 F16" />
+
+<Figure caption="Validate evaluator IRR, order-swap consistency, and error-rate bounds against human labels before granting an LLM judge release-gating authority.">
+  <Flow direction="vertical" steps={["Balanced human calibration set", { label: "Human-human IRR check", note: "Set threshold from decision risk; on fail, fix rubric and task spec" }, { label: "Run pinned Claude judge", note: "adaptive thinking + JSON schema" }, { label: "Pairwise: run (A,B) and (B,A)", note: "inconsistent -> tie or human review" }, { label: "Human-judge IRR + FP/FN confusion matrix", note: "read disagreement transcripts" }, { label: "Calibration gate", note: "on fail, withhold CI/CD gating" }, "Enable release gate + periodic anchor drift check"]} />
+</Figure>
+
+**Inter-rater reliability** (IRR) closes the loop, and the two standard statistics answer different questions. **Cohen's kappa** measures chance-corrected agreement between exactly two raters who each classify N items into C mutually exclusive categories, and is restricted to two annotators on single-label ratings.<Cite id="F33 F34" /> **Krippendorff's alpha** handles any number of coders, incomplete or missing data, and nominal, ordinal, interval, or ratio scales, so it fits two SMEs plus a judge and 1–5 rubrics, where a 1-versus-5 disagreement should count more than 4-versus-5.<Cite id="F35" />
+
+| Situation | Metric | Threshold to act on |
+|---|---|---|
+| Two raters, complete categorical labels (`pass`/`fail`, `A`/`B`/`tie`) | Cohen's kappa<Cite id="F33" /> | Above 0.8 is good agreement; at or below 0, no better than chance<Cite id="F34" /> |
+| Three or more raters, missing overlap, or ordinal/interval scales | Krippendorff's alpha<Cite id="F35" /> | 0.800 and above is reliable; 0.667 to below 0.800 supports tentative conclusions only<Cite id="F37" /> |
+| High-stakes automated gating | Either | The minimum acceptable alpha should be set by the cost of mistaken conclusions<Cite id="F36" /> |
+
+When class distributions differ, kappa can be lower even when raw agreement is the same, because the expected chance agreement differs. Report minority-class precision and recall and inspect a balanced slice alongside kappa.<Cite id="F42 F14" />
+
+## Judge request mechanics
+
+The judge's request parameters are part of the instrument, so version them with the prompt. For verdict capture, the Anthropic Python SDK accepts a Pydantic model as `output_format` in `client.messages.parse()` and returns the parsed model in `parsed_output`.<Cite id="F38" /> Structured outputs send `output_config.format` with `type: "json_schema"`.<Cite id="F44" /> The constrained-decoding grammar applies only to Claude's direct output, not to thinking blocks, so the judge can think before returning schema-constrained JSON.<Cite id="F20" /> Structured outputs do not guarantee the capitalization of `enum` and `const` values, so normalize labels with `.strip().lower()` in the parser.<Cite id="F21" />
+
+Do not ask the judge to print its reasoning. Prompting Claude to put its thinking or reasoning in the output, verbatim or in a fixed format — legacy `<thinking></thinking>` tags, or a schema property named `reasoning` or `thinking` — can trigger a `reasoning_extraction` refusal.<Cite id="F22" /> The refusal response uses `stop_reason: "refusal"`, and this category has no recommended fallback model, so change the prompt rather than retry: inspect summarized thinking blocks and ask the schema for a short explanation plus cited evidence.<Cite id="F39 F23" /> Thinking display defaults to `omitted` on Claude 5 and later models, hiding thinking text until you opt in.<Cite id="F24" /> To trade thoroughness against token efficiency, set `effort` in `output_config`; Anthropic describes effort as a way to control token use and response thoroughness.<Cite id="F45 F25" />
+
+The following Python illustrates a groundedness grade with an `unknown` escape hatch, then a pairwise judge with order swapping. It uses the documented Pydantic `parse()` pattern and pins the Claude Sonnet 4.6 snapshot ID.<Cite id="F38 F18" />
+
+```python
+from enum import Enum
+from typing import Literal
+from pydantic import BaseModel, Field
+from anthropic import Anthropic
+
+JUDGE_MODEL = "claude-sonnet-4-6"  # Pinned 4.6-generation snapshot
+
+class Verdict(str, Enum):
+    PASS = "pass"
+    FAIL = "fail"
+    UNKNOWN = "unknown"  # Escape hatch when evidence is missing/ambiguous
+
+class GroundednessGrade(BaseModel):
+    # Request brief evidence, not "thinking" or "reasoning" fields.
+    evidence_summary: str = Field(description="1-2 sentence citation of supporting or contradicting facts.")
+    verdict: Verdict
+
+def grade_groundedness(client: Anthropic, source_context: str, candidate_answer: str) -> GroundednessGrade:
+    prompt = (
+        "Grade whether <answer> is fully supported by <context>. "
+        "Return 'fail' if any claim contradicts or goes beyond <context>. "
+        "Return 'unknown' if <context> is truncated or ambiguous.\n\n"
+        f"<context>{source_context}</context>\n<answer>{candidate_answer}</answer>"
+    )
+    resp = client.messages.parse(
+        model=JUDGE_MODEL,
+        max_tokens=2048,
+        thinking={"type": "adaptive", "display": "summarized"},
+        output_config={"effort": "medium"},
+        messages=[{"role": "user", "content": prompt}],
+        output_format=GroundednessGrade,
+    )
+    if resp.stop_reason == "refusal":
+        raise RuntimeError(f"Judge refused ({resp.stop_details})")
+    parsed = resp.parsed_output
+    parsed.verdict = Verdict(parsed.verdict.value.strip().lower())  # Defensive enum normalization
+    return parsed
+
+class PairwiseChoice(BaseModel):
+    brief_justification: str
+    winner: Literal["first", "second", "tie", "unknown"]
+
+def pairwise_swapped(client: Anthropic, question: str, ans_a: str, ans_b: str) -> str:
+    def run_once(first: str, second: str) -> str:
+        r = client.messages.parse(
+            model=JUDGE_MODEL,
+            max_tokens=2048,
+            thinking={"type": "adaptive", "display": "omitted"},
+            output_config={"effort": "medium"},
+            messages=[{
+                "role": "user",
+                "content": (
+                    "Compare Response 1 and Response 2 solely on factual accuracy and conciseness. "
+                    "Do not reward extra length unless factual detail differs.\n"
+                    f"<question>{question}</question>\n"
+                    f"<response_1>{first}</response_1>\n<response_2>{second}</response_2>"
+                ),
+            }],
+            output_format=PairwiseChoice,
+        )
+        return r.parsed_output.winner.strip().lower()
+
+    v_ab, v_ba = run_once(ans_a, ans_b), run_once(ans_b, ans_a)
+    if v_ab == "unknown" or v_ba == "unknown":
+        return "unknown"
+    if v_ab == "first" and v_ba == "second":
+        return "A"
+    if v_ab == "second" and v_ba == "first":
+        return "B"
+    return "tie"  # Conservative swap-inconsistency -> tie (Zheng et al., 2023)
+```
+
+Run offline calibration, order-swapped sweeps, and regression evals through the Message Batches API at `POST /v1/messages/batches`; it processes large volumes asynchronously, cuts cost 50 percent, and most batches finish in under an hour.<Cite id="F41 F26" />
+
+## Judge drift across model versions
+
+A judge can change underneath your metrics. From Claude 4.6 onward, a dateless model ID is canonical for that release and maps to a single fixed snapshot whose weights and configuration Anthropic does not update; updates ship under new IDs.<Cite id="F17" /> Pre-4.6 dateless strings such as `claude-sonnet-4-5` are convenience aliases that resolve to the most recent dated snapshot, whereas a 4.6-generation ID such as `claude-sonnet-4-6` is not an alias — it is the snapshot.<Cite id="F18" /> Pinning is necessary but not sufficient: weights are fixed for an ID while the serving infrastructure around it (request router, safety classifiers, sampling logic) can change over time.<Cite id="F19" />
+
+Pin the whole instrument, not just the model string: snapshot ID, prompt text, output schema, thinking configuration, and effort as one versioned artifact. Pin the model ID for the platform you call and avoid moving aliases in longitudinal pipelines.<Cite id="F17 F18" /> Keep a frozen human-labeled **anchor set** and re-score it on a schedule: movement there without an application change is evaluator drift. Before promoting a new judge version, run old and new side by side on it and re-measure IRR.
+
+<Callout type="version" title="Checked 2026-11-19">
+
+Snapshot semantics, thinking-display defaults, `effort`, and Message Batches behavior here were checked against Anthropic docs on 2026-11-19. Anthropic publishes no universal kappa or alpha cutoff; the 0.80 and 0.667 numbers come from standard statistical practice, so set your own gate by the cost of a wrong verdict.<Cite id="F36" />
+
+</Callout>
+
+## Error analysis and release gates
+
+A judge's verdict distribution is the artifact to analyze, not the headline pass rate. Do not take eval scores at face value until someone digs into the eval details and reads transcripts: if grading is unfair, tasks are ambiguous, valid solutions are penalized, or the harness constrains the model, the eval should be revised rather than the application, because the transcript is what shows whether the agent erred or the grader rejected a valid solution.<Cite id="F16 F13" />
+
+Judge confidence is not a single verdict field. Estimate it with swap consistency, repeated-sample agreement, the rate of `Unknown` abstentions, and calibration curves mapping confidence tiers to observed human accuracy. Route low-confidence and flipped items to human review.
+
+Align rubric strictness with asymmetric error cost. In a safety or groundedness defect detector, where a defect is the positive class, minimize false negatives so bad outputs do not ship and accept more false-positive triage. In a quality release gate, where a pass is the positive class, a lenient judge ships regressions and an overly strict one blocks valid releases; balanced slices expose that skew immediately.<Cite id="F14" />
+
+Gate in two stages. First gate the evaluator: set acceptance criteria for held-out human-judge agreement and false-pass/false-fail rates based on the cost of a wrong decision. For pairwise graders, also measure swap consistency and position effects. Treat numeric thresholds as task-specific acceptance criteria, not universal Anthropic requirements.<Cite id="F9 F14 F36" /> Then use the calibrated judge in application release gates and reserve systematic human studies for judge calibration or subjective outputs where human consensus is the reference.<Cite id="F15" />
+
+## Decision criteria
+
+- **Deterministic check available?** Use code-based grading: fastest and most reliable, and it reserves judge calls for what needs judgment.<Cite id="F1" />
+- **Need rates comparable across builds?** Use pointwise grading with a pinned judge; a pairwise full matrix costs quadratically.<Cite id="F27" />
+- **Need a subtle difference between two systems?** Use pairwise comparison with bidirectional swapping, scoring inconsistent results as ties.<Cite id="F29" />
+- **Task has a verifiable answer?** Give the judge a trusted reference so it can compare the answer against evidence; Zheng et al. describe this method for math and reasoning grading.<Cite id="F40" />
+- **Choosing an IRR metric?** Two complete raters: kappa. Three or more raters, missing overlap, or ordinal scales: alpha.<Cite id="F33 F35" />
+- **Setting a gate threshold?** Scale it to the cost of a wrong release decision and verify it on a balanced slice.<Cite id="F36 F14" />
+
+Before a judge gets gating authority, demand human-human IRR, judge-human IRR on a held-out slice, swap consistency, per-class precision and recall, and disagreement transcripts.
+
+## Failure modes and recovery
+
+<Callout type="mistake" title="Trusting an unswapped pairwise win rate">
+A judge that always sees the same candidate in Slot 1 reports a win rate that mostly measures slot preference. Rerun in both orders, count consistent wins only, score flips as ties or send them to human review, then recalibrate against human labels before gating.<Cite id="F28 F29" />
+</Callout>
+
+<Callout type="mistake" title="Putting reasoning in the judge's output schema">
+A literal `&lt;thinking&gt;` request or a `reasoning` property can trigger a `reasoning_extraction` refusal.<Cite id="F22" /> The refusal response uses `stop_reason: "refusal"`, and this refusal category has no recommended fallback model.<Cite id="F39 F23" /> Ask for a brief `evidence_summary` instead and inspect native thinking blocks with `display: "summarized"` when needed.<Cite id="F23" />
+</Callout>
+
+<Callout type="mistake" title="Judging version over version with a moving alias">
+A pre-4.6 dateless ID such as `claude-sonnet-4-5` silently retargets to a newer dated snapshot, so longitudinal score changes mix application behavior with judge changes.<Cite id="F18" /> Pin the snapshot, re-score a frozen anchor set, and compare judges side by side before promoting one.<Cite id="F17 F19" />
+</Callout>
+
+Lesser failures, and their recovery:
+
+- **Raw percent agreement on an imbalanced suite.** Recheck on a balanced slice and report minority-class precision and recall.<Cite id="F33 F34" />
+- **One blended judge for five criteria.** Halo effects mask regressions; split per dimension and move rule-shaped checks to code.<Cite id="F10 F1" />
+- **Tuning judge prompts without transcripts.** You optimize against the harness; read disagreements before editing rubrics.<Cite id="F13 F16" />
+
+## Exam lens
+
+<ExamLens>
+- **Win rates jump because one model sits first, or right after a rubric change.** Do not roll out or gate yet: randomize or swap presentation order, re-measure agreement against human labels, and withhold gating until the judge is calibrated.
+- **A structured judge starts refusing after you add a `reasoning` field.** That is `reasoning_extraction`, which has no fallback model; remove the field, use native adaptive thinking with `display: "summarized"` for audits, and request a short `evidence_summary`.
+- **Raw agreement is high but kappa is low.** Diagnose class imbalance and check minority-class precision and recall on balanced data; use Krippendorff's alpha rather than kappa for three or more raters, missing ratings, or 1–5 ordinal scales.
+- **Eval scores drop with no application change.** Suspect the evaluator: a moving pre-4.6 alias, an unpinned upgrade, or serving-infrastructure drift. Verify on the frozen anchor set first.
+</ExamLens>
+
+## Self-check
+
+<SelfCheck question="Your app pass rate drops after upgrading the regression judge from `claude-sonnet-4-5` to `claude-sonnet-4-6`, with no app changes. What do you do first?">
+Do not blame or roll back the application. Run both judges side by side on your frozen human-labeled anchor set, inspect disagreement transcripts, and re-measure human-judge IRR and false-pass/false-fail bias before promoting: `claude-sonnet-4-5` is a moving alias, so part of the delta may be an untracked snapshot change.<Cite id="F18 F13 F16" />
+</SelfCheck>
+
+<SelfCheck question='Why did adding a `reasoning` string property to a structured judge schema trigger `stop_reason: "refusal"`, and how do you keep reason-first accuracy?'>
+Asking the model to put its reasoning in the output triggers a `reasoning_extraction` refusal, and that category has no recommended fallback model. Remove the field, rely on native adaptive thinking, and request a brief `evidence_summary` string; set thinking `display` to `summarized` when you need to audit rationales.<Cite id="F22 F23 F24" />
+</SelfCheck>
+
+<SelfCheck question="Transcripts are scored 1–5 by two SMEs with some missing overlap, plus a Claude judge. Which IRR metric applies, and what threshold justifies automated gating?">
+Use ordinal Krippendorff's alpha — Cohen's kappa handles only two raters with complete ratings. Target alpha of 0.800 or above before automated gating; 0.667 to below 0.800 supports only tentative conclusions, and the bar rises with the cost of a wrong verdict.<Cite id="F35 F37 F36" />
+</SelfCheck>

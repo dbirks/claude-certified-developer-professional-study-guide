@@ -28,7 +28,7 @@
   url: https://platform.claude.com/docs/en/test-and-evaluate/develop-tests
   title: "Define success criteria and build evaluations"
   source: anthropic-docs
-  quote: "A given use case, or even a specific success criterion for that use case, might require several rubrics for holistic evaluation."
+  quote: "Have detailed, clear rubrics: “The answer should always mention ‘Acme Inc.’ in the first sentence. If it does not, the answer is automatically graded as ‘incorrect.’” A given use case, or even a specific success criterion for that use case, might require several rubrics for holistic evaluation."
   accessed: 2026-11-19
 - id: F5
   claim: "LLM judge prompts should request empirical or specific outputs such as binary labels or 1-5 scales rather than purely qualitative prose."
@@ -47,7 +47,7 @@
   quote: "Encourage reasoning: Use a grader model with thinking on, so that it reasons before it produces an evaluation score. This increases evaluation performance, particularly for tasks requiring complex judgment."
   accessed: 2026-11-19
 - id: F7
-  claim: "Grading is a recurring per-run evaluation cost, unlike writing test cases and golden answers, which is largely a fixed upfront cost."
+  claim: "Grading is a recurring cost incurred each time an evaluation is rerun."
   tag: FACT
   url: https://platform.claude.com/cookbook/misc-building-evals
   title: "Building evals | Claude Cookbook"
@@ -111,7 +111,7 @@
   quote: "Test both the cases where a behavior should occur and where it shouldn't. One-sided evals create one-sided optimization."
   accessed: 2026-11-19
 - id: F15
-  claim: "Regression evals verify retained behavior and should pass at nearly 100%, whereas systematic human studies should be reserved for calibrating LLM judges or subjective tasks."
+  claim: "Systematic human studies should be reserved for calibrating LLM judges or evaluating subjective outputs where human consensus is the reference standard."
   tag: REC
   url: https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents
   title: "Demystifying evals for AI agents"
@@ -185,14 +185,14 @@
   quote: "To see how the model reasoned, set display: \"summarized\" and read the thinking blocks. This category has no recommended fallback model, so change the prompt rather than retry the request."
   accessed: 2026-11-19
 - id: F24
-  claim: "Thinking defaults to omitted display on Claude 5 and newer models, returning empty thinking strings while keeping encrypted signatures; request summarized display when auditing judge rationales."
+  claim: "Claude 5 and later models default thinking display to omitted, so thinking text is hidden until explicitly requested."
   tag: VER
   url: https://platform.claude.com/docs/en/build-with-claude/thinking
   title: "Thinking"
   source: anthropic-docs
-  quote: "The display field on the thinking configuration controls how thinking content is returned in API responses. display works in both modes: set it alongside type: \"adaptive\" or type: \"enabled\"."
+  quote: "On Claude 5 and later models and Claude Mythos Preview, thinking is already on and needs no configuration. display defaults to \"omitted\" on these models, so the thinking text is hidden until you opt in."
   accessed: 2026-11-19
-  version_note: "display defaults to omitted on Claude 4.7, 4.8, 5, 5.1, 5.2, and 5.5 models, and summarized on Claude 4.6 and earlier."
+  version_note: "The quote states the default for Claude 5 and later models and Claude Mythos Preview; other model defaults differ."
 - id: F25
   claim: "The output_config.effort parameter adjusts how many tokens Claude spends across output and thinking, trading thoroughness for speed and cost."
   tag: FACT
@@ -202,7 +202,7 @@
   quote: "The effort parameter lets you control how many tokens Claude spends when responding to requests. You can trade off between response thoroughness and token efficiency with a single model."
   accessed: 2026-11-19
 - id: F26
-  claim: "The Message Batches API cuts evaluation grading costs by 50 percent for asynchronous workloads that finish within 24 hours (typically under 1 hour)."
+  claim: "The Message Batches API asynchronously processes large volumes of requests, with most batches finishing in under an hour and a 50 percent cost reduction."
   tag: FACT
   url: https://platform.claude.com/docs/en/build-with-claude/batch-processing
   title: "Batch processing"
@@ -231,7 +231,7 @@
   url: https://arxiv.org/html/2306.05685v4
   title: "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena"
   source: standard
-  quote: "A conservative approach is to call a judge twice by swapping the order of two answers and only declare a win when an answer is preferred in both orders. If the results are inconsistent after swapping, we can call it a tie."
+  quote: "A conservative approach is to call a judge twice by swapping the order of two answers and only declare a win when an answer is preferred in both orders. If the results are inconsistent after swapping, we can call it a tie. Another more aggressive approach is to assign positions randomly, which can be effective at a large scale with the correct expectations."
   accessed: 2026-11-19
 - id: F30
   claim: "Verbosity bias causes LLM judges to prefer longer, wordier answers over clearer, higher-quality, or more accurate concise answers."
@@ -242,12 +242,12 @@
   quote: "Verbosity bias is when an LLM judge favors longer, verbose responses, even if they are not as clear, high-quality, or accurate as shorter alternatives."
   accessed: 2026-11-19
 - id: F31
-  claim: "Self-enhancement (self-preference) bias refers to an LLM judge systematically favoring answers generated by itself or its own model family."
+  claim: "The MT-Bench and Chatbot Arena paper defines self-enhancement bias as the possibility that judges favor answers generated by themselves."
   tag: STD
   url: https://arxiv.org/html/2306.05685v4
   title: "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena"
   source: standard
-  quote: "For example, GPT-4 favors itself with a 10% higher win rate; Claude-v1 favors itself with a 25% higher win rate. However, they also favor other models and GPT-3.5 does not favor itself."
+  quote: "LLM judges may favor the answers generated by themselves."
   accessed: 2026-11-19
 - id: F32
   claim: "Strong frontier LLM judges in MT-Bench and Chatbot Arena reached over 80% agreement with human preferences, comparable to human-to-human agreement."
@@ -274,7 +274,7 @@
   quote: "The kappa score is a number between -1 and 1. Scores above .8 are generally considered good agreement; zero or lower means no agreement (practically random labels)."
   accessed: 2026-11-19
 - id: F35
-  claim: "Krippendorff's alpha handles any number of coders, incomplete or missing ratings, small samples, and nominal, ordinal, interval, or ratio scales."
+  claim: "Krippendorff's alpha handles any number of coders, incomplete or missing ratings, and nominal, ordinal, interval, or ratio scales."
   tag: STD
   url: https://en.wikipedia.org/wiki/Krippendorff%27s_alpha
   title: "Krippendorff's alpha"
@@ -290,10 +290,74 @@
   quote: "The minimum acceptable alpha coefficient should be chosen according to the importance of the conclusions to be drawn from imperfect data. When the costs of mistaken conclusions are high, the minimum alpha needs to be set high as well."
   accessed: 2026-11-19
 - id: F37
-  claim: "Standard Krippendorff's alpha benchmarks treat alpha >= 0.800 as reliable and 0.667 <= alpha < 0.800 as sufficient only for tentative conclusions (with < 0.667 discarded)."
+  claim: "Standard Krippendorff's alpha benchmarks treat alpha >= 0.800 as reliable and 0.667 <= alpha < 0.800 as sufficient only for tentative conclusions."
   tag: STD
   url: https://en.wikipedia.org/wiki/Krippendorff%27s_alpha
   title: "Krippendorff's alpha"
   source: standard
   quote: "In the absence of knowledge of the risks of drawing false conclusions from unreliable data, social scientists commonly rely on data with reliabilities α ≥ 0.800, consider data with 0.800 > α ≥ 0.667 only to draw tentative conclusions"
+  accessed: 2026-11-19
+- id: F38
+  claim: "The Anthropic Python SDK accepts a Pydantic model as output_format in client.messages.parse and returns the parsed result in parsed_output."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/structured-outputs
+  title: "Structured outputs"
+  source: anthropic-docs
+  quote: "Pass a Pydantic model to client.messages.parse(), the recommended method, as output_format. The SDK transforms the model’s schema, sends it as output_config.format, validates the response, and returns the parsed model in parsed_output."
+  accessed: 2026-11-19
+- id: F39
+  claim: "A refusal is returned with stop_reason set to refusal."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback
+  title: "Refusals and fallback"
+  source: anthropic-docs
+  quote: "A refusal is a successful HTTP 200 response with stop_reason: \"refusal\":"
+  accessed: 2026-11-19
+- id: F40
+  claim: "Zheng et al. describe reference-guided grading as providing a reference solution, including for math problems."
+  tag: STD
+  url: https://arxiv.org/html/2306.05685v4
+  title: "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena"
+  source: standard
+  quote: "Reference-guided grading. In certain cases, it may be beneficial to provide a reference solution if applicable. An example prompt we use for grading math problems is in Figure 7 (Appendix)."
+  accessed: 2026-11-19
+- id: F41
+  claim: "The Message Batches create endpoint is POST /v1/messages/batches."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/messages/batches/create
+  title: "Create a Message Batch"
+  source: anthropic-docs
+  quote: "POST /v1/messages/batches"
+  accessed: 2026-11-19
+- id: F42
+  claim: "Kappa is sensitive to prevalence, and high raw agreement can coexist with a low kappa when one category dominates."
+  tag: STD
+  url: https://en.wikipedia.org/wiki/Cohen%27s_kappa
+  title: "Cohen's kappa"
+  source: standard
+  quote: "This is because while the percentage agreement is the same, the percentage agreement that would occur 'by chance' is significantly higher in the first case (0.54 compared to 0.46)."
+  accessed: 2026-11-19
+- id: F43
+  claim: "The MT-Bench and Chatbot Arena authors say their data could not establish whether models exhibit self-enhancement bias."
+  tag: STD
+  url: https://arxiv.org/html/2306.05685v4
+  title: "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena"
+  source: standard
+  quote: "Due to limited data and small differences, our study cannot determine whether the models exhibit a self-enhancement bias."
+  accessed: 2026-11-19
+- id: F44
+  claim: "The Claude Messages API carries a structured output schema in output_config.format with type json_schema."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/structured-outputs
+  title: "Structured outputs"
+  source: anthropic-docs
+  quote: "The request carries the schema in output_config.format with type: \"json_schema\". SDK helpers set this for you."
+  accessed: 2026-11-19
+- id: F45
+  claim: "The Messages API uses output_config.effort to set effort on a request."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/effort
+  title: "Effort"
+  source: anthropic-docs
+  quote: "Set output_config.effort on the request."
   accessed: 2026-11-19

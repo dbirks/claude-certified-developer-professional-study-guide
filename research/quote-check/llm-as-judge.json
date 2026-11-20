@@ -183,5 +183,45 @@
     "id": "F37",
     "status": "ok",
     "url": "https://en.wikipedia.org/wiki/Krippendorff%27s_alpha"
+  },
+  {
+    "id": "F38",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/structured-outputs"
+  },
+  {
+    "id": "F39",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback"
+  },
+  {
+    "id": "F40",
+    "status": "ok",
+    "url": "https://arxiv.org/html/2306.05685v4"
+  },
+  {
+    "id": "F41",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/messages/batches/create"
+  },
+  {
+    "id": "F42",
+    "status": "ok",
+    "url": "https://en.wikipedia.org/wiki/Cohen%27s_kappa"
+  },
+  {
+    "id": "F43",
+    "status": "ok",
+    "url": "https://arxiv.org/html/2306.05685v4"
+  },
+  {
+    "id": "F44",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/structured-outputs"
+  },
+  {
+    "id": "F45",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/effort"
   }
 ]
