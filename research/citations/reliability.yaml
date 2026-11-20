@@ -35,12 +35,12 @@
   accessed: 2026-11-19
 
 - id: F5
-  claim: "Partner-operated platforms enforce smaller request size limits than the first-party Claude API: 20 MB on Amazon Bedrock, 30 MB on Google-managed Vertex AI, and 32 MB on Anthropic-managed cloud offerings."
+  claim: "Partner-operated and Anthropic-managed cloud platforms enforce smaller request size limits than the first-party Claude API: 20 MB on Amazon Bedrock, 30 MB on Google-managed Vertex AI, and 32 MB on Claude Platform on AWS, Google Cloud (Anthropic managed), and Microsoft Foundry."
   tag: FACT
   url: https://platform.claude.com/docs/en/api/overview
   title: "API overview"
   source: anthropic-docs
-  quote: "Partner-operated platforms have their own request size limits: Bedrock limits requests to 20 MB, and Claude Models on Google Cloud (Google managed) limits requests to 30 MB."
+  quote: "Partner-operated platforms have their own request size limits: Bedrock limits requests to 20 MB, and Claude Models on Google Cloud (Google managed) limits requests to 30 MB. Claude Platform on AWS, Claude Models on Google Cloud (Anthropic managed), and Microsoft Foundry support Messages and Token Counting requests of up to 32 MB."
   accessed: 2026-11-19
 
 - id: F6
@@ -166,7 +166,7 @@
   url: https://platform.claude.com/docs/en/cli-sdks-libraries/sdks/typescript
   title: "TypeScript SDK"
   source: anthropic-docs
-  quote: "which will result in a timeout up to 60 minutes, scaled by the max_tokens parameter, unless overridden at the request or client level."
+  quote: "By default requests time out after 10 minutes."
   accessed: 2026-11-19
 
 - id: F20
@@ -290,7 +290,7 @@
   accessed: 2026-11-19
 
 - id: F33
-  claim: "Microsoft Foundry deployments Hosted on Azure reject unsupported features (code execution, Agent Skills, programmatic tool calling, Files API, and newer web search/fetch versions) with 400 Bad Request, and Foundry omits anthropic-ratelimit-* headers."
+  claim: "Microsoft Foundry deployments hosted on Azure reject unsupported features (code execution, Agent Skills, programmatic tool calling, Files API, and newer web search/fetch versions) with 400 Bad Request, and Foundry omits anthropic-ratelimit-* headers."
   tag: FACT
   url: https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry
   title: "Claude in Microsoft Foundry"
@@ -299,7 +299,7 @@
   accessed: 2026-11-19
 
 - id: F34
-  claim: "Returning is_error: true in a tool_result allows Claude to retry the tool call with a new tool_use block, so agent harnesses must cap tool-retry loops; randomized exponential backoff (jitter) prevents synchronized retry ripples, per-client retry budgets (e.g., 10%) bound overload amplification, and side-effecting operations require idempotency."
+  claim: "Returning is_error: true in a tool_result allows Claude to retry the tool call with a new tool_use block, so agent harnesses must limit how many retries the loop allows."
   tag: REC
   url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls
   title: "Handle tool calls"
@@ -308,10 +308,101 @@
   accessed: 2026-11-19
 
 - id: F35
-  claim: "Combining per-request retry caps with a per-client retry ratio budget (e.g., 10%), randomized exponential backoff (jitter), and idempotency for side-effecting APIs prevents cascading overload amplification and duplicate mutations."
+  claim: "Combining per-request retry caps with a 10% per-client retry ratio budget reduces worst-case overload amplification from roughly 3x to 1.1x."
   tag: STD
   url: https://sre.google/sre-book/handling-overload/
   title: "Handling Overload — Google SRE Book"
   source: standard
   quote: "However, layering on the per-client retry budget (a 10% retry ratio) reduces the growth to just 1.1x in the general case—a significant improvement."
+  accessed: 2026-11-19
+
+- id: F36
+  claim: "Mid-stream SSE errors can occur after the API returns HTTP 200, bypassing standard HTTP error handling and retry mechanisms."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "When receiving a streaming response over server-sent events (SSE), an error can occur after the API returns a 200 response. In that case, error handling doesn’t follow these standard mechanisms."
+  accessed: 2026-11-19
+
+- id: F37
+  claim: "API errors always return JSON with a top-level error object containing type and message fields plus a request_id field."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "The API always returns errors as JSON, with a top-level error object that always includes a type and message value. The response also includes a request_id field for easier tracking and debugging."
+  accessed: 2026-11-19
+
+- id: F38
+  claim: "Claude 4.6 and later models and Claude Mythos Preview do not support assistant message prefill and return HTTP 400 invalid_request_error when given a prefilled last assistant message."
+  tag: VER
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "Claude 4.6 and later models and Claude Mythos Preview do not support prefilling assistant messages. Sending a request with a prefilled last assistant message to any of these models returns a 400 invalid_request_error"
+  accessed: 2026-11-19
+  version_note: "Applies to Claude 4.6 and later models and Claude Mythos Preview."
+
+- id: F39
+  claim: "Ramp-limit 429 responses on the Messages API set error.details.error_code to ramp_limit_exceeded."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "On the Messages API, error.details.error_code is ramp_limit_exceeded. Use it to tell this response apart from a rate limit."
+  accessed: 2026-11-19
+
+- id: F40
+  claim: "Anthropic SDKs include refusal-fallback middleware configured with a list of fallback models to automatically retry refused requests on any platform."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback
+  title: "Refusals and fallback"
+  source: anthropic-docs
+  quote: "The SDK includes a refusal-fallback middleware. You configure it once on the client with your list of fallback models."
+  accessed: 2026-11-19
+
+- id: F41
+  claim: "HTTP 402 billing_error indicates a billing or payment issue in the Claude Console or AWS Marketplace."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "There’s an issue with your billing or payment information. Check your payment details in the Claude Console, or in AWS Marketplace if you’re using Claude Platform on AWS."
+  accessed: 2026-11-19
+
+- id: F42
+  claim: "HTTP 403 permission_error indicates the API key lacks permission to access the requested resource."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "Your API key does not have permission to use the specified resource. Check your organization’s access and workspace settings in the Claude Console."
+  accessed: 2026-11-19
+
+- id: F43
+  claim: "HTTP 404 not_found_error indicates the requested endpoint path or resource ID was not found."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "The requested resource was not found. Check the endpoint path and any resource IDs in the request URL."
+  accessed: 2026-11-19
+
+- id: F44
+  claim: "In the Start usage tier, Claude Opus 5.5 has limits of 4,000 RPM, 2,000,000 ITPM, and 400,000 OTPM."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "Claude Opus 5.5 | 4,000 | 2,000,000 | 400,000"
+  accessed: 2026-11-19
+
+- id: F45
+  claim: "The Message Batches API has its own rate limits shared across all models, separate from standard Messages API rate limits and exempt from ramp limits."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/rate-limits
+  title: "Rate limits"
+  source: anthropic-docs
+  quote: "The Message Batches API has its own set of rate limits, which are shared across all models."
   accessed: 2026-11-19

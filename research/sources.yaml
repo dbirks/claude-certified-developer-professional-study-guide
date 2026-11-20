@@ -839,18 +839,6 @@
   accessed: 2026-11-19
   cited_by:
     - telemetry:F35
-- url: https://online.stat.psu.edu/stat509/Lesson08
-  title: 8 Sample Size and Power
-  source: standard
-  accessed: 2026-11-19
-  cited_by:
-    - online-quality:F26
-- url: https://online.stat.psu.edu/stat555/node/43/
-  title: 3.4 - Steps in Designing a Study
-  source: standard
-  accessed: 2026-11-19
-  cited_by:
-    - online-quality:F28
 - url: https://opentelemetry.io/blog/2026/cardinality-limits-in-opentelemetry/
   title: "Metric cardinality limits in OpenTelemetry: a practical guide"
   source: standard
@@ -907,6 +895,7 @@
   accessed: 2026-11-19
   cited_by:
     - monitoring-alerting:F7
+    - failure-diagnosis:F9
 - url: https://platform.claude.com/docs/en/about-claude/model-deprecations
   title: Model deprecations
   source: anthropic-docs
@@ -1086,12 +1075,6 @@
   cited_by:
     - retrieval-grounding:F16
     - retrieval-grounding:F28
-- url: https://platform.claude.com/docs/en/api/csharp/messages/create
-  title: Create a Message
-  source: anthropic-docs
-  accessed: 2026-11-19
-  cited_by:
-    - failure-diagnosis:F9
 - url: https://platform.claude.com/docs/en/api/errors
   title: Claude API errors
   source: anthropic-docs
@@ -1108,6 +1091,12 @@
     - reliability:F9
     - reliability:F10
     - reliability:F16
+    - reliability:F36
+    - reliability:F37
+    - reliability:F38
+    - reliability:F41
+    - reliability:F42
+    - reliability:F43
     - telemetry:F27
     - failure-diagnosis:F22
     - failure-diagnosis:F28
@@ -1153,6 +1142,9 @@
     - reliability:F13
     - reliability:F14
     - reliability:F15
+    - reliability:F39
+    - reliability:F44
+    - reliability:F45
     - scale-throughput:F1
     - scale-throughput:F2
     - scale-throughput:F3
@@ -1401,6 +1393,7 @@
     - reliability:F26
     - reliability:F28
     - reliability:F29
+    - reliability:F40
     - monitoring-alerting:F12
     - incident-response:F16
     - llm-as-judge:F22
@@ -2107,6 +2100,12 @@
   cited_by:
     - threat-defense:F19
     - threat-defense:F20
+- url: https://www.itl.nist.gov/div898/handbook/ppc/section3/ppc333.htm
+  title: Selecting Sample Sizes
+  source: standard
+  accessed: 2026-11-19
+  cited_by:
+    - online-quality:F26
 - url: https://www.microsoft.com/en-us/research/articles/for-event-based-a-b-tests-why-they-are-special/
   title: "For Event-based A/B tests: why they are special"
   source: other
@@ -2114,3 +2113,9 @@
   cited_by:
     - online-quality:F13
     - online-quality:F14
+- url: https://www.nationalacademies.org/read/10732/chapter/13
+  title: "Appendix A: Sample Size Determination"
+  source: standard
+  accessed: 2026-11-19
+  cited_by:
+    - online-quality:F28

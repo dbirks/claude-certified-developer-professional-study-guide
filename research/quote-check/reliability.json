@@ -91,7 +91,7 @@
   },
   {
     "id": "F19",
-    "status": "not-found",
+    "status": "ok",
     "url": "https://platform.claude.com/docs/en/cli-sdks-libraries/sdks/typescript"
   },
   {
@@ -173,5 +173,55 @@
     "id": "F35",
     "status": "ok",
     "url": "https://sre.google/sre-book/handling-overload/"
+  },
+  {
+    "id": "F36",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/errors"
+  },
+  {
+    "id": "F37",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/errors"
+  },
+  {
+    "id": "F38",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/errors"
+  },
+  {
+    "id": "F39",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F40",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback"
+  },
+  {
+    "id": "F41",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/errors"
+  },
+  {
+    "id": "F42",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/errors"
+  },
+  {
+    "id": "F43",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/errors"
+  },
+  {
+    "id": "F44",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F45",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/rate-limits"
   }
 ]
