@@ -112,6 +112,65 @@
   border-top: 0;
   padding-top: 8px;
 }
+
+/* ---------- collapsed sources list (summary = the H2 row + count + chevron) ---------- */
+.sources__details {
+  border: 0;
+}
+
+.sources__summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+  cursor: pointer;
+  list-style: none;
+}
+
+.sources__summary::-webkit-details-marker {
+  display: none;
+}
+
+.sources__summary::marker {
+  content: '';
+}
+
+/* The H2 keeps the prose heading type (Young Serif 25px); only its block margins go away. */
+.sources .sources__summary h2 {
+  margin: 0;
+}
+
+.sources .sources__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: var(--r-pill, 999px);
+  background: var(--sky, #dcebfa);
+  color: var(--sky-ink, #2a4a6e);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.sources .sources__chev {
+  flex: none;
+  color: var(--ink-muted);
+  transition: transform 180ms ease;
+}
+
+.sources__details[open] .sources__chev {
+  transform: rotate(180deg);
+}
+
+.sources .sources__note {
+  margin-top: 10px;
+}
+
 .sources__note {
   font-size: 14px;
   color: var(--ink-muted);
@@ -429,7 +488,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sources .source {
+  .sources .source,
+  .sources .sources__chev {
     transition: none;
   }
   .cite-pop--open,

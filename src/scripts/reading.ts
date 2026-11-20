@@ -60,18 +60,23 @@ function initProgress(): void {
   pill?.removeAttribute('hidden');
   const pillText = pill ? document.getElementById('read-pill-text') : null;
   const pillFill = pill ? document.getElementById('read-pill-fill') : null;
+  // The lesson ends where its source list begins (the list is reference material you can keep
+  // scrolling forever); without one, the end of the article is the end of the lesson.
+  const lessonEnd = document.querySelector<HTMLElement>('article.prose section.sources') ?? article;
 
   let queued = false;
   const update = (): void => {
     queued = false;
     const rect = article.getBoundingClientRect();
     const viewport = window.innerHeight || document.documentElement.clientHeight || 1;
-    const scrollable = rect.height - viewport;
+    const scrolled = -rect.top; // px of the article above the viewport top
+    const total = lessonEnd.getBoundingClientRect().top - rect.top - viewport;
     let pct: number;
-    if (scrollable <= 0) {
-      pct = rect.bottom <= viewport ? 100 : 0; // article shorter than the viewport
+    if (total <= 0) {
+      // Whole lesson fits on one screen: read as soon as its end is above the fold.
+      pct = scrolled >= total ? 100 : 0;
     } else {
-      pct = (-rect.top / scrollable) * 100;
+      pct = (scrolled / total) * 100;
     }
     pct = Math.min(100, Math.max(0, pct));
     bar.style.width = `${pct.toFixed(2)}%`;
@@ -236,6 +241,8 @@ function initHeadingAnchors(): void {
   headings.forEach((heading) => {
     const id = heading.id;
     if (!id || heading.querySelector('.heading-anchor')) return;
+    // A copy-link anchor inside a <summary> (e.g. h2#sources) would fight the disclosure toggle.
+    if (heading.closest('summary')) return;
 
     const anchor = document.createElement('a');
     anchor.className = 'heading-anchor';

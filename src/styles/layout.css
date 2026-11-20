@@ -3,6 +3,7 @@
 /* ---------- topbar (frame 2a: floating pill, no border, no blur) ---------- */
 
 .topbar {
+  --topbar-band: 17px; /* frosted fade below the pill (≈ 1/3 of the 52px pill) */
   position: sticky;
   top: 0;
   z-index: 40;
@@ -11,6 +12,27 @@
     calc(14px + env(safe-area-inset-left));
   background: transparent;
   border: 0;
+}
+
+/* Frosted band behind the floating pill: text scrolling up under the bar fades into a blur
+   instead of colliding with it. Decorative — it must never swallow clicks. */
+.topbar::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 calc(var(--topbar-band) * -1) 0;
+  z-index: -1;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent);
+  mask-image: linear-gradient(to bottom, #000 70%, transparent);
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .topbar::before {
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+  }
 }
 
 .topbar__pill {
@@ -50,8 +72,14 @@
   background: var(--ink);
 }
 
+/* "CCDV-P" (Young Serif) and "Study Guide" (Manrope) are flex items on one centred line.
+   Line-height cannot move the glyph ink inside its own box, so each script is nudged with
+   padding-bottom; values measured with scripts/check-alignment.mjs. */
 .topbar__title {
   flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-family: var(--font-serif);
   font-weight: 400; /* Young Serif has only 400 */
   font-size: 19px;
@@ -60,6 +88,7 @@
   text-decoration: none;
   white-space: nowrap;
   padding-left: 6px;
+  padding-top: 2px; /* Young Serif ink sits ~1px high in its box at 19-22px (check-alignment.mjs) */
 }
 
 .topbar__title:hover {
@@ -126,6 +155,7 @@
 
 @media (min-width: 1024px) {
   .topbar {
+    --topbar-band: 20px; /* ≈ 1/3 of the 60px desktop pill */
     padding: calc(14px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) 0
       calc(20px + env(safe-area-inset-left));
   }
@@ -142,11 +172,13 @@
   }
 
   .topbar__title-rest {
-    display: inline;
+    display: block;
     font-family: var(--font-sans);
     font-size: 15px;
     font-weight: 500;
+    line-height: 1;
     color: var(--ink-muted);
+    transform: translateY(-1.5px); /* Manrope ink sits ~1.5px low in its box (same as the search label) */
   }
 
   .topbar__section,
@@ -155,6 +187,7 @@
     flex: 0 1 auto;
     min-width: 0;
     padding-left: var(--space-4);
+    padding-bottom: 3px; /* matches the Manrope ink nudge of the search label */
     margin-left: var(--space-1);
     border-left: 1px solid var(--border);
     font-size: 14px;
@@ -192,13 +225,15 @@
   }
 
   .topbar__search-text {
-    display: inline;
+    display: block;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    padding-bottom: 3px; /* ink sits 1.5px low at 15px Manrope (check-alignment.mjs) */
   }
 
+  /* The "/" hint is the icon itself: no key cap box, centred at the right end of the field. */
   .topbar__search-key {
     display: grid;
     place-items: center;
@@ -206,13 +241,12 @@
     margin-left: auto;
     width: 22px;
     height: 22px;
-    border-radius: 6px;
-    background: var(--surface);
     color: var(--ink-muted);
-    font-family: var(--font-mono);
-    font-size: 12px;
-    font-weight: 400;
     line-height: 1;
+  }
+
+  .topbar__search-key .icon {
+    display: block;
   }
 
   /* Percent pill grows a read bar. */

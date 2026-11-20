@@ -23,6 +23,16 @@ const MATCH_LABEL: Record<string, string> = {
 const byId = <T extends Element>(id: string): T | null => document.getElementById(id) as T | null;
 const textOf = (el: Element | null): string => (el?.textContent ?? '').replace(/\s+/g, ' ').trim();
 
+/** The source list is collapsed by default, so jumps to it must expand it first. */
+const SOURCES_HASH = /^#(sources|src-[\w:.-]+)$/;
+const sourcesId = (hash: string): string => (SOURCES_HASH.test(hash) ? decodeURIComponent(hash.slice(1)) : '');
+
+/** Element rendered and near the top of the viewport (a row inside a closed <details> has no box). */
+function landedOnTarget(el: Element): boolean {
+  const rect = el.getBoundingClientRect();
+  return rect.height > 0 && rect.top >= 0 && rect.top < window.innerHeight * 0.85;
+}
+
 /** "Supports: " lives in an .sr-only span and a ::before; we render our own label in the sheet. */
 function supportsText(li: HTMLElement): string {
   const claim = li.querySelector('.source__claim');
@@ -137,6 +147,31 @@ export function initCitations(): void {
   let openLinkTop = 0; // viewport Y of the citation when the card was anchored to it
   let touchStartY: number | null = null;
 
+  /* ------------------------------------------------- collapsed source list */
+
+  const sources = document.querySelector<HTMLDetailsElement>('section.sources details.sources__details');
+
+  /** Expand the list, then scroll to the heading or one of its rows. */
+  const goToSources = (id: string, opts: { smooth?: boolean; onlyIfMissing?: boolean } = {}): void => {
+    if (sources && !sources.open) sources.open = true;
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (opts.onlyIfMissing && landedOnTarget(el)) return; // the browser already landed there
+    el.scrollIntoView({
+      behavior: opts.smooth && !reducedMotion() ? 'smooth' : 'auto',
+      block: 'start',
+    });
+  };
+
+  /** Same-document link to #sources / #src-F12 (the sheet's own jump button is a <button>). */
+  const sourcesLinkIn = (node: Element): HTMLAnchorElement | null => {
+    const anchor = node.closest<HTMLAnchorElement>('a[href]');
+    if (!anchor) return null;
+    const target = new URL(anchor.href, location.href);
+    if (target.pathname !== location.pathname || target.search !== location.search) return null;
+    return sourcesId(target.hash) ? anchor : null;
+  };
+
   const clearActive = (): void => {
     if (!activeLink) return;
     activeLink.classList.remove('is-open');
@@ -208,6 +243,18 @@ export function initCitations(): void {
       return;
     }
 
+    const sourcesAnchor = sourcesLinkIn(target);
+    if (sourcesAnchor) {
+      // Deep link into the collapsed list: expand it before the page jumps (no navigation here,
+      // we do the scrolling ourselves so the row is laid out first).
+      ev.preventDefault();
+      if (!pop.hidden) close('silent');
+      const id = sourcesId(new URL(sourcesAnchor.href, location.href).hash);
+      if (location.hash !== `#${id}`) history.pushState(null, '', `#${id}`);
+      goToSources(id, { smooth: true });
+      return;
+    }
+
     if (pop.hidden || pop.contains(target)) return;
     close('outside'); // includes taps on #cite-backdrop (a sibling of the sheet)
   });
@@ -274,8 +321,21 @@ export function initCitations(): void {
     ev.preventDefault();
     ev.stopPropagation();
     close('silent');
-    document.getElementById('sources')?.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'start' });
+    goToSources('sources', { smooth: true });
   });
+
+  // #sources / #src-F12 can also arrive from the on-page rail, a search result, the back button
+  // or a pasted URL: the list has to be open before such a jump can land.
+  window.addEventListener('hashchange', () => {
+    const id = sourcesId(location.hash);
+    if (id) goToSources(id, { smooth: true, onlyIfMissing: true });
+  });
+  const initialId = sourcesId(location.hash);
+  if (initialId) {
+    if (sources) sources.open = true;
+    // Wait one frame so the revealed rows are laid out before the jump.
+    window.requestAnimationFrame(() => goToSources(initialId, { onlyIfMissing: true }));
+  }
 
   // Client-side navigation (if any) must not leave a stale popover behind.
   window.addEventListener('ccdvp:navigate', () => close('silent'));
