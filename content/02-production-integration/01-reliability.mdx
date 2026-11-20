@@ -8,15 +8,15 @@ status: fact-checked
 lastReviewed: "2026-11-19"
 ---
 
-**Reliability engineering** for Claude services matches each recovery action to the exact signal a response carries. A production integration fails at one of three layers: an HTTP status, an `event: error` frame inside a successful stream, or a `200 OK` whose `stop_reason` reports a truncated, paused, or refused turn.<Cite id="F20 F36 F37" /> Each signal requires a different response: a monthly spend cap keeps failing under retries,<Cite id="F6" /> the same model usually refuses a declined request again,<Cite id="F27" /> and an unverified failover to Azure-hosted Microsoft Foundry replaces an outage with `400 Bad Request` responses.<Cite id="F33" /> A **resilience pattern** maps each signal to one action: fail fast, retry within a budget, resume the turn, degrade the workload, or move to another pool.
+**Reliability engineering** for Claude services matches each recovery action to the exact signal a response carries. A production integration can encounter a failure at three layers: an HTTP status, an `event: error` frame inside a successful stream, or a `200 OK` whose `stop_reason` reports a truncated, paused, or refused turn.<Cite id="F20 F36 F37" /> Each signal requires a different response: a monthly spend cap keeps failing under retries,<Cite id="F6" /> the same model usually refuses a declined request again,<Cite id="F27" /> and an unverified failover can produce `400 Bad Request` responses on Azure-hosted Microsoft Foundry.<Cite id="F33" /> A **resilience pattern** maps each signal to one action: fail fast, retry within a budget, resume the turn, degrade the workload, or move to another pool.
 
 ## Read the signal before you react
 
-Transport failures arrive as an HTTP status and a JSON body shaped `{"type": "error", "error": {"type": "...", "message": "..."}, "request_id": "req_..."}`, with an optional `error.details` object on errors such as spend-cap and ramp-limit `429`s.<Cite id="F6 F37 F39" /> Status and `error.type` tell you whether the fault lies in your request or in Anthropic's infrastructure, which determines whether retrying can help.
+Transport failures arrive as an HTTP status and a JSON body shaped `{"type": "error", "error": {"type": "...", "message": "..."}, "request_id": "req_..."}`, with an optional `error.details` object on errors such as spend-cap and ramp-limit `429`s.<Cite id="F6 F37 F39" /> Use status, `error.type`, and details to investigate the cause and decide whether retrying can help.
 
 Log correlation identifiers on every call: every response carries a `request-id` header, error payloads echo it in `request_id`, and the Python and TypeScript SDKs expose `_request_id` on top-level response objects.<Cite id="F9" /> Claude Platform on AWS returns two headers — `x-amzn-requestid` (primary, indexed in CloudTrail) and `request-id` (for Anthropic support).<Cite id="F10" />
 
-Client and account errors never succeed on a blind retry:
+Client and account errors generally need a change before a retry can succeed:
 
 - `400 invalid_request_error` covers malformed requests, unsupported model parameters, and a user-configured organization or workspace spend limit (Claude Code workspaces may return `429` instead).<Cite id="F1" />
 - `401 authentication_error` covers a malformed, revoked, or expired API key, an AWS SigV4 failure on Claude Platform on AWS, and browser CORS rejection under custom retention or compliance settings such as Zero Data Retention (ZDR) or the Compliance API, which you fix by calling from your own back end.<Cite id="F2" />
@@ -29,15 +29,15 @@ Conflict and transient errors behave differently. `409 conflict_error` sits in b
 |---|---|---|---|
 | `400 invalid_request_error` | `BadRequestError` | No | Fix schema or unsupported parameter, or raise the user-set org/workspace limit.<Cite id="F1" /> |
 | `401 authentication_error` | `AuthenticationError` | No | Refresh credentials, or call from a back end when retention/Compliance CORS blocks browsers.<Cite id="F2" /> |
-| `402` / `403` / `404` | `APIStatusError` (`PaymentRequiredError`, `PermissionDeniedError`, `NotFoundError`) | No | Fix billing, RBAC/IAM permissions, or endpoint path and resource IDs.<Cite id="F41 F42 F43" /> |
-| `408` request timeout | `APIStatusError` (`RequestTimeoutError`) | Yes | Retry idempotent calls with backoff.<Cite id="F17" /> |
+| `402` / `403` / `404` | `APIStatusError` (including `PermissionDeniedError`, `NotFoundError`) | No | Fix billing, RBAC/IAM permissions, or endpoint path and resource IDs.<Cite id="F41 F42 F43" /> |
+| `408` request timeout | `APIStatusError` | Yes | Retry idempotent calls with backoff.<Cite id="F17" /> |
 | `409 conflict_error` | `ConflictError` | Conditional | Resolve the resource state conflict, then re-submit.<Cite id="F3" /> |
-| `413 request_too_large` | `APIStatusError` (`ContentTooLargeError`) | No | Shrink the payload below the target platform cap.<Cite id="F4 F5" /> |
+| `413 request_too_large` | `APIStatusError` | No | Shrink the payload below the target platform cap.<Cite id="F4 F5" /> |
 | `429` (`enforced_spend_limit_reached`) | `RateLimitError` | **No** | Monthly tier spend cap: no `retry-after`, so retries fail until access resumes. Abort and alert billing.<Cite id="F6" /> |
 | `429` (rate or `ramp_limit_exceeded`) | `RateLimitError` | Yes | Honor `retry-after`, add jitter, pace traffic, and cache long prefixes.<Cite id="F11 F12 F14 F39" /> |
-| `500` / `504` | `InternalServerError` (`GatewayTimeoutError` for `504`) | Yes | Exponential backoff plus jitter; log `request_id`.<Cite id="F7 F9" /> |
-| `529 overloaded_error` | `InternalServerError` (`OverloadedError`) | Yes | Back off, shed load, or fail over to an independent capacity pool.<Cite id="F8 F30" /> |
-| `200` + mid-stream `event: error` | Stream event | Conditional | HTTP retry cannot fire after `200`; capture completed text and resume via a `user` message on Claude 4.6+.<Cite id="F24 F25 F36 F38" /> |
+| `500` / `504` | `InternalServerError` | Yes | Exponential backoff plus jitter; log `request_id`.<Cite id="F7 F9" /> |
+| `529 overloaded_error` | `InternalServerError` | Yes | Back off, shed load, or fail over to an independent capacity pool.<Cite id="F8 F30" /> |
+| `200` + mid-stream `event: error` | Stream event | Conditional | HTTP retry cannot fire after `200`; capture received text and resume via a `user` message on Claude 4.6+.<Cite id="F24 F25 F36 F38" /> |
 | Connection drop / client timeout | `APIConnectionError`, `APITimeoutError` (`APIConnectionTimeoutError` in TS) | Yes, if safe | Default 10-minute timeout; stream long jobs and guard side effects.<Cite id="F18 F19" /> |
 
 <Figure caption="Request decision flow: classify the status, budget transient retries, check parity before failover, then branch on stop_reason.">
@@ -64,154 +64,69 @@ Because an SDK already makes three attempts by default,<Cite id="F16" /> wrappin
 Rate-limit accounting determines how much headroom your retry budget has:
 
 - Limits use a continuously replenished token bucket rather than fixed-interval resets, so short bursts can trigger `429`s below your per-minute average.<Cite id="F11" />
-- ITPM counts only uncached input tokens (`input_tokens` plus `cache_creation_input_tokens`), excluding `cache_read_input_tokens`.<Cite id="F12" />
+- Default ITPM limits count uncached input tokens (`input_tokens` plus `cache_creation_input_tokens`), excluding `cache_read_input_tokens`.<Cite id="F12" />
 - OTPM meters actual generated tokens in real time, so a higher `max_tokens` value consumes no extra OTPM quota.<Cite id="F13" />
 - Changing `inference_geo` between `"us"` and `"global"` adds no rate-limit headroom because both draw from one pool.<Cite id="F15" />
 - Response headers report `retry-after` in seconds (omitted on tier spend-cap `429`s) and `anthropic-ratelimit-*` limits, remaining counts, and RFC 3339 `reset` timestamps, with `anthropic-ratelimit-tokens-*` showing the most restrictive active limit.<Cite id="F6 F14" />
 
-Tool loops also need an explicit bound: returning `is_error: true` in a `tool_result` lets Claude call the tool again with a new `tool_use` block, so cap how many retries the harness permits.<Cite id="F34" /> Model inference is stateless across retries, whereas tool side effects persist; prefer storing tool results keyed by `tool_use_id` and passing deterministic idempotency keys to external mutation endpoints.
+Tool loops also need an explicit bound: returning `is_error: true` in a `tool_result` lets Claude call the tool again with a new `tool_use` block, so cap how many retries the harness permits.<Cite id="F34" /> Tool side effects may persist across retries; prefer storing tool results keyed by `tool_use_id` and passing deterministic idempotency keys to external mutation endpoints.
 
-Consider a service sending 1,000 requests per minute to `claude-opus-5-5` against Start-tier limits of 4,000 RPM, 2,000,000 ITPM, and 400,000 OTPM,<Cite id="F44" /> where each call sends a 15,000-token system-and-tool prefix plus 1,000 new input tokens. Without prompt caching, all 16,000,000 input tokens per minute count against ITPM — eight times the limit, triggering `429`s. Caching the 15,000-token prefix leaves 1,000,000 ITPM counted (50 percent headroom).<Cite id="F12" /> Under a severe `529` brownout, unbudgeted retries push total load toward 3x nominal, whereas a 10 percent per-client retry budget holds total traffic near 1,100 RPM.<Cite id="F35" />
+Consider a service sending 1,000 requests per minute to `claude-opus-5-5` against Start-tier limits of 4,000 RPM, 2,000,000 ITPM, and 400,000 OTPM,<Cite id="F44" /> where each call sends a 15,000-token system-and-tool prefix plus 1,000 new input tokens. Without prompt caching, all 16,000,000 input tokens per minute count against ITPM — eight times the limit, triggering `429`s. Once every request reads the 15,000-token prefix from cache, the remaining 1,000,000 ITPM leaves 50 percent headroom; initial cache writes and misses still count.<Cite id="F12" /> Under a severe `529` brownout, three attempts per failed call can push total load toward 3x nominal, whereas a strictly enforced budget of 100 retries per 1,000 original requests limits total traffic to 1,100 RPM for that window.<Cite id="F35" />
 
-The Python wrapper below sets `max_retries=0` on the `anthropic` SDK clients so application code owns the retry budget, spend-cap abort, refusal fallback, and parity-guarded failover.
+The following Python example disables SDK retries and classifies a `429`. It leaves retry scheduling, shared budgets, and failover to the caller; it does not automatically replay requests or tool side effects.<Cite id="F17 F39" />
 
 ```python
-import random
-import time
-from dataclasses import dataclass
-
 import anthropic
-from anthropic import Anthropic, AnthropicBedrockMantle
+from anthropic import Anthropic
+
+client = Anthropic(max_retries=0)
 
 
-@dataclass
-class RetryBudget:
-    window_requests: int = 0
-    window_retries: int = 0
-    max_retry_ratio: float = 0.10  # 10% retry budget
-
-    def allow_retry(self) -> bool:
-        return self.window_requests < 20 or (
-            self.window_retries / self.window_requests
-        ) < self.max_retry_ratio
-
-
-def backoff_with_jitter(
-    attempt: int,
-    retry_after: float | None = None,
-    base: float = 0.5,
-    cap: float = 8.0,
-) -> float:
-    if retry_after is not None and retry_after > 0:
-        return retry_after + random.uniform(0.0, 0.5)
-    return random.uniform(0.0, min(cap, base * (2**attempt)))  # full jitter
-
-
-def call_with_resilience(
-    primary: Anthropic,
-    bedrock_fallback: AnthropicBedrockMantle | None,
-    *,
-    messages,
-    tools,
-    uses_server_tools: bool,
-    budget: RetryBudget,
-):
-    budget.window_requests += 1
-    model = "claude-opus-5-5"
-    fallback_models = ["claude-sonnet-5-5", "claude-opus-4-8"]
-    max_attempts = 3
-
-    for attempt in range(max_attempts):
-        try:
-            resp = primary.messages.create(
-                model=model,
-                max_tokens=4096,
-                messages=messages,
-                tools=tools,
-            )
-        except anthropic.RateLimitError as exc:
-            body = exc.body if isinstance(exc.body, dict) else {}
-            code = ((body.get("error") or {}).get("details") or {}).get("error_code")
-            if code == "enforced_spend_limit_reached":
-                raise RuntimeError("Monthly tier spend cap reached; do not retry") from exc
-            if attempt == max_attempts - 1 or not budget.allow_retry():
-                raise
-            budget.window_retries += 1
-            ra = exc.response.headers.get("retry-after")
-            time.sleep(backoff_with_jitter(attempt, float(ra) if ra else None))
-            continue
-        except anthropic.InternalServerError as exc:
-            if exc.status_code == 529 and bedrock_fallback and not uses_server_tools:
-                return bedrock_fallback.messages.create(  # Bedrock lacks server tools
-                    model="anthropic.claude-opus-5-5",
-                    max_tokens=4096,
-                    messages=messages,
-                    tools=tools,
-                )
-            if attempt == max_attempts - 1 or not budget.allow_retry():
-                raise
-            budget.window_retries += 1
-            time.sleep(backoff_with_jitter(attempt))
-            continue
-        except (
-            anthropic.BadRequestError,
-            anthropic.AuthenticationError,
-            anthropic.PermissionDeniedError,
-            anthropic.NotFoundError,
-        ):
-            raise
-
-        if resp.stop_reason == "refusal":
-            category = getattr(resp.stop_details, "category", None)
-            if (
-                category == "reasoning_extraction"
-                or not fallback_models
-                or attempt == max_attempts - 1
-            ):
-                raise RuntimeError(f"Refusal ({category}); revise prompt")
-            model = fallback_models.pop(0)
-            continue
-        if resp.stop_reason in (
-            "end_turn",
-            "stop_sequence",
-            "max_tokens",
-            "model_context_window_exceeded",
-            "tool_use",
-            "pause_turn",
-        ):
-            return resp
-
-    raise RuntimeError("Exhausted resilience attempts")
+def send_once(messages):
+    try:
+        return client.messages.create(
+            model="claude-opus-5-5",
+            max_tokens=1024,
+            messages=messages,
+        )
+    except anthropic.RateLimitError as exc:
+        body = exc.body if isinstance(exc.body, dict) else {}
+        error = body.get("error") or {}
+        details = error.get("details") or {}
+        if details.get("error_code") == "enforced_spend_limit_reached":
+            raise RuntimeError("Tier spend cap reached; alert billing") from exc
+        # Hand the status and response headers to the caller's retry scheduler.
+        raise
 ```
 
 ## Circuit breakers and graceful degradation
 
 A **circuit breaker** is a per-endpoint state machine that stops sending traffic to a failing dependency. Prefer one three-state breaker per endpoint (`closed`, `open` on sustained `5xx`, `529`, or timeouts, then `half-open` with a single probe) paired with token-bucket retry throttling, so an unhealthy endpoint fails fast to an independent capacity pool such as Claude Platform on AWS.<Cite id="F30" /> Trip breakers on availability signals only: never open a breaker on `400`, `401`, `403`, `413`, or `stop_reason: "refusal"`, which reflect your payload, credentials, or safety policy.
 
-**Graceful degradation** sheds capability in a fixed order instead of dropping requests under sustained `529` or `429` pressure:
+**Graceful degradation** preserves a reduced service when capacity is constrained. Choose options that fit the workload, for example:
 
 1. Defer batchable work to the Message Batches API, which uses separate rate limits and is exempt from ramp limits.<Cite id="F45" />
-2. Shrink each request by lowering `output_config.effort` or compacting and pruning conversation history.
+2. Reduce generation effort where supported, or shrink input by compacting and pruning conversation history.
 3. Fail over to an independent pool **only after verifying feature parity** — replace server-side `fallbacks` with client-side fallback logic, or drop server tools, before routing to Bedrock, Google-managed Vertex AI, or Foundry.<Cite id="F29 F31 F32 F33" />
 4. Degrade to a model with separate rate-limit headroom on your tier, and flag degraded output for downstream callers if quality tolerances are strict.
 
 ## Telling rate limits, refusals, and context-window stops apart
 
-Rate limits, safety refusals, and context-window stops represent quota exhaustion, policy intervention, and capacity bounds, and each requires a different recovery path. A `429` with `error.details.error_code` set to `enforced_spend_limit_reached` is a hard monthly tier cap with no `retry-after`: retries keep failing until access resumes, so abort and alert billing.<Cite id="F6" /> A `429` from a token-bucket or ramp limit (`ramp_limit_exceeded`) carries `retry-after` and recovers through paced backoff and prompt caching.<Cite id="F11 F12 F14 F39" /> A classifier refusal arrives as HTTP `200` with `stop_reason: "refusal"`, and any partial output streamed before it must be discarded.<Cite id="F26" /> Context-window stops also arrive as HTTP `200` and require context compaction or pruning, not a new capacity pool.<Cite id="F23" />
+Rate limits, safety refusals, and context-window stops represent quota exhaustion, policy intervention, and capacity bounds, and each requires a different recovery path. A `429` with `error.details.error_code` set to `enforced_spend_limit_reached` is a hard monthly tier cap with no `retry-after`: retries keep failing until access resumes, so abort and alert billing.<Cite id="F6" /> For a rate or ramp limit (`ramp_limit_exceeded`), honor `retry-after` when present, pace traffic, and consider prompt caching.<Cite id="F11 F12 F14 F39" /> A classifier refusal arrives as HTTP `200` with `stop_reason: "refusal"`, and any partial output streamed before it must be discarded.<Cite id="F26" /> Context-window stops also arrive as HTTP `200` and require context compaction or pruning, not a new capacity pool.<Cite id="F23" />
 
 | `stop_reason` (HTTP 200) | What happened | Recovery |
 |---|---|---|
 | `end_turn` | Claude completed generation naturally; branch on `stop_reason` rather than HTTP status.<Cite id="F20" /> | Use the response. |
 | `stop_sequence` | Generation matched one of your `stop_sequences`.<Cite id="F20" /> | Inspect `stop_sequence` and handle as complete. |
-| `max_tokens` | Output reached the `max_tokens` cap and may be truncated.<Cite id="F20" /> | Raise `max_tokens` (it consumes no extra OTPM),<Cite id="F13" /> continue, or flag partial output. |
-| `tool_use` | Claude called a client tool; when client and server tools run together, the API returns `tool_use` without running the server tool.<Cite id="F22" /> | Append assistant content unchanged, then send a `user` message with `tool_result` blocks **first** (and **only** `tool_result` blocks, with no trailing text, when a waiting server or MCP tool lacks a result), keeping `tools`.<Cite id="F22" /> Report failures with `is_error: true` and bound retries.<Cite id="F34" /> |
+| `max_tokens` | Output reached the `max_tokens` cap and may be truncated.<Cite id="F20" /> | Raise `max_tokens`, continue, or flag partial output. The setting alone does not consume extra OTPM.<Cite id="F13" /> |
+| `tool_use` | Claude called a client tool; when Claude calls a client tool and a server tool in the same parallel group, the API returns `tool_use` before running the server tool.<Cite id="F22" /> | Append assistant content unchanged, then send a `user` message with `tool_result` blocks **first** (and **only** `tool_result` blocks, with no trailing text, when a waiting server or MCP tool lacks a result), keeping `tools`; also return any container ID and the same `mcp_servers` for a waiting MCP call.<Cite id="F22" /> Report failures with `is_error: true` and bound retries.<Cite id="F34" /> |
 | `pause_turn` | A server-tool loop hit its iteration cap, 10 iterations per request by default.<Cite id="F21" /> | Append paused assistant content unchanged with **no** trailing user message, keep `tools`, and echo `container.id` if present inside a bounded loop.<Cite id="F21" /> |
 | `refusal` | A safety classifier intervened; `stop_details` carries `type`, nullable `category` and `explanation`, and optional `recommended_model`.<Cite id="F26" /> | Discard partial output, then reset context or switch models — the same model usually refuses again.<Cite id="F26 F27" /> |
 | `model_context_window_exceeded` | Generation filled the context window before `max_tokens`; automatic on Sonnet 4.5 and newer, while earlier models require `model-context-window-exceeded-2025-08-26` (typed in the SDK `beta` namespace).<Cite id="F23" /> | Compact or prune context, or split the work. |
 
-Server-side fallback is the simplest refusal recovery where supported: pass `fallbacks: "default"` (or up to three fallback models) with the `server-side-fallback-2026-07-01` beta header, which is in beta on the first-party Claude API and Google Cloud (Anthropic managed), and unavailable on Claude Haiku 5.5, Amazon Bedrock, Google-managed Vertex AI, and Microsoft Foundry.<Cite id="F29 F31 F32 F33" /> Elsewhere, use the SDK's client-side refusal-fallback middleware (`BetaRefusalFallbackMiddleware`), which retries across your fallback list on any platform and applies fallback credit automatically.<Cite id="F40" /> For `reasoning_extraction` refusals, no fallback model is recommended, so revise the prompt or use adaptive thinking with `display: "summarized"` instead of retrying.<Cite id="F28" />
+Server-side fallback is the simplest refusal recovery where supported: pass `fallbacks: "default"` (or up to three fallback models) with the `server-side-fallback-2026-07-01` beta header, which is in beta on the first-party Claude API and Google Cloud (Anthropic managed), and unavailable on Claude Haiku 5.5, Amazon Bedrock, Google-managed Vertex AI, and Microsoft Foundry.<Cite id="F29 F31 F32 F33" /> Server-side fallback handles classifier refusals, not rate limits, overload, or server errors.<Cite id="F46" /> Elsewhere, consider the SDK's client-side refusal-fallback middleware (`BetaRefusalFallbackMiddleware`), which retries across your fallback list on any platform and applies fallback credit when available; Haiku 5.5 refusals carry no credit.<Cite id="F40" /> For `reasoning_extraction` refusals, no fallback model is recommended, so revise the prompt or use adaptive thinking with `display: "summarized"` instead of retrying.<Cite id="F28" />
 
-Mid-stream failure is the fourth recovery path. Once `200` headers are sent, an error arrives as `event: error` (such as `overloaded_error`), and SDK HTTP retry logic cannot fire retroactively.<Cite id="F36" /> Interrupted `tool_use` and `thinking` blocks cannot be partially recovered; resume only from the most recent completed text block.<Cite id="F25" /> On Claude 4.6 and later models, resume with a `user` message telling the model to continue — assistant prefill is unsupported and returns `400 invalid_request_error`.<Cite id="F24 F38" />
+Mid-stream failure is the fourth recovery path. Once `200` headers are sent, an API error may arrive as `event: error` (such as `overloaded_error`), and SDK HTTP retry logic cannot fire retroactively.<Cite id="F36" /> Interrupted `tool_use` and `thinking` blocks cannot be partially recovered; resume from the most recent text block.<Cite id="F25" /> On Claude 4.6 and later models, resume with a `user` message telling the model to continue — assistant prefill is unsupported and returns `400 invalid_request_error`.<Cite id="F24 F38" />
 
 <Figure caption="A stream that died mid-turn: discard the unrecoverable block, then resume from captured text with a user message.">
   <Sequence actors={["Client", "Claude API"]} messages={[
@@ -226,7 +141,7 @@ Mid-stream failure is the fourth recovery path. Once `200` headers are sent, an 
 
 ## Cross-platform fallback and feature parity
 
-**Cross-platform fallback** routes traffic to an independent capacity pool during a sustained outage, while **feature parity** defines the endpoints, tools, and response headers that the target pool actually supports. Every platform enforces different payload limits, routing models, and feature sets. Claude Platform on AWS is the closest drop-in: its pool is separate from both the first-party Claude API and Amazon Bedrock, so multi-platform workloads can fail over between them with near-complete Messages API parity.<Cite id="F30" /> Other clouds are not simple URL swaps.
+**Cross-platform fallback** routes traffic to an independent capacity pool during a sustained outage, while **feature parity** defines the endpoints, tools, and response headers that the target pool actually supports. Every platform enforces different payload limits, routing models, and feature sets. Claude Platform on AWS is the closest drop-in: its pool is separate from both the first-party Claude API and Amazon Bedrock, so multi-platform workloads can fail over between them with near-complete Messages API parity.<Cite id="F30" /> Check authentication, feature support, quotas, and data residency before switching platforms.
 
 | Platform | Max payload | Capacity and routing | Server-side `fallbacks` |
 |---|---|---|---|
@@ -249,7 +164,7 @@ Beta headers (`server-side-fallback-2026-07-01`, `model-context-window-exceeded-
 
 ## Decision criteria
 
-Choose each recovery action from the response signal rather than raw error counts. Inspect fields in order: HTTP status, `error.type`, `error.details.error_code` on `429`s, `retry-after` and `anthropic-ratelimit-*`, then `stop_reason` and `stop_details` on every `200`.<Cite id="F6 F9 F14 F20 F26 F39" />
+Choose each recovery action from the response signal rather than raw error counts. Inspect fields in order: HTTP status, `error.type`, `error.details.error_code` on `429`s and available `retry-after` and `anthropic-ratelimit-*` headers; inspect `stop_reason` and any `stop_details` on successful Messages responses.<Cite id="F6 F9 F14 F20 F26 F39" />
 
 1. **Fail fast** on `400`, `401`, `402`, `403`, `404`, `413`, and spend-cap `429`: retrying cannot fix request shape, credentials, billing, permissions, or payload size.<Cite id="F1 F2 F4 F6 F41 F42 F43" />
 2. **Retry within budget** on `408`, rate or ramp `429`, `500`, `504`, `529`, and timeouts, honoring `retry-after` with jitter.<Cite id="F16 F35 F39" />
@@ -258,11 +173,11 @@ Choose each recovery action from the response signal rather than raw error count
 5. **Fail over** only after confirming the target pool supports every feature and payload size in the request.<Cite id="F5 F29 F31 F32 F33" />
 6. **Degrade the workload** — batch, reduce effort, shrink context, or shift to a model with separate rate-limit headroom — when retries and failover are exhausted.
 
-Log per-incident signals: HTTP status and `error.type`, presence of `retry-after`, the tightest `anthropic-ratelimit-*` limit, retry ratio, circuit-breaker state per endpoint, and the `stop_reason` distribution.<Cite id="F9 F14 F20 F35" /> A rising `refusal` rate points to a prompt or traffic-mix shift, whereas rising `529` rates at a healthy retry ratio indicate upstream capacity pressure.<Cite id="F8 F26" />
+Log per-incident signals: HTTP status and `error.type`, presence of `retry-after`, the tightest `anthropic-ratelimit-*` limit, retry ratio, circuit-breaker state per endpoint, and the `stop_reason` distribution.<Cite id="F9 F14 F20 F35" /> Investigate rising refusals for prompt or traffic-mix changes; investigate rising `529` rates for upstream capacity pressure.<Cite id="F8 F26" />
 
 ## Failure modes and recovery
 
-Stacked retries, blind `429` retries, same-model refusal retries, and parity-blind failover cause most production reliability incidents.
+Stacked retries, blind `429` retries, same-model refusal retries, and parity-blind failover are common failure modes.
 
 <Callout type="mistake" title="Stacking an outer retry loop onto SDK retries">
 
@@ -272,7 +187,7 @@ The SDKs already retry transient failures twice by default,<Cite id="F16" /> so 
 
 <Callout type="mistake" title="Retrying a refusal on the same model">
 
-A refusal is a policy stop: re-sending a refused request to the same model usually triggers another refusal,<Cite id="F27" /> so discard partial output and fall back or reset context. For `reasoning_extraction`, revise the prompt — there is no fallback model.<Cite id="F26 F28" />
+A refusal is a policy stop: re-sending a refused request to the same model usually triggers another refusal,<Cite id="F27" /> so discard partial output and consider an appropriate fallback or reset context. For `reasoning_extraction`, revise the prompt — no fallback model is recommended.<Cite id="F26 F28" />
 
 </Callout>
 
@@ -282,16 +197,16 @@ Server-side `fallbacks`, the Files API, server tools, code execution, programmat
 
 </Callout>
 
-Two stream and turn-continuation traps also require explicit handling: resuming a Claude 4.6+ stream with assistant prefill returns `400`, so capture completed text and continue from a `user` message;<Cite id="F24 F38" /> and on `pause_turn`, dropping `container.id` loses sandbox state while adding user text breaks continuation.<Cite id="F21" />
+Two stream and turn-continuation traps also require explicit handling: resuming a Claude 4.6+ stream with assistant prefill returns `400`, so capture received text and continue from a `user` message;<Cite id="F24 F38" /> and on `pause_turn`, return the container ID if present to retain its files, and continue without a trailing user message.<Cite id="F21" />
 
 ## Exam lens
 
 <ExamLens>
 
 - Branch on `stop_reason`, not HTTP status: a `200` can be truncated (`max_tokens`, `model_context_window_exceeded`), paused (`pause_turn`), or refused (`refusal`).<Cite id="F20 F21 F23 F26" />
-- Separate a spend-cap `429` (`enforced_spend_limit_reached`, no `retry-after`) from a rate or ramp `429` (has `retry-after`, recovers with caching and backoff).<Cite id="F6 F11 F12 F14 F39" />
+- Separate a spend-cap `429` (`enforced_spend_limit_reached`, no `retry-after`) from a rate or ramp `429` (pace retries, honor `retry-after` when present, and consider caching).<Cite id="F6 F11 F12 F14 F39" />
 - Check parity before failover: Bedrock, Google-managed Vertex AI, and Azure-hosted Foundry lack server-side fallback and several tool and file APIs; Claude Platform on AWS keeps near-complete parity on its own pool.<Cite id="F29 F30 F31 F32 F33" />
-- Resume mid-stream failures on Claude 4.6+ with a `user` message, discard unrecoverable `tool_use` and `thinking` blocks, and do not stack outer retries without idempotency keys.<Cite id="F16 F24 F25 F35 F38" />
+- Resume mid-stream failures on Claude 4.6+ with a `user` message, discard unrecoverable `tool_use` and `thinking` blocks, and do not stack outer retries without considering retry budgets and side effects.<Cite id="F16 F24 F25 F35 F38" />
 
 </ExamLens>
 
@@ -299,13 +214,13 @@ Two stream and turn-continuation traps also require explicit handling: resuming 
 
 <SelfCheck question="An API call returns HTTP 429 with no retry-after header and error.details.error_code set to enforced_spend_limit_reached. What does the Python SDK do by default, and what should your service do?">
 
-The SDK retries twice and every attempt fails: a tier spend cap returns `429` with no `retry-after` until access resumes.<Cite id="F6 F16" /> Inspect `error.details.error_code`, stop retrying, alert billing, and move work elsewhere only if feature parity permits.<Cite id="F30" />
+The SDK retries twice by default, but retries do not clear the cap: a tier spend cap returns `429` with no `retry-after` until access resumes.<Cite id="F6 F16" /> Inspect `error.details.error_code`, stop retrying, alert billing, and move work elsewhere only if feature parity permits.<Cite id="F30" />
 
 </SelfCheck>
 
 <SelfCheck question="A streaming response fails mid-turn with event: error (overloaded_error) halfway through a tool_use block. Can you recover it with assistant prefill?">
 
-No. Partial `tool_use` and `thinking` blocks cannot be partially recovered, and Claude 4.6+ models reject assistant prefill with `400`; resume from the last completed text block with a `user` message.<Cite id="F24 F25 F38" />
+No. Partial `tool_use` and `thinking` blocks cannot be partially recovered, and Claude 4.6+ models reject assistant prefill with `400`; resume from the most recent text block with a `user` message.<Cite id="F24 F25 F38" />
 
 </SelfCheck>
 

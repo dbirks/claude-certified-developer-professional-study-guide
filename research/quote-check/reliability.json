@@ -223,5 +223,10 @@
     "id": "F45",
     "status": "ok",
     "url": "https://platform.claude.com/docs/en/api/rate-limits"
+  },
+  {
+    "id": "F46",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback"
   }
 ]

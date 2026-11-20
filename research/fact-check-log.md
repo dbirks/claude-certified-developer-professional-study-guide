@@ -168,7 +168,7 @@ Log: [fact-check/practice-domain-7.md](fact-check/practice-domain-7.md) · passe
 
 ### 2.1 Reliability Engineering for Claude Services
 
-Log: [fact-check/reliability.md](fact-check/reliability.md) · passes: 1 · reviewer(s): Gemini 4 Hydrogen (High)
+Log: [fact-check/reliability.md](fact-check/reliability.md) · passes: 2 · reviewer(s): Gemini 4 Hydrogen (High); OpenAI Codex
 
 - Claims checked: 48 cited claims/rows + 7 uncited factual/numeric/API claims swept (55 total)
 - Supported: 34 · Fixed (PARTIAL/uncited): 21 · Removed: 0 (1 SelfCheck scenario swapped from unconfirmed server-side fallback on AWS to Files API)

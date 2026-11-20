@@ -406,3 +406,12 @@
   source: anthropic-docs
   quote: "The Message Batches API has its own set of rate limits, which are shared across all models."
   accessed: 2026-11-19
+
+- id: F46
+  claim: "Server-side refusal fallback does not handle rate limits, overload, or server errors."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback
+  title: "Refusals and fallback"
+  source: anthropic-docs
+  quote: "Only a safety classifier decline triggers the fallback. A rate limit, overload, or server error on the requested model is returned to you as-is."
+  accessed: 2026-11-19

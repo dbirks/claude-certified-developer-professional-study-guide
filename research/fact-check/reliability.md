@@ -23,3 +23,31 @@ Checked: 2026-11-19 · Reviewer: Gemini 4 Hydrogen (High)
 ## Remaining concerns
 - Live execution of the Python `call_with_resilience` wrapper against live API endpoints was not performed (`anthropic` Python package is not installed in the workspace environment); syntax was verified via `ast.parse` and identifiers via the official `anthropic-sdk-python` repository (`_exceptions.py`, `types/message.py`) and `platform.claude.com/docs`.
 - Whether `fallbacks` (`server-side-fallback-2026-07-01`) executes server-side fallback on Claude Platform on AWS is ambiguous across docs: `refusals-and-fallback` names only the first-party Claude API and Google Cloud (Anthropic managed), whereas `fallback-credit` lists the `server-side-fallback-2026-07-01` header for Claude Platform on AWS and Microsoft Foundry (the latter explicitly rejects `fallbacks`). Kept the chapter table and SelfCheck conservative on this point.
+
+## Second pass (OpenAI Codex)
+
+Checked: 2026-11-19 · Reviewer: OpenAI Codex
+
+### Summary
+
+- Checked all 45 existing citation entries and their chapter uses (119 citation components after editing), plus uncited factual statements. At the citation-entry level, 38 remained supported as used and 7 required narrower wording or qualification; these counts do not equate a citation component with a single atomic claim.
+- Fixed 7 groups of cited claims and several uncited recommendations; removed 1 unsafe code example and replaced it. Added 1 citation (F46). Checked 1 Python code block; syntax parsed, but no live API call was made.
+- Compared the chapter with all skill 2.1 sub-objectives and the official sample decision patterns. Citation check, quote check, and scoped Astro build passed.
+
+### Changes
+
+- Retry example — The early-window exception allowed unbounded retries and the failover bypassed the retry budget and most parity checks → replaced the wrapper with a single-attempt, spend-cap classification example and made scheduling and failover explicit caller responsibilities (F6, F17, F39).
+- Retry arithmetic — A 10% budget was described as an unconditional guarantee, while the implementation did not enforce it → state the window and strict enforcement assumptions; distinguish cache hits from initial writes and misses (F12, F35).
+- Cross-model fallback — The chapter did not clearly distinguish refusal fallback from availability failover → state that server-side refusal fallback does not retry rate limits, overload, or server errors; qualify middleware credit for Haiku 5.5 (F40, F46).
+- Stream recovery — “Completed text block” was more restrictive than the source and the error wording implied every interruption produces an error event → use the most recent text block and qualify API error events (F24, F25, F36).
+- Tool continuation — The server-tool rule was generalized to all simultaneous tool use and omitted container and MCP continuation requirements → restrict it to the documented parallel group and include those fields (F22).
+- Rate-limit handling and cache accounting — Defaults and header availability were overstated → qualify default ITPM limits, cache-hit assumptions, and `retry-after` availability; frame pacing and caching as choices (F11, F12, F14, F39).
+- Error classification and exception table — Absolute claims about client errors and causation were too broad; less familiar status-specific subclasses lacked SDK documentation in their cited entries → qualify the claim and use documented base classes (F1–F4, F17).
+- Decision guidance — A purported fixed degradation order, an unsupported claim about most incidents, and deterministic telemetry diagnoses were presented as facts → recast as workload-dependent choices and investigations. Distinguish reducing effort from shrinking input.
+- `pause_turn` and stop handling — Unqualified claims about lost sandbox state and OTPM cost were too broad → specify retaining container files and distinguish the `max_tokens` setting from tokens actually generated (F13, F21).
+
+### Remaining concerns
+
+- The official fallback documentation and other platform documentation differ in how explicitly they describe server-side fallback on Claude Platform on AWS; the chapter retains the uncertainty. Verify the exact beta and platform before deploying (F29, F30).
+- The example was checked for syntax and against documentation and SDK source, not executed with credentials. SDK and cloud feature details can change.
+- The requested cleanup command was rejected by the command safety filter; the generated build directory was removed using Python instead.
