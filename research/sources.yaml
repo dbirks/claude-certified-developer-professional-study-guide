@@ -1110,6 +1110,8 @@
   accessed: 2026-11-19
   cited_by:
     - scale-throughput:F33
+    - scale-throughput:F45
+    - scale-throughput:F53
 - url: https://platform.claude.com/docs/en/api/opentelemetry/spans
   title: OpenTelemetry span reference
   source: anthropic-docs
@@ -1169,6 +1171,17 @@
     - scale-throughput:F23
     - scale-throughput:F24
     - scale-throughput:F25
+    - scale-throughput:F36
+    - scale-throughput:F37
+    - scale-throughput:F38
+    - scale-throughput:F39
+    - scale-throughput:F40
+    - scale-throughput:F41
+    - scale-throughput:F42
+    - scale-throughput:F43
+    - scale-throughput:F44
+    - scale-throughput:F47
+    - scale-throughput:F52
     - monitoring-alerting:F23
     - monitoring-alerting:F30
     - monitoring-alerting:F31
@@ -1202,6 +1215,12 @@
     - scale-throughput:F31
     - scale-throughput:F32
     - scale-throughput:F34
+    - scale-throughput:F46
+    - scale-throughput:F49
+    - scale-throughput:F50
+    - scale-throughput:F51
+    - scale-throughput:F54
+    - scale-throughput:F55
     - llm-as-judge:F26
     - cost-architecture:F18
     - cost-architecture:F19
@@ -1225,6 +1244,12 @@
     - retrieval-grounding:F15
     - retrieval-grounding:F23
     - retrieval-grounding:F31
+    - retrieval-grounding:F38
+    - retrieval-grounding:F39
+    - retrieval-grounding:F40
+    - retrieval-grounding:F41
+    - retrieval-grounding:F42
+    - retrieval-grounding:F43
     - telemetry:F31
     - evaluation-design:F31
     - online-quality:F19
@@ -1608,6 +1633,7 @@
   accessed: 2026-11-19
   cited_by:
     - scale-throughput:F20
+    - scale-throughput:F48
     - monitoring-alerting:F32
     - cost-architecture:F34
 - url: https://platform.claude.com/docs/en/managed-agents/choosing-an-environment
@@ -2015,6 +2041,7 @@
     - retrieval-grounding:F34
     - retrieval-grounding:F36
     - retrieval-grounding:F22
+    - retrieval-grounding:F37
     - evaluation-design:F29
 - url: https://www.anthropic.com/research/demystifying-evals-for-ai-agents
   title: Demystifying evals for AI agents

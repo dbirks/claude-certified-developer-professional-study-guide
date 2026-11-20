@@ -1,0 +1,210 @@
+---
+title: "Retrieval and Knowledge Grounding at Scale"
+summary: "Decide between direct context, indexed RAG, and agentic search, and locate a retrieval-quality failure at the stage where evidence is lost."
+kind: skill
+skill: "2.4"
+slug: retrieval-grounding
+status: fact-checked
+lastReviewed: "2026-11-19"
+---
+
+Retrieval decides what Claude is able to know about your data on a given turn. In conventional **Retrieval-Augmented Generation (RAG)**, a vector database finds the chunks most semantically similar to the query and adds them to the model prompt.<Cite id="F1" /> Production grounding work is therefore not one decision but a chain: how evidence gets into the prompt, how chunks are indexed and matched, how candidates are ranked, how the answer is tied back to source text, and where the chain breaks when an answer is wrong. A wrong answer caused by missing evidence cannot be fixed by editing the generation prompt, so this chapter treats retrieval as a measurable pipeline rather than a single component.
+
+## How evidence reaches the prompt
+
+Three architectures supply domain context, and they trade latency, freshness, and engineering effort differently.
+
+**Direct context** puts the whole corpus in the prompt. Anthropic's rule of thumb: a knowledge base smaller than 200,000 tokens (about 500 pages of material) can sometimes be supplied in the prompt with no RAG or similar method.<Cite id="F24" /> That figure is a heuristic, not a safe limit for your application — distractors, retrieval-free reasoning load, and task quality still decide whether quality holds.
+
+**Indexed retrieval (RAG)** splits documents into smaller chunks, indexes them, and selects the most relevant chunks per query at runtime.<Cite id="F37 F1" />
+
+**Agentic, just-in-time retrieval** defers loading. Agents keep lightweight identifiers — file paths, stored queries, web links — and load data into context at runtime with tools; Anthropic built Claude Code this way for complex data analysis over large databases.<Cite id="F8" /> Claude Code is a hybrid: `CLAUDE.md` content is dropped into context up front while primitives such as glob and grep let it navigate its environment and retrieve files just in time, which bypasses stale indexing and complex syntax trees.<Cite id="F9" />
+
+The cost of autonomy is latency and design work. Runtime exploration is slower than retrieving pre-computed data, and it requires deliberate engineering to give the model the right tools and heuristics for navigating its information landscape.<Cite id="F32" /> In some settings, effective agents use a hybrid strategy: retrieve some data up front for speed and let the agent explore further at its discretion, with the "right" level of autonomy depending on the task.<Cite id="F10" />
+
+| Situation | Default choice | Evidence to check |
+|---|---|---|
+| Corpus under roughly 200,000 tokens, stable | Direct context, no index<Cite id="F24" /> | Answer quality with the full corpus in context; prompt cost per call |
+| Large corpus, repeatable low-latency lookups, predictable filtering | Indexed RAG<Cite id="F1" /> | Recall on a labeled query set; p95 retrieval latency |
+| Evidence found by navigation (codebases, directories, linked pages) or a corpus too dynamic to reindex cheaply | Agentic just-in-time tools<Cite id="F8 F9" /> | Tool-call count per answer; exploration latency<Cite id="F32" /> |
+| Fast common cases plus long-tail exploration | Hybrid: up-front context plus an exploration loop<Cite id="F10" /> | Share of answers that need the tool loop |
+
+## Indexing and contextual retrieval
+
+**Contextual Retrieval** prepends chunk-specific explanatory context to each chunk before embedding it ("Contextual Embeddings") and before creating the BM25 index ("Contextual BM25").<Cite id="F2" /> Splitting documents into chunks can leave individual chunks without sufficient context;<Cite id="F37" /> prepending context restores the document, section, and referent cues lost when a chunk is separated from its source. Anthropic's contextualizer generated context that was usually 50–100 tokens, prepended before both indexing steps.<Cite id="F26" />
+
+Chunking itself is a tunable, not a constant: the choice of chunk size, chunk boundary, and chunk overlap affects retrieval performance.<Cite id="F4" /> Recommended practice is to preserve semantic units (paragraphs, headings, code symbols, table rows), attach stable document and section identifiers, and evaluate size and overlap against real questions rather than adopting one magic token count. Too-small chunks lose referents and relationships; too-large chunks dilute matching and consume prompt budget. Because the contextual prefix is generated for retrieval, keep the original passage as the text you quote and cite, so the prefix never becomes the factual evidence.
+
+Embedding models are not interchangeable: match the model to your domain vocabulary, latency budget, and context window, and keep indexing and query preprocessing consistent. Anthropic found that Contextual Retrieval improved performance across all embedding models it tested, though some models benefit more, with Gemini and Voyage embeddings proving particularly effective.<Cite id="F34" /> Where you use Voyage embeddings for retrieval, the provider recommends specifying `input_type` as `query` or `document` depending on how the text is used,<Cite id="F20" /> and its `truncation` parameter defaults to `True`, truncating over-length inputs to fit the model's context length before vectorization unless you set it to `False`.<Cite id="F21" /> Size chunks against the selected model's limit, not against a generic budget.
+
+## Candidate retrieval and ranking
+
+**Hybrid retrieval** combines two matchers that fail differently. Dense vector retrieval captures semantic similarity;<Cite id="F1" /> **BM25** is a ranking function using lexical matching to find precise word or phrase matches, and it is particularly effective for queries containing unique identifiers or technical terms.<Cite id="F5" /> Anthropic's pipeline merges and deduplicates the two result sets using rank fusion techniques.<Cite id="F25" /> Fuse ranks or normalize scores rather than assuming cosine similarity and raw BM25 scores are comparable, and run authorization and metadata filters before candidate generation so forbidden chunks never reach ranking.
+
+**Reranking** filters the merged candidate set so that only the most relevant chunks pass to the model.<Cite id="F36" /> Anthropic reports a built-in trade-off between reranking more chunks for better performance and reranking fewer for lower latency and cost.<Cite id="F7" /> Voyage's reranker client method signature is `rerank(query, documents, model, top_k=None, truncation=True)`.<Cite id="F27" />
+
+The reported gains depend on the metric, so read it precisely. Anthropic evaluates with 1 minus recall@20, which measures the percentage of relevant documents that fail to be retrieved within the top 20 chunks — a retrieval metric, not answer accuracy.<Cite id="F22" /> In its experiments, Contextual Embeddings reduced that top-20-chunk retrieval failure rate by 35 percent (5.7 percent to 3.7 percent), and combining Contextual Embeddings with Contextual BM25 reduced it by 49 percent (5.7 percent to 2.9 percent).<Cite id="F3" /> Adding reranking on top of contextual embeddings and contextual BM25 reduced it by 67 percent (5.7 percent to 1.9 percent).<Cite id="F6" /> These are Anthropic's datasets and configurations; no universal effect size or default chunk size follows, so reproduce them on your corpus.
+
+**Worked example (illustrative, not a benchmark):** a support assistant answers whether error `ZX-420` affects tenant-isolated exports after the April rollout. A 180-token release-note chunk says "This patch disables asynchronous export for isolated tenants," while product, version, and heading live elsewhere in the source. The index stores 400-token semantic chunks with contextual metadata ("April 2026 export release note for ZX-420"), builds Voyage document embeddings plus a BM25 index, filters by tenant entitlement and effective date, retrieves 80 candidates, reranks to 8, and sends source text with IDs as `search_result` blocks with citations enabled. The query deliberately mixes exact-code lookup, semantic phrasing, and date plus tenant constraints, and success is measured as recall@80 and precision@8 against labeled evidence.
+
+The following block is **pseudocode** (not runnable): provider-neutral retrieval with the Anthropic Messages API shape.
+
+```python
+q = "Does ZX-420 affect tenant-isolated exports after the April rollout?"
+principal = auth.current_principal()
+filters = {"tenant": principal.tenant, "effective_at": "2026-04-30", "status": "published"}
+
+# Each branch applies the same authorization/lifecycle filters.
+lexical = bm25.search(q, filters=filters, k=80)
+query_vec = voyage.embed([q], model=EMBED_MODEL, input_type="query").embeddings[0]
+semantic = vector_index.search(query_vec, filters=filters, k=80)
+candidates = rank_fuse_and_dedupe(lexical, semantic)
+ranked = voyage.rerank(query=q, documents=[c.text for c in candidates],
+                       model=RERANK_MODEL, top_k=8)
+evidence = [candidates[item.index] for item in ranked.results]
+
+# Build source-backed custom content. Keep contextualized index text distinct
+# from the original evidence used for citation content.
+search_result = {
+    "type": "search_result", "source": evidence[0].canonical_url,
+    "title": evidence[0].title,
+    "content": [{"type": "text", "text": evidence[0].original_text}],
+    "citations": {"enabled": True},
+}
+# Send `search_result` in the custom search tool's tool_result; instruct Claude:
+# answer only from supplied evidence, cite claims, and say when evidence is absent.
+```
+
+Storage, rank fusion, authorization, and retrieval SDKs are application-specific, which is why this is pseudocode. Voyage model identifiers and response fields should be checked against current provider docs.
+
+## Grounding contracts: citations and source attribution
+
+The Messages API parses citations server-side, so citations are guaranteed to contain valid pointers to the provided documents and the API extracts `cited_text` directly from them.<Cite id="F15" /> That guarantee is about provenance and shape; it is not a statement that the cited text supports the claim.
+
+A document block carries `type: "document"`, a `source` object, optional `title` and `context` (passed to the model but not cited from), and `citations: {"enabled": true}` across PDF, plain-text, or custom-content documents.<Cite id="F38 F39 F43" /> Enablement must be uniform: a request cannot mix documents that have citations enabled with documents that don't.<Cite id="F11" /> Citation location `type` values for user-provided documents are `char_location` (plain text, 0-indexed character range), `page_location` (PDF, 1-indexed page range), and `content_block_location` (custom content, 0-indexed block range matching the supplied content list), all with exclusive end bounds.<Cite id="F12 F31 F40 F41 F42" />
+
+With a custom-content document, `source.type` is `content` and the `content` field holds a list of content blocks; the API does no further chunking, so each text block you provide is one chunk and the smallest unit Claude can cite.<Cite id="F13" /> Use one source text block per independently citable retrieved chunk when your own retrieval boundaries must survive into the citations.
+
+**`search_result` blocks** are the interface for a custom search or RAG tool: each citation carries the source and title you provided, the same way Claude cites web search results.<Cite id="F14" /> Required fields are `type` (must be `"search_result"`), `source` (any stable string — a URL or an internal identifier such as `kb://article-1234`), `title`, and `content` (an array of text blocks holding the actual content).<Cite id="F33" /> Citations are disabled by default for these blocks and every search result in a request must use the same setting.<Cite id="F35" />
+
+Server-side tools behave differently. Citations are always enabled for web search, and each `web_search_result_location` includes `url`, `title`, `encrypted_index` (a reference that must be passed back in multi-turn conversations), and `cited_text` of up to 150 characters.<Cite id="F16" /> Unlike web search, citations are optional for web fetch and disabled by default.<Cite id="F17" /> A common pattern is to use search to find a page, then fetch to retrieve the full passage that answers the question.
+
+| Contract | Key setting | Gotcha |
+|---|---|---|
+| User document | `citations: {"enabled": true}` per document<Cite id="F11" /> | Mixing enabled and disabled documents in one request is rejected.<Cite id="F11" /> |
+| Custom content | `source.type: "content"`; no extra chunking<Cite id="F13" /> | Citation granularity equals the blocks you supplied.<Cite id="F13" /> |
+| `search_result` | `citations` optional, off by default<Cite id="F35" /> | One result with citations on and another off is invalid.<Cite id="F35" /> |
+| Web search | Always on<Cite id="F16" /> | `encrypted_index` must round-trip in later turns.<Cite id="F16" /> |
+| Web fetch | Off by default<Cite id="F17" /> | Expect no citations unless you enable them.<Cite id="F17" /> |
+| Structured output | Incompatible | Enabling citations and `output_config.format` (or deprecated `output_format`) returns HTTP 400.<Cite id="F23" /> |
+
+<Callout type="version" title="Checked 2026-11-19">
+
+Tool version identifiers move quickly: documented web search versions are `web_search_20250305` (basic search), `web_search_20260209` (adds dynamic filtering), and `web_search_20260318` (adds response inclusion control for agentic workflows),<Cite id="F28" /> and current web fetch examples use `web_fetch_20260318`, with dynamic filtering available from `web_fetch_20260209` onward.<Cite id="F29" /> Voyage model names and limits are similarly version-sensitive. Confirm them against live docs at implementation time; the stable points here are the block shapes and location semantics above.
+
+</Callout>
+
+## Uncertainty declaration and confidence signals
+
+Anthropic's hallucination guidance is to explicitly give Claude permission to admit uncertainty — allow it to say "I don't know" — and make responses auditable by having Claude cite quotes and sources for each claim; you can also instruct Claude to verify each claim after generating a response and retract any claim that lacks a supporting quote.<Cite id="F18 F19" /> These practices reduce risk and do not eliminate hallucination.
+
+Treat confidence as a **calibrated product signal** — an evidence-based score derived outside the prompt — rather than a model's expression of certainty. Recommended practice is to derive it from evidence you control: retrieval coverage for the query, reranker margin or a calibrated relevance band, evidence freshness, agreement between sources, and citation-validation status. A raw similarity score is neither the probability that an answer is correct nor a confidence score for it. Calibrate your bands offline against adjudicated examples, and on low evidence, conflicting sources, missing citations, or stale evidence, instruct Claude to qualify, retrieve again, or abstain. Prompt permission to abstain, but enforce high-stakes policy outside the model, because a prompt is not a gate.
+
+## Stage-by-stage diagnosis
+
+Retrieval quality is a chain, and each transition can drop the evidence the answer needs. Log evidence IDs at every boundary so you can name the first stage where expected evidence disappears.
+
+<Figure caption="Retrieval quality is a chain: log and evaluate the evidence boundary at every transition.">
+  <Flow direction="vertical" steps={[
+    { label: "Ingest documents", note: "preserve source metadata" },
+    { label: "Chunk and contextualize" },
+    { label: "Dense embedding index + BM25 index" },
+    { label: "Normalize / expand query", note: "request + principal" },
+    { label: "ACL and metadata filter" },
+    { label: "Hybrid retrieve", note: "dense + BM25, then rank fusion / dedupe" },
+    { label: "Rerank", note: "candidates → evidence budget" },
+    { label: "Context assembly", note: "source, version, chunk boundaries" },
+    { label: "Messages API answer with cited claims or uncertainty" },
+    { label: "Citation and entailment validation" }
+  ]} />
+</Figure>
+
+| Stage | Symptom and diagnostic | Recovery |
+|---|---|---|
+| Query | Natural-language wording misses corpus vocabulary; inspect normalization, expansion, identifiers, language, filters | Add targeted rewrites or lexical alternatives; preserve exact strings |
+| Filter | Document exists but a tenant, ACL, date, locale, or status predicate excludes it | Inspect filter decisions with principal and policy version; repair metadata or authorization mapping |
+| Retrieve | Evidence is eligible but absent from vector or BM25 candidates; report recall@k by query cohort and retriever<Cite id="F22" /> | Tune chunking and embedding,<Cite id="F4" /> add BM25 for exact identifiers,<Cite id="F5" /> contextualize chunks,<Cite id="F2" /> raise candidate k, rebuild a stale index |
+| Rerank | Evidence entered candidates but fell below the cutoff; compare pre- and post-rerank rank against relevance labels | Adjust reranker or query formulation and the top-k cutoff, weighing the latency and cost trade-off<Cite id="F7" /> |
+| Context | Candidate selected but omitted, truncated, duplicated, badly ordered, or stripped of metadata | Log the evidence IDs and text spans actually sent to Claude; cap redundancy; preserve source, version, and chunk boundaries |
+| Answer | Evidence reached Claude but the claim is unsupported, conflates sources, or should have been an abstention | Prompt source-only reasoning and uncertainty; use direct quotes for audit and groundedness evaluation<Cite id="F19" /> |
+| Citation validation | Citation absent, malformed, points to the wrong span or revision, or the cited text does not entail the claim | Validate location indices and source IDs against stored content;<Cite id="F12 F31" /> run coverage and entailment checks, then repair or retract the claim<Cite id="F19" /> |
+
+The diagnostic invariant to internalize: **"present in the corpus" is only an ingestion fact.** For an answer to be grounded, the evidence must be current, authorized, indexed, matched by the query, survive ranking, fit the assembled context, influence the answer, and validate against its citation target. A document existing somewhere in the corpus is not proof that the query could retrieve it, that filters admitted it, or that its evidence reached Claude.
+
+## Decision criteria
+
+Choose the architecture from data shape and query shape, then set cutoffs from measurements.
+
+1. **Direct context** when the corpus is small and stable enough to sit in the prompt outright.<Cite id="F24" />
+2. **Indexed RAG** when the corpus is large, queries repeat, and latency must be predictable.<Cite id="F1" />
+3. **Agentic just-in-time tools** when evidence is discovered by navigation or the corpus changes faster than an index refresh justifies — accepting slower runtime exploration and the tool engineering it needs.<Cite id="F8 F32" />
+4. **Hybrid retrieval** whenever queries mix paraphrase with exact identifiers, since BM25 covers the unique strings and dense vectors cover the concepts.<Cite id="F5 F1" />
+5. **Contextualize chunks** when chunks lose their referents; verify the gain on your own data before shipping the effect size Anthropic reported.<Cite id="F2 F3" />
+6. **Rerank the fused candidate set** after filtering, and pick the cutoff from evidence recall, latency, and cost rather than from habit.<Cite id="F36 F7 F25" />
+
+The evidence to look at: a labeled query set with expected evidence IDs and ACL context, recall@k after candidate retrieval (did relevant evidence enter the top k?), precision@k (how much of the top k is relevant?), the same numbers after reranking, evidence coverage in the assembled prompt, and answer-level groundedness. High recall with low groundedness points downstream at context assembly and prompting; low recall points upstream at query handling, filters, chunking, and embedding.
+
+## Failure modes and recovery
+
+Most retrieval incidents are attribution errors: fixing the wrong stage, or trusting a signal that does not mean what it appears to mean.
+
+<Callout type="mistake" title='Treating "in the corpus" as "received by Claude"'>
+
+Editing the generation prompt cannot recover evidence the model never got. Walk the stages in order — query, filter, retrieve, rerank, context — and log evidence IDs at each boundary, because a chunk must be indexed, authorized, matched, ranked, and assembled before it can support a claim. Anthropic's own metric is 1 minus recall@20 at the retrieval stage,<Cite id="F22" /> not end-to-end correctness.
+
+</Callout>
+
+<Callout type="mistake" title="Vector-only search for exact identifiers">
+
+Dense similarity is a weak matcher for `ERR-4017`, product IDs, version names, and error codes. BM25 lexical matching is particularly effective for queries with unique identifiers or technical terms,<Cite id="F5" /> so run both retrievers and merge with rank fusion.<Cite id="F25" />
+
+</Callout>
+
+<Callout type="mistake" title="Enabling citations next to strict structured outputs">
+
+Citations cannot be used together with structured outputs: enabling citations on any user-provided document or `search_result` block while also sending `output_config.format` (or the deprecated `output_format`) makes the API return a 400 error.<Cite id="F23" /> Return citation-bearing text blocks and parse and validate the structure in application code.
+
+</Callout>
+
+Two more frequent ones: reranking before authorization filters leaks disallowed candidates into ranking and prompts, and citing a contextual prefix as factual evidence misattributes generated text to your source — cite the original passage, since contextual prefixes are added for indexing.<Cite id="F2" /> Also check the default before blaming the model: web fetch citations and `search_result` citations are both disabled unless you enable them,<Cite id="F17 F35" /> and similarity scores are not calibrated confidence.
+
+## Exam lens
+
+<ExamLens>
+
+- Match architecture to corpus shape: small and stable favors direct context,<Cite id="F24" /> large and frequently queried favors indexed retrieval,<Cite id="F1" /> iterative navigation or highly dynamic evidence favors just-in-time tools,<Cite id="F8" /> and fast-common-plus-exploratory-long-tail favors a hybrid.<Cite id="F10" />
+- For exact identifiers plus paraphrase in the same query, choose hybrid dense plus BM25, fuse candidates,<Cite id="F5 F25" /> and rerank only after broad recall, selecting the cutoff from recall, latency, and cost measurements.<Cite id="F36 F7" />
+- When a grounded claim is wrong, first prove whether relevant evidence was authorized and reached the prompt. Do not "fix the prompt" for evidence missing at query, filter, retrieval, or reranking stages.
+- A citation proves where the cited text came from, not that the text entails every claim; validate coverage and allow abstention when evidence is missing or conflicting.<Cite id="F15 F18 F19" />
+
+</ExamLens>
+
+## Self-check
+
+<SelfCheck question="A relevant release note exists but is absent from the top 80 results. Is the generation prompt the first thing to change?">
+
+No. Inspect query wording, filters, index freshness, chunking, and candidate recall first; the model cannot cite evidence it never received. Anthropic's retrieval metric is 1 minus recall@20, so candidate-set failures are measured before any generation happens.<Cite id="F22" />
+
+</SelfCheck>
+
+<SelfCheck question="Why combine BM25 and dense retrieval for a query containing `E_CONN_RESET_47`?">
+
+BM25 uses lexical matching to find precise words or phrases and is effective for unique identifiers,<Cite id="F5" /> while dense retrieval matches a paraphrase of the symptom.<Cite id="F1" /> Merge and deduplicate the two candidate sets with rank fusion,<Cite id="F25" /> then rerank the union.<Cite id="F36" />
+
+</SelfCheck>
+
+<SelfCheck question="What does a `content_block_location` citation tell you, and what does it not tell you?">
+
+It identifies the 0-indexed content-block range, with an exclusive end, from the custom content blocks you supplied, and the API guarantees the pointer is valid against those documents.<Cite id="F12 F31 F15" /> It does not prove the passage entails the claim, that the revision is current, or that the requester was authorized to read it.
+
+</SelfCheck>

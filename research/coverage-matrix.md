@@ -12,9 +12,9 @@ Columns: research packet exists · citation entries · quotes verified verbatim 
 | 1.3 | Architecture Selection at Scale | 17% | yes | 30 | 30/30 | — | — |
 | 1.4 | Context and Memory Architecture | 17% | yes | 35 | 35/35 | — | — |
 | 2.1 | Reliability Engineering for Claude Services | 20% | yes | 45 | 45/45 | [fact-checked](../content/02-production-integration/01-reliability.mdx) · 2698 words · 45 cited | done |
-| 2.2 | Scale and Throughput Management | 20% | yes | 35 | 35/35 | [draft](../content/02-production-integration/02-scale-throughput.mdx) · 2592 words · 35 cited | — |
-| 2.3 | Production MCP and Change Management | 20% | yes | 39 | 39/39 | — | — |
-| 2.4 | Retrieval and Knowledge Grounding at Scale | 20% | yes | 35 | 35/35 | [draft](../content/02-production-integration/04-retrieval-grounding.mdx) · 2692 words · 35 cited | — |
+| 2.2 | Scale and Throughput Management | 20% | yes | 55 | 55/55 | [draft](../content/02-production-integration/02-scale-throughput.mdx) · 2758 words · 55 cited | done |
+| 2.3 | Production MCP and Change Management | 20% | yes | 39 | 39/39 | [draft](../content/02-production-integration/03-mcp-change-management.mdx) · 2705 words · 39 cited | — |
+| 2.4 | Retrieval and Knowledge Grounding at Scale | 20% | yes | 42 | 42/42 | [fact-checked](../content/02-production-integration/04-retrieval-grounding.mdx) · 2721 words · 42 cited | done |
 | 3.1 | Telemetry and Instrumentation | 12% | yes | 35 | 35/35 | — | — |
 | 3.2 | Production Monitoring and Alerting | 12% | yes | 33 | 33/33 | — | — |
 | 3.3 | Trace Analysis at Scale | 12% | yes | 29 | 29/29 | — | — |
@@ -33,4 +33,4 @@ Columns: research packet exists · citation entries · quotes verified verbatim 
 | 8.3 | Unattended and Event-Driven Agent Operations | 10% | yes | 35 | 35/35 | — | — |
 | 8.4 | Organization-Wide Coding Agent Configuration | 10% | yes | 33 | 33/33 | — | — |
 
-Unique source URLs: 253 · citation entries: 855
+Unique source URLs: 253 · citation entries: 882

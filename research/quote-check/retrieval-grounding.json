@@ -173,5 +173,40 @@
     "id": "F22",
     "status": "ok",
     "url": "https://www.anthropic.com/research/contextual-retrieval"
+  },
+  {
+    "id": "F37",
+    "status": "ok",
+    "url": "https://www.anthropic.com/research/contextual-retrieval"
+  },
+  {
+    "id": "F38",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
+  },
+  {
+    "id": "F39",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
+  },
+  {
+    "id": "F40",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
+  },
+  {
+    "id": "F41",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
+  },
+  {
+    "id": "F42",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
+  },
+  {
+    "id": "F43",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/citations"
   }
 ]

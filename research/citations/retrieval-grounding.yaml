@@ -87,7 +87,7 @@
   url: https://platform.claude.com/docs/en/build-with-claude/citations
   title: "Citations"
   source: anthropic-docs
-  quote: "Set citations.enabled=true on each of your documents. Currently, citations must be enabled on all or none of the documents within a request."
+  quote: "A request can’t mix documents that have citations enabled with documents that don’t."
   accessed: 2026-11-19
 - id: F12
   claim: "Document citation locations use char, page, or content-block indices with documented zero- or one-based conventions."
@@ -141,7 +141,7 @@
   url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool
   title: "Web fetch tool"
   source: anthropic-docs
-  quote: "Unlike web search where citations are always enabled, citations are optional for web fetch and disabled by default. Set \"citations\": {\"enabled\": true} to enable Claude to cite specific passages from fetched documents."
+  quote: "Unlike web search, where citations are always enabled, citations are optional for web fetch and disabled by default."
   accessed: 2026-11-19
   version_note: "Claude Platform web_fetch tool documentation accessed 2026-11-19; the documented current tool version was web_fetch_20260318."
 - id: F18
@@ -302,4 +302,60 @@
   title: "Contextual retrieval in AI systems"
   source: anthropic-research
   quote: "We use 1 minus recall@20 as our evaluation metric, which measures the percentage of relevant documents that fail to be retrieved within the top 20 chunks."
+  accessed: 2026-11-19
+- id: F37
+  claim: "Traditional RAG splits documents into smaller chunks for retrieval, which can strip context needed to retrieve or interpret a chunk."
+  tag: FACT
+  url: https://www.anthropic.com/research/contextual-retrieval
+  title: "Contextual retrieval in AI systems"
+  source: anthropic-research
+  quote: "In traditional RAG, documents are typically split into smaller chunks for efficient retrieval. While this approach works well for many applications, it can lead to problems when individual chunks lack sufficient context."
+  accessed: 2026-11-19
+- id: F38
+  claim: "Messages API citations support PDF, plain text, and custom content documents with citations.enabled set to true."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/citations
+  title: "Citations"
+  source: anthropic-docs
+  quote: "Include documents in any of the supported formats: PDFs, plain text, or custom content documents. Set citations.enabled=true on each of your documents."
+  accessed: 2026-11-19
+- id: F39
+  claim: "A document block's optional title and context fields are passed to Claude but are not cited from."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/citations
+  title: "Citations"
+  source: anthropic-docs
+  quote: "title and context are optional fields that are passed to the model but not used toward cited content."
+  accessed: 2026-11-19
+- id: F40
+  claim: "Plain-text document citations return location type char_location."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/citations
+  title: "Citations"
+  source: anthropic-docs
+  quote: '"type": "char_location", "cited_text": "The grass is green. ", "document_index": 0, "document_title": "Example Document", "start_char_index": 0, "end_char_index": 20'
+  accessed: 2026-11-19
+- id: F41
+  claim: "PDF document citations return location type page_location."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/citations
+  title: "Citations"
+  source: anthropic-docs
+  quote: '"type": "page_location", "cited_text": "Water is essential for life.", "document_index": 1, "document_title": "PDF Document", "start_page_number": 5, "end_page_number": 6'
+  accessed: 2026-11-19
+- id: F42
+  claim: "Custom content document citations return location type content_block_location."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/citations
+  title: "Citations"
+  source: anthropic-docs
+  quote: '"type": "content_block_location", "cited_text": "These are important findings.", "document_index": 2, "document_title": "Custom Content Document", "start_block_index": 0, "end_block_index": 1'
+  accessed: 2026-11-19
+- id: F43
+  claim: "A Messages API document block carries type, source, optional title and context, and citations."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/build-with-claude/citations
+  title: "Citations"
+  source: anthropic-docs
+  quote: '"type": "document", "source": { "type": "text", "media_type": "text/plain", "data": "The grass is green. The sky is blue." }, "title": "My Document", "context": "This is a trustworthy document.", "citations": {"enabled": true}'
   accessed: 2026-11-19
