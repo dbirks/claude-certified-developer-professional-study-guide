@@ -150,7 +150,7 @@
   url: https://platform.claude.com/docs/en/managed-agents/session-operations
   title: "Session operations"
   source: anthropic-docs
-  quote: "Only the agent’s tools and mcp_servers can change after a session is created."
+  quote: "The session must be idle to update the agent."
   accessed: 2026-11-19
 
 - id: F18
@@ -308,4 +308,144 @@
   title: "Cascading Failures: Reducing System Outage"
   source: standard
   quote: "Always use randomized exponential backoff when scheduling retries."
+  accessed: 2026-11-19
+
+- id: F35
+  claim: "Python Agent SDK resume_drops_turn names the user prompt UUID whose turn a resume_session_at truncation discards, refusing resume if non-turn entries lie in the discarded range (SDK 0.2.137+, Claude Code v2.1.223+)."
+  tag: VER
+  url: https://code.claude.com/docs/en/agent-sdk/python
+  title: "Agent SDK reference - Python"
+  source: claude-code-docs
+  quote: "UUID of the user prompt whose turn a resume_session_at truncation discards. When set, the CLI refuses the resume if the discarded range holds entries not attributable to that turn. Requires Python Agent SDK 0.2.137 or later and Claude Code v2.1.223 or later; the CLI bundled with those SDK versions satisfies the Claude Code requirement"
+  accessed: 2026-11-19
+  version_note: "Requires Python Agent SDK 0.2.137+ and Claude Code CLI v2.1.223+."
+
+- id: F36
+  claim: "Python Agent SDK session_store_flush controls when mirrored transcript entries flush to session_store, defaulting to batched per turn or eager per frame."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/python
+  title: "Agent SDK reference - Python"
+  source: claude-code-docs
+  quote: "When to flush mirrored transcript entries to session_store. \"batched\" flushes once per turn or when the buffer fills; \"eager\" triggers a background flush after every frame. Ignored when session_store is None"
+  accessed: 2026-11-19
+
+- id: F37
+  claim: "A SessionStore requires append and load methods, plus four optional listing, summary, and deletion methods."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/session-storage
+  title: "Persist sessions to external storage"
+  source: claude-code-docs
+  quote: "A SessionStore is an object with two required methods, append and load, and four optional methods. The SDK calls append to write transcript entries during a query and load to read them back for resume."
+  accessed: 2026-11-19
+
+- id: F38
+  claim: "Claude Code deletes a session's file snapshots in the retention sweep after about 30 days by default, configurable via cleanupPeriodDays."
+  tag: FACT
+  url: https://code.claude.com/docs/en/checkpointing
+  title: "Checkpointing"
+  source: claude-code-docs
+  quote: "Claude Code deletes a session's file snapshots in the retention sweep, by default about 30 days after the session last saved one. Rewinding to a checkpoint whose snapshots are gone can fail with No files were restored. To keep snapshots longer, set cleanupPeriodDays."
+  accessed: 2026-11-19
+
+- id: F39
+  claim: "Agent SDK file checkpointing does not track subagent edits, though edits from a skill with context: fork running in the foreground are tracked."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/file-checkpointing
+  title: "Rewind file changes with checkpointing"
+  source: claude-code-docs
+  quote: "Subagent edits aren't tracked, while edits from a skill with context: fork running in the foreground are."
+  accessed: 2026-11-19
+
+- id: F40
+  claim: "Rewinding files directly with claude -p --rewind-files requires setting CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/file-checkpointing
+  title: "Rewind file changes with checkpointing"
+  source: claude-code-docs
+  quote: "The SDK enables checkpointing for you, but when you run claude -p directly you must set the CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING environment variable:"
+  accessed: 2026-11-19
+
+- id: F41
+  claim: "All Claude Managed Agents sub-features are ineligible for HIPAA coverage."
+  tag: VER
+  url: https://platform.claude.com/docs/en/managed-agents/overview
+  title: "Claude Managed Agents overview"
+  source: anthropic-docs
+  quote: "Not eligible for HIPAA. Applies to all Managed Agents sub-features."
+  accessed: 2026-11-19
+  version_note: "Managed Agents beta (managed-agents-2026-04-01)."
+
+- id: F42
+  claim: "In Managed Agents, only tools and mcp_servers can change after session creation; model, system, and skills remain fixed."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/managed-agents/session-operations
+  title: "Session operations"
+  source: anthropic-docs
+  quote: "Only the agent’s tools (csharp, go: Tools) and mcp_servers (java, php: mcpServers; csharp: McpServers; go: MCPServers) can change after a session is created."
+  accessed: 2026-11-19
+
+- id: F43
+  claim: "The client-side memory tool is eligible for zero data retention and HIPAA readiness."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool
+  title: "Memory tool"
+  source: anthropic-docs
+  quote: "Memory tool is available on every model and eligible for zero data retention and HIPAA readiness."
+  accessed: 2026-11-19
+
+- id: F44
+  claim: "Sending managed-agents-2026-04-01 together with agent-memory-2026-07-22 on a Managed Agents memory store call returns a 400 error."
+  tag: VER
+  url: https://platform.claude.com/docs/en/managed-agents/memory
+  title: "Using agent memory"
+  source: anthropic-docs
+  quote: "Sending managed-agents-2026-04-01 together with agent-memory-2026-07-22 on a memory store call returns a 400 error."
+  accessed: 2026-11-19
+  version_note: "Beta headers managed-agents-2026-04-01 and agent-memory-2026-07-22."
+
+- id: F45
+  claim: "On Fable 5.1, Opus 5.5, Sonnet 5.5, and Haiku 5.5, failing the preserved-thinking prefix check with prefix_mismatch_behavior unset can yield either a 400 error or no error."
+  tag: VER
+  url: https://platform.claude.com/docs/en/build-with-claude/preserved-thinking/prefix-checks
+  title: "Prefix checks on thinking blocks"
+  source: anthropic-docs
+  quote: "Where the table says “Possible 400 error,” there are two cases: a request that fails the prefix check might get a 400 error or no error."
+  accessed: 2026-11-19
+  version_note: "Applies when prefix_mismatch_behavior is unset on Fable 5.1, Opus 5.5, Sonnet 5.5, and Haiku 5.5; Fable 5.2, Mythos 5.2, and Mythos 5.1 always return 400."
+
+- id: F46
+  claim: "Official Anthropic SDK retry settings (max_retries / maxRetries) do not automatically retry mid-stream SSE errors occurring after an HTTP 200 response."
+  tag: FACT
+  url: https://platform.claude.com/docs/en/api/errors
+  title: "Claude API errors"
+  source: anthropic-docs
+  quote: "When receiving a streaming response over server-sent events (SSE), an error can occur after the API returns a 200 response. In that case, error handling doesn’t follow these standard mechanisms."
+  accessed: 2026-11-19
+
+- id: F47
+  claim: "Managed Agents memory stores cap individual memories at 100 kB (~25k tokens) and hold up to 10,000 memories per store."
+  tag: VER
+  url: https://platform.claude.com/docs/en/managed-agents/memory
+  title: "Using agent memory"
+  source: anthropic-docs
+  quote: "Individual memories within the store are capped at 100 kB (~25k tokens). A store holds a maximum of 10,000 memories."
+  accessed: 2026-11-19
+  version_note: "Beta header agent-memory-2026-07-22."
+
+- id: F48
+  claim: "Python's synchronous fork_session() copies a session transcript into a new session and accepts directory, up_to_message_id, and title parameters."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/python
+  title: "Agent SDK reference - Python"
+  source: claude-code-docs
+  quote: "Copies a session's transcript into a new session so you can take the conversation in another direction while the original stays unchanged. To branch from an earlier point in the conversation, pass up_to_message_id. Synchronous."
+  accessed: 2026-11-19
+
+- id: F49
+  claim: "Agent SDK file checkpointing requires enabling the option and passing replay-user-messages to receive checkpoint UUIDs in the response stream."
+  tag: FACT
+  url: https://code.claude.com/docs/en/agent-sdk/file-checkpointing
+  title: "Rewind file changes with checkpointing"
+  source: claude-code-docs
+  quote: "With the replay-user-messages option set, the user message for each prompt that starts a turn has a UUID that serves as a checkpoint."
   accessed: 2026-11-19

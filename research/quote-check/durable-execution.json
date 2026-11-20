@@ -168,5 +168,80 @@
     "id": "F34",
     "status": "ok",
     "url": "https://sre.google/sre-book/addressing-cascading-failures/"
+  },
+  {
+    "id": "F35",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/python"
+  },
+  {
+    "id": "F36",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/python"
+  },
+  {
+    "id": "F37",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/session-storage"
+  },
+  {
+    "id": "F38",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/checkpointing"
+  },
+  {
+    "id": "F39",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/file-checkpointing"
+  },
+  {
+    "id": "F40",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/file-checkpointing"
+  },
+  {
+    "id": "F41",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/managed-agents/overview"
+  },
+  {
+    "id": "F42",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/managed-agents/session-operations"
+  },
+  {
+    "id": "F43",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool"
+  },
+  {
+    "id": "F44",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/managed-agents/memory"
+  },
+  {
+    "id": "F45",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/build-with-claude/preserved-thinking/prefix-checks"
+  },
+  {
+    "id": "F46",
+    "status": "ok",
+    "url": "https://platform.claude.com/docs/en/api/errors"
+  },
+  {
+    "id": "F47",
+    "status": "ok-loose",
+    "url": "https://platform.claude.com/docs/en/managed-agents/memory"
+  },
+  {
+    "id": "F48",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/python"
+  },
+  {
+    "id": "F49",
+    "status": "ok",
+    "url": "https://code.claude.com/docs/en/agent-sdk/file-checkpointing"
   }
 ]
